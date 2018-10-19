@@ -1,0 +1,4 @@
+<h2>Регистрация
+
+<form method=post action=@{HomeR} enctype=#{enctype}>
+    ^{widget}
