@@ -7,6 +7,8 @@
 {-# LANGUAGE ExplicitForAll #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Foundation where
 
@@ -17,14 +19,22 @@ import Text.Jasmine         (minifym)
 import Control.Monad.Logger (LogSource)
 
 -- Used only when in "auth-dummy-login" setting is enabled.
-import Yesod.Auth.Dummy
+-- import Yesod.Auth.Dummy
 
-import Yesod.Auth.OpenId    (authOpenId, IdentifierType (Claimed))
+-- import Yesod.Auth.OpenId    (authOpenId, IdentifierType (Claimed))
+import Yesod.Auth.Hardcoded (authHardcoded, YesodAuthHardcoded (..))
+import Yesod.Auth.Message
 import Yesod.Default.Util   (addStaticContentExternal)
 import Yesod.Core.Types     (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
 import qualified Data.CaseInsensitive as CI
 import qualified Data.Text.Encoding as TE
+
+-- Extra imports
+import Local.Auth
+
+import Text.Read (readMaybe)
+
 
 -- | The foundation datatype for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -234,7 +244,7 @@ instance YesodPersistRunner App where
     getDBRunner = defaultGetDBRunner appConnPool
 
 instance YesodAuth App where
-    type AuthId App = UserId
+    type AuthId App = Either UserId Text
 
     -- Where to send a user after successful login
     loginDest :: App -> Route App
@@ -248,20 +258,22 @@ instance YesodAuth App where
 
     authenticate :: (MonadHandler m, HandlerSite m ~ App)
                  => Creds App -> m (AuthenticationResult App)
-    authenticate creds = liftHandler $ runDB $ do
-        x <- getBy $ UniqueUser $ credsIdent creds
-        case x of
-            Just (Entity uid _) -> return $ Authenticated uid
-            Nothing -> Authenticated <$> insert User
-                { userIdent = credsIdent creds
-                , userPassword = Nothing
-                }
+    authenticate creds@Creds{..} = return $ case credsPlugin of
+        "hardcoded" -> case lookupUser credsIdent of
+            Nothing -> UserError InvalidLogin
+            Just m  -> Authenticated $ Right $ suName m
+        -- "openid" -> liftHandler $ runDB $ do
+        --     x <- getBy $ UniqueUser $ credsIdent creds
+        --     case x of
+        --         Just (Entity uid _) -> return $ Authenticated $ Left uid
+        --         Nothing -> Authenticated . Left <$> insert User
+        --             { userIdent = credsIdent creds
+        --             , userPassword = Nothing
+        --             }
 
     -- You can add other plugins like Google Email, email or OAuth here
     authPlugins :: App -> [AuthPlugin App]
-    authPlugins app = [authOpenId Claimed []] ++ extraAuthPlugins
-        -- Enable authDummy login if enabled.
-        where extraAuthPlugins = [authDummy | appAuthDummyLogin $ appSettings app]
+    authPlugins app = [authHardcoded]
 
 -- | Access function to determine if a user is logged in.
 isAuthenticated :: Handler AuthResult
@@ -271,7 +283,26 @@ isAuthenticated = do
         Nothing -> Unauthorized "You must login to access this page"
         Just _ -> Authorized
 
-instance YesodAuthPersist App
+
+instance YesodAuthPersist App where
+    type AuthEntity App = Either User SuperUser
+
+    getAuthEntity (Left uid) =
+        do x <- liftHandler $ runDB (get uid)
+           return (Left <$> x)
+    getAuthEntity (Right username) = return (Right <$> lookupUser username)
+
+
+instance YesodAuthHardcoded App where
+    validatePassword u = return . validPassword u
+    doesUserNameExist  = return . isJust . lookupUser
+
+validPassword :: Text -> Text -> Bool
+validPassword u p =
+    case find (\m -> suName m == u && suPassword m == p) superUsers of
+        Just _ -> True
+        _      -> False
+
 
 -- This instance is required to use forms. You can modify renderMessage to
 -- achieve customized and internationalized form validation messages.
@@ -296,3 +327,12 @@ unsafeHandler = Unsafe.fakeHandlerGetLogger appLogger
 -- https://github.com/yesodweb/yesod/wiki/Sending-email
 -- https://github.com/yesodweb/yesod/wiki/Serve-static-files-from-a-separate-domain
 -- https://github.com/yesodweb/yesod/wiki/i18n-messages-in-the-scaffolding
+
+
+instance PathPiece (Either UserId Text) where
+    fromPathPiece = readMaybe . unpack
+    toPathPiece = pack . show
+
+
+lookupUser :: Text -> Maybe SuperUser
+lookupUser username = find (\m -> suName m == username) superUsers

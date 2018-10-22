@@ -6,10 +6,15 @@
 module Handler.Profile where
 
 import Import
+import Type.Auth.SuperUser (SuperUser (..))
+
 
 getProfileR :: Handler Html
 getProfileR = do
-    (_, user) <- requireAuthPair
+    (_, authUser) <- requireAuthPair
+    userName <- return $ case authUser of
+        Left user -> userIdent user
+        Right su  -> suName su
     defaultLayout $ do
-        setTitle . toHtml $ userIdent user <> "'s User page"
+        setTitle . toHtml $ userName <> "'s User page"
         $(widgetFile "profile")
