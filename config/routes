@@ -13,4 +13,4 @@
 
 /profile ProfileR GET
 
-/signup SignUpR GET
+/signup SignUpR GET POST
