@@ -20,4 +20,3 @@ getSignUpR = do
 
 
 
-    <*> areq textField "Confirm Password" Nothing
