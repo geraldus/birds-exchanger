@@ -12,28 +12,32 @@
 
 module Foundation where
 
-import Import.NoFoundation
-import Database.Persist.Sql (ConnectionPool, runSqlPool)
-import Text.Hamlet          (hamletFile)
-import Text.Jasmine         (minifym)
-import Control.Monad.Logger (LogSource)
+import           Import.NoFoundation
+import           Database.Persist.Sql           ( ConnectionPool
+                                                , runSqlPool
+                                                )
+import           Text.Hamlet                    ( hamletFile )
+import           Text.Jasmine                   ( minifym )
+import           Control.Monad.Logger           ( LogSource )
 
 -- Used only when in "auth-dummy-login" setting is enabled.
 -- import Yesod.Auth.Dummy
 
 -- import Yesod.Auth.OpenId    (authOpenId, IdentifierType (Claimed))
-import Yesod.Auth.Hardcoded (authHardcoded, YesodAuthHardcoded (..))
-import Yesod.Auth.Message
-import Yesod.Default.Util   (addStaticContentExternal)
-import Yesod.Core.Types     (Logger)
-import qualified Yesod.Core.Unsafe as Unsafe
-import qualified Data.CaseInsensitive as CI
-import qualified Data.Text.Encoding as TE
+import           Yesod.Auth.Hardcoded           ( authHardcoded
+                                                , YesodAuthHardcoded(..)
+                                                )
+import           Yesod.Auth.Message
+import           Yesod.Default.Util             ( addStaticContentExternal )
+import           Yesod.Core.Types               ( Logger )
+import qualified Yesod.Core.Unsafe             as Unsafe
+import qualified Data.CaseInsensitive          as CI
+import qualified Data.Text.Encoding            as TE
 
 -- Extra imports
-import Local.Auth
+import           Local.Auth
 
-import Text.Read (readMaybe)
+import           Text.Read                      ( readMaybe )
 
 
 -- | The foundation datatype for your application. This can be a good place to
@@ -281,7 +285,7 @@ isAuthenticated = do
     muid <- maybeAuthId
     return $ case muid of
         Nothing -> Unauthorized "You must login to access this page"
-        Just _ -> Authorized
+        Just _  -> Authorized
 
 
 instance YesodAuthPersist App where
