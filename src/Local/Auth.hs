@@ -1,9 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Local.Auth
     ( module Type
-    , superUsers ) where
+    , superUsers
+    ) where
 
 import Type.Auth.SuperUser as Type
+import Local.Auth.Plugin   as Plugin
 
 
 superUsers :: [SuperUser]
