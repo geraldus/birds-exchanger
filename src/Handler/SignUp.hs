@@ -4,6 +4,9 @@
 module Handler.SignUp where
 
 import Import
+import Type.Auth.SignUp (SignUpFormData(..))
+import Form.Auth.SignUp
+
 
 
 getSignUpR :: Handler Html
@@ -14,21 +17,7 @@ getSignUpR = do
         $(widgetFile "auth/signup")
 
 
-data SignUpFormData = SignUpFormData
-    { signUpFormDataEmail :: Text
-    , signUpFormDataPassword :: Text
-    , signUpFormDataPasswordConfirm :: Text
-    }
 
 
-data SignUpData = SignUpData
-    { signUpDataEmail :: Text
-    , signUpDataPassword :: Text
-    }
 
-
-signUpForm :: Html -> MForm Handler (FormResult SignUpFormData, Widget)
-signUpForm = renderDivs $ SignUpFormData
-    <$> areq textField "Email" Nothing
-    <*> areq textField "Password" Nothing
     <*> areq textField "Confirm Password" Nothing
