@@ -1,3 +1,5 @@
+\.gitignore
+*.xlsx#
 dist*
 static/tmp/
 static/combined/
