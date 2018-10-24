@@ -193,6 +193,12 @@ instance Yesod App where
     isAuthorized (StaticR _) _ = return Authorized
     isAuthorized SignUpR _ = return Authorized
     isAuthorized (SignUpVerifyR _) _ = return Authorized
+    isAuthorized OperatorBidsR _ = do
+        mayUser <- maybeAuthPair
+        case mayUser of
+            Nothing -> return AuthenticationRequired
+            Just (_, Left _) -> return $ Unauthorized "недостаточно прав для просмотра"
+            Just (_, Right _) -> return Authorized
 
     -- the profile route requires that the user is authenticated, so we
     -- delegate to that function

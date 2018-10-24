@@ -15,3 +15,6 @@
 
 /signup SignUpR GET POST
 /signup-verification/#Text SignUpVerifyR GET POST
+
+
+/operator/bids OperatorBidsR GET
