@@ -14,3 +14,4 @@
 /profile ProfileR GET
 
 /signup SignUpR GET POST
+/signup-verification/#Text SignUpVerifyR GET POST
