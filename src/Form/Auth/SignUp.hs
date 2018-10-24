@@ -8,6 +8,6 @@ import Type.Auth.SignUp
 
 signUpForm :: Html -> MForm Handler (FormResult SignUpFormData, Widget)
 signUpForm = renderDivs $ SignUpFormData
-    <$> areq textField "Email" Nothing
-    <*> areq passwordField "Password" Nothing
-    <*> areq passwordField "Confirm Password" Nothing
+    <$> areq textField "Эл.почта" Nothing
+    <*> areq passwordField "Пароль" Nothing
+    <*> areq passwordField "Подтверждение пароля" Nothing
