@@ -45,9 +45,11 @@ dependencies:
 - case-insensitive
 - wai
 - foreign-store
-- hailgun
 - nonce
-- smtp-mail
+- HaskellNet
+- HaskellNet-SSL
+- mime-mail
+
 
 # The library contains all of our application code. The executable
 # defined below is just a thin wrapper.
