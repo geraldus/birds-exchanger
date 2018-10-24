@@ -4,6 +4,7 @@
 User
     ident Text
     password Text Maybe
+    role UserRole
     UniqueUser ident
     deriving Typeable
 Email

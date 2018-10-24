@@ -7,6 +7,7 @@ module Handler.SignUp where
 import           Import
 import           Type.Auth.SignUp               ( SignUpFormData(..) )
 import           Form.Auth.SignUp
+import Local.Persist.UserRole
 
 import qualified Crypto.Nonce                  as CN
 import           Network.HaskellNet.SMTP
@@ -57,7 +58,7 @@ postSignUpR = do
                                 $ CreateError
                                       "Пользователь с таким эл.адресом уже существует"
                         Nothing -> do
-                            let newUser = User email (Just pass)
+                            let newUser = User email (Just pass) Client
                             userId <- insert newUser
                             let newEmail = Email email (Just userId) (Just key)
                             emailId <- insert newEmail
