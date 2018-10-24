@@ -12,6 +12,9 @@ import qualified Crypto.Nonce as CN
 
 getSignUpR :: Handler Html
 getSignUpR = do
+    mUser <- maybeAuthId
+    when (isJust mUser) $
+        redirect HomeR
     (widget, enctype) <- generateFormPost signUpForm
     defaultLayout $ do
         let mayError = Nothing :: Maybe Text
