@@ -1,20 +1,20 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE QuasiQuotes       #-}
+{-# LANGUAGE TemplateHaskell   #-}
 module Handler.SignUp where
 
-import           Import
-import           Type.Auth.SignUp               ( SignUpFormData(..) )
 import           Form.Auth.SignUp
-import Local.Persist.UserRole
+import           Import
+import           Local.Persist.UserRole
+import           Type.Auth.SignUp              (SignUpFormData (..))
 
 import qualified Crypto.Nonce                  as CN
-import           Network.HaskellNet.SMTP
 import qualified Data.Text                     as T
-import qualified Data.Text.Lazy                     as TL
+import qualified Data.Text.Lazy                as TL
+import           Network.HaskellNet.SMTP
 import           Network.HaskellNet.SMTP.SSL
-import Text.Blaze.Html.Renderer.Text (renderHtml)
+import           Text.Blaze.Html.Renderer.Text (renderHtml)
 
 
 
