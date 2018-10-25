@@ -69,7 +69,7 @@ postSignUpR = do
                         defaultLayout $(widgetFile "auth/signup")
                     CreateSuccess -> do
                         urlRender <- getUrlRender
-                        let verUrl = urlRender $ SignUpVerifyR key
+                        let verUrl = urlRender $ SignUpVerifyR email key
                         liftIO $ do
                             conn <- connectSMTPSSLWithSettings
                                 server

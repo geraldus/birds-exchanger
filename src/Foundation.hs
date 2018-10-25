@@ -192,7 +192,7 @@ instance Yesod App where
     isAuthorized RobotsR _ = return Authorized
     isAuthorized (StaticR _) _ = return Authorized
     isAuthorized SignUpR _ = return Authorized
-    isAuthorized (SignUpVerifyR _) _ = return Authorized
+    isAuthorized (SignUpVerifyR _ _) _ = return Authorized
     isAuthorized OperatorBidsR _ = do
         mayUser <- maybeAuthPair
         case mayUser of

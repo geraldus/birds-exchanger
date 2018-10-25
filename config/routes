@@ -14,7 +14,7 @@
 /profile ProfileR GET
 
 /signup SignUpR GET POST
-/signup-verification/#Text SignUpVerifyR GET POST
+/signup-verification/#Text/#Text SignUpVerifyR GET POST
 
 
 /operator/bids OperatorBidsR GET
