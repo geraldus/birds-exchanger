@@ -2,6 +2,7 @@
 module Local.Auth
     ( module Type
     , superUsers
+    , module Plugin
     ) where
 
 import Type.Auth.SuperUser as Type

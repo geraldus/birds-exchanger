@@ -24,9 +24,7 @@ import           Control.Monad.Logger           ( LogSource )
 -- import Yesod.Auth.Dummy
 
 -- import Yesod.Auth.OpenId    (authOpenId, IdentifierType (Claimed))
-import           Yesod.Auth.Hardcoded           ( authHardcoded
-                                                , YesodAuthHardcoded(..)
-                                                )
+import           Yesod.Auth.Hardcoded
 import           Yesod.Auth.Message
 import           Yesod.Default.Util             ( addStaticContentExternal )
 import           Yesod.Core.Types               ( Logger )
@@ -265,6 +263,8 @@ instance YesodPersistRunner App where
     getDBRunner :: Handler (DBRunner App, Handler ())
     getDBRunner = defaultGetDBRunner appConnPool
 
+instance PrizmAuthPlugin App
+
 instance YesodAuth App where
     type AuthId App = Either UserId Text
 
@@ -280,22 +280,19 @@ instance YesodAuth App where
 
     authenticate :: (MonadHandler m, HandlerSite m ~ App)
                  => Creds App -> m (AuthenticationResult App)
-    authenticate creds@Creds{..} = return $ case credsPlugin of
-        "hardcoded" -> case lookupUser credsIdent of
+    authenticate creds@Creds{..} = case credsPlugin of
+        "hardcoded" -> return $ case lookupUser credsIdent of
             Nothing -> UserError InvalidLogin
             Just m  -> Authenticated $ Right $ suName m
-        -- "openid" -> liftHandler $ runDB $ do
-        --     x <- getBy $ UniqueUser $ credsIdent creds
-        --     case x of
-        --         Just (Entity uid _) -> return $ Authenticated $ Left uid
-        --         Nothing -> Authenticated . Left <$> insert User
-        --             { userIdent = credsIdent creds
-        --             , userPassword = Nothing
-        --             }
+        "prizm auth plugin" -> do
+            x <- liftHandler $ runDB $ getBy $ UniqueUser credsIdent
+            return $ case x of
+                Just (Entity uid _) -> Authenticated $ Left uid
+                Nothing -> UserError InvalidLogin
 
     -- You can add other plugins like Google Email, email or OAuth here
     authPlugins :: App -> [AuthPlugin App]
-    authPlugins app = [authHardcoded]
+    authPlugins app = [authHardcoded, authPrizm]
 
 -- | Access function to determine if a user is logged in.
 isAuthenticated :: Handler AuthResult

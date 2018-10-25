@@ -22,6 +22,9 @@ import           Control.Applicative ((<$>), (<*>))
 import           Data.Text           (Text)
 
 
+-- TODO: FIXME: проверять статус активации при входе
+
+
 loginR :: AuthRoute
 loginR = PluginR "prizm auth plugin" ["login"]
 
