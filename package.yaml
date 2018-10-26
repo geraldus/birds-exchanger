@@ -51,6 +51,10 @@ dependencies:
 - mime-mail
 - blaze-html
 
+default-extensions:
+- TemplateHaskell
+- QuasiQuotes
+- NoImplicitPrelude
 
 # The library contains all of our application code. The executable
 # defined below is just a thin wrapper.
