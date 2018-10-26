@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Handler.Profile.Deposit where
 
 
@@ -16,4 +17,17 @@ getDepositR = do
 
 
 postDepositR :: Handler Html
-postDepositR = getDepositR
+postDepositR = do
+    ((res, widget), enctype) <- runFormPost depositForm
+    mayError <- return $ case res of
+        FormSuccess depReq -> Nothing
+        FormMissing -> Just  ["No data"]
+        FormFailure e -> Just e
+    defaultLayout $ [whamlet|
+        $maybe error <- mayError
+            $forall e <- error
+                <div .error .text-muted>#{e}
+        <form method=post enctype=#{enctype}>
+            ^{widget}
+            <button type=submit>К оплате!
+        |]
