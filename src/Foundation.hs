@@ -138,6 +138,10 @@ instance Yesod App where
                     , menuItemRoute = ProfileR
                     , menuItemAccessCallback = isJust muser
                     }
+                , NavbarLeft $ MenuItem
+                    { menuItemLabel = "Пополни счёт"
+                    , menuItemRoute = DepositR
+                    , menuItemAccessCallback = isClientUser muser }
                 , NavbarRight $ MenuItem
                     { menuItemLabel = "Регистрация"
                     , menuItemRoute = SignUpR
@@ -171,6 +175,9 @@ instance Yesod App where
             addStylesheet $ StaticR css_bootstrap_css
             $(widgetFile "default-layout")
         withUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
+        where
+            isClientUser (Just (_, Left _)) = True
+            isClientUser _ = False
 
     -- The page to be redirected to when authentication is required.
     authRoute
@@ -197,6 +204,7 @@ instance Yesod App where
             Nothing -> return AuthenticationRequired
             Just (_, Left _) -> return $ Unauthorized "недостаточно прав для просмотра"
             Just (_, Right _) -> return Authorized
+    isAuthorized DepositR _ = isClientAuthenticated
 
     -- the profile route requires that the user is authenticated, so we
     -- delegate to that function
@@ -249,7 +257,8 @@ instance YesodBreadcrumbs App where
     breadcrumb HomeR = return ("Home", Nothing)
     breadcrumb (AuthR _) = return ("Login", Just HomeR)
     breadcrumb ProfileR = return ("Profile", Just HomeR)
-    breadcrumb  _ = return ("home", Nothing)
+    breadcrumb DepositR = return ("Profile", Just HomeR)
+    breadcrumb  _ = return ("Home", Nothing)
 
 -- How to run database actions.
 instance YesodPersist App where
@@ -289,19 +298,28 @@ instance YesodAuth App where
             return $ case x of
                 Just (Entity uid _) -> Authenticated $ Left uid
                 Nothing -> UserError InvalidLogin
+        -- TODO: FIXME: Better error when plugin name not recognized
+        _ -> return $ UserError InvalidLogin
 
     -- You can add other plugins like Google Email, email or OAuth here
     authPlugins :: App -> [AuthPlugin App]
-    authPlugins app = [authHardcoded, authPrizm]
+    authPlugins _ = [authHardcoded, authPrizm]
 
 -- | Access function to determine if a user is logged in.
 isAuthenticated :: Handler AuthResult
 isAuthenticated = do
     muid <- maybeAuthId
     return $ case muid of
-        Nothing -> Unauthorized "You must login to access this page"
+        Nothing -> Unauthorized "Войдите в систему для просмотра это страницы"
         Just _  -> Authorized
 
+isClientAuthenticated  :: Handler AuthResult
+isClientAuthenticated = do
+    ma <- maybeAuthPair
+    return $ case ma of
+        Nothing -> Unauthorized "Войдите в систему для просмотра это страницы"
+        Just (_, Right _) -> Unauthorized "Аккаунт оператора не имеет счёта"
+        Just (_, Left _) -> Authorized
 
 instance YesodAuthPersist App where
     type AuthEntity App = Either User SuperUser
