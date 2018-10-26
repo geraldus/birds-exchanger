@@ -2,7 +2,7 @@
 module Form.Profile.Deposit where
 
 
-import Import
+import           Import
 
 
 depositForm :: Form (FormResult DepositRequestFD, Widget)
@@ -11,6 +11,9 @@ depositForm extra = do
     (paymentCurrencyAmountRes, paymentCurrencyAmountView) <- mreq doubleField "" Nothing
     (paymentMethodRes, paymentMethodView) <- mreq (selectFieldList paymentMethodOptions) "" Nothing
     (targetCurrencyRes, targetCurrencyView) <- mreq (selectFieldList currencyOptions) "" Nothing
+
+    -- let depReqRes = DepositRequestFD
+    --         <$> payment PaymentMethod Int Currency
     let widget = do
             inCurrencyId <- newIdent
             inTargetCurrencyId <- newIdent
@@ -28,9 +31,9 @@ depositForm extra = do
 
 
 data DepositRequestFD = DepositRequestFD
-    { depReqCurrency :: Currency
-    , depReqPaymentMethod :: PaymentMethod
-    , depReqCentsAmount :: Int
+    { depReqCurrency       :: Currency
+    , depReqPaymentMethod  :: PaymentMethod
+    , depReqCentsAmount    :: Int
     -- , depReqCentsExpectedFee :: Int
     -- , depReqTransactionCode :: Text
     , depReqTargetCurrency :: Currency
