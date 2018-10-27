@@ -90,6 +90,7 @@ data DepositRequestFD = DepositRequestFD
     }
 
 
+currencySelect :: Field (HandlerFor App) Currency
 currencySelect = selectFieldList currencyOptions
 
 currencyOptions :: [(Text, Currency)]
