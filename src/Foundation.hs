@@ -34,6 +34,7 @@ import qualified Data.Text.Encoding            as TE
 
 -- Extra imports
 import           Local.Auth
+import           Local.Persist.UserRole
 
 import qualified Crypto.Nonce                  as CN
 
