@@ -16,4 +16,19 @@ Comment json -- Adding "json" causes ToJSON and FromJSON instances to be derived
     message Text
     userId UserId Maybe
     deriving Eq
+
+
+DepositRequest
+    currency Currency
+    paymentMethod PaymentMethod
+    centsAmount Int
+    expectedFeeCents Int
+    transactionCode Text
+    targetCurrency Currency
+    expectedConversionRatio Double
+    expectedCentsAmount Int
+    created UTCTime
+    userId UserId
+    verified Bool default=FALSE
+    UniqueDepositRequest transactionCode
     deriving Show
