@@ -60,6 +60,7 @@ depositForm extra = do
                         \#{show ((fromIntegral depositMinCentAmount / depositRurPzmRatio) / fromIntegral oneCent)} #
                         \PZM|]
                 ]
+            FormFailure es -> FormFailure es
             FormMissing -> FormMissing
     let widget = do
             inCurrencyId <- newIdent
