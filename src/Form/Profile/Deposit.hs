@@ -35,11 +35,11 @@ doubleToCents :: Double -> Int
 doubleToCents x = truncate $ x * fromIntegral oneCent
 
 selectOpposite' :: Currency -> Currency
-selectOpposite' (FiatC RUR) = CryptoC PZM
+selectOpposite' (FiatC RUR)   = CryptoC PZM
 selectOpposite' (CryptoC PZM) = FiatC RUR
 
 selectMethod' :: Currency -> PaymentMethod
-selectMethod' (FiatC RUR) = FiatPM Card2CardFPM RUR
+selectMethod' (FiatC RUR)   = FiatPM Card2CardFPM RUR
 selectMethod' (CryptoC PZM) = CryptoPM PZM
 
 --         amountCents   = doubleToCents <$> paymentCurrencyAmountRes
