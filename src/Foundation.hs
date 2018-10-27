@@ -317,7 +317,7 @@ isAuthenticated = do
         Nothing -> Unauthorized "Войдите в систему для просмотра это страницы"
         Just _  -> Authorized
 
-isClientAuthenticated  :: Handler AuthResult
+isClientAuthenticated :: Handler AuthResult
 isClientAuthenticated = do
     ma <- maybeAuthPair
     return $ case ma of
