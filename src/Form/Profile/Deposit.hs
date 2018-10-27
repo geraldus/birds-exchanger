@@ -3,8 +3,9 @@ module Form.Profile.Deposit where
 
 
 import           Import
-import           Text.Blaze.Html.Renderer.Text (renderHtml)
+import           Local.Persist.Currency
 
+import           Text.Blaze.Html.Renderer.Text (renderHtml)
 
 
 amountIsValidC :: Currency -> Double -> Bool
