@@ -325,6 +325,19 @@ isClientAuthenticated = do
         Just (_, Right _) -> Unauthorized "Аккаунт оператора не имеет счёта"
         Just (_, Left _) -> Authorized
 
+isStaffAuthenticated :: Handler AuthResult
+isStaffAuthenticated = do
+    ma <- maybeAuthPair
+    return $ case ma of
+        Nothing -> Unauthorized "Войдите в систему для просмотра это страницы"
+        Just (_, Left user) -> case userRole user of
+            Client ->
+                Unauthorized "Для просмотра страницы нужен другой тип аккаунта"
+            Operator -> Authorized
+            Admin    -> Authorized
+        Just (_, Right _) -> Authorized
+
+
 instance YesodAuthPersist App where
     type AuthEntity App = Either User SuperUser
 
