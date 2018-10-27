@@ -9,7 +9,6 @@ import           Import
 import           Local.Persist.UserRole
 import           Type.Auth.SignUp              (SignUpFormData (..))
 
-import qualified Crypto.Nonce                  as CN
 import qualified Data.Text                     as T
 import qualified Data.Text.Lazy                as TL
 import           Network.HaskellNet.SMTP
@@ -47,9 +46,7 @@ postSignUpR = do
     case signUpDataResult of
         FormSuccess (SignUpFormData email pass conf) -> if (pass == conf)
             then do
-                -- TODO: FIXME: Move nonce generator to AppSettings
-                nonceGen     <- CN.new
-                key          <- CN.nonce128urlT nonceGen
+                key          <- appNonce128urlT
                 createResult <- runDB $ do
                     mayExistingUser <- getBy $ UniqueEmail email
                     case mayExistingUser of

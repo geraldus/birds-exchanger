@@ -35,6 +35,8 @@ import qualified Data.Text.Encoding            as TE
 -- Extra imports
 import           Local.Auth
 
+import qualified Crypto.Nonce                  as CN
+
 import           Text.Read                      ( readMaybe )
 
 
@@ -54,6 +56,7 @@ data App = App
     , appConnPool    :: ConnectionPool -- ^ Database connection pool.
     , appHttpManager :: Manager
     , appLogger      :: Logger
+    , appNonceGen    :: CN.Generator
     }
 
 data MenuItem = MenuItem
@@ -373,3 +376,9 @@ instance PathPiece (Either UserId Text) where
 
 lookupUser :: Text -> Maybe SuperUser
 lookupUser username = find (\m -> suName m == username) superUsers
+
+
+appNonce128urlT :: Handler Text
+appNonce128urlT = do
+    g <- appNonceGen <$> getYesod
+    liftIO $ CN.nonce128urlT g
