@@ -433,3 +433,17 @@ requireClientId = do
             Client -> return uid
             _ -> permissionDenied "Допуск только для аккаунтов уровня \"Клиент\""
         _ -> permissionDenied "Допуск только для аккаунтов уровня \"Клиент\""
+
+
+requireStaffId :: Handler (Either UserId Text)
+requireStaffId = do
+    mayAuth <- maybeAuthPair
+    case mayAuth of
+        -- SuperUsers authorized everywhere
+        Just (uid, Right _) -> return uid
+        -- For DB users: clients are rejected, operators and admins are allowed
+        Just (uid, Left user) -> case userRole user of
+            Client   -> notFound
+            Operator -> return uid
+            Admin    -> return uid
+        _ -> notFound
