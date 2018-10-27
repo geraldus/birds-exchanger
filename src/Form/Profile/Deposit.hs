@@ -118,35 +118,3 @@ typedCurrencyOptions =
     [ (FiatT, FiatC RUR)
     , (CryptoT, CryptoC PZM)
     ]
-
-
-data Currency
-    = FiatC FiatCurrency
-    | CryptoC CryptoCurrency
-    deriving Eq
-
-data CurrencyType
-    = FiatT
-    | CryptoT
-    deriving Eq
-
-data FiatCurrency
-    = RUR
-    -- | USD
-    deriving Eq
-
-data CryptoCurrency
-    = PZM
-    -- | ETH
-    -- | BTC
-    deriving Eq
-
-data PaymentMethod
-    = FiatPM FiatPaymentMethod FiatCurrency
-    | CryptoPM CryptoCurrency
-    deriving Eq
-
-data FiatPaymentMethod
-    = Card2CardFPM
-    | QiwiFPM
-    deriving Eq
