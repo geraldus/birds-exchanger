@@ -6,25 +6,6 @@ import           Import
 import           Text.Blaze.Html.Renderer.Text (renderHtml)
 
 
-depositMinCentAmount :: Int
-depositMinCentAmount = 500 * oneCent
-
-depositFeeRur :: Fee
-depositFeeRur = Percent 0
-
-data Fee
-    = Percent Int
-    | CentsFixed Int
-
-depositFeePzm :: Fee
-depositFeePzm = Percent 4
-
-depositRurPzmRatio :: Double
-depositRurPzmRatio = 35
-
-oneCent :: Int
-oneCent = 100
-
 
 amountIsValidC :: Currency -> Double -> Bool
 amountIsValidC (CryptoC PZM) a = a * depositRurPzmRatio * fromIntegral oneCent >= fromIntegral depositMinCentAmount
