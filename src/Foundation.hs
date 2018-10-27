@@ -422,3 +422,14 @@ oneCent = 100
 data Fee
     = Percent Double -- ^ example 100% = Percent 100.0
     | CentsFixed Int
+
+
+requireClientId :: Handler UserId
+requireClientId = do
+    ap <- requireAuthPair
+    case ap of
+        (Right _, _) -> redirect HomeR
+        (Left uid, Left u) -> case userRole u of
+            Client -> return uid
+            _ -> permissionDenied "Допуск только для аккаунтов уровня \"Клиент\""
+        _ -> permissionDenied "Допуск только для аккаунтов уровня \"Клиент\""
