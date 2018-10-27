@@ -53,7 +53,6 @@ depositForm extra = do
                         \PZM|]
                 ]
             FormMissing -> FormMissing
-    $(logInfo) $ pack . show $ amountIsValidRes
     let widget = do
             inCurrencyId <- newIdent
             inTargetCurrencyId <- newIdent
