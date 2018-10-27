@@ -209,6 +209,8 @@ instance Yesod App where
             Just (_, Left _) -> return $ Unauthorized "недостаточно прав для просмотра"
             Just (_, Right _) -> return Authorized
     isAuthorized DepositR _ = isClientAuthenticated
+    isAuthorized (DepositRequestConfirmationR _) _ = isClientAuthenticated
+    isAuthorized DepositConfirmRequestR _ = isClientAuthenticated
 
     -- the profile route requires that the user is authenticated, so we
     -- delegate to that function

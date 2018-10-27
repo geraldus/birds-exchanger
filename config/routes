@@ -17,5 +17,7 @@
 /signup-verification/#Text/#Text SignUpVerifyR GET POST
 
 /profile/deposit                             DepositR                     GET POST
+/profile/deposit/request-confirmation/#Text  DepositRequestConfirmationR  GET
+/profile/deposit/confirm                     DepositConfirmRequestR       POST
 
 /operator/bids OperatorBidsR GET

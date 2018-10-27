@@ -44,6 +44,7 @@ import qualified Crypto.Nonce                  as CN
 import Handler.Common
 import Handler.Home
 import Handler.Comment
+import Handler.Client.DepositConfirm
 import Handler.Profile
 import Handler.Profile.Deposit
 import Handler.SignUp
