@@ -321,7 +321,7 @@ isClientAuthenticated :: Handler AuthResult
 isClientAuthenticated = do
     ma <- maybeAuthPair
     return $ case ma of
-        Nothing -> Unauthorized "Войдите в систему для просмотра это страницы"
+        Nothing -> Unauthorized "Войдите в систему для просмотра этой страницы"
         Just (_, Right _) -> Unauthorized "Аккаунт оператора не имеет счёта"
         Just (_, Left _) -> Authorized
 
