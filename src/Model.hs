@@ -15,6 +15,7 @@ import Database.Persist.Quasi
 import Local.Persist.Currency
 import Local.Persist.Deposit
 import Local.Persist.UserRole
+import Local.Persist.Wallet
 
 -- You can define all of your database entities in the entities file.
 -- You can find more information on persistent and how to declare entities
