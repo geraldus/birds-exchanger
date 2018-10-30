@@ -43,11 +43,16 @@ depositForm extra = do
     let amountIsValidRes = amountIsValidC <$> paymentCurrencyRes <*> paymentCurrencyAmountRes
         amountCentsRes   = doubleToCents <$> paymentCurrencyAmountRes
         paymentMethodRes = selectMethod' <$> paymentCurrencyRes
+        matchingFee = selectFee <$> paymentCurrencyRes
+        expectedFee = calcFeeCents <$> matchingFee <*> amountCentsRes
+        expectedRatio = selectRatio' <$> paymentCurrencyRes <*> targetCurrencyRes
         depReqRes = DepositRequestFD
                         <$> paymentCurrencyRes
                         <*> paymentMethodRes
                         <*> amountCentsRes
+                        <*> expectedFee
                         <*> targetCurrencyRes
+                        <*> expectedRatio
         formResult = case amountIsValidRes of
             FormSuccess True -> depReqRes
             FormSuccess False -> FormFailure $ [
@@ -80,11 +85,9 @@ data DepositRequestFD = DepositRequestFD
     { depReqCurrency       :: Currency
     , depReqPaymentMethod  :: PaymentMethod
     , depReqCentsAmount    :: Int
-    -- , depReqCentsExpectedFee :: Int
-    -- , depReqTransactionCode :: Text
+    , depReqCentsExpectedFee :: Int
     , depReqTargetCurrency :: Currency
-    -- , depReqExpectedConversionRatio :: Double
-    -- , depReqCentsExpectedIncome :: Amount
+    , depReqExpectedConversionRatio :: Double
     }
 
 
