@@ -9,7 +9,7 @@ import           Text.Blaze.Html.Renderer.Text (renderHtml)
 
 
 amountIsValidC :: Currency -> Double -> Bool
-amountIsValidC (CryptoC PZM) a = a * depositRurPzmRatio * fromIntegral oneCent >= fromIntegral depositMinCentAmount
+amountIsValidC (CryptoC PZM) a = a * fromIntegral oneCent * depositPzmRurRatio >= fromIntegral depositMinCentAmount
 amountIsValidC (FiatC RUR) a = a * fromIntegral oneCent >= fromIntegral depositMinCentAmount
 amountIsValidC _ _ = False
 
@@ -56,8 +56,8 @@ depositForm extra = do
                     toStrict $ renderHtml [shamlet|
                         $newline never
                         Минимальная сумма пополнения #
-                        \#{show depositMinCentAmount} ₽ / #
-                        \#{show ((fromIntegral depositMinCentAmount / depositRurPzmRatio) / fromIntegral oneCent)} #
+                        \#{show (round (fromIntegral depositMinCentAmount / fromIntegral oneCent))} ₽ / #
+                        \#{show (fromIntegral depositMinCentAmount * (depositRurPzmRatio / fromIntegral oneCent))} #
                         \PZM|]
                 ]
             FormFailure es -> FormFailure es
