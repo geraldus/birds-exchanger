@@ -408,32 +408,6 @@ appNonce128urlT = do
     liftIO $ CN.nonce128urlT g
 
 
-depositMinCentAmount :: Int
-depositMinCentAmount = 500 * oneCent
-
-depositFeeRur :: Fee
-depositFeeRur = Percent 0
-
-depositFeePzm :: Fee
-depositFeePzm = Percent 4
-
-
-depositPzmRurRatio :: Double
-depositPzmRurRatio = 25
-
-depositRurPzmRatio :: Double
-depositRurPzmRatio = 1 / depositPzmRurRatio
-
-
-oneCent :: Int
-oneCent = 100
-
-
-data Fee
-    = Percent Double -- ^ example 100% = Percent 100.0
-    | CentsFixed Int
-
-
 requireClientId :: Handler UserId
 requireClientId = do
     ap <- requireAuthPair
