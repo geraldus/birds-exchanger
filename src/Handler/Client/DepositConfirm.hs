@@ -5,8 +5,12 @@ import Import
 
 import Local.Persist.Deposit
 
+
 getDepositRequestConfirmationR :: Text -> Handler Html
 getDepositRequestConfirmationR code = withRequest' code $ \(Entity _ t) -> do
+    when (depositRequestStatus t /= New) $ do
+        setMessage "Данная заявка проходит проверку..."
+        redirect HomeR
     let transactionCode = depositRequestTransactionCode t
         paymentGuide = [whamlet|Тут инструкция ща будет )))|]
     defaultLayout $(widgetFile "client/deposit-proceed")
