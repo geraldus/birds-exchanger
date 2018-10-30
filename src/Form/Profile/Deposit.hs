@@ -39,11 +39,9 @@ depositForm :: Form DepositRequestFD
 depositForm extra = do
     (paymentCurrencyRes, paymentCurrencyView) <- mreq currencySelect "" Nothing
     (paymentCurrencyAmountRes, paymentCurrencyAmountView) <- mreq doubleField "" Nothing
-    -- (paymentMethodRes, paymentMethodView) <- mreq (selectFieldList paymentMethodOptions) "" Nothing
     (targetCurrencyRes, targetCurrencyView) <- mreq (selectFieldList currencyOptions) "" Nothing
     let amountIsValidRes = amountIsValidC <$> paymentCurrencyRes <*> paymentCurrencyAmountRes
         amountCentsRes   = doubleToCents <$> paymentCurrencyAmountRes
-        -- targetCurrencyRes = selectOpposite' <$> paymentCurrencyRes
         paymentMethodRes = selectMethod' <$> paymentCurrencyRes
         depReqRes = DepositRequestFD
                         <$> paymentCurrencyRes
