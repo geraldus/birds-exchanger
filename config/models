@@ -15,7 +15,7 @@ Email
 Comment json -- Adding "json" causes ToJSON and FromJSON instances to be derived.
     message Text
     userId UserId Maybe
-    deriving Eq
+    deriving Show Eq
 
 
 DepositRequest
@@ -26,9 +26,9 @@ DepositRequest
     transactionCode Text
     targetCurrency Currency
     expectedConversionRatio Double
-    expectedCentsAmount Int
     created UTCTime
     userId UserId
-    verified Bool default=FALSE
+    status DepositRequestStatus
+    archived  Bool default=FALSE
     UniqueDepositRequest transactionCode
     deriving Show
