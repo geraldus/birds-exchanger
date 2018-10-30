@@ -19,15 +19,18 @@ getDepositRequestConfirmationR code = withRequest' code $ \(Entity _ t) -> do
 postDepositConfirmRequestR :: Handler Html
 postDepositConfirmRequestR = do
     code <- runInputPost $ ireq textField "transaction-code"
-    withRequest' code $ \(Entity tid t) -> runDB $ do
-        update tid [DepositRequestVerified =. True]
+    withRequest' code $ \(Entity tid t) -> do
+        runDB $ update tid [DepositRequestStatus =. ClientConfirmed]
         setMessage "Заявка проходит проверку"
         redirect HomeR
 
 
-withRequest' code action = do
-    requireClientId
-    withRequest code action notFound
+withRequest'
+    :: Text
+    -> (Entity DepositRequest -> Handler Html)
+    -> Handler Html
+withRequest' code action =
+    requireClientId >> withRequest code action notFound
 
 withRequest
     :: Text
