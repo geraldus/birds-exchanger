@@ -3,6 +3,7 @@ module Form.Profile.Deposit where
 
 
 import           Import
+import Utils.Deposit
 import           Local.Persist.Currency
 
 import           Text.Blaze.Html.Renderer.Text (renderHtml)
@@ -24,12 +25,6 @@ selectMethod' :: Currency -> PaymentMethod
 selectMethod' (FiatC RUR)   = FiatPM Card2CardFPM RUR
 selectMethod' (CryptoC PZM) = CryptoPM PZM
 
-selectFee :: Currency -> Fee
-selectFee (FiatC RUR) = depositFeeRur
-selectFee (CryptoC PZM) = depositFeePzm
-
-calcFeeCents :: Fee -> Int -> Int
-calcFeeCents (Percent p) c = ceiling $ fromIntegral c * p / 100
 
 --         amountCents   = doubleToCents <$> paymentCurrencyAmountRes
 --         targetCurrency = selectOpposite' <$> paymentCurrencyRes

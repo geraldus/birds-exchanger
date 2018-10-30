@@ -3,6 +3,7 @@ module Handler.Client.DepositConfirm where
 
 import Import
 
+import Local.Persist.Deposit
 
 getDepositRequestConfirmationR :: Text -> Handler Html
 getDepositRequestConfirmationR code = withRequest' code $ \(Entity _ t) -> do

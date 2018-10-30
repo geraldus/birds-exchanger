@@ -34,7 +34,11 @@ import qualified Data.Text.Encoding            as TE
 
 -- Extra imports
 import           Local.Auth
+import           Local.Persist.Currency
 import           Local.Persist.UserRole
+import           Type.Fee
+import Utils.Deposit (oneCent)
+
 
 import qualified Crypto.Nonce                  as CN
 
