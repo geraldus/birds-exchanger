@@ -188,8 +188,11 @@ instance Yesod App where
             $(widgetFile "default-layout")
         withUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
         where
-            isClientUser (Just (_, Left _)) = True
+            isClientUser (Just (_, Left u)) = userRole u == Client
             isClientUser _ = False
+            isStaffUser (Just (_, Left u)) = userRole u /= Client
+            isStaffUser (Just (_, Right _)) = True
+            isStaffUser _ = False
 
     -- The page to be redirected to when authentication is required.
     authRoute
