@@ -21,3 +21,4 @@
 /profile/deposit/confirm                     DepositConfirmRequestR       POST
 
 /operator/bids OperatorBidsR GET
+/operator/deposit-requests-list   OperatorDepositRequestsListR   GET

@@ -50,6 +50,7 @@ import Handler.Profile.Deposit
 import Handler.SignUp
 import Handler.SignUpVerification
 import Handler.Operator.Bids
+import Handler.Operator.DepositRequestsList
 
 
 -- This line actually creates our YesodDispatch instance. It is the second half

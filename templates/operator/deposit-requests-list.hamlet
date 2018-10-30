@@ -1,0 +1,68 @@
+<table .table .table-striped>
+    <thead>
+    <tbody>
+    $forall (Entity depreqId DepositRequest{..}) <- depositRequestsList
+        <tr>
+            <td>#{show depositRequestCentsAmount}
+            <td>#{show depositRequestCurrency}
+            <td>#{show depositRequestTargetCurrency}
+            <td>#{show depositRequestUserId}
+            <td>#{depositRequestTransactionCode}
+            <td>
+                $if depositRequestStatus == ClientConfirmed
+                   Подтверждён Клиентом
+            <td>
+                <button
+                    .accept-deposit-btn.btn.btn-success
+                    data-toggle=modal
+                    data-target="#depreq-modal-#{fromSqlKey depreqId}"
+                    type=button
+                    title="подтвердить операцию">+
+
+
+$forall (Entity depreqId DepositRequest{..}) <- depositRequestsList
+    <div #depreq-modal-#{fromSqlKey depreqId} .modal.depreq-modal tabindex="-1" role=dialog>
+        <div .modal-dialog role=document>
+            <div .modal-content>
+                <div .modal-header>
+                    <h5 .modal-title>Уточните сумму
+                    <button type=button .close data-dismiss=modal aria-label="Close">
+                        <span aria-hidden="true">&times;
+                <form method=post action=@{OperatorAcceptDepositRequestR}>
+                    <div .modal-body>
+                        <p>Операция на пополнение
+                        <div .form-group>
+                            <label for="#{fromSqlKey depreqId}-deposit-id">
+                                # заявки
+                            <input
+                                ##{fromSqlKey depreqId}-deposit-id
+                                .form-control
+                                style="user-select:none"
+                                type=text
+                                readonly=readonly
+                                name="deposit-id"
+                                value="#{fromSqlKey depreqId}">
+                        <div .form-group>
+                            <label for="#{fromSqlKey depreqId}-deposit-code">
+                                код операции
+                            <input
+                                ##{fromSqlKey depreqId}-deposit-code
+                                .form-control
+                                type=text
+                                readonly=readonly
+                                name="deposit-code"
+                                value="#{depositRequestTransactionCode}">
+                        <div .form-group>
+                            <label for="#{fromSqlKey depreqId}-deposit-amount">
+                                Полученная сумма (по факту)
+                            <input
+                                ##{fromSqlKey depreqId}-deposit-amount
+                                .form-control
+                                type=number
+                                step=0.01
+                                min=0.01
+                                name="deposit-real-income"
+                                value=0>
+                    <div .modal-footer>
+                        <button type=button .btn.btn-secondary data-dismiss=modal>закрыть
+                        <button type=submit .btn.btn-primary>Принять операцию

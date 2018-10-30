@@ -10,4 +10,4 @@
 
 <form method=post action=@{DepositConfirmRequestR}>
     <input type=hidden name="transaction-code" value="#{transactionCode}">
-    <button>Перевод подтверждаю
+    <button type=submit>Перевод подтверждаю

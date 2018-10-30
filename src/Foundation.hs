@@ -150,6 +150,10 @@ instance Yesod App where
                     { menuItemLabel = "Пополни счёт"
                     , menuItemRoute = DepositR
                     , menuItemAccessCallback = isClientUser muser }
+                , NavbarLeft $ MenuItem
+                    { menuItemLabel = "Входящие заявки"
+                    , menuItemRoute = OperatorDepositRequestsListR
+                    , menuItemAccessCallback = isStaffUser muser }
                 , NavbarRight $ MenuItem
                     { menuItemLabel = "Регистрация"
                     , menuItemRoute = SignUpR
