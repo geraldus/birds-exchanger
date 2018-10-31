@@ -211,12 +211,7 @@ instance Yesod App where
     isAuthorized (StaticR _) _ = return Authorized
     isAuthorized SignUpR _ = return Authorized
     isAuthorized (SignUpVerifyR _ _) _ = return Authorized
-    isAuthorized OperatorBidsR _ = do
-        mayUser <- maybeAuthPair
-        case mayUser of
-            Nothing -> return AuthenticationRequired
-            Just (_, Left _) -> return $ Unauthorized "недостаточно прав для просмотра"
-            Just (_, Right _) -> return Authorized
+    isAuthorized OperatorBidsR _ = isStaffAuthenticated
     isAuthorized DepositR _ = isClientAuthenticated
     isAuthorized (DepositRequestConfirmationR _) _ = isClientAuthenticated
     isAuthorized DepositConfirmRequestR _ = isClientAuthenticated
@@ -304,7 +299,7 @@ instance YesodAuth App where
 
     authenticate :: (MonadHandler m, HandlerSite m ~ App)
                  => Creds App -> m (AuthenticationResult App)
-    authenticate creds@Creds{..} = case credsPlugin of
+    authenticate Creds{..} = case credsPlugin of
         "hardcoded" -> return $ case lookupUser credsIdent of
             Nothing -> UserError InvalidLogin
             Just m  -> Authenticated $ Right $ suName m
@@ -413,10 +408,11 @@ requireClientId :: Handler UserId
 requireClientId = do
     ap <- requireAuthPair
     case ap of
-        (Right _, _) -> redirect HomeR
-        (Left uid, Left u) -> case userRole u of
+        (Right _  , _     ) -> redirect HomeR
+        (Left  uid, Left u) -> case userRole u of
             Client -> return uid
-            _ -> permissionDenied "Допуск только для аккаунтов уровня \"Клиент\""
+            _ ->
+                permissionDenied "Допуск только для аккаунтов уровня \"Клиент\""
         _ -> permissionDenied "Допуск только для аккаунтов уровня \"Клиент\""
 
 
@@ -425,7 +421,7 @@ requireStaffId = do
     mayAuth <- maybeAuthPair
     case mayAuth of
         -- SuperUsers authorized everywhere
-        Just (uid, Right _) -> return uid
+        Just (uid, Right _  ) -> return uid
         -- For DB users: clients are rejected, operators and admins are allowed
         Just (uid, Left user) -> case userRole user of
             Client   -> notFound
