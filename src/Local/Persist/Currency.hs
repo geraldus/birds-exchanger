@@ -1,4 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
 module Local.Persist.Currency where
 
 
