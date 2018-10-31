@@ -11,6 +11,7 @@
                 <li .nav-item.mx-2 :Just route == mcurrentRoute:.active>
                     <a .nav-link href="@{route}">#{label}
         <ul .navbar-nav>
+            ^{headerUserBalanceRender wallets}
             $forall MenuItem label route _ <- navbarRightFilteredMenuItems
                 <li .nav-item.mx-2 :Just route == mcurrentRoute:.active>
                     <a .nav-link href="@{route}">#{label}

@@ -129,6 +129,7 @@ instance Yesod App where
         mmsg <- getMessage
 
         muser <- maybeAuthPair
+        wallets <- getUserWallets
         mcurrentRoute <- getCurrentRoute
 
         -- Get the breadcrumbs, as defined in the YesodBreadcrumbs instance.
@@ -428,3 +429,31 @@ requireStaffId = do
             Operator -> return uid
             Admin    -> return uid
         _ -> notFound
+
+
+getUserWallets :: Handler [(Int, Currency)]
+getUserWallets = do
+    mAuthPair <- maybeAuthPair
+    case mAuthPair of
+        Just (Left uid, Left _) -> do
+            wallets <- runDB $ selectList [UserWalletUserId ==. uid] []
+            return $
+                map (\(Entity _ w) -> (userWalletAmountCents w, userWalletCurrency w)) wallets
+        _ -> return []
+
+
+headerUserBalanceRender :: [(Int, Currency)] -> Widget
+headerUserBalanceRender [] = mempty
+headerUserBalanceRender ((amtCents, cur):ws) = do
+    let amt = truncate $ fromIntegral amtCents / fromIntegral oneCent
+    -- TODO: FIXME: Write functions to convert Int cents back to
+    -- double and render function
+    let cents = amtCents - amt * oneCent
+    let currencySign = case cur of
+            FiatC RUR -> "₽"
+            CryptoC PZM -> "PZM"
+            _ -> show cur
+    [whamlet|
+        <span .mx-1 .navbar-text>#{amt}.#{cents}&nbsp;#{currencySign}
+        |]
+    headerUserBalanceRender ws
