@@ -65,3 +65,24 @@ AcceptedDeposit
     staffId UserId Maybe
     accepted UTCTime
     walletTransactionReasonId WalletTransactionReasonId
+
+
+ExchageOrder
+    userId UserId
+    currencyOut Currency
+    currencyIn  Currency
+    amountCents Int
+    ratio Double
+    expectedFeeCents Int
+    created UTCTime
+    status ExchageOrderStatus
+
+ExchageOrderExecution
+    orderId ExchageOrderId
+    time UTCTime
+    outWalletTransactionReasonId WalletTransactionReasonId
+    inWalletTransactionReasonId WalletTransactionReasonId
+    fullyExecuted Bool default=FALSE
+    transferAmountCents Int
+    incomeAmountCents Int
+    feeCents Int
