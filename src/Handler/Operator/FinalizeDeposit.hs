@@ -28,23 +28,25 @@ postOperatorAcceptDepositRequestR = do
                 Just u -> do
                     walletTextId <- appNonce128urlT
                     time <- liftIO $ getCurrentTime
-                    eitherWallet <- runDB . insertBy $
-                        UserWallet
+                    let newWallet = UserWallet
                             depositRequestUserId
-                            depositRequestCurrency
+                            depositRequestTargetCurrency
                             0
                             walletTextId
                             time
-                    let userWalletId = case eitherWallet of
-                            Left (Entity wid _) -> wid
-                            Right wid -> wid
+                    eitherWallet <- runDB $ insertBy newWallet
+                    let (userWalletId, userWallet) = case eitherWallet of
+                            Left (Entity wid w) -> (wid, w)
+                            Right wid -> (wid, newWallet)
                     runDB $ do
                         wtrId <- insert $ WalletTransactionReason userWalletId
                         update drId [ DepositRequestStatus =. OperatorAccepted (pack . show $ staffId)]
                         let realAmountCents = floor (realAmount * fromIntegral oneCent)
                             ratio = selectRatio' depositRequestCurrency depositRequestTargetCurrency
                             fee = calcFeeCents (selectFee depositRequestCurrency) realAmountCents
-                        let realWalletIncome = realAmountCents - fee
+                            realAmountToConvert = realAmountCents - fee
+                            targetAmountCents = truncate $ fromIntegral realAmountToConvert * ratio
+                        let realWalletIncome = targetAmountCents
                         let mStaffUserId = case staffId of
                                 Left uid -> Just uid
                                 _        -> Nothing
