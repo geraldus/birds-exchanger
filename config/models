@@ -35,6 +35,7 @@ WalletBalanceTransaction
     walletId UserWalletId
     type WalletTransactionType
     walletTransactionReasonId WalletTransactionReasonId
+    amountCentsBefore Int
 
 
 DepositRequest
@@ -51,7 +52,6 @@ DepositRequest
     archived  Bool default=FALSE
     UniqueDepositRequest transactionCode
     deriving Show
-
 
 AcceptedDeposit
     depositRequestId DepositRequestId

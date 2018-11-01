@@ -64,5 +64,6 @@ postOperatorAcceptDepositRequestR = do
                             userWalletId
                             (BalanceDeposit realWalletIncome)
                             wtrId
+                            (userWalletAmountCents userWallet)
                         update userWalletId [UserWalletAmountCents +=. realWalletIncome]
                     redirect OperatorDepositRequestsListR
