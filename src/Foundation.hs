@@ -213,6 +213,8 @@ instance Yesod App where
     isAuthorized SignUpR _ = return Authorized
     isAuthorized (SignUpVerifyR _ _) _ = return Authorized
     isAuthorized OperatorBidsR _ = isStaffAuthenticated
+    isAuthorized OperatorDepositRequestsListR _ = isStaffAuthenticated
+    isAuthorized OperatorAcceptDepositRequestR _ = isStaffAuthenticated
     isAuthorized DepositR _ = isClientAuthenticated
     isAuthorized (DepositRequestConfirmationR _) _ = isClientAuthenticated
     isAuthorized DepositConfirmRequestR _ = isClientAuthenticated
