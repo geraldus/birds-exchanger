@@ -22,3 +22,4 @@
 
 /operator/bids OperatorBidsR GET
 /operator/deposit-requests-list   OperatorDepositRequestsListR   GET
+/operator/accept-deposit-request  OperatorAcceptDepositRequestR  POST
