@@ -456,6 +456,9 @@ headerUserBalanceRender ((amtCents, cur):ws) = do
             CryptoC PZM -> "PZM"
             _ -> show cur
     [whamlet|
-        <span .mx-1 .navbar-text>#{amt}.#{cents}&nbsp;#{currencySign}
+        <li .nav-item.mx-2>
+            <span .navbar-text>
+                <span .wallet-amount-value.font-weight-bold.text-warning>#{amt}.#{cents}
+                <span .wallet-currency-signature>#{currencySign}
         |]
     headerUserBalanceRender ws
