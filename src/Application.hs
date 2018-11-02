@@ -47,6 +47,7 @@ import Handler.Comment
 import Handler.Client.DepositConfirm
 import Handler.Profile
 import Handler.Client.Deposit
+import Handler.Client.ExchangeOrderCreate
 import Handler.SignUp
 import Handler.SignUpVerification
 import Handler.Operator.Bids
