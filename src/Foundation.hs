@@ -473,3 +473,15 @@ currencyOptions :: [(Text, Currency)]
 currencyOptions =
     [ ("₽ российский рубль", FiatC RUR)
     , ("PZM криптовалюта Prizm", CryptoC PZM) ]
+
+
+
+getOrCreateWallet :: UserId -> Currency -> Handler (Entity UserWallet)
+getOrCreateWallet userId currency = do
+    walletTextId <- appNonce128urlT
+    time <- liftIO getCurrentTime
+    let newWallet = UserWallet userId currency 0 walletTextId time
+    eitherWallet <- runDB $ insertBy newWallet
+    return $ case eitherWallet of
+        Left entity -> entity
+        Right wid -> Entity wid newWallet

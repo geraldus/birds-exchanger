@@ -4,7 +4,6 @@ module Handler.Operator.FinalizeDeposit where
 
 
 import Import
-import Handler.Utils.Wallet
 import Local.Persist.Deposit
 import Local.Persist.Wallet
 import Utils.Deposit
