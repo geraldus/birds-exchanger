@@ -74,11 +74,11 @@ depositForm extra = do
 
 
 data DepositRequestFD = DepositRequestFD
-    { depReqCurrency       :: Currency
-    , depReqPaymentMethod  :: PaymentMethod
-    , depReqCentsAmount    :: Int
-    , depReqCentsExpectedFee :: Int
-    , depReqTargetCurrency :: Currency
+    { depReqCurrency                :: Currency
+    , depReqPaymentMethod           :: PaymentMethod
+    , depReqCentsAmount             :: Int
+    , depReqCentsExpectedFee        :: Int
+    , depReqTargetCurrency          :: Currency
     , depReqExpectedConversionRatio :: Double
     }
 
