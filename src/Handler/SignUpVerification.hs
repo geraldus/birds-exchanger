@@ -37,7 +37,9 @@ getSignUpVerifyR email verkey = do
 
 
 postSignUpVerifyR :: Text -> Text -> Handler Html
-postSignUpVerifyR email verkey = return mempty
+postSignUpVerifyR email verkey =
+    -- TODO: FIXME: Предоставить возможность повторно отправить письмо для активации
+    return mempty
 
 
 data VerificationResult
