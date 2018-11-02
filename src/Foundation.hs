@@ -418,6 +418,8 @@ requireClientId = do
                 permissionDenied "Допуск только для аккаунтов уровня \"Клиент\""
         _ -> permissionDenied "Допуск только для аккаунтов уровня \"Клиент\""
 
+requireClient :: Handler (Entity User, [Entity UserWallet])
+requireClient = error "Wip"
 
 requireStaffId :: Handler (Either UserId Text)
 requireStaffId = do

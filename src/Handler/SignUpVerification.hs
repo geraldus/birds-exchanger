@@ -63,12 +63,10 @@ createWallets (Entity emailId Email{..}) = do
     case muser of
         Nothing -> notFound
         Just user -> do
+            idents <- mapM (\c -> (,) c <$> liftHandler appNonce128urlT) defaultWalletCurrencies
             rurid <- liftHandler appNonce128urlT
             pzmid <- liftHandler appNonce128urlT
             time <- liftIO getCurrentTime
-            let wallets =
-                    [ UserWallet userId (FiatC RUR) 0 rurid time
-                    , UserWallet userId (CryptoC PZM) 0 pzmid time
-                    ]
+            let wallets = map (\(c, i) -> UserWallet userId c 0 i time) idents
             ids <- mapM insert wallets
             return $ zipWith Entity ids wallets
