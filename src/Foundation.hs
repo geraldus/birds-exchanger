@@ -415,8 +415,8 @@ requireClientId = do
         (Left  uid, Left u) -> case userRole u of
             Client -> return uid
             _ ->
-                permissionDenied "Допуск только для аккаунтов уровня \"Клиент\""
-        _ -> permissionDenied "Допуск только для аккаунтов уровня \"Клиент\""
+                permissionDenied accessErrorClientOnly
+        _ -> permissionDenied accessErrorClientOnly
 
 requireClient :: Handler (Entity User, [Entity UserWallet])
 requireClient = error "Wip"
@@ -475,6 +475,8 @@ currencyOptions =
     , ("PZM криптовалюта Prizm", CryptoC PZM) ]
 
 
+accessErrorClientOnly :: Text
+accessErrorClientOnly = "Доступно только для аккаунтов уровня \"Клиент\""
 
 getOrCreateWallet :: UserId -> Currency -> Handler (Entity UserWallet)
 getOrCreateWallet userId currency = do
