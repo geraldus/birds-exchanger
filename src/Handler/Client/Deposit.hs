@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
-module Handler.Profile.Deposit where
+module Handler.Client.Deposit where
 
 
 import Import
