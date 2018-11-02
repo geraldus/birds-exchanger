@@ -418,6 +418,19 @@ requireClientId = do
                 permissionDenied accessErrorClientOnly
         _ -> permissionDenied accessErrorClientOnly
 
+maybeClient :: Handler (Maybe (Entity User, [Entity UserWallet]))
+maybeClient = do
+    mauth <- maybeAuthPair
+    case mauth of
+        Nothing -> return Nothing
+        Just (Right _, _) -> return Nothing
+        Just (Left uid, Left user) -> case userRole user of
+            Client -> do
+                wallets <- mapM (getOrCreateWallet uid) defaultWalletCurrencies
+                return $ Just ((Entity uid user), wallets)
+            _ -> return Nothing
+        _ -> return Nothing
+
 requireClient :: Handler (Entity User, [Entity UserWallet])
 requireClient = do
     mclient <- maybeClient
