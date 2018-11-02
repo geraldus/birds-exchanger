@@ -31,6 +31,7 @@ formCreateExchageOrder extra = do
             FormFailure es    -> FormFailure es
             FormMissing       -> FormMissing
     let widget = [whamlet|
+            #{extra}
             <div .form-group>
                 <label for="#{outIdent}">обмениваю
                 ^{fvInput currencyOutView}
