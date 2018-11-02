@@ -39,6 +39,7 @@ postOperatorAcceptDepositRequestR = do
                             Left (Entity wid w) -> (wid, w)
                             Right wid -> (wid, newWallet)
                     runDB $ do
+                        -- TODO: FIXME: Save fee data
                         wtrId <- insert $ WalletTransactionReason userWalletId
                         update drId [ DepositRequestStatus =. OperatorAccepted (pack . show $ staffId)]
                         let realAmountCents = floor (realAmount * fromIntegral oneCent)
