@@ -3,8 +3,8 @@ module Form.Profile.Deposit where
 
 
 import           Import
-import Utils.Deposit
 import           Local.Persist.Currency
+import           Utils.Deposit
 
 import           Text.Blaze.Html.Renderer.Text (renderHtml)
 
@@ -13,9 +13,6 @@ amountIsValidC :: Currency -> Double -> Bool
 amountIsValidC (CryptoC PZM) a = a * fromIntegral oneCent * depositPzmRurRatio >= fromIntegral depositMinCentAmount
 amountIsValidC (FiatC RUR) a = a * fromIntegral oneCent >= fromIntegral depositMinCentAmount
 amountIsValidC _ _ = False
-
-doubleToCents :: Double -> Int
-doubleToCents x = truncate $ x * fromIntegral oneCent
 
 selectOpposite' :: Currency -> Currency
 selectOpposite' (FiatC RUR)   = CryptoC PZM

@@ -40,3 +40,6 @@ depositRurPzmRatio = 1 / depositPzmRurRatio
 
 oneCent :: Int
 oneCent = 100
+
+doubleToCents :: Double -> Int
+doubleToCents x = truncate $ x * fromIntegral oneCent
