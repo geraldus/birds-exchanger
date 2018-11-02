@@ -33,7 +33,7 @@ formCreateExchageOrder extra = do
                 ^{fvInput currencyOutView}
             <div .form-group>
                 <label for="#{inIdent}">на
-                ^{fvInput currencyOutView}
+                ^{fvInput currencyInView}
             <div .form-group>
                 <label for="#{ratioIdent}">по цене
                 ^{fvInput ratioView}
