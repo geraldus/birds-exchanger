@@ -1,10 +1,9 @@
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE ViewPatterns #-}
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE NoImplicitPrelude     #-}
+{-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE RecordWildCards       #-}
+{-# LANGUAGE TemplateHaskell       #-}
+{-# LANGUAGE TypeFamilies          #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Application
     ( getApplicationDev
@@ -20,39 +19,45 @@ module Application
     , db
     ) where
 
-import Control.Monad.Logger                 (liftLoc, runLoggingT)
-import Database.Persist.Postgresql          (createPostgresqlPool, pgConnStr,
-                                             pgPoolSize, runSqlPool)
-import Import
-import Language.Haskell.TH.Syntax           (qLocation)
-import Network.HTTP.Client.TLS              (getGlobalManager)
-import Network.Wai (Middleware)
-import Network.Wai.Handler.Warp             (Settings, defaultSettings,
-                                             defaultShouldDisplayException,
-                                             runSettings, setHost,
-                                             setOnException, setPort, getPort)
-import Network.Wai.Middleware.RequestLogger (Destination (Logger),
-                                             IPAddrSource (..),
-                                             OutputFormat (..), destination,
-                                             mkRequestLogger, outputFormat)
-import System.Log.FastLogger                (defaultBufSize, newStdoutLoggerSet,
-                                             toLogStr)
-import qualified Crypto.Nonce                  as CN
+import           Control.Monad.Logger                 (liftLoc, runLoggingT)
+import qualified Crypto.Nonce                         as CN
+import           Database.Persist.Postgresql          (createPostgresqlPool,
+                                                       pgConnStr, pgPoolSize,
+                                                       runSqlPool)
+import           Import
+import           Language.Haskell.TH.Syntax           (qLocation)
+import           Network.HTTP.Client.TLS              (getGlobalManager)
+import           Network.Wai                          (Middleware)
+import           Network.Wai.Handler.Warp             (Settings,
+                                                       defaultSettings,
+                                                       defaultShouldDisplayException,
+                                                       getPort, runSettings,
+                                                       setHost, setOnException,
+                                                       setPort)
+import           Network.Wai.Middleware.RequestLogger (Destination (Logger),
+                                                       IPAddrSource (..),
+                                                       OutputFormat (..),
+                                                       destination,
+                                                       mkRequestLogger,
+                                                       outputFormat)
+import           System.Log.FastLogger                (defaultBufSize,
+                                                       newStdoutLoggerSet,
+                                                       toLogStr)
 
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
-import Handler.Common
-import Handler.Home
-import Handler.Comment
-import Handler.Client.DepositConfirm
-import Handler.Profile
-import Handler.Client.Deposit
-import Handler.Client.ExchangeOrderCreate
-import Handler.SignUp
-import Handler.SignUpVerification
-import Handler.Operator.Bids
-import Handler.Operator.DepositRequestsList
-import Handler.Operator.FinalizeDeposit
+import           Handler.Client.Deposit
+import           Handler.Client.DepositConfirm
+import           Handler.Client.ExchangeOrderCreate
+import           Handler.Comment
+import           Handler.Common
+import           Handler.Home
+import           Handler.Operator.Bids
+import           Handler.Operator.DepositRequestsList
+import           Handler.Operator.FinalizeDeposit
+import           Handler.Profile
+import           Handler.SignUp
+import           Handler.SignUpVerification
 
 
 -- This line actually creates our YesodDispatch instance. It is the second half
