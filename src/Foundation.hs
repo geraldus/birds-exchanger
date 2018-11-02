@@ -462,3 +462,12 @@ headerUserBalanceRender ((amtCents, cur):ws) = do
                 <span .wallet-currency-signature>#{currencySign}
         |]
     headerUserBalanceRender ws
+
+
+currencySelect :: Field (HandlerFor App) Currency
+currencySelect = selectFieldList currencyOptions
+
+currencyOptions :: [(Text, Currency)]
+currencyOptions =
+    [ ("₽ российский рубль", FiatC RUR)
+    , ("PZM криптовалюта Prizm", CryptoC PZM) ]

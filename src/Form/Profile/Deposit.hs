@@ -86,14 +86,6 @@ data DepositRequestFD = DepositRequestFD
     }
 
 
-currencySelect :: Field (HandlerFor App) Currency
-currencySelect = selectFieldList currencyOptions
-
-currencyOptions :: [(Text, Currency)]
-currencyOptions =
-    [ ("₽ российский рубль", FiatC RUR)
-    , ("PZM криптовалюта Prizm", CryptoC PZM) ]
-
 paymentMethodOptions :: [(Text, PaymentMethod)]
 paymentMethodOptions =
     [ ("Перевод с карты на карту, ₽ российский рубль", FiatPM Card2CardFPM RUR)
