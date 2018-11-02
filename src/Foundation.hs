@@ -482,6 +482,11 @@ currencyOptions =
 accessErrorClientOnly :: Text
 accessErrorClientOnly = "Доступно только для аккаунтов уровня \"Клиент\""
 
+
+defaultWalletCurrencies :: [Currency]
+defaultWalletCurrencies = [ FiatC RUR, CryptoC PZM ]
+
+
 getOrCreateWallet :: UserId -> Currency -> Handler (Entity UserWallet)
 getOrCreateWallet userId currency = do
     walletTextId <- appNonce128urlT
