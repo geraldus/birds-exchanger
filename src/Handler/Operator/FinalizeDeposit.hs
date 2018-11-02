@@ -4,6 +4,7 @@ module Handler.Operator.FinalizeDeposit where
 
 
 import Import
+import Handler.Utils.Wallet
 import Local.Persist.Deposit
 import Local.Persist.Wallet
 import Utils.Deposit
@@ -26,18 +27,8 @@ postOperatorAcceptDepositRequestR = do
             case mue of
                 Nothing -> notFound
                 Just u -> do
-                    walletTextId <- appNonce128urlT
-                    time <- liftIO $ getCurrentTime
-                    let newWallet = UserWallet
-                            depositRequestUserId
-                            depositRequestTargetCurrency
-                            0
-                            walletTextId
-                            time
-                    eitherWallet <- runDB $ insertBy newWallet
-                    let (userWalletId, userWallet) = case eitherWallet of
-                            Left (Entity wid w) -> (wid, w)
-                            Right wid -> (wid, newWallet)
+                    walletEntity <- getOrCreateWallet depositRequestUserId depositRequestTargetCurrency
+                    let (Entity userWalletId userWallet) = walletEntity
                     runDB $ do
                         -- TODO: FIXME: Save fee data
                         wtrId <- insert $ WalletTransactionReason userWalletId
@@ -51,6 +42,7 @@ postOperatorAcceptDepositRequestR = do
                         let mStaffUserId = case staffId of
                                 Left uid -> Just uid
                                 _        -> Nothing
+                        let time = userWalletCreated userWallet
                         adid <- insert $ AcceptedDeposit
                             drId
                             depositRequestCurrency
