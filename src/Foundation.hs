@@ -419,7 +419,11 @@ requireClientId = do
         _ -> permissionDenied accessErrorClientOnly
 
 requireClient :: Handler (Entity User, [Entity UserWallet])
-requireClient = error "Wip"
+requireClient = do
+    mclient <- maybeClient
+    case mclient of
+        Nothing -> permissionDenied accessErrorClientOnly
+        Just clientData -> return clientData
 
 requireStaffId :: Handler (Either UserId Text)
 requireStaffId = do
