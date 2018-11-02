@@ -9,6 +9,9 @@ import Import
 import Yesod.Form.Bootstrap3 (BootstrapFormLayout (..), renderBootstrap3)
 import Text.Julius (RawJS (..))
 
+import Form.Exchanger.Order
+
+
 -- Define our data that will be used for creating the form.
 data FileForm = FileForm
     { fileInfo :: FileInfo
@@ -25,9 +28,12 @@ data FileForm = FileForm
 getHomeR :: Handler Html
 getHomeR = do
     (formWidget, formEnctype) <- generateFormPost sampleForm
+    (pzmRurEFWidget, pzmRurEFEnctype) <- generateFormPost formCreateExchageOrder
+    (rurPzmEFWidget, rurPzmEFEnctype) <- generateFormPost formCreateExchageOrder
     let submission = Nothing :: Maybe FileForm
         handlerName = "getHomeR" :: Text
     allComments <- runDB $ getAllComments
+
 
     defaultLayout $ do
         let (commentFormId, commentTextareaId, commentListId) = commentIds
@@ -38,6 +44,8 @@ getHomeR = do
 postHomeR :: Handler Html
 postHomeR = do
     ((result, formWidget), formEnctype) <- runFormPost sampleForm
+    (pzmRurEFWidget, pzmRurEFEnctype) <- generateFormPost formCreateExchageOrder
+    (rurPzmEFWidget, rurPzmEFEnctype) <- generateFormPost formCreateExchageOrder
     let handlerName = "postHomeR" :: Text
         submission = case result of
             FormSuccess res -> Just res

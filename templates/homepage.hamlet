@@ -2,11 +2,17 @@
     <div .container>
         <div .row>
             <h1 .header>
-                Yesod—a modern framework for blazing fast websites
-            <h2>
-                Fast, stable & spiced with great community
-            <a href="http://www.yesodweb.com/book/" .btn.btn-info.btn-lg>
-                Read the Book
+                Пункт обмена PRIZM
+    <div .container>
+        <div .row>
+            <div .col col-lg-6>
+                <form method=post action="@{HomeR}" enctype=#{pzmRurEFEnctype}>
+                    ^{pzmRurEFWidget}
+                    <button .btn type=submit>обмен
+            <div .col col-lg-6>
+                <form method=post action="@{HomeR}" enctype=#{rurPzmEFEnctype}>
+                    ^{rurPzmEFWidget}
+                    <button .btn type=submit>обмен
 
 <div .container>
     <!-- Starting
