@@ -15,7 +15,7 @@ postOperatorAcceptDepositRequestR :: Handler Html
 postOperatorAcceptDepositRequestR = do
     staffId <- requireStaffId
     (drId, realAmount) <- (\(idt, amt) -> (toSqlKey idt, amt))
-        <$> (runInputPost $ (,)
+        <$> runInputPost ((,)
                 <$> ireq intField "deposit-id"
                 <*> ireq doubleField "deposit-real-income")
     mdepreq <- runDB $ get drId
