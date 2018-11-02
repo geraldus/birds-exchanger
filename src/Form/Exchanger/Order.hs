@@ -5,8 +5,6 @@ module Form.Exchanger.Order where
 import           Import
 
 import           Local.Persist.Currency
-import           Local.Persist.UserRole
-import           Utils.Deposit          (doubleToCents)
 
 
 -- | This form does not check if user specified valid coins amount.
@@ -22,9 +20,7 @@ formCreateExchageOrder extra = do
     (currencyInRes, currencyInView) <- mreq currencySelect (bs4InputWithIdFs inIdent) Nothing
     (ratioRes, ratioView) <- mreq doubleField (bs4InputWithIdFs ratioIdent) Nothing
     (amountRes, amountView) <- mreq doubleField (bs4InputWithIdFs amountIdent) Nothing
-    time <- liftIO getCurrentTime
     let isValidExchangeR = isValidExchange <$> currencyOutRes <*> currencyInRes
-        -- haveRequiredAmountR = haveRequiredAmount <$>
     let result = case isValidExchangeR of
             FormSuccess True  -> FormSuccess ExchangeOrderData
             FormSuccess False -> FormFailure ["Неверная пара для обмена"]
@@ -55,15 +51,12 @@ formCreateExchageOrder extra = do
         bs4InputFs = fsWithClasses "form-control" "" Nothing Nothing Nothing []
         fsWithClasses classList lbl tlt mid mnam attrs =
             FieldSettings lbl tlt mid mnam (attrs ++ [("class", classList)])
-        -- fs = FieldSettings "some message" Nothing Nothing Nothing [("readonly", "readonly")]
-
 
 
 isValidExchange :: Currency -> Currency -> Bool
 isValidExchange (FiatC RUR) (CryptoC PZM) = True
 isValidExchange (CryptoC PZM) (FiatC RUR) = True
 isValidExchange _ _                       = False
-
 
 
 data ExchangeOrderData = ExchangeOrderData
