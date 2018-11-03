@@ -510,3 +510,9 @@ getOrCreateWallet userId currency = do
     return $ case eitherWallet of
         Left entity -> entity
         Right wid -> Entity wid newWallet
+
+
+-- TODO: FIXME: Make an MVar or something and expand as app property.
+-- Allow possibility to change this value on the fly
+defaultExchangeFee :: Fee
+defaultExchangeFee = Percent 2
