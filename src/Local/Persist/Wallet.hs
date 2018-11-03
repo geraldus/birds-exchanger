@@ -11,6 +11,9 @@ data WalletTransactionType
     --   must have positive sign; outcome -- negative.
     = BalanceDeposit Int
     | BalanceWithdrawal Int
+    | BalanceWithdrawalCancel Int
+    | ExchangeFreeze Int
+    | ExchangeReturn Int
     | ExchangeTransfer Int
     | ExchangeIncome Int
     | Penality Int
