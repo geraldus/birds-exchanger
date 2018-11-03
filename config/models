@@ -74,7 +74,7 @@ AcceptedDeposit
     walletTransactionReasonId WalletTransactionReasonId
 
 
-ExchageOrder
+ExchangeOrder
     userId UserId
     currencyOut Currency
     currencyIn  Currency
@@ -82,10 +82,11 @@ ExchageOrder
     ratio Double
     expectedFeeCents Int
     created UTCTime
-    status ExchageOrderStatus
+    status ExchangeOrderStatus
+    walletTransactionReasonId WalletTransactionReasonId
 
 ExchageOrderExecution
-    orderId ExchageOrderId
+    orderId ExchangeOrderId
     time UTCTime
     outWalletTransactionReasonId WalletTransactionReasonId
     inWalletTransactionReasonId WalletTransactionReasonId

@@ -7,10 +7,10 @@ import Database.Persist.TH
 import Data.Time.Clock (UTCTime)
 
 
-data ExchageOrderStatus
+data ExchangeOrderStatus
     = Created UTCTime
     | Cancelled UTCTime
     | PartiallyExecuted UTCTime Int  -- ^ last mod time and executed cents total
     | Executed UTCTime
     deriving (Show, Read, Eq)
-derivePersistField "ExchageOrderStatus"
+derivePersistField "ExchangeOrderStatus"
