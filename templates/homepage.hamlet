@@ -4,6 +4,9 @@
             <h1 .header>
                 Пункт обмена PRIZM
     <div .container>
+        $maybe msg <- mmsg
+            <div .alert.alert-info #message>#{msg}
+    <div .container>
         <div .row>
             <div .col col-lg-6>
                 <form method=post action="@{ExchangeOrderCreateR}" enctype=#{pzmRurEFEnctype}>
@@ -15,8 +18,6 @@
                     <button .btn type=submit>обмен
 
 <div .container>
-    <!-- Starting
-        ================================================== -->
     <div .bs-docs-section>
         <div .row>
             <div .col-lg-12>

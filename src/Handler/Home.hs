@@ -27,6 +27,7 @@ data FileForm = FileForm
 -- inclined, or create a single monolithic file.
 getHomeR :: Handler Html
 getHomeR = do
+    mmsg <- getMessage
     -- mayClient <- maybeClient
     (pzmRurEFWidget, pzmRurEFEnctype) <- generateFormPost formCreateExchageOrder
     (rurPzmEFWidget, rurPzmEFEnctype) <- generateFormPost formCreateExchageOrder
@@ -40,6 +41,7 @@ getHomeR = do
 
 postHomeR :: Handler Html
 postHomeR = do
+    mmsg <- getMessage
     (pzmRurEFWidget, pzmRurEFEnctype) <- generateFormPost formCreateExchageOrder
     (rurPzmEFWidget, rurPzmEFEnctype) <- generateFormPost formCreateExchageOrder
     let handlerName = "postHomeR" :: Text
