@@ -5,6 +5,8 @@ module Form.Exchanger.Order where
 import           Import
 
 import           Local.Persist.Currency
+import Type.Fee (Fee(..))
+import           Utils.Deposit          (doubleToCents)
 
 
 -- | This form does not check if user specified valid coins amount.
@@ -59,4 +61,8 @@ isValidExchange (CryptoC PZM) (FiatC RUR) = True
 isValidExchange _ _                       = False
 
 
+targetFeeC :: Int -> Double -> Int
+targetFeeC amt ratio = case defaultExchangeFee of
+    Percent p -> truncate $ fromIntegral amt * ratio * p / 100
+    CentsFixed c -> c
 data ExchangeOrderData = ExchangeOrderData
