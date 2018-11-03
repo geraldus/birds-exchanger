@@ -19,12 +19,19 @@ formCreateExchageOrder extra = do
     amountIdent <- newIdent
     feeIdent <- newIdent
     (currencyOutRes, currencyOutView) <- mreq currencySelect (bs4InputWithIdFs outIdent) Nothing
-    (currencyInRes, currencyInView) <- mreq currencySelect (bs4InputWithIdFs inIdent) Nothing
-    (ratioRes, ratioView) <- mreq doubleField (bs4InputWithIdFs ratioIdent) Nothing
-    (amountRes, amountView) <- mreq doubleField (bs4InputWithIdFs amountIdent) Nothing
+    (currencyInRes, currencyInView)   <- mreq currencySelect (bs4InputWithIdFs inIdent) Nothing
+    (ratioRes, ratioView)             <- mreq doubleField (bs4InputWithIdFs ratioIdent) Nothing
+    (amountRes, amountView)           <- mreq doubleField (bs4InputWithIdFs amountIdent) Nothing
     let isValidExchangeR = isValidExchange <$> currencyOutRes <*> currencyInRes
+        amountCentsRes   = doubleToCents   <$> amountRes
+        feeRes           = targetFeeC      <$> amountCentsRes <*> ratioRes
     let result = case isValidExchangeR of
-            FormSuccess True  -> FormSuccess ExchangeOrderData
+            FormSuccess True  -> ExchangeOrderData
+                    <$> currencyOutRes
+                    <*> currencyInRes
+                    <*> ratioRes
+                    <*> amountCentsRes
+                    <*> feeRes
             FormSuccess False -> FormFailure ["Неверная пара для обмена"]
             FormFailure es    -> FormFailure es
             FormMissing       -> FormMissing
@@ -65,4 +72,13 @@ targetFeeC :: Int -> Double -> Int
 targetFeeC amt ratio = case defaultExchangeFee of
     Percent p -> truncate $ fromIntegral amt * ratio * p / 100
     CentsFixed c -> c
+
+
 data ExchangeOrderData = ExchangeOrderData
+    { orderDataCurrencyOut      :: Currency
+    , orderDataCurrencyIn       :: Currency
+    , orderDataRatio            :: Double
+    , orderDataAmountCents      :: Int
+    , orderDataExpectedFeeCents :: Int
+    }
+    deriving Show
