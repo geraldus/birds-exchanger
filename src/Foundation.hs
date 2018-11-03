@@ -218,6 +218,7 @@ instance Yesod App where
     isAuthorized DepositR _ = isClientAuthenticated
     isAuthorized (DepositRequestConfirmationR _) _ = isClientAuthenticated
     isAuthorized DepositConfirmRequestR _ = isClientAuthenticated
+    isAuthorized ExchangeOrderCreateR _ = isClientAuthenticated
 
     -- the profile route requires that the user is authenticated, so we
     -- delegate to that function

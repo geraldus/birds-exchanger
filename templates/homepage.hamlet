@@ -6,11 +6,11 @@
     <div .container>
         <div .row>
             <div .col col-lg-6>
-                <form method=post action="@{HomeR}" enctype=#{pzmRurEFEnctype}>
+                <form method=post action="@{ExchangeOrderCreateR}" enctype=#{pzmRurEFEnctype}>
                     ^{pzmRurEFWidget}
                     <button .btn type=submit>обмен
             <div .col col-lg-6>
-                <form method=post action="@{HomeR}" enctype=#{rurPzmEFEnctype}>
+                <form method=post action="@{ExchangeOrderCreateR}" enctype=#{rurPzmEFEnctype}>
                     ^{rurPzmEFWidget}
                     <button .btn type=submit>обмен
 
