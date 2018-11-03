@@ -19,7 +19,8 @@
 /profile/deposit                             DepositR                     GET POST
 /profile/deposit/request-confirmation/#Text  DepositRequestConfirmationR  GET
 /profile/deposit/confirm                     DepositConfirmRequestR       POST
-/profile/create-exchange-order-create        ExchangeOrderCreateR         POST
+-- TODO: FIXME:
+/profile/exchange-order-create        ExchangeOrderCreateR         POST
 
 /operator/bids OperatorBidsR GET
 /operator/deposit-requests-list   OperatorDepositRequestsListR   GET
