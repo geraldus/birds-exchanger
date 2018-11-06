@@ -10,6 +10,7 @@ import Yesod.Form.Bootstrap3 (BootstrapFormLayout (..), renderBootstrap3)
 import Text.Julius (RawJS (..))
 
 import Form.Exchanger.Order
+import Utils.Deposit (oneCoinCents)
 
 
 -- Define our data that will be used for creating the form.
@@ -58,3 +59,27 @@ commentIds = ("js-commentForm", "js-createCommentTextarea", "js-commentList")
 
 getAllComments :: DB [Entity Comment]
 getAllComments = selectList [] [Asc CommentId]
+
+
+renderOrderCol :: Text -> [ExchangeOrder] -> Widget
+renderOrderCol title orders = [whamlet|
+    <h5 .text-center>#{title}
+    <table .table.table-stripped>
+        <thead>
+            <tr>
+                <th>Цена
+                <th>Кол-во
+                <th>Сумма
+        <tbody>
+            $forall order <- orders
+                <tr>
+                    <td>#{show (exchangeOrderRatio order)}
+                    <td>#{renderCentsAmt (exchangeOrderAmountCents order)}
+                    <td>#{renderCentsAmt (truncate (exchangeOrderRatio order * (fromIntegral . exchangeOrderAmountCents) order))}
+    |]
+    where
+        renderCentsAmt :: Int -> Html
+        renderCentsAmt amt = [shamlet|#{real}.#{frac}|]
+            where
+                real = truncate $ fromIntegral amt / fromIntegral oneCoinCents
+                frac = amt - real * oneCoinCents
