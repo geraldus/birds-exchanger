@@ -14,6 +14,7 @@ selectFee (CryptoC PZM) = depositFeePzm
 -- TODO: FIXME: User constant rather than numeral 100
 calcFeeCents :: Fee -> Int -> Int
 calcFeeCents (Percent p) c = ceiling $ fromIntegral c * p / 100
+calcFeeCents (CentsFixed f) c = c - f
 
 selectRatio' :: Currency -> Currency -> Double
 selectRatio' (CryptoC PZM) (FiatC RUR) = depositPzmRurRatio
