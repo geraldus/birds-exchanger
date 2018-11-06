@@ -23,6 +23,7 @@ FeeIncome
     amountCents Int
     walletTransactionReasonId WalletTransactionReasonId
     time UTCTime
+    deriving Show
 
 
 UserWallet
@@ -37,12 +38,14 @@ UserWallet
 
 WalletTransactionReason
     walletId UserWalletId
+    deriving Show
 
 WalletBalanceTransaction
     walletId UserWalletId
     type WalletTransactionType
     walletTransactionReasonId WalletTransactionReasonId
     amountCentsBefore Int
+    deriving Show
 
 
 DepositRequest
@@ -72,6 +75,7 @@ AcceptedDeposit
     staffId UserId Maybe
     accepted UTCTime
     walletTransactionReasonId WalletTransactionReasonId
+    deriving Show
 
 
 ExchangeOrder
@@ -94,3 +98,4 @@ ExchageOrderExecution
     transferAmountCents Int
     incomeAmountCents Int
     feeCents Int
+    deriving Show
