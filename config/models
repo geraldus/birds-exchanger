@@ -89,7 +89,7 @@ ExchangeOrder
     status ExchangeOrderStatus
     walletTransactionReasonId WalletTransactionReasonId
 
-ExchageOrderExecution
+ExchangeOrderExecution
     orderId ExchangeOrderId
     time UTCTime
     outWalletTransactionReasonId WalletTransactionReasonId
