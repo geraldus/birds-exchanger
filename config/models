@@ -82,7 +82,7 @@ ExchangeOrder
     userId UserId
     currencyOut Currency
     currencyIn  Currency
-    amountCents Int
+    amountCents Int -- Cent actually taken (frozen) from user balance
     ratio Double
     expectedFeeCents Int
     created UTCTime
