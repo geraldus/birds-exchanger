@@ -37,7 +37,7 @@ import           Local.Auth
 import           Local.Persist.Currency
 import           Local.Persist.UserRole
 import           Type.Fee
-import Utils.Deposit (oneCent)
+import Utils.Deposit (oneCoinCents)
 
 
 import qualified Crypto.Nonce                  as CN
@@ -467,10 +467,10 @@ getUserWallets = do
 headerUserBalanceRender :: [(Int, Currency)] -> Widget
 headerUserBalanceRender [] = mempty
 headerUserBalanceRender ((amtCents, cur):ws) = do
-    let amt = truncate $ fromIntegral amtCents / fromIntegral oneCent
+    let amt = truncate $ fromIntegral amtCents / fromIntegral oneCoinCents
     -- TODO: FIXME: Write functions to convert Int cents back to
     -- double and render function
-    let cents = amtCents - amt * oneCent
+    let cents = amtCents - amt * oneCoinCents
     let currencySign = case cur of
             FiatC RUR -> "₽"
             CryptoC PZM -> "PZM"

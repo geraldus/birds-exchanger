@@ -24,7 +24,7 @@ selectRatio' a b
     | otherwise = error "Ratio selection not described yet!"
 
 depositMinCentAmount :: Int
-depositMinCentAmount = 500 * oneCent -- 500 RUR
+depositMinCentAmount = 500 * oneCoinCents -- 500 RUR
 
 depositFeeRur :: Fee
 depositFeeRur = Percent 0
@@ -40,8 +40,8 @@ depositRurPzmRatio :: Double
 depositRurPzmRatio = 1 / depositPzmRurRatio
 
 
-oneCent :: Int
-oneCent = 100
+oneCoinCents :: Int
+oneCoinCents = 100
 
 doubleToCents :: Double -> Int
-doubleToCents x = truncate $ x * fromIntegral oneCent
+doubleToCents x = truncate $ x * fromIntegral oneCoinCents

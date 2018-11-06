@@ -32,7 +32,7 @@ postOperatorAcceptDepositRequestR = do
                         -- TODO: FIXME: Save fee data
                         wtrId <- insert $ WalletTransactionReason userWalletId
                         update drId [ DepositRequestStatus =. OperatorAccepted (pack . show $ staffId)]
-                        let realAmountCents = floor (realAmount * fromIntegral oneCent)
+                        let realAmountCents = floor (realAmount * fromIntegral oneCoinCents)
                             ratio = selectRatio' depositRequestCurrency depositRequestTargetCurrency
                             fee = calcFeeCents (selectFee depositRequestCurrency) realAmountCents
                             realAmountToConvert = realAmountCents - fee
