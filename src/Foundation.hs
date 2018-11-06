@@ -501,15 +501,19 @@ defaultWalletCurrencies :: [Currency]
 defaultWalletCurrencies = [ FiatC RUR, CryptoC PZM ]
 
 
-getOrCreateWallet :: UserId -> Currency -> Handler (Entity UserWallet)
-getOrCreateWallet userId currency = do
-    walletTextId <- appNonce128urlT
+getOrCreateWalletDB :: UserId -> Currency -> SqlPersistT Handler (Entity UserWallet)
+getOrCreateWalletDB userId currency = do
+    walletTextId <- liftHandler $ appNonce128urlT
     time <- liftIO getCurrentTime
     let newWallet = UserWallet userId currency 0 walletTextId time
-    eitherWallet <- runDB $ insertBy newWallet
+    eitherWallet <- insertBy newWallet
     return $ case eitherWallet of
         Left entity -> entity
         Right wid -> Entity wid newWallet
+
+
+getOrCreateWallet :: UserId -> Currency -> Handler (Entity UserWallet)
+getOrCreateWallet uid = runDB . getOrCreateWalletDB uid
 
 
 -- TODO: FIXME: Make an MVar or something and expand as app property.
