@@ -80,6 +80,8 @@ AcceptedDeposit
 
 ExchangeOrder
     userId UserId
+    walletInId UserWalletId
+    walletOutId UserWalletId
     currencyOut Currency
     currencyIn  Currency
     amountCents Int -- Cent actually taken (frozen) from user balance
@@ -87,7 +89,9 @@ ExchangeOrder
     expectedFeeCents Int
     created UTCTime
     status ExchangeOrderStatus
+    isActive Bool
     walletTransactionReasonId WalletTransactionReasonId
+    deriving Show
 
 ExchangeOrderExecution
     orderId ExchangeOrderId
