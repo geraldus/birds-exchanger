@@ -17,6 +17,15 @@
                     ^{rurPzmEFWidget}
                     <button .btn type=submit>обмен
 
+<div .container .mt-5>
+    <div .row>
+        <div .col-12 .col-lg-6>
+            ^{renderOrderCol "₽ ⇢ PZM" (map entityVal rurPzmOrders)}
+        <div .col-12 .col-lg-6>
+            ^{renderOrderCol "PZM ⇢ ₽" (map entityVal pzmRurOrders)}
+
+
+
 <div .container>
     <div .bs-docs-section>
         <div .row>

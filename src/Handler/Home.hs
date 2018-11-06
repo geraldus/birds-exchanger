@@ -10,6 +10,8 @@ import Yesod.Form.Bootstrap3 (BootstrapFormLayout (..), renderBootstrap3)
 import Text.Julius (RawJS (..))
 
 import Form.Exchanger.Order
+import Local.Persist.Currency
+import Local.Persist.ExchangeOrder
 import Utils.Deposit (oneCoinCents)
 
 
@@ -34,6 +36,7 @@ getHomeR = do
     (rurPzmEFWidget, rurPzmEFEnctype) <- generateFormPost formCreateExchageOrder
     let handlerName = "getHomeR" :: Text
     allComments <- runDB $ getAllComments
+    orders@(pzmRurOrders, rurPzmOrders) <- getActiveOrders
     defaultLayout $ do
         let (commentFormId, commentTextareaId, commentListId) = commentIds
         aDomId <- newIdent
@@ -47,6 +50,7 @@ postHomeR = do
     (rurPzmEFWidget, rurPzmEFEnctype) <- generateFormPost formCreateExchageOrder
     let handlerName = "postHomeR" :: Text
     allComments <- runDB $ getAllComments
+    (pzmRurOrders, rurPzmOrders) <- getActiveOrders
     defaultLayout $ do
         let (commentFormId, commentTextareaId, commentListId) = commentIds
         aDomId <- newIdent
@@ -59,6 +63,13 @@ commentIds = ("js-commentForm", "js-createCommentTextarea", "js-commentList")
 
 getAllComments :: DB [Entity Comment]
 getAllComments = selectList [] [Asc CommentId]
+
+
+getActiveOrders :: Handler ([Entity ExchangeOrder], [Entity ExchangeOrder])
+getActiveOrders = do
+    os <- runDB $ selectList [ExchangeOrderIsActive ==. True] []
+    return $ partition (isPzmRurOrder . entityVal) os
+    where isPzmRurOrder = (== CryptoC PZM) . exchangeOrderCurrencyOut
 
 
 renderOrderCol :: Text -> [ExchangeOrder] -> Widget
