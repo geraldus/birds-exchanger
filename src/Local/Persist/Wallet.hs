@@ -14,8 +14,7 @@ data WalletTransactionType
     | BalanceWithdrawalCancel Int
     | ExchangeFreeze Int
     | ExchangeReturn Int
-    | ExchangeTransfer Int
-    | ExchangeIncome Int
+    | ExchangeExchange Int
     | Penality Int
     | Bonus Int
     deriving (Show, Read, Eq)
