@@ -99,3 +99,10 @@ ExchangeOrderExecution
     incomeAmountCents Int
     feeCents Int
     deriving Show
+
+
+InnerProfitRecord
+    reasonId WalletTransactionReasonId
+    currency Currency
+    amountCents Int
+    profitType

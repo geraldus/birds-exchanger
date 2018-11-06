@@ -14,3 +14,11 @@ data ExchangeOrderStatus
     | Executed UTCTime
     deriving (Show, Read, Eq)
 derivePersistField "ExchangeOrderStatus"
+
+data ProfitType
+    = DepositFee
+    | WithdrawalFee
+    | ExchangeFee
+    | ExchangeDiff
+    deriving (Show, Read, Eq)
+derivePersistField "ProfitType"
