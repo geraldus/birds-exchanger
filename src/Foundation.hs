@@ -519,4 +519,4 @@ getOrCreateWallet uid = runDB . getOrCreateWalletDB uid
 -- TODO: FIXME: Make an MVar or something and expand as app property.
 -- Allow possibility to change this value on the fly
 defaultExchangeFee :: Fee
-defaultExchangeFee = Percent 2
+defaultExchangeFee = Percent 1
