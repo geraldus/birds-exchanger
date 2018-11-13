@@ -52,8 +52,8 @@ postExchangeOrderCreateR = do
                         update outWalletId [UserWalletAmountCents -=. orderDataAmountCents]
                         let order = ExchangeOrder
                                 userId
-                                outWalletId
                                 inWalletId
+                                outWalletId
                                 orderDataCurrencyOut
                                 orderDataCurrencyIn
                                 orderDataAmountCents
