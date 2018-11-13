@@ -143,7 +143,7 @@ instance Yesod App where
                     , menuItemAccessCallback = True
                     }
                 , NavbarLeft $ MenuItem
-                    { menuItemLabel = "Профиль"
+                    { menuItemLabel = "Портфель"
                     , menuItemRoute = ProfileR
                     , menuItemAccessCallback = isJust muser
                     }
