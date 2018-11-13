@@ -1,16 +1,16 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE PartialTypeSignatures #-}
+{-# LANGUAGE RecordWildCards       #-}
 module Handler.Client.ExchangeOrderCreate where
 
 
-import Import
-import Local.Persist.Currency
-import Local.Persist.Deposit
-import Local.Persist.Wallet
-import Local.Persist.ExchangeOrder
-import Form.Exchanger.Order
-import Utils.Deposit (calcFeeCents)
+import           Form.Exchanger.Order
+import           Import
+import           Local.Persist.Currency
+import           Local.Persist.Deposit
+import           Local.Persist.ExchangeOrder
+import           Local.Persist.Wallet
+import           Utils.Deposit               ( calcFeeCents )
 
 
 postExchangeOrderCreateR :: Handler Html
