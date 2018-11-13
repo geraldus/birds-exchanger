@@ -1,23 +1,21 @@
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE NoImplicitPrelude     #-}
+{-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE TemplateHaskell       #-}
+{-# LANGUAGE TypeFamilies          #-}
 module Handler.Home where
 
-import Import
-import Yesod.Form.Bootstrap3 (BootstrapFormLayout (..), renderBootstrap3)
-import Text.Julius (RawJS (..))
+import           Import
+import           Text.Julius                 ( RawJS (..) )
 
-import Form.Exchanger.Order
-import Local.Persist.Currency
-import Local.Persist.ExchangeOrder
-import Utils.Deposit (oneCoinCents)
+import           Form.Exchanger.Order
+import           Local.Persist.Currency
+import           Utils.Deposit               ( oneCoinCents )
 
 
 -- Define our data that will be used for creating the form.
 data FileForm = FileForm
-    { fileInfo :: FileInfo
+    { fileInfo        :: FileInfo
     , fileDescription :: Text
     }
 
