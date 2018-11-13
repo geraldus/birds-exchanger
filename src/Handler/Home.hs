@@ -29,12 +29,13 @@ data FileForm = FileForm
 getHomeR :: Handler Html
 getHomeR = do
     mmsg <- getMessage
-    -- mayClient <- maybeClient
+    mc <- maybeClient
+    $(logInfo) $ pack $ show mc
+    mayClientUser <- (entityKey . fst <$>) <$> maybeClient
     (pzmRurEFWidget, pzmRurEFEnctype) <- generateFormPost formCreateExchageOrder
     (rurPzmEFWidget, rurPzmEFEnctype) <- generateFormPost formCreateExchageOrder
-    let handlerName = "getHomeR" :: Text
     allComments <- runDB $ getAllComments
-    orders@(pzmRurOrders, rurPzmOrders) <- getActiveOrders
+    (pzmRurOrders, rurPzmOrders) <- getActiveOrders mayClientUser
     defaultLayout $ do
         let (commentFormId, commentTextareaId, commentListId) = commentIds
         aDomId <- newIdent
@@ -44,11 +45,11 @@ getHomeR = do
 postHomeR :: Handler Html
 postHomeR = do
     mmsg <- getMessage
+    mayClientUser <- (entityKey . fst <$>) <$> maybeClient
     (pzmRurEFWidget, pzmRurEFEnctype) <- generateFormPost formCreateExchageOrder
     (rurPzmEFWidget, rurPzmEFEnctype) <- generateFormPost formCreateExchageOrder
-    let handlerName = "postHomeR" :: Text
     allComments <- runDB $ getAllComments
-    (pzmRurOrders, rurPzmOrders) <- getActiveOrders
+    (pzmRurOrders, rurPzmOrders) <- getActiveOrders mayClientUser
     defaultLayout $ do
         let (commentFormId, commentTextareaId, commentListId) = commentIds
         aDomId <- newIdent
@@ -63,11 +64,18 @@ getAllComments :: DB [Entity Comment]
 getAllComments = selectList [] [Asc CommentId]
 
 
-getActiveOrders :: Handler ([Entity ExchangeOrder], [Entity ExchangeOrder])
-getActiveOrders = do
-    os <- runDB $ selectList [ExchangeOrderIsActive ==. True] []
+getActiveOrders :: Maybe UserId -> Handler ([Entity ExchangeOrder], [Entity ExchangeOrder])
+getActiveOrders mu = do
+    $(logInfo) $ pack $ show mu
+    let userConstraint = case mu of
+            Nothing -> []
+            Just uid -> [ExchangeOrderUserId !=. uid]
+    os <- runDB $ selectList
+        ([ExchangeOrderIsActive ==. True] ++ userConstraint)
+        [Asc ExchangeOrderRatio, Asc ExchangeOrderCreated]
     return $ partition (isPzmRurOrder . entityVal) os
     where isPzmRurOrder = (== CryptoC PZM) . exchangeOrderCurrencyOut
+
 
 
 renderOrderCol :: Text -> [ExchangeOrder] -> Widget
