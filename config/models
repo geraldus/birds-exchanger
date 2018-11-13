@@ -6,7 +6,7 @@ User
     password Text Maybe
     role UserRole
     UniqueUser ident
-    deriving Typeable
+    deriving Show Typeable
 Email
     email Text
     userId UserId Maybe
