@@ -1,10 +1,12 @@
 <div .ui.container>
 
-    <h1>
-      Access granted!
+    <h1>Ваш портфель
+    <p .h2.text-muted>
+        <strong><span class="username">#{userName}</span></strong>
 
-    <p>
-      This page is protected and access is allowed only for authenticated users.
+    <h2>Кошельки / Ордера
+    <p>все рубли призм
 
-    <p>
-      Your data is protected with us <strong><span class="username">#{userName}</span></strong>!
+    <h2>История
+    <p>табличка
+
