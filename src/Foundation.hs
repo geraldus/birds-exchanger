@@ -127,9 +127,10 @@ instance Yesod App where
     defaultLayout widget = do
         master <- getYesod
         mmsg <- getMessage
-
-        muser <- maybeAuthPair
-        wallets <- getUserWallets
+        muser <- maybeAuthPair :: Handler (Maybe (Either UserId Text, Either User SuperUser))
+        let muserName = userNameF . snd <$> muser
+        let isClient = isClientUser muser
+        wallets <- if isClient then getUserWallets else pure []
         mcurrentRoute <- getCurrentRoute
 
         -- Get the breadcrumbs, as defined in the YesodBreadcrumbs instance.
@@ -145,7 +146,7 @@ instance Yesod App where
                 , NavbarLeft $ MenuItem
                     { menuItemLabel = "Портфель"
                     , menuItemRoute = ProfileR
-                    , menuItemAccessCallback = isJust muser
+                    , menuItemAccessCallback = isClientUser muser
                     }
                 , NavbarLeft $ MenuItem
                     { menuItemLabel = "Пополни счёт"
@@ -451,6 +452,11 @@ requireStaffId = do
             Operator -> return uid
             Admin    -> return uid
         _ -> notFound
+
+
+userNameF :: Either User SuperUser -> Text
+userNameF (Left  u) = userIdent u
+userNameF (Right u) = suName u
 
 
 getUserWallets :: Handler [(Int, Currency)]

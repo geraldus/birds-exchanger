@@ -11,7 +11,16 @@
                 <li .nav-item.mx-2 :Just route == mcurrentRoute:.active>
                     <a .nav-link href="@{route}">#{label}
         <ul .navbar-nav>
-            ^{headerUserBalanceRender wallets}
+            $maybe userName <- muserName
+                <li .nav-item .mr-2>
+                    <span .navbar-text>#{userName}
+
+            $if isClient
+                <a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                    Баланс
+
+                <div class="collapse" id="collapseExample">
+                    ^{headerUserBalanceRender wallets}
             $forall MenuItem label route _ <- navbarRightFilteredMenuItems
                 <li .nav-item.mx-2 :Just route == mcurrentRoute:.active>
                     <a .nav-link href="@{route}">#{label}
