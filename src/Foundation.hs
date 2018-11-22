@@ -14,28 +14,29 @@ module Foundation where
 import           Import.NoFoundation
 import           Yesod.Auth.Hardcoded
 import           Yesod.Auth.Message
-import           Yesod.Core.Types       ( Logger )
-import qualified Yesod.Core.Unsafe      as Unsafe
-import           Yesod.Default.Util     ( addStaticContentExternal )
+import           Yesod.Core.Types         ( Logger )
+import qualified Yesod.Core.Unsafe        as Unsafe
+import           Yesod.Default.Util       ( addStaticContentExternal )
 
-import           Control.Monad.Logger   ( LogSource )
-import qualified Data.CaseInsensitive   as CI
-import qualified Data.Text.Encoding     as TE
-import           Database.Persist.Sql   ( ConnectionPool, runSqlPool )
-import           Text.Hamlet            ( hamletFile )
-import           Text.Jasmine           ( minifym )
+import           Control.Monad.Logger     ( LogSource )
+import qualified Data.CaseInsensitive     as CI
+import qualified Data.Text.Encoding       as TE
+import           Data.Text.Format.Numbers ( PrettyCfg (..), prettyF )
+import           Database.Persist.Sql     ( ConnectionPool, runSqlPool )
+import           Text.Hamlet              ( hamletFile )
+import           Text.Jasmine             ( minifym )
 
 -- Extra imports
 import           Local.Auth
 import           Local.Persist.Currency
 import           Local.Persist.UserRole
 import           Type.Fee
-import           Utils.Deposit          ( oneCoinCents )
+import           Utils.Deposit            ( oneCoinCents )
 
 
-import qualified Crypto.Nonce           as CN
+import qualified Crypto.Nonce             as CN
 
-import           Text.Read              ( readMaybe )
+import           Text.Read                ( readMaybe )
 
 
 exchangerName :: Text
