@@ -1,48 +1,41 @@
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE ExplicitForAll        #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE InstanceSigs          #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE ViewPatterns #-}
-{-# LANGUAGE ExplicitForAll #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE InstanceSigs #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE RecordWildCards #-}
-
+{-# LANGUAGE NoImplicitPrelude     #-}
+{-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE RankNTypes            #-}
+{-# LANGUAGE RecordWildCards       #-}
+{-# LANGUAGE TemplateHaskell       #-}
+{-# LANGUAGE TypeFamilies          #-}
+{-# LANGUAGE ViewPatterns          #-}
 module Foundation where
 
 import           Import.NoFoundation
-import           Database.Persist.Sql           ( ConnectionPool
-                                                , runSqlPool
-                                                )
-import           Text.Hamlet                    ( hamletFile )
-import           Text.Jasmine                   ( minifym )
-import           Control.Monad.Logger           ( LogSource )
-
--- Used only when in "auth-dummy-login" setting is enabled.
--- import Yesod.Auth.Dummy
-
--- import Yesod.Auth.OpenId    (authOpenId, IdentifierType (Claimed))
 import           Yesod.Auth.Hardcoded
 import           Yesod.Auth.Message
-import           Yesod.Default.Util             ( addStaticContentExternal )
-import           Yesod.Core.Types               ( Logger )
-import qualified Yesod.Core.Unsafe             as Unsafe
-import qualified Data.CaseInsensitive          as CI
-import qualified Data.Text.Encoding            as TE
+import           Yesod.Core.Types       ( Logger )
+import qualified Yesod.Core.Unsafe      as Unsafe
+import           Yesod.Default.Util     ( addStaticContentExternal )
+
+import           Control.Monad.Logger   ( LogSource )
+import qualified Data.CaseInsensitive   as CI
+import qualified Data.Text.Encoding     as TE
+import           Database.Persist.Sql   ( ConnectionPool, runSqlPool )
+import           Text.Hamlet            ( hamletFile )
+import           Text.Jasmine           ( minifym )
 
 -- Extra imports
 import           Local.Auth
 import           Local.Persist.Currency
 import           Local.Persist.UserRole
 import           Type.Fee
-import Utils.Deposit (oneCoinCents)
+import           Utils.Deposit          ( oneCoinCents )
 
 
-import qualified Crypto.Nonce                  as CN
+import qualified Crypto.Nonce           as CN
 
-import           Text.Read                      ( readMaybe )
+import           Text.Read              ( readMaybe )
 
 
 exchangerName :: Text
@@ -65,8 +58,8 @@ data App = App
     }
 
 data MenuItem = MenuItem
-    { menuItemLabel :: Text
-    , menuItemRoute :: Route App
+    { menuItemLabel          :: Text
+    , menuItemRoute          :: Route App
     , menuItemAccessCallback :: Bool
     }
 
@@ -103,7 +96,7 @@ instance Yesod App where
     approot :: Approot App
     approot = ApprootRequest $ \app req ->
         case appRoot $ appSettings app of
-            Nothing -> getApprootText guessApproot app req
+            Nothing   -> getApprootText guessApproot app req
             Just root -> root
 
     -- Store session data on the client in encrypted cookies,
@@ -189,10 +182,10 @@ instance Yesod App where
         withUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
         where
             isClientUser (Just (_, Left u)) = userRole u == Client
-            isClientUser _ = False
-            isStaffUser (Just (_, Left u)) = userRole u /= Client
+            isClientUser _                  = False
+            isStaffUser (Just (_, Left u))  = userRole u /= Client
             isStaffUser (Just (_, Right _)) = True
-            isStaffUser _ = False
+            isStaffUser _                   = False
 
     -- The page to be redirected to when authentication is required.
     authRoute
@@ -205,25 +198,25 @@ instance Yesod App where
         -> Bool       -- ^ Whether or not this is a "write" request.
         -> Handler AuthResult
     -- Routes not requiring authentication.
-    isAuthorized (AuthR _) _ = return Authorized
-    isAuthorized CommentR _ = return Authorized
-    isAuthorized HomeR _ = return Authorized
-    isAuthorized FaviconR _ = return Authorized
-    isAuthorized RobotsR _ = return Authorized
-    isAuthorized (StaticR _) _ = return Authorized
-    isAuthorized SignUpR _ = return Authorized
-    isAuthorized (SignUpVerifyR _ _) _ = return Authorized
-    isAuthorized OperatorBidsR _ = isStaffAuthenticated
-    isAuthorized OperatorDepositRequestsListR _ = isStaffAuthenticated
-    isAuthorized OperatorAcceptDepositRequestR _ = isStaffAuthenticated
-    isAuthorized DepositR _ = isClientAuthenticated
-    isAuthorized (DepositRequestConfirmationR _) _ = isClientAuthenticated
-    isAuthorized DepositConfirmRequestR _ = isClientAuthenticated
-    isAuthorized ExchangeOrderCreateR _ = isClientAuthenticated
+    isAuthorized (AuthR _) _                        = return Authorized
+    isAuthorized CommentR _                         = return Authorized
+    isAuthorized HomeR _                            = return Authorized
+    isAuthorized FaviconR _                         = return Authorized
+    isAuthorized RobotsR _                          = return Authorized
+    isAuthorized (StaticR _) _                      = return Authorized
+    isAuthorized SignUpR _                          = return Authorized
+    isAuthorized (SignUpVerifyR _ _) _              = return Authorized
+    isAuthorized OperatorBidsR _                    = isStaffAuthenticated
+    isAuthorized OperatorDepositRequestsListR _     = isStaffAuthenticated
+    isAuthorized OperatorAcceptDepositRequestR _    = isStaffAuthenticated
+    isAuthorized DepositR _                         = isClientAuthenticated
+    isAuthorized (DepositRequestConfirmationR _) _  = isClientAuthenticated
+    isAuthorized DepositConfirmRequestR _           = isClientAuthenticated
+    isAuthorized ExchangeOrderCreateR _             = isClientAuthenticated
 
     -- the profile route requires that the user is authenticated, so we
     -- delegate to that function
-    isAuthorized ProfileR _ = isAuthenticated
+    isAuthorized ProfileR _                        = isAuthenticated
 
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
@@ -269,11 +262,11 @@ instance YesodBreadcrumbs App where
     breadcrumb
         :: Route App  -- ^ The route the user is visiting currently.
         -> Handler (Text, Maybe (Route App))
-    breadcrumb HomeR = return ("Home", Nothing)
+    breadcrumb HomeR     = return ("Home", Nothing)
     breadcrumb (AuthR _) = return ("Login", Just HomeR)
-    breadcrumb ProfileR = return ("Profile", Just HomeR)
-    breadcrumb DepositR = return ("Profile", Just HomeR)
-    breadcrumb  _ = return ("Home", Nothing)
+    breadcrumb ProfileR  = return ("Profile", Just HomeR)
+    breadcrumb DepositR  = return ("Profile", Just HomeR)
+    breadcrumb  _        = return ("Home", Nothing)
 
 -- How to run database actions.
 instance YesodPersist App where
@@ -312,7 +305,7 @@ instance YesodAuth App where
             x <- liftHandler $ runDB $ getBy $ UniqueUser credsIdent
             return $ case x of
                 Just (Entity uid _) -> Authenticated $ Left uid
-                Nothing -> UserError InvalidLogin
+                Nothing             -> UserError InvalidLogin
         -- TODO: FIXME: Better error when plugin name not recognized
         _ -> return $ UserError InvalidLogin
 
@@ -437,7 +430,7 @@ requireClient :: Handler (Entity User, [Entity UserWallet])
 requireClient = do
     mclient <- maybeClient
     case mclient of
-        Nothing -> permissionDenied accessErrorClientOnly
+        Nothing         -> permissionDenied accessErrorClientOnly
         Just clientData -> return clientData
 
 requireStaffId :: Handler (Either UserId Text)
@@ -478,9 +471,9 @@ headerUserBalanceRender ((amtCents, cur):ws) = do
     -- double and render function
     let cents = amtCents - amt * oneCoinCents
     let currencySign = case cur of
-            FiatC RUR -> "₽"
+            FiatC RUR   -> "₽"
             CryptoC PZM -> "PZM"
-            _ -> show cur
+            _           -> show cur
     [whamlet|
         <li .nav-item.mx-2>
             <span .navbar-text>
@@ -515,7 +508,7 @@ getOrCreateWalletDB userId currency = do
     eitherWallet <- insertBy newWallet
     return $ case eitherWallet of
         Left entity -> entity
-        Right wid -> Entity wid newWallet
+        Right wid   -> Entity wid newWallet
 
 
 getOrCreateWallet :: UserId -> Currency -> Handler (Entity UserWallet)
