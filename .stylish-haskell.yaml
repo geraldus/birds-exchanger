@@ -159,7 +159,7 @@ steps:
       #   > import Data.Foo (foo)
       #
       # Default: false
-      space_surround: false
+      space_surround: true
 
   # Language pragmas
   - language_pragmas:
