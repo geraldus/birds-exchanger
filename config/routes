@@ -18,10 +18,15 @@
 
 /profile/deposit                             DepositR                     GET POST
 /profile/deposit/request-confirmation/#Text  DepositRequestConfirmationR  GET
+/profile/withdrawal                          WithdrawalR                  GET
+/profile/withdrawal/create-request           WithdrawalCreateR            POST
 /profile/deposit/confirm                     DepositConfirmRequestR       POST
 -- TODO: FIXME:
 /profile/exchange-order-create        ExchangeOrderCreateR         POST
 
 /operator/bids OperatorBidsR GET
-/operator/deposit-requests-list   OperatorDepositRequestsListR   GET
-/operator/accept-deposit-request  OperatorAcceptDepositRequestR  POST
+
+/operator/deposit-requests-list      OperatorDepositRequestsListR      GET
+/operator/accept-deposit-request     OperatorAcceptDepositRequestR     POST
+/operator/withdrawal-requests-list   OperatorWithdrawalRequestsListR   GET
+/operator/accept-withdrawal-request  OperatorAcceptWithdrawalRequestR  POST

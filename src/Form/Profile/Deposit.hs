@@ -27,6 +27,44 @@ selectMethod' (CryptoC PZM) = CryptoPM PZM
 --         targetCurrency = selectOpposite' <$> paymentCurrencyRes
 --         paymentMethod = selectMethod' <$> paymentCurrencyRes
 
+moneyInput :: Text
+           -> Text
+           -> MForm (HandlerFor App) (FormResult Money, Widget)
+moneyInput aid cid = do
+    (amt, av) <- mreq doubleField (fsBs4WithId aid) Nothing
+    (cur, cv) <- mreq currencySelect (fsBs4WithId cid) Nothing
+    let wid = [whamlet|
+                <div .form-row>
+                    <div .col-12.col-md-4>
+                        <label for="#{aid}">кол-во
+                        ^{fvInput av}
+                    <div .col-12.col-md-8>
+                        <label for="#{cid}">валюта
+                        ^{fvInput cv}
+                |]
+    return  (Money <$> (doubleToCents <$> amt) <*> cur, wid)
+
+
+withdrawalForm :: Form WithdrawalM
+withdrawalForm extra = do
+    adrid <- newIdent
+    amtid <- newIdent
+    curid <- newIdent
+    (moneyRes, moneyWid) <- moneyInput amtid curid
+    (addressRes, addressView) <- mreq textField (fsBs4WithId adrid) Nothing
+    let widget = [whamlet|
+            #{extra}
+            <div .form-row>
+                <p .h4>Вывожу
+            ^{moneyWid}
+            <div .form-row>
+                <label for="#{adrid}">Карта или номер кошелька
+                ^{fvInput addressView}
+            |]
+        res = WithdrawalM <$> moneyRes <*> addressRes
+    return (res, widget)
+
+
 depositForm :: Form DepositRequestFD
 depositForm extra = do
     (paymentCurrencyRes, paymentCurrencyView) <- mreq currencySelect "" Nothing
@@ -93,3 +131,8 @@ typedCurrencyOptions =
     [ (FiatT, FiatC RUR)
     , (CryptoT, CryptoC PZM)
     ]
+
+
+data Money = Money Int Currency deriving Show
+
+data WithdrawalM = WithdrawalM Money Text deriving Show

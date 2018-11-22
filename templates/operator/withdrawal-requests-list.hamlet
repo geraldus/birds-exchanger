@@ -1,0 +1,49 @@
+<table .table .table-striped>
+    <thead>
+        <tr>
+            <th>Сумма к выводу
+            <th>Куда выводить?
+            <th>Пользователь
+            <th>Дата заявки
+            <th>Действия
+    <tbody>
+    $forall (Entity eid WithdrawalRequest{..}, Entity _ UserWallet{..}, Entity _ User{..}) <- list
+        <tr>
+            <td>#{cents2dblT withdrawalRequestCentsAmount} #{currSign userWalletCurrency}
+            <td>#{withdrawalRequestAddressee}
+            <td>#{userIdent}
+            <td>#{show withdrawalRequestCreated}
+            <td>
+                <button
+                    .accept-withdrawal-btn.btn.btn-success
+                    data-toggle=modal
+                    data-target="#withdrawal-request-modal-#{fromSqlKey eid}"
+                    type=button
+                    title="подтвердить операцию">✔
+
+
+$forall (Entity eid WithdrawalRequest{..}, Entity _ UserWallet{..}, _) <- list
+    <div #withdrawal-request-modal-#{fromSqlKey eid} .modal.withdrawal-modal tabindex="-1" role=dialog>
+        <div .modal-dialog role=document>
+            <div .modal-content>
+                <div .modal-header>
+                    <h5 .modal-title>Пометить заявку как выполненую?
+                    <button type=button .close data-dismiss=modal aria-label="Close">
+                        <span aria-hidden="true">&times;
+                <form method=post action=@{OperatorAcceptWithdrawalRequestR}>
+                    <div .modal-body>
+                        <p>Вы подтверждаете вывод <b>#{cents2dblT withdrawalRequestCentsAmount} #{currSign userWalletCurrency}</b> на
+                            <span>
+                                <pre>#{withdrawalRequestAddressee}
+                            ?
+                        <input
+                            ##{fromSqlKey eid}-withdrawal-id
+                            .form-control
+                            style="user-select:none"
+                            type=hidden
+                            readonly=readonly
+                            name="withdrawal-id"
+                            value="#{fromSqlKey eid}">
+                    <div .modal-footer>
+                        <button type=button .btn.btn-secondary data-dismiss=modal>закрыть
+                        <button type=submit .btn.btn-primary>Подтвердить операцию

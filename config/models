@@ -77,6 +77,22 @@ AcceptedDeposit
     walletTransactionReasonId WalletTransactionReasonId
     deriving Show
 
+WithdrawalRequest
+    walletId UserWalletId
+    method Text
+    addressee Text
+    centsAmount Int
+    created UTCTime
+    walletTransactionReasonId WalletTransactionReasonId
+    accepted UTCTime Maybe
+    deriving Show
+
+WithdrawalAccept
+    requestId WithdrawalRequestId
+    staffIdent Text
+    staffId UserId Maybe
+    deriving Show
+
 
 ExchangeOrder
     userId UserId

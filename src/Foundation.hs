@@ -147,8 +147,16 @@ instance Yesod App where
                     , menuItemRoute = DepositR
                     , menuItemAccessCallback = isClientUser muser }
                 , NavbarLeft $ MenuItem
-                    { menuItemLabel = "Входящие заявки"
+                    { menuItemLabel = "Выводи средства"
+                    , menuItemRoute = WithdrawalR
+                    , menuItemAccessCallback = isClientUser muser }
+                , NavbarLeft $ MenuItem
+                    { menuItemLabel = "Заявки на пополнение"
                     , menuItemRoute = OperatorDepositRequestsListR
+                    , menuItemAccessCallback = isStaffUser muser }
+                , NavbarLeft $ MenuItem
+                    { menuItemLabel = "Заявки на вывод"
+                    , menuItemRoute = OperatorWithdrawalRequestsListR
                     , menuItemAccessCallback = isStaffUser muser }
                 , NavbarRight $ MenuItem
                     { menuItemLabel = "Регистрация"
@@ -210,9 +218,14 @@ instance Yesod App where
     isAuthorized OperatorBidsR _                    = isStaffAuthenticated
     isAuthorized OperatorDepositRequestsListR _     = isStaffAuthenticated
     isAuthorized OperatorAcceptDepositRequestR _    = isStaffAuthenticated
+    isAuthorized OperatorWithdrawalRequestsListR _  = isStaffAuthenticated
+    isAuthorized OperatorAcceptWithdrawalRequestR _ = isStaffAuthenticated
     isAuthorized DepositR _                         = isClientAuthenticated
+    isAuthorized WithdrawalR _                      = isClientAuthenticated
     isAuthorized (DepositRequestConfirmationR _) _  = isClientAuthenticated
     isAuthorized DepositConfirmRequestR _           = isClientAuthenticated
+    isAuthorized WithdrawalCreateR True             = isClientAuthenticated
+    isAuthorized WithdrawalCreateR False            = return $ Unauthorized "Только POST запросы"
     isAuthorized ExchangeOrderCreateR _             = isClientAuthenticated
 
     -- the profile route requires that the user is authenticated, so we

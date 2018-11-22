@@ -49,6 +49,7 @@ import           System.Log.FastLogger                (defaultBufSize,
 -- Don't forget to add new modules to your cabal file!
 import           Handler.Client.Deposit
 import           Handler.Client.DepositConfirm
+import           Handler.Client.Withdrawal
 import           Handler.Client.ExchangeOrderCreate
 import           Handler.Comment
 import           Handler.Common
@@ -56,6 +57,7 @@ import           Handler.Home
 import           Handler.Operator.Bids
 import           Handler.Operator.DepositRequestsList
 import           Handler.Operator.AcceptDeposit
+import           Handler.Operator.WithdrawalRequest
 import           Handler.Profile
 import           Handler.SignUp
 import           Handler.SignUpVerification
