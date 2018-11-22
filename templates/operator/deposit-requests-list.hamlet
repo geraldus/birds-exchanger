@@ -1,26 +1,30 @@
+<h2>
+<h2>Список заявок
 <table .table .table-striped>
     <thead>
-    <tbody>
-    $forall (Entity depreqId DepositRequest{..}) <- depositRequestsList
         <tr>
-            <td>#{show depositRequestCentsAmount}
-            <td>#{show depositRequestCurrency}
-            <td>#{show depositRequestTargetCurrency}
-            <td>#{show depositRequestUserId}
-            <td>#{depositRequestTransactionCode}
-            <td>
-                $if depositRequestStatus == ClientConfirmed
-                   Подтверждён Клиентом
-            <td>
-                <button
-                    .accept-deposit-btn.btn.btn-success
-                    data-toggle=modal
-                    data-target="#depreq-modal-#{fromSqlKey depreqId}"
-                    type=button
-                    title="подтвердить операцию">+
+            <th>Сумма пополнения
+            <th>Расчётная сумма зачисления
+            <th>Пользователь
+            <th>Проверочный код
+            <th>Действия
+    <tbody>
+        $forall ((Entity depreqId DepositRequest{..}), (Entity _ UserWallet{..}), (Entity _ User{..}))  <- list
+            <tr>
+                <td>#{cents2dblT depositRequestCentsAmount} #{currSign userWalletCurrency}
+                <td>#{cents2dblT (doubleToCents ((fromIntegral depositRequestCentsAmount * selectRatio' depositRequestCurrency depositRequestTargetCurrency) / 100))} #{currSign depositRequestTargetCurrency}
+                <td>#{userIdent}
+                <td .text-monospace>#{depositRequestTransactionCode}
+                <td>
+                    <button
+                        .accept-deposit-btn.btn.btn-success
+                        data-toggle=modal
+                        data-target="#depreq-modal-#{fromSqlKey depreqId}"
+                        type=button
+                        title="подтвердить операцию">+
 
 
-$forall (Entity depreqId DepositRequest{..}) <- depositRequestsList
+$forall ((Entity depreqId DepositRequest{..}), _, _) <- list
     <div #depreq-modal-#{fromSqlKey depreqId} .modal.depreq-modal tabindex="-1" role=dialog>
         <div .modal-dialog role=document>
             <div .modal-content>
