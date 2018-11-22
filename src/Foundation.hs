@@ -523,6 +523,44 @@ defaultExchangeFee :: Fee
 defaultExchangeFee = Percent 1
 
 
+fsAddPlaceholder :: FieldSettings App -> Text -> FieldSettings App
+fsAddPlaceholder settings p = let
+        attrs = fsAttrs settings ++ [("placeholder", p)]
+    in settings { fsAttrs = attrs }
+
+fsAddClasses :: FieldSettings App -> [ Text ] -> FieldSettings App
+fsAddClasses settings cs = let
+        attrs = fsAttrs settings
+        csi = intercalate " " cs
+        attrs' = updateAttrs attrs [] csi
+    in settings { fsAttrs = attrs' }
+    where
+        updateAttrs [] acc classes = acc ++ [ ("class", classes) ]
+        updateAttrs (a@(aname, aval):rest) acc classes
+            | aname == "class" = acc ++ [ ("class", aval <> " " <> classes) ] ++ rest
+            | otherwise = updateAttrs rest (acc ++ [ a ]) classes
+
+
+
+fsBs4WithId :: Text -> FieldSettings App
+fsBs4WithId ident = fsWithClasses
+    [ "form-control" ] "" Nothing (Just ident) Nothing []
+
+
+fsWithClasses
+    :: [ Text ]
+    -> SomeMessage App
+    -> Maybe (SomeMessage App)
+    -> Maybe Text
+    -> Maybe Text
+    -> [ ( Text, Text ) ]
+    -> FieldSettings App
+fsWithClasses classList lbl tlt mid mnam attrs =
+    let cs = intercalate " " classList
+        as = attrs <> [ ( "class", cs ) ]
+    in FieldSettings lbl tlt mid mnam as
+
+
 currSign :: Currency -> Text
 currSign (FiatC RUR)   = "₽"
 currSign (CryptoC PZM) = "PZM"
