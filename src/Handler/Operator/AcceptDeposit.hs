@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
-module Handler.Operator.FinalizeDeposit where
+module Handler.Operator.AcceptDeposit where
 
 
 import Import
@@ -30,6 +30,7 @@ postOperatorAcceptDepositRequestR = do
                     let (Entity userWalletId userWallet) = walletEntity
                     runDB $ do
                         -- TODO: FIXME: Save fee data
+                        -- Save inner profit record
                         wtrId <- insert $ WalletTransactionReason userWalletId
                         update drId [ DepositRequestStatus =. OperatorAccepted (pack . show $ staffId)]
                         let realAmountCents = floor (realAmount * fromIntegral oneCoinCents)

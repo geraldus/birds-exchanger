@@ -55,7 +55,7 @@ import           Handler.Common
 import           Handler.Home
 import           Handler.Operator.Bids
 import           Handler.Operator.DepositRequestsList
-import           Handler.Operator.FinalizeDeposit
+import           Handler.Operator.AcceptDeposit
 import           Handler.Profile
 import           Handler.SignUp
 import           Handler.SignUpVerification
