@@ -43,5 +43,6 @@ depositRurPzmRatio = 1 / depositPzmRurRatio
 oneCoinCents :: Int
 oneCoinCents = 100
 
+-- TODO: FIXME: Rename to `trunc2cents`
 doubleToCents :: Double -> Int
 doubleToCents x = truncate $ x * fromIntegral oneCoinCents
