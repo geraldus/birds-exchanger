@@ -521,3 +521,8 @@ getOrCreateWallet uid = runDB . getOrCreateWalletDB uid
 -- Allow possibility to change this value on the fly
 defaultExchangeFee :: Fee
 defaultExchangeFee = Percent 1
+
+
+currSign :: Currency -> Text
+currSign (FiatC RUR)   = "₽"
+currSign (CryptoC PZM) = "PZM"
