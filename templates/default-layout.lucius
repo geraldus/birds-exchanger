@@ -38,11 +38,6 @@
     font-weight: normal;
 }
 
-.masthead .btn {
-    margin: 1em 0;
-}
-
-
 /* Common styles for all types */
 .bs-callout {
   padding: 20px;
