@@ -263,11 +263,12 @@ instance YesodBreadcrumbs App where
     breadcrumb
         :: Route App  -- ^ The route the user is visiting currently.
         -> Handler (Text, Maybe (Route App))
-    breadcrumb HomeR     = return ("Home", Nothing)
-    breadcrumb (AuthR _) = return ("Login", Just HomeR)
-    breadcrumb ProfileR  = return ("Profile", Just HomeR)
-    breadcrumb DepositR  = return ("Profile", Just HomeR)
-    breadcrumb  _        = return ("Home", Nothing)
+    breadcrumb HomeR       = return ("Главная", Nothing)
+    breadcrumb (AuthR _)   = return ("Вход", Just HomeR)
+    breadcrumb ProfileR    = return ("Портфель", Just HomeR)
+    breadcrumb DepositR    = return ("Внесение средств", Just ProfileR)
+    breadcrumb WithdrawalR = return ("Внесение средств", Just ProfileR)
+    breadcrumb  _          = return ("*", Nothing)
 
 -- How to run database actions.
 instance YesodPersist App where
