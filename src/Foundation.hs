@@ -526,3 +526,10 @@ defaultExchangeFee = Percent 1
 currSign :: Currency -> Text
 currSign (FiatC RUR)   = "₽"
 currSign (CryptoC PZM) = "PZM"
+
+
+dblCfg :: PrettyCfg
+dblCfg = PrettyCfg 2 (Just '\'') '.'
+
+cents2dblT :: Int -> Text
+cents2dblT n = prettyF dblCfg (fromIntegral n / 100)
