@@ -27,14 +27,13 @@
 
 <!-- Page Contents -->
 
-<div .container>
+<div .container .mt-2>
     $if not $ Just HomeR == mcurrentRoute
         <ul .breadcrumb>
             $forall bc <- parents
-                <li>
+                <li .breadcrumb-item>
                     <a href="@{fst bc}">#{snd bc}
-
-            <li .active>#{title}
+            <li .breadcrumb-item.active>#{title}
 
         $maybe msg <- mmsg
             <div .alert.alert-info #message>#{msg}
