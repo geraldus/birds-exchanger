@@ -27,7 +27,7 @@ postExchangeOrderCreateR = do
                         <li>#{e}
                 |]
             redirect HomeR
-        FormSuccess od@ExchangeOrderData{..} -> do
+        FormSuccess ExchangeOrderData{..} -> do
             let (Entity userId _, wallets) = clientData
             outWallet <- getMatchingWallet userId orderDataCurrencyOut wallets
             inWallet  <- getMatchingWallet userId orderDataCurrencyIn wallets
@@ -39,7 +39,6 @@ postExchangeOrderCreateR = do
                     redirect HomeR
                 else do
                     time <- liftIO getCurrentTime
-                    $(logInfo) $ pack $ show od
                     _ <- runDB $ do
                         let outWalletId = entityKey outWallet
                             inWalletId = entityKey inWallet
@@ -76,7 +75,7 @@ getMatchingWallet :: UserId -> Currency -> [Entity UserWallet] -> Handler (Entit
 getMatchingWallet userId currency wallets = do
     let mwallet = find (\(Entity _ UserWallet{..}) -> userWalletCurrency == currency) wallets
     case mwallet of
-        Nothing -> getOrCreateWallet userId currency
+        Nothing     -> getOrCreateWallet userId currency
         Just wallet -> return wallet
 
 
