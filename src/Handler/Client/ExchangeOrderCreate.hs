@@ -78,39 +78,88 @@ getMatchingWallet userId currency wallets = do
         Nothing     -> getOrCreateWallet userId currency
         Just wallet -> return wallet
 
+-- getFirstMatchingOrder :: Maybe
+-- поиск ордера
 
-instantOrderExecution :: Entity ExchangeOrder -> SqlPersistT Handler (Entity ExchangeOrder, [Entity ExchangeOrderExecution])
-instantOrderExecution orderEntity = do
-    let (Entity orderId order) = orderEntity
+-- executeOrderStep :: ()
+-- выполняет одну экзекуцию
+
+-- executeOrder :: OrderStatus
+    -- Логика будет такой:
+    -- Ищем первый подходящий ордер
+    --   валюта та, что нужна
+    --   сортируем по коэффициенту от меньшего к большему
+    --   сортируем по дате создания от меньшего к большему
+    -- Если нет -- заканчиваем
+    -- Если есть -- исполняем
+    --  проверяем, есть ли нужное количество монет
+    --  снимаем сколько можно
+    --  если найденный ордер закончен -- финализируем его
+    --  если новый ордер закончен -- финализируем его и сообщаем
+    --  если новый ордер не закончен -- повторяем процедуру
+
+
+{-
+
+
+PARTIAL EXECUTION! Amount should be TOTAL!  SO...
+Sum previous value if exists!
+
+
+-}
+
+
+
+instantOrderExecution :: Entity ExchangeOrder -> SqlPersistT Handler (ExchangeOrderStatus, [Entity ExchangeOrderExecution])
+instantOrderExecution = orderExecutionStep
+
+orderExecutionStep
+    :: Entity ExchangeOrder
+    -> SqlPersistT Handler (ExchangeOrderStatus, [Entity ExchangeOrderExecution])
+    -- ^ Bool indicates is order fully executed
+orderExecutionStep userOrder = do
+    let (Entity orderId order) = userOrder
     let userId = exchangeOrderUserId order
-        userCurrencyOut = exchangeOrderCurrencyOut order
         userCurrencyIn = exchangeOrderCurrencyIn order
+        userCurrencyOut = exchangeOrderCurrencyOut order
         userWalletInId = exchangeOrderWalletInId order
-        userWalletOutId = exchangeOrderWalletOutId order
         userAmountOutCents = exchangeOrderAmountCents order
         userRatio  = exchangeOrderRatio order
         targetRatio = 1 / userRatio
+    -- TODO: FIXME: Prevent archieved and cancelled orders to be selected!!
     mayOrder <- selectFirst
-        [ ExchangeOrderCurrencyOut ==. userCurrencyIn
+        [ ExchangeOrderIsActive ==. True
+        , ExchangeOrderCurrencyOut ==. userCurrencyIn
         , ExchangeOrderRatio <=. targetRatio ]
         [ Asc ExchangeOrderRatio
         , Asc ExchangeOrderCreated ]
     case mayOrder of
-        Nothing -> return (orderEntity, [])
+        Nothing -> return (exchangeOrderStatus order, [])
         Just match -> do
             -- We have an exchange possibility
+            -- New approach
+            let matchOrder = entityVal match
+            $(logInfo) $ pack $ show $ calculateOrderExecution order matchOrder
+            redirect HomeR
+
+            -- transfer transCur1 fullCur1Amt feeCur1 matchWallet userWallet matchOrder
+            -- takeamt  transCur2 userWallet userOrder
+            -- transfer transCur2 calcCur2Amt feeCur2 userWallet matchWallet userOrder
+
             let (Entity  matchId matchOrder) = match
             let availAmt = exchangeOrderAmountCents . entityVal $ match
                 -- TODO:  FIXME:  Check several times truncation and rounding EVERYWHERE!
                 targetInAmt = fromIntegral userAmountOutCents * userRatio
             -- 1 Record transaction reason for each wallet
-            let matchUserId = exchangeOrderUserId matchOrder
+            let matchUserId     = exchangeOrderUserId matchOrder
                 matchCurrencyIn = exchangeOrderCurrencyIn matchOrder
                 matchWalletInId = exchangeOrderWalletInId matchOrder
-                matchRatio = exchangeOrderRatio matchOrder
-            (Entity _ userInWallet) <- getOrCreateWalletDB userId userCurrencyIn
-            (Entity _ matchInWallet) <- getOrCreateWalletDB matchUserId matchCurrencyIn
-            userWalletTRId <- insert $ WalletTransactionReason userWalletInId
+                matchRatio      = exchangeOrderRatio matchOrder
+            (Entity _ userInWallet ) <-
+                getOrCreateWalletDB userId userCurrencyIn
+            (Entity _ matchInWallet) <-
+                getOrCreateWalletDB matchUserId matchCurrencyIn
+            userWalletTRId  <- insert $ WalletTransactionReason userWalletInId
             matchWalletTRId <- insert $ WalletTransactionReason matchWalletInId
             -- 2 update wallet balances
             -- TODO: FIXME: TRUNCATE?
@@ -144,44 +193,147 @@ instantOrderExecution orderEntity = do
             -- 4.1 Before recursively execute user order it's better
             -- to record match order execution and update
             -- its status
-            matchExecId <- insert $ ExchangeOrderExecution
+            -- здесь userAmountIn потому что в ордере
+            -- записано кол-во отдаваемой валюты,
+            -- а не получаемой
+            (matchOrderStatus, matchExecE) <- updateOrderData
                 matchId
+                userWalletTRId
+                matchWalletTRId
                 time
-                userWalletTRId -- out wallet reason
-                matchWalletTRId -- in wallet reason
                 matchOrderIsCompleted
                 userAmountInCents
                 matchFinalIncomeCents
                 matchFeeCents
-            let matchOrderStatus = if matchOrderIsCompleted
-                then Executed time
-                else PartiallyExecuted time userAmountInCents
-                -- здесь userAmountIn потому что в ордере
-                -- записано кол-во отдаваемой валюты,
-                -- а не получаемой
-            update
-                matchId
-                [ ExchangeOrderStatus   =. matchOrderStatus
-                , ExchangeOrderIsActive =.  not matchOrderIsCompleted ]
-            -- 4.2 User order
-            userOrderExecutionId <- insert $ ExchangeOrderExecution
+                (exchangeOrderStatus matchOrder)
+            (userOrderStatus, userExecE) <- updateOrderData
                 orderId
+                matchWalletTRId
+                userWalletTRId
                 time
-                matchWalletTRId -- out wallet reason
-                userWalletTRId -- in wallet reason
                 userOrderIsCompleted
                 matchAmountInCents
                 userFinalIncomeCents
                 userFeeCents
-            let userOrderStatus = if userOrderIsCompleted
-                then Executed time
-                else PartiallyExecuted time matchAmountInCents
-                -- здесь matchAmountIn потому что в ордере
-                -- записано кол-во отдаваемой валюты,
-                -- а не получаемой
-            update
-                orderId
-                [ ExchangeOrderStatus =. userOrderStatus
-                , ExchangeOrderIsActive =. not userOrderIsCompleted ]
-            rest <- when (not userOrderIsCompleted) $ error "Recurse"
-            return $ error "merge all current data with rest recursive"
+                (exchangeOrderStatus order)
+            -- 4.2 User order
+            -- здесь matchAmountIn потому что в ордере
+            -- записано кол-во отдаваемой валюты,
+            -- а не получаемой
+            -- 4.3 Exchange profit
+            mayProfit <- if targetRatio >= exchangeOrderRatio matchOrder
+                then pure Nothing
+                else do
+                    -- We gain profit in user's OUT (A) currency when
+                    -- Q A1 < Q A2
+                    -- and in user's IN (B) currency when
+                    -- Q A1 > Q A2
+                    let profAmt = if userAmountOutCents < matchAmountInCents
+                            then error "1 < 2"
+                            else error "1 > 2"
+                    let iprec = if userAmountOutCents < matchAmountInCents
+                            then InnerProfitRecord userWalletTRId userCurrencyOut (error "amount")
+                            else InnerProfitRecord matchWalletTRId userCurrencyIn (error "amount")
+                    return $ Just $ error "profit"
+            -- do it on paper now
+
+            if userOrderIsCompleted
+                then return (userOrderStatus, [ userExecE ])
+                else do
+                    (status, oes) <- orderExecutionStep userOrder
+                    return (status, userExecE:oes)
+
+
+calculateOrderExecution :: ExchangeOrder -> ExchangeOrder -> OrderExecData
+calculateOrderExecution userOrder matchOrder = OrderExecData
+    uFinalAmt
+    (calcFeeCents defaultExchangeFee uFinalAmt)
+    uFinalTrans
+    mFinalAmt
+    (calcFeeCents defaultExchangeFee mFinalAmt)
+    mFinalTrans
+    profC
+    profit
+    -- TODO: FIXME: TRUNCATE or ROUND?!
+    where
+        userRatio  = exchangeOrderRatio userOrder
+        userOutAmt = exchangeOrderAmountCents userOrder
+        userInAmt = truncate $ fromIntegral userOutAmt * userRatio
+        -- Match
+        matchRatio = exchangeOrderRatio matchOrder
+        matchOutAmt = exchangeOrderAmountCents matchOrder
+        matchInAmt = truncate $ fromIntegral matchOutAmt * matchRatio
+        -- Currency
+        userOutC = exchangeOrderCurrencyOut userOrder
+        userInC = exchangeOrderCurrencyIn userOrder
+        equalAmt = userOutAmt == matchInAmt
+        equalRate = userRatio == 1 / matchRatio
+        -- Profit
+        profC
+            | equalAmt = userOutC
+            | userOutAmt < matchInAmt = userOutC
+            | otherwise = userInC
+        (uFinalAmt, uFinalTrans, mFinalAmt, mFinalTrans, profit) =
+            if equalRate
+                then let uamt = min userInAmt matchOutAmt
+                         utrans = truncate $ fromIntegral uamt * userRatio
+                         mtrans = truncate $ fromIntegral utrans * matchRatio
+                     in ( uamt, utrans, utrans, mtrans, 0 )
+                else
+                    if userOutAmt < matchInAmt
+                        then let uamt = truncate (fromIntegral userOutAmt * userRatio)
+                                 mamt = truncate (fromIntegral uamt * matchRatio)
+                            in ( uamt, userOutAmt, mamt, uamt, userOutAmt - mamt )
+                        else let mamt = matchInAmt
+                                 uamt = truncate (fromIntegral mamt * userRatio)
+                            in ( uamt, mamt, mamt, matchOutAmt, matchOutAmt - uamt )
+
+
+updateOrderData
+    :: ExchangeOrderId
+    -> WalletTransactionReasonId
+    -> WalletTransactionReasonId
+    -> UTCTime
+    -> Bool
+    -> Int
+    -> Int
+    -> Int
+    -> ExchangeOrderStatus
+    -> SqlPersistT Handler (ExchangeOrderStatus, Entity ExchangeOrderExecution)
+updateOrderData orderId outReason inReason t isCompleted transfer income fee s = do
+    let orderExec = ExchangeOrderExecution
+            orderId
+            t
+            outReason
+            inReason
+            isCompleted
+            transfer
+            income
+            fee
+    orderExecId <- insert orderExec
+    let status = if isCompleted
+        then Executed t
+        else PartiallyExecuted t $ transfer + case s of
+            PartiallyExecuted _ x -> x
+            _                     -> 0
+    update
+        orderId
+        [ ExchangeOrderStatus   =. status
+        , ExchangeOrderIsActive =.  not isCompleted
+        , ExchangeOrderAmountCents -=. transfer
+        ]
+    return (status, Entity orderExecId orderExec)
+
+
+
+data OrderExecData = OrderExecData
+    { userOrderInAmountCents    :: Int
+    , userOrderInFeeCents       :: Int
+    , userOrderExecAmountCents  :: Int
+    , matchOrderInAmountCents   :: Int
+    , matchOrderInFeeCents      :: Int
+    , matchOrderExecAmountCents :: Int
+    , innerProfitCur            :: Currency
+    , innerProfitAmountCents    :: Int
+    }
+    deriving Show
