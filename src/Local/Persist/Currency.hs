@@ -31,6 +31,12 @@ data Currency
     deriving (Show, Read, Eq)
 derivePersistField "Currency"
 
+pzmC :: Currency
+pzmC = CryptoC PZM
+
+rurC :: Currency
+rurC = FiatC RUR
+
 
 data FiatPaymentMethod
     = Card2CardFPM
