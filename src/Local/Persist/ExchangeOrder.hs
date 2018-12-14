@@ -1,10 +1,9 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Local.Persist.ExchangeOrder where
 
-import Prelude
+import           ClassyPrelude.Yesod
 
-import Database.Persist.TH
-import Data.Time.Clock (UTCTime)
+import           Data.Time.Clock                ( UTCTime )
 
 
 data ExchangeOrderStatus
