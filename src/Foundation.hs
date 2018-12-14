@@ -597,6 +597,10 @@ defPairDir p = case p of
     ExchangePzmRur -> ExchangeRurPzm
     ExchangeRurPzm -> ExchangeRurPzm
 
+flipPair :: ExchangePair -> ExchangePair
+flipPair ExchangePzmRur = ExchangeRurPzm
+flipPair ExchangeRurPzm = ExchangePzmRur
+
 dblCfg :: PrettyCfg
 dblCfg = PrettyCfg 2 (Just '\'') '.'
 
