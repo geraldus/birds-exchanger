@@ -577,8 +577,11 @@ fsWithClasses classList lbl tlt mid mnam attrs =
 
 
 currSign :: Currency -> Text
+currSign (FiatC USD)   = "$"
 currSign (FiatC RUR)   = "₽"
 currSign (CryptoC PZM) = "PZM"
+currSign (CryptoC ETH) = "ETH"
+currSign (CryptoC BTC) = "BTC"
 
 
 dblCfg :: PrettyCfg
