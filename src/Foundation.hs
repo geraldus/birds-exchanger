@@ -14,29 +14,28 @@ module Foundation where
 import           Import.NoFoundation
 import           Yesod.Auth.Hardcoded
 import           Yesod.Auth.Message
-import           Yesod.Core.Types         ( Logger )
-import qualified Yesod.Core.Unsafe        as Unsafe
-import           Yesod.Default.Util       ( addStaticContentExternal )
+import           Yesod.Core.Types            ( Logger )
+import qualified Yesod.Core.Unsafe           as Unsafe
+import           Yesod.Default.Util          ( addStaticContentExternal )
 
-import           Control.Monad.Logger     ( LogSource )
-import qualified Data.CaseInsensitive     as CI
-import qualified Data.Text.Encoding       as TE
-import           Data.Text.Format.Numbers ( PrettyCfg (..), prettyF )
-import           Database.Persist.Sql     ( ConnectionPool, runSqlPool )
-import           Text.Hamlet              ( hamletFile )
-import           Text.Jasmine             ( minifym )
+import           Control.Monad.Logger        ( LogSource )
+import qualified Data.CaseInsensitive        as CI
+import qualified Data.Text.Encoding          as TE
+import           Data.Text.Format.Numbers    ( PrettyCfg (..), prettyF )
+import           Database.Persist.Sql        ( ConnectionPool, runSqlPool )
+import           Text.Hamlet                 ( hamletFile )
+import           Text.Jasmine                ( minifym )
 
 -- Extra imports
 import           Local.Auth
 import           Local.Persist.Currency
+import           Local.Persist.ExchangeOrder ( ExchangePair (..) )
 import           Local.Persist.UserRole
 import           Type.Fee
-import           Utils.Deposit            ( oneCoinCents )
+import           Utils.Deposit               ( oneCoinCents )
 
-
-import qualified Crypto.Nonce             as CN
-
-import           Text.Read                ( readMaybe )
+import qualified Crypto.Nonce                as CN
+import           Text.Read                   ( readMaybe )
 
 
 exchangerName :: Text
@@ -315,9 +314,9 @@ instance YesodAuth App where
     authenticate Creds{..} = case credsPlugin of
         "hardcoded" -> return $ case lookupUser credsIdent of
             Nothing -> UserError InvalidLogin
-            Just m  -> Authenticated $ Right $ suName m
+            Just m  -> Authenticated . Right $ suName m
         "prizm auth plugin" -> do
-            x <- liftHandler $ runDB $ getBy $ UniqueUser credsIdent
+            x <- liftHandler . runDB . getBy $ UniqueUser credsIdent
             return $ case x of
                 Just (Entity uid _) -> Authenticated $ Left uid
                 Nothing             -> UserError InvalidLogin
