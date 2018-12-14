@@ -561,7 +561,6 @@ fsBs4WithId :: Text -> FieldSettings App
 fsBs4WithId ident = fsWithClasses
     [ "form-control" ] "" Nothing (Just ident) Nothing []
 
-
 fsWithClasses
     :: [ Text ]
     -> SomeMessage App
@@ -618,6 +617,11 @@ normalizeRatio p d r
 -- | Convert ratio according to desired normalized pair exchange direction
 fromNormalizedRatio :: ExchangePair -> Double -> Double
 fromNormalizedRatio p = normalizeRatio (defPairDir p) p
+
+convertCents :: Double -> Int -> Int
+convertCents r a =
+    let x = truncate $ fromIntegral a * r * fromIntegral oneCoinCents :: Int
+    in truncate (fromIntegral x / fromIntegral oneCoinCents :: Double)
 
 dblCfg :: PrettyCfg
 dblCfg = PrettyCfg 2 (Just '\'') '.'
