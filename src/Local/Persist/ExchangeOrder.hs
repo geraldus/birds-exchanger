@@ -21,3 +21,14 @@ data ProfitType
     | ExchangeDiff
     deriving (Show, Read, Eq)
 derivePersistField "ProfitType"
+
+
+data ExchangePair
+    = ExchangePzmRur
+    | ExchangeRurPzm
+    deriving (Show, Read, Eq)
+derivePersistField "ExchangePair"
+
+instance PathPiece ExchangePair where
+    toPathPiece = pack . show
+    fromPathPiece = readMay
