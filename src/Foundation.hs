@@ -609,6 +609,16 @@ selectOppositeC p c
         CryptoC PZM -> rurC
         FiatC RUR -> pzmC
     | otherwise = error "No way to select opposite currency"
+
+normalizeRatio :: ExchangePair -> ExchangePair -> Double -> Double
+normalizeRatio p d r
+    | p == d = 1 / r
+    | otherwise = r
+
+-- | Convert ratio according to desired normalized pair exchange direction
+fromNormalizedRatio :: ExchangePair -> Double -> Double
+fromNormalizedRatio p = normalizeRatio (defPairDir p) p
+
 dblCfg :: PrettyCfg
 dblCfg = PrettyCfg 2 (Just '\'') '.'
 
