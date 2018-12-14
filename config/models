@@ -96,18 +96,17 @@ WithdrawalAccept
 
 ExchangeOrder
     userId UserId
-    walletInId UserWalletId
-    walletOutId UserWalletId
-    currencyOut Currency
-    currencyIn  Currency
-    amountCents Int -- Cent actually taken (frozen) from user balance
-    ratio Double
+    pair ExchangePair
+    amountCents Int
+    amountLeft Int
+    ratioNoramlization ExchangePair
+    normalizedRatio Double
     expectedFeeCents Int
     created UTCTime
     status ExchangeOrderStatus
     isActive Bool
     walletTransactionReasonId WalletTransactionReasonId
-    deriving Show
+    deriving Show Eq
 
 ExchangeOrderExecution
     orderId ExchangeOrderId
@@ -125,4 +124,4 @@ InnerProfitRecord
     reasonId WalletTransactionReasonId
     currency Currency
     amountCents Int
-    profitType
+    profitType ProfitType
