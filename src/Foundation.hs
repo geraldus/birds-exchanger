@@ -589,6 +589,14 @@ currSign (CryptoC ETH) = "ETH"
 currSign (CryptoC BTC) = "BTC"
 
 
+-- | Defines devisor and qoutient when specifying exchange ratio for
+-- given pair.  E.g. for PZM -> RUR and RUR -> PZM exchange orders
+-- ratio should always be specified as PZM/RUR pair.
+defPairDir :: ExchangePair -> ExchangePair
+defPairDir p = case p of
+    ExchangePzmRur -> ExchangeRurPzm
+    ExchangeRurPzm -> ExchangeRurPzm
+
 dblCfg :: PrettyCfg
 dblCfg = PrettyCfg 2 (Just '\'') '.'
 
