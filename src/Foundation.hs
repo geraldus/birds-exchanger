@@ -552,7 +552,10 @@ fsAddClasses settings cs = let
             | aname == "class" = acc ++ [ ("class", aval <> " " <> classes) ] ++ rest
             | otherwise = updateAttrs rest (acc ++ [ a ]) classes
 
-
+fsAddAttrs :: [ ( Text, Text) ] -> FieldSettings App -> FieldSettings App
+fsAddAttrs attrs settings =
+    let as = fsAttrs settings
+    in settings { fsAttrs = as <> attrs }
 
 fsBs4WithId :: Text -> FieldSettings App
 fsBs4WithId ident = fsWithClasses
