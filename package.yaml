@@ -67,6 +67,7 @@ library:
       ghc-options:
       - -Wall
       - -fwarn-tabs
+      - -fno-warn-unused-do-bind
       - -O0
       cpp-options: -DDEVELOPMENT
     else:
