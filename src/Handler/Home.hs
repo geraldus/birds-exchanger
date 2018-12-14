@@ -6,10 +6,10 @@
 module Handler.Home where
 
 import           Import
-import           Text.Julius                 ( RawJS (..) )
 
 import           Form.Exchanger.Order
 import           Local.Persist.Currency
+import           Local.Persist.ExchangeOrder (ExchangePair (..))
 import           Utils.Deposit               ( oneCoinCents )
 
 
@@ -30,30 +30,25 @@ getHomeR :: Handler Html
 getHomeR = do
     mmsg <- getMessage
     mc <- maybeClient
-    $(logInfo) $ pack $ show mc
     mayClientUser <- (entityKey . fst <$>) <$> maybeClient
-    (pzmRurEFWidget, pzmRurEFEnctype) <- generateFormPost formCreateExchageOrder
-    (rurPzmEFWidget, rurPzmEFEnctype) <- generateFormPost formCreateExchageOrder
+    (orderCreateFormW, _) <- generateFormPost $ createOrderForm ExchangePzmRur
     allComments <- runDB $ getAllComments
     (pzmRurOrders, rurPzmOrders) <- getActiveOrders mayClientUser
     defaultLayout $ do
         let (commentFormId, commentTextareaId, commentListId) = commentIds
-        aDomId <- newIdent
-        setTitle "Welcome To Yesod!"
+        setTitle "(!) обменный пункт OutBirds"
         $(widgetFile "homepage")
 
 postHomeR :: Handler Html
 postHomeR = do
     mmsg <- getMessage
     mayClientUser <- (entityKey . fst <$>) <$> maybeClient
-    (pzmRurEFWidget, pzmRurEFEnctype) <- generateFormPost formCreateExchageOrder
-    (rurPzmEFWidget, rurPzmEFEnctype) <- generateFormPost formCreateExchageOrder
+    (orderCreateFormW, _) <- generateFormPost $ createOrderForm ExchangePzmRur
     allComments <- runDB $ getAllComments
     (pzmRurOrders, rurPzmOrders) <- getActiveOrders mayClientUser
     defaultLayout $ do
         let (commentFormId, commentTextareaId, commentListId) = commentIds
-        aDomId <- newIdent
-        setTitle "Welcome To Yesod!"
+        setTitle "(!) обменный пункт OutBirds"
         $(widgetFile "homepage")
 
 
@@ -69,13 +64,12 @@ getActiveOrders mu = do
     $(logInfo) $ pack $ show mu
     let userConstraint = case mu of
             Nothing -> []
-            Just uid -> [ExchangeOrderUserId !=. uid]
+            Just uid -> [] -- [ExchangeOrder2UserId !=. uid]
     os <- runDB $ selectList
         ([ExchangeOrderIsActive ==. True] ++ userConstraint)
-        [Asc ExchangeOrderRatio, Asc ExchangeOrderCreated]
+        [Asc ExchangeOrderNormalizedRatio, Asc ExchangeOrderCreated]
     return $ partition (isPzmRurOrder . entityVal) os
-    where isPzmRurOrder = (== CryptoC PZM) . exchangeOrderCurrencyOut
-
+    where isPzmRurOrder = (== ExchangePzmRur) . exchangeOrderPair
 
 
 renderOrderCol :: Text -> [ExchangeOrder] -> Widget
@@ -90,13 +84,12 @@ renderOrderCol title orders = [whamlet|
         <tbody>
             $forall order <- orders
                 <tr>
-                    <td>#{show (exchangeOrderRatio order)}
+                    <td>#{show (exchangeOrderNormalizedRatio order)}
                     <td>#{renderCentsAmt (exchangeOrderAmountCents order)}
-                    <td>#{renderCentsAmt (truncate (exchangeOrderRatio order * (fromIntegral . exchangeOrderAmountCents) order))}
+                    <td>#{renderCentsAmt (convertCents (normalizeRatio (exchangeOrderPair order) (exchangeOrderRatioNoramlization order) (exchangeOrderNormalizedRatio order)) (exchangeOrderAmountCents order))}
     |]
     where
         renderCentsAmt :: Int -> Html
         renderCentsAmt amt = [shamlet|#{real}.#{frac}|]
             where
                 real = truncate $ fromIntegral amt / fromIntegral oneCoinCents
-                frac = amt - real * oneCoinCents

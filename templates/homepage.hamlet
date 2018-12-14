@@ -2,20 +2,24 @@
     <div .container>
         <div .row>
             <h1 .header>
-                Пункт обмена PRIZM
-    <div .container>
-        $maybe msg <- mmsg
-            <div .alert.alert-info #message>#{msg}
-    <div .container>
-        <div .row>
-            <div .col col-lg-6>
-                <form method=post action="@{ExchangeOrderCreateR}" enctype=#{pzmRurEFEnctype}>
-                    ^{pzmRurEFWidget}
-                    <button .btn type=submit>обмен
-            <div .col col-lg-6>
-                <form method=post action="@{ExchangeOrderCreateR}" enctype=#{rurPzmEFEnctype}>
-                    ^{rurPzmEFWidget}
-                    <button .btn type=submit>обмен
+                OutBirds
+    $maybe msg <- mmsg
+        <div .container .mt-3>
+            <div .alert.alert-warning #message>#{msg}
+    <div .container .mt-5>
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a .nav-link.active href="#">PZM / RUR (₽)
+        <div .row .mt-5>
+            <div .col>
+                <form method=post action=@{ExchangeOrderCreateR} enctype="">
+                    ^{orderCreateFormW}
+                    $maybe client <- mayClientUser
+                        <button .btn.btn-lg .mb-5 type=submit>обмен
+                    $nothing
+                        <div .text-muted .mb-5>
+                            <small>
+                                авторизуйтесь для обмена
 
 <div .container .mt-5>
     <div .row>
