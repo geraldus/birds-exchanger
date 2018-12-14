@@ -576,6 +576,11 @@ fsWithClasses classList lbl tlt mid mnam attrs =
     in FieldSettings lbl tlt mid mnam as
 
 
+-- | Calculate fee
+calcFeeCents :: Fee -> Int -> Int
+calcFeeCents (Percent p) c = ceiling $ fromIntegral c * p / fromIntegral oneCoinCents
+calcFeeCents (CentsFixed f) c = c - f
+
 currSign :: Currency -> Text
 currSign (FiatC USD)   = "$"
 currSign (FiatC RUR)   = "₽"
