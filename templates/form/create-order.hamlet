@@ -1,0 +1,30 @@
+<div ##{wrapid} .action-take>
+    #{extra}
+    ^{fvInput hiddenPairView}
+    ^{fvInput hiddenFeeView}
+    <div .form-group.row.justify-content-center>
+        <div .col-3>
+            ^{fvInput actionView}
+        <div .col-4.input-group>
+            ^{fvInput amountView}
+            <div .input-group-append>
+                <span .input-group-text>PZM
+    <div .form-group.row.>
+        <label .col-2 .offset-3 .col-form-label .col-form-label-lg .text-right>курс
+        <div .input-group .col-3>
+            ^{fvInput ratioView}
+            <div .input-group-append>
+                <span .input-group-text>₽/PZM
+    <div .row .justify-content-center>
+        <table .col-6 .table.table-borderless .text-white-50>
+            <thead>
+                <tr>
+                    <td .text-right .#{sumid}-take>получаю
+                    <td .text-right .#{sumid}-give>отдаю
+                    <td>сервисный сбор
+                    <th .text-left>ИТОГО
+            <tbody>
+                <tr>
+                    <td ##{sumid}-tbl .text-right>-
+                    <td ##{feeid}-tbl>-
+                    <th ##{sumid}-total-tbl .text-left.text-white.font-weight-bold>-

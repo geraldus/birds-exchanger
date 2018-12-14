@@ -1,0 +1,49 @@
+const defaultExchangeFeePercents = #{toJSON feePercent}
+
+$(document).ready(() => {
+    const wrap = $('##{rawJS wrapid}')
+    const actIn = $('##{rawJS actid}')
+    const amtIn = $('##{rawJS amtid}')
+    const ratioIn = $('##{rawJS ratid}')
+    const feeOut = $('##{rawJS feeid}')
+    const feeOutTbl = $('##{rawJS feeid}-tbl')
+    const sumOutTbl = $('##{rawJS sumid}-tbl')
+    const sumOutTotalTbl = $('##{rawJS sumid}-total-tbl')
+
+    const getRatio = () => ratioIn.val()
+    const getAmount = () => amtIn.val()
+
+    const updateStats = () => {
+        const r = getRatio()
+        const v = getAmount()
+        if ($.isNumeric(r) && $.isNumeric(v)) {
+            const vr = r * v
+            const s = Math.floor(vr * 100) / 100
+            const f = Math.ceil(vr * defaultExchangeFeePercents) / 100
+            feeOut.val(Math.trunc(f * 100))
+            sumOutTbl.text(s + ' ₽')
+            feeOutTbl.text('-' + f + ' ₽')
+            sumOutTotalTbl.text((s - f) + ' ₽')
+        } else {
+            feeOut.val('')
+            sumOutTbl.text('-')
+            feeOutTbl.text('-')
+            sumOutTotalTbl.text('-')
+        }
+    }
+
+    amtIn.change(updateStats)
+    amtIn.on('input', updateStats)
+    ratioIn.change(updateStats)
+    ratioIn.on('input', updateStats)
+    actIn.change((e) => {
+        switch (actIn.val()) {
+            case '1':
+                wrap.addClass('action-take').removeClass('action-give')
+                break
+            case '2':
+                wrap.addClass('action-give').removeClass('action-take')
+                break
+        }
+    })
+})

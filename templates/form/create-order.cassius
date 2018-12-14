@@ -1,0 +1,11 @@
+[type=number]::-webkit-inner-spin-button, [type=number]::-webkit-outer-spin-button
+    margin-left: 10px
+
+
+.action-take .#{sumid}-give
+    display: none
+.action-give .#{sumid}-take
+    display: none
+
+##{sumid}-total-tbl
+    font-size: 120%
