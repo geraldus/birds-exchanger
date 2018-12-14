@@ -5,8 +5,11 @@ module Form.Exchanger.Order where
 import           Import
 
 import           Local.Persist.Currency
-import Type.Fee (Fee(..))
-import           Utils.Deposit          (doubleToCents)
+import           Local.Persist.ExchangeOrder ( ExchangePair (..) )
+import           Type.Fee                    ( Fee (..) )
+import           Utils.Deposit               ( doubleToCents )
+
+import           Text.Julius                 ( RawJS (..) )
 
 
 -- | This form does not check if user specified valid coins amount.
