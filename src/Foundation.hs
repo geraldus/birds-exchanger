@@ -601,6 +601,14 @@ flipPair :: ExchangePair -> ExchangePair
 flipPair ExchangePzmRur = ExchangeRurPzm
 flipPair ExchangeRurPzm = ExchangePzmRur
 
+-- TODO: FIXME:  Do not use this fragile appoarch
+-- Rather write a function which converts Pair -> (Cur, Cur)
+selectOppositeC :: ExchangePair -> Currency -> Currency
+selectOppositeC p c
+    | p == ExchangePzmRur || p == ExchangeRurPzm = case c of
+        CryptoC PZM -> rurC
+        FiatC RUR -> pzmC
+    | otherwise = error "No way to select opposite currency"
 dblCfg :: PrettyCfg
 dblCfg = PrettyCfg 2 (Just '\'') '.'
 
