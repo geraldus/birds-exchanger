@@ -324,7 +324,60 @@ postExchangeOrderCreateR = do
                                         defaultLayout $ do
                                             setMessage "Ордер исполнен моментально"
                                             redirect HomeR
-                                    else error "someone pays more"
+                                    else do
+                                        -- Amount is equal.  In this case
+                                        -- someone pays more.  Let's figure out.
+                                        -- Mathiching order income is equal to
+                                        -- user's order out.
+                                        -- Match will be fully executed
+                                        -- So, we take from match B fully.
+                                        -- Therefore, user should expect
+                                        -- less than match gives.
+                                        let uRatio  = exchangeOrderNormalizedRatio savedOrder
+                                            uNormD  = exchangeOrderRatioNoramlization savedOrder
+                                            uPair   = exchangeOrderPair savedOrder
+                                        let uDirRatio = normalizeRatio uNormD uPair uRatio
+                                        let userFinalInAmt = multAmt uDirRatio uOutAmt
+                                            userFinalFee   = calcFeeCents defaultExchangeFee userFinalInAmt
+                                            matchFinalFee  = calcFeeCents defaultExchangeFee mInAmt
+                                        $(logInfo) $ "USER >>> " <> (pack . show $ uOutAmt) <> " | <<< " <> (pack . show) userFinalInAmt <> "; Fee: " <> (pack . show $ userFinalFee)
+                                        $(logInfo) $ "MATCH >>> " <> (pack . show) mOutAmt  <> " | <<< " <> (pack . show) mInAmt <> "; Fee: " <> (pack . show $ matchFinalFee)
+                                        -- Exchange orders having equal in/out amount
+                                        -- Both orders will be closed
+                                        -- User gives more (user OUT > match IN)
+                                        runDB $ do
+                                            -- Update order statuses and data
+                                            update matchId setFullyExecuted
+                                            update orderId setFullyExecuted
+                                            let finalUInFee = userFinalFee
+                                                finalMInFee = matchFinalFee
+                                                finalUInAmt = userFinalInAmt - finalUInFee
+                                                finalMInAmt = mInAmt - finalMInFee
+                                            $(logInfo) $ "USER >>>" <> (pack . show) uOutAmt <> " <<< " <> (pack . show) finalUInAmt <> " - " <> (pack . show) finalUInFee
+                                            $(logInfo) $ "MATCH >>>" <> (pack . show) mOutAmt <> " <<< " <> (pack . show) finalMInAmt <> " - " <> (pack . show) finalMInFee
+                                            -- Update users balances
+                                            update userWInId [ UserWalletAmountCents +=. finalUInAmt ]
+                                            update matchWInId [ UserWalletAmountCents +=. finalMInAmt ]
+                                            -- Record transaction details
+                                            -- First create transaction reasons
+                                            uRId <- insert $ WalletTransactionReason userWInId
+                                            mRId <- insert $ WalletTransactionReason matchWInId
+                                            -- Make chronological logs
+                                            -- Wallet balances
+                                            insert $ WalletBalanceTransaction userWInId (ExchangeExchange finalUInAmt) uRId uInAmtB
+                                            insert $ WalletBalanceTransaction matchWInId (ExchangeExchange finalMInAmt) mRId mInAmtB
+                                            -- Order execution
+                                            insert $ ExchangeOrderExecution orderId now mRId uRId True uOutAmt mOutAmt finalUInFee
+                                            insert $ ExchangeOrderExecution matchId now uRId mRId True mOutAmt uOutAmt finalMInFee
+                                            -- Save fee data
+                                            insert $ InnerProfitRecord uRId inCurrency finalUInFee ExchangeFee
+                                            insert $ InnerProfitRecord mRId currency finalMInFee ExchangeFee
+                                            let diffProfit = mOutAmt - userFinalInAmt
+                                            insert $ InnerProfitRecord mRId currency diffProfit ExchangeDiff
+                                            $(logInfo) $ "PROFIT +++ " <> (pack . show) diffProfit <> currSign inCurrency
+                                        defaultLayout $ do
+                                            setMessage "Ордер исполнен моментально"
+                                            redirect HomeR
                                 else if outAmt > mInAmt
                                     then error "close match"
                                     else error "close user"
