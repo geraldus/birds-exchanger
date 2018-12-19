@@ -262,17 +262,17 @@ postExchangeOrderCreateR = do
                                 mpair   = exchangeOrderPair mo
                                 mOutAmt = exchangeOrderAmountLeft mo
                                 uOutAmt   = exchangeOrderAmountCents savedOrder
-                                -- uRatio    = exchangeOrder2NormalizedRatio savedOrder
-                                -- uNormD    = exchangeOrder2RatioNoramlization savedOrder
-                                -- uPair     = exchangeOrder2Pair savedOrder
-                                -- uDirRatio = normalizeRatio uNormD uPair uRatio
-                                -- uInAmt    = multAmt uDirRatio uOutAmt
+                            let uRatio  = exchangeOrderNormalizedRatio savedOrder
+                                uNormD  = exchangeOrderRatioNoramlization savedOrder
+                                uPair   = exchangeOrderPair savedOrder
+                                uDirRatio = normalizeRatio uNormD uPair uRatio
+                            let mDirRatio = normalizeRatio mnormd mpair mratio
                             -- let's calculate what order will be
                             -- fully executed
                             -- x = outAmt cur.A is currency
                             -- z = calculate pair amount ratio
-                            let mDirRatio = normalizeRatio mnormd mpair mratio
-                                mInAmt = multAmt mDirRatio mOutAmt
+                            let uInAmt = multAmt uDirRatio uOutAmt
+                            let mInAmt = multAmt mDirRatio mOutAmt
                             $(logInfo) $ "M | Ratio direct: " <> (pack . show) mDirRatio <> "; amount = " <> (pack . show) mInAmt <> " | Out: " <> (pack . show) mOutAmt
                             $(logInfo) $ "U | In: " <> (pack . show) inAmt <> "; Out: " <> (pack . show) mOutAmt
                             let mUserId = exchangeOrderUserId mo
@@ -291,93 +291,61 @@ postExchangeOrderCreateR = do
                                 matchWInId  = entityKey mWIn
                                 matchWOutId = entityKey mWOut
                             if uOutAmt == mInAmt
-                                then if oratio == mratio
-                                    then do
-                                        -- Exchange orders having equal ratio and in/out amount
-                                        runDB $ do
-                                            -- Update order statuses and data
-                                            update matchId setFullyExecuted
-                                            update orderId setFullyExecuted
-                                            let finalUInFee = calcFeeCents defaultExchangeFee mOutAmt
-                                                finalMInFee = calcFeeCents defaultExchangeFee uOutAmt
-                                                finalUInAmt = mOutAmt - finalUInFee
-                                                finalMInAmt = uOutAmt - finalMInFee
-                                            $(logInfo) $ "USER >>>" <> (pack . show) uOutAmt <> " <<< " <> (pack . show) finalUInAmt <> " - " <> (pack . show) finalUInFee
-                                            $(logInfo) $ "MATCH >>>" <> (pack . show) mOutAmt <> " <<< " <> (pack . show) finalMInAmt <> " - " <> (pack . show) finalMInFee
-                                            -- Update users balances
-                                            update userWInId [ UserWalletAmountCents +=. finalUInAmt ]
-                                            update matchWInId [ UserWalletAmountCents +=. finalMInAmt ]
-                                            -- Record transaction details
-                                            -- First create transaction reasons
-                                            uRId <- insert $ WalletTransactionReason userWInId
-                                            mRId <- insert $ WalletTransactionReason matchWInId
-                                            -- Make chronological logs
-                                            -- Wallet balances
-                                            insert $ WalletBalanceTransaction userWInId (ExchangeExchange finalUInAmt) uRId uInAmtB
-                                            insert $ WalletBalanceTransaction matchWInId (ExchangeExchange finalMInAmt) mRId mInAmtB
-                                            -- Order execution
-                                            insert $ ExchangeOrderExecution orderId now mRId uRId True uOutAmt mOutAmt finalUInFee
-                                            insert $ ExchangeOrderExecution matchId now uRId mRId True mOutAmt uOutAmt finalMInFee
-                                            -- Save fee data
-                                            insert $ InnerProfitRecord uRId inCurrency finalUInFee ExchangeFee
-                                            insert $ InnerProfitRecord mRId currency finalMInFee ExchangeFee
-                                        defaultLayout $ do
-                                            setMessage "Ордер исполнен моментально"
-                                            redirect HomeR
-                                    else do
-                                        -- Amount is equal.  In this case
-                                        -- someone pays more.  Let's figure out.
-                                        -- Mathiching order income is equal to
-                                        -- user's order out.
-                                        -- Match will be fully executed
-                                        -- So, we take from match B fully.
-                                        -- Therefore, user should expect
-                                        -- less than match gives.
-                                        let uRatio  = exchangeOrderNormalizedRatio savedOrder
-                                            uNormD  = exchangeOrderRatioNoramlization savedOrder
-                                            uPair   = exchangeOrderPair savedOrder
-                                        let uDirRatio = normalizeRatio uNormD uPair uRatio
-                                        let userFinalInAmt = multAmt uDirRatio uOutAmt
-                                            userFinalFee   = calcFeeCents defaultExchangeFee userFinalInAmt
-                                            matchFinalFee  = calcFeeCents defaultExchangeFee mInAmt
-                                        $(logInfo) $ "USER >>> " <> (pack . show $ uOutAmt) <> " | <<< " <> (pack . show) userFinalInAmt <> "; Fee: " <> (pack . show $ userFinalFee)
-                                        $(logInfo) $ "MATCH >>> " <> (pack . show) mOutAmt  <> " | <<< " <> (pack . show) mInAmt <> "; Fee: " <> (pack . show $ matchFinalFee)
-                                        -- Exchange orders having equal in/out amount
-                                        -- Both orders will be closed
-                                        -- User gives more (user OUT > match IN)
-                                        runDB $ do
-                                            -- Update order statuses and data
-                                            update matchId setFullyExecuted
-                                            update orderId setFullyExecuted
-                                            let finalUInFee = userFinalFee
-                                                finalMInFee = matchFinalFee
-                                                finalUInAmt = userFinalInAmt - finalUInFee
-                                                finalMInAmt = mInAmt - finalMInFee
-                                            $(logInfo) $ "USER >>>" <> (pack . show) uOutAmt <> " <<< " <> (pack . show) finalUInAmt <> " - " <> (pack . show) finalUInFee
-                                            $(logInfo) $ "MATCH >>>" <> (pack . show) mOutAmt <> " <<< " <> (pack . show) finalMInAmt <> " - " <> (pack . show) finalMInFee
-                                            -- Update users balances
-                                            update userWInId [ UserWalletAmountCents +=. finalUInAmt ]
-                                            update matchWInId [ UserWalletAmountCents +=. finalMInAmt ]
-                                            -- Record transaction details
-                                            -- First create transaction reasons
-                                            uRId <- insert $ WalletTransactionReason userWInId
-                                            mRId <- insert $ WalletTransactionReason matchWInId
-                                            -- Make chronological logs
-                                            -- Wallet balances
-                                            insert $ WalletBalanceTransaction userWInId (ExchangeExchange finalUInAmt) uRId uInAmtB
-                                            insert $ WalletBalanceTransaction matchWInId (ExchangeExchange finalMInAmt) mRId mInAmtB
-                                            -- Order execution
-                                            insert $ ExchangeOrderExecution orderId now mRId uRId True uOutAmt mOutAmt finalUInFee
-                                            insert $ ExchangeOrderExecution matchId now uRId mRId True mOutAmt uOutAmt finalMInFee
-                                            -- Save fee data
-                                            insert $ InnerProfitRecord uRId inCurrency finalUInFee ExchangeFee
-                                            insert $ InnerProfitRecord mRId currency finalMInFee ExchangeFee
-                                            let diffProfit = mOutAmt - userFinalInAmt
-                                            insert $ InnerProfitRecord mRId currency diffProfit ExchangeDiff
+                                -- Amount is equal.
+                                then do
+                                    let ( finalUInFee, finalMInFee, finalUInAmt, finalMInAmt, diffProfit ) =
+                                            if oratio == mratio
+                                            then ( calcFeeCents defaultExchangeFee mOutAmt
+                                                 , calcFeeCents defaultExchangeFee uOutAmt
+                                                 , mOutAmt - finalUInFee
+                                                 , uOutAmt - finalMInFee
+                                                 , 0 )
+                                            else
+                                                -- In this case user pays more.
+                                                -- Therefore, user expects
+                                                -- less than match gives.
+                                                -- Match will be fully executed
+                                                -- So, we take from match B fully.
+                                                ( calcFeeCents defaultExchangeFee uInAmt
+                                                 , calcFeeCents defaultExchangeFee mInAmt
+                                                 , uInAmt - finalUInFee
+                                                 , mInAmt - finalMInFee
+                                                 , mOutAmt - uInAmt )
+                                    -- Exchange orders having equal ratio and in/out amount
+                                    $(logInfo) $ "USER >>>" <> (pack . show) uOutAmt <> " <<< " <> (pack . show) finalUInAmt <> " - " <> (pack . show) finalUInFee
+                                    $(logInfo) $ "MATCH >>>" <> (pack . show) mOutAmt <> " <<< " <> (pack . show) finalMInAmt <> " - " <> (pack . show) finalMInFee
+                                    -- Exchange orders having equal in/out amount
+                                    -- Both orders will be closed
+                                    $(logInfo) $ "USER >>>" <> (pack . show) uOutAmt <> " <<< " <> (pack . show) finalUInAmt <> " - " <> (pack . show) finalUInFee
+                                    $(logInfo) $ "MATCH >>>" <> (pack . show) mOutAmt <> " <<< " <> (pack . show) finalMInAmt <> " - " <> (pack . show) finalMInFee
+                                    runDB $ do
+                                        -- Update order statuses and data
+                                        update matchId setFullyExecuted
+                                        update orderId setFullyExecuted
+                                        -- Update users balances
+                                        update userWInId [ UserWalletAmountCents +=. finalUInAmt ]
+                                        update matchWInId [ UserWalletAmountCents +=. finalMInAmt ]
+                                        -- Record transaction details
+                                        -- First create transaction reasons
+                                        uRId <- insert $ WalletTransactionReason userWInId
+                                        mRId <- insert $ WalletTransactionReason matchWInId
+                                        -- Make chronological logs
+                                        -- Wallet balances
+                                        insert $ WalletBalanceTransaction userWInId (ExchangeExchange finalUInAmt) uRId uInAmtB
+                                        insert $ WalletBalanceTransaction matchWInId (ExchangeExchange finalMInAmt) mRId mInAmtB
+                                        -- Order execution
+                                        insert $ ExchangeOrderExecution orderId now mRId uRId True uOutAmt mOutAmt finalUInFee
+                                        insert $ ExchangeOrderExecution matchId now uRId mRId True mOutAmt uOutAmt finalMInFee
+                                        -- Save fee data
+                                        insert $ InnerProfitRecord uRId inCurrency finalUInFee ExchangeFee
+                                        insert $ InnerProfitRecord mRId currency finalMInFee ExchangeFee
+                                        when (diffProfit > 0) $ do
                                             $(logInfo) $ "PROFIT +++ " <> (pack . show) diffProfit <> currSign inCurrency
-                                        defaultLayout $ do
-                                            setMessage "Ордер исполнен моментально"
-                                            redirect HomeR
+                                            insert $ InnerProfitRecord mRId currency diffProfit ExchangeDiff
+                                            return ()
+                                    defaultLayout $ do
+                                        setMessage "Ордер исполнен моментально"
+                                        redirect HomeR
                                 else if outAmt > mInAmt
                                     then error "close match"
                                     else error "close user"
