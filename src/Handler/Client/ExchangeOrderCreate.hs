@@ -238,9 +238,10 @@ postExchangeOrderCreateR = do
                     -- it must be instantly executed
                     (orderId, savedOrder) <- saveOrder clientId exchange oratio fee outAmt trid
                     -- Check matching orders
-                    let ratioCondition = if opair == defPairDir opair
-                            then [ ExchangeOrderNormalizedRatio >=. oratio ]
-                            else [ ExchangeOrderNormalizedRatio <=. oratio ]
+                    let ratioCondition =
+                            if opair == defPairDir opair
+                            then [ ExchangeOrderNormalizedRatio <=. oratio ]
+                            else [ ExchangeOrderNormalizedRatio >=. oratio ]
                     let orderRatioN = exchangeOrderRatioNoramlization savedOrder
                     morders <- runDB $ selectList
                             (   ratioCondition <>
