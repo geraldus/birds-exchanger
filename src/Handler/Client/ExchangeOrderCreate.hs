@@ -254,8 +254,9 @@ postExchangeOrderCreateR = do
                     $(logInfo) $ "orders: " <> (pack . show $ morders)
                     if length morders > 0
                         then do
+                            now <- liftIO getCurrentTime
                             -- take first order
-                            let ( ( Entity mid mo ) : mrest ) = morders
+                            let ( ( Entity matchId mo ) : mrest ) = morders
                             let mratio  = exchangeOrderNormalizedRatio mo
                                 mnormd  = exchangeOrderRatioNoramlization mo
                                 mpair   = exchangeOrderPair mo
@@ -274,24 +275,29 @@ postExchangeOrderCreateR = do
                                 mInAmt = multAmt mDirRatio mOutAmt
                             $(logInfo) $ "M | Ratio direct: " <> (pack . show) mDirRatio <> "; amount = " <> (pack . show) mInAmt <> " | Out: " <> (pack . show) mOutAmt
                             $(logInfo) $ "U | In: " <> (pack . show) inAmt <> "; Out: " <> (pack . show) mOutAmt
+                            let mUserId = exchangeOrderUserId mo
+                            uWIn  <- getOrCreateWallet clientId inCurrency
+                            uWOut <- getOrCreateWallet clientId   currency
+                            mWIn  <- getOrCreateWallet mUserId    currency
+                            mWOut <- getOrCreateWallet mUserId  inCurrency
+                            let setFullyExecuted =
+                                    [ ExchangeOrderStatus =. Executed now
+                                    , ExchangeOrderAmountLeft =. 0
+                                    , ExchangeOrderIsActive =. False ]
+                            let uInAmtB = userWalletAmountCents (entityVal uWIn)
+                                mInAmtB = userWalletAmountCents (entityVal mWIn)
+                            let userWInId   = entityKey uWIn
+                                userWOutId  = entityKey uWOut
+                                matchWInId  = entityKey mWIn
+                                matchWOutId = entityKey mWOut
                             if uOutAmt == mInAmt
                                 then if oratio == mratio
                                     then do
                                         -- Exchange orders having equal ratio and in/out amount
-                                        now <- liftIO getCurrentTime
-                                        let mUserId = exchangeOrderUserId mo
-                                        uWIn <- getOrCreateWallet clientId inCurrency
-                                        uWOut <- getOrCreateWallet clientId currency
-                                        mWIn <- getOrCreateWallet mUserId currency
-                                        mWOut <- getOrCreateWallet mUserId inCurrency
                                         runDB $ do
-                                            let updates =
-                                                    [ ExchangeOrderStatus =. Executed now
-                                                    , ExchangeOrderAmountLeft =. 0
-                                                    , ExchangeOrderIsActive =. False ]
                                             -- Update order statuses and data
-                                            update mid updates
-                                            update orderId updates
+                                            update matchId setFullyExecuted
+                                            update orderId setFullyExecuted
                                             let finalUInFee = calcFeeCents defaultExchangeFee mOutAmt
                                                 finalMInFee = calcFeeCents defaultExchangeFee uOutAmt
                                                 finalUInAmt = mOutAmt - finalUInFee
@@ -299,21 +305,19 @@ postExchangeOrderCreateR = do
                                             $(logInfo) $ "USER >>>" <> (pack . show) uOutAmt <> " <<< " <> (pack . show) finalUInAmt <> " - " <> (pack . show) finalUInFee
                                             $(logInfo) $ "MATCH >>>" <> (pack . show) mOutAmt <> " <<< " <> (pack . show) finalMInAmt <> " - " <> (pack . show) finalMInFee
                                             -- Update users balances
-                                            let uInAmtB = userWalletAmountCents (entityVal uWIn)
-                                                mInAmtB = userWalletAmountCents (entityVal mWIn)
-                                            update (entityKey uWIn) [ UserWalletAmountCents +=. finalUInAmt ]
-                                            update (entityKey mWIn) [ UserWalletAmountCents +=. finalMInAmt ]
+                                            update userWInId [ UserWalletAmountCents +=. finalUInAmt ]
+                                            update matchWInId [ UserWalletAmountCents +=. finalMInAmt ]
                                             -- Record transaction details
                                             -- First create transaction reasons
-                                            uRId <- insert $ WalletTransactionReason (entityKey uWIn)
-                                            mRId <- insert $ WalletTransactionReason (entityKey mWIn)
+                                            uRId <- insert $ WalletTransactionReason userWInId
+                                            mRId <- insert $ WalletTransactionReason matchWInId
                                             -- Make chronological logs
                                             -- Wallet balances
-                                            insert $ WalletBalanceTransaction (entityKey uWIn) (ExchangeExchange finalUInAmt) uRId uInAmtB
-                                            insert $ WalletBalanceTransaction (entityKey mWIn) (ExchangeExchange finalMInAmt) mRId mInAmtB
+                                            insert $ WalletBalanceTransaction userWInId (ExchangeExchange finalUInAmt) uRId uInAmtB
+                                            insert $ WalletBalanceTransaction matchWInId (ExchangeExchange finalMInAmt) mRId mInAmtB
                                             -- Order execution
                                             insert $ ExchangeOrderExecution orderId now mRId uRId True uOutAmt mOutAmt finalUInFee
-                                            insert $ ExchangeOrderExecution mid now uRId mRId True mOutAmt uOutAmt finalMInFee
+                                            insert $ ExchangeOrderExecution matchId now uRId mRId True mOutAmt uOutAmt finalMInFee
                                             -- Save fee data
                                             insert $ InnerProfitRecord uRId inCurrency finalUInFee ExchangeFee
                                             insert $ InnerProfitRecord mRId currency finalMInFee ExchangeFee
