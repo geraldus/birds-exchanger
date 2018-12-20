@@ -440,8 +440,8 @@ maybeClient = do
             _ -> return Nothing
         _ -> return Nothing
 
-requireClient :: Handler (Entity User, [Entity UserWallet])
-requireClient = do
+requireClientData :: Handler (Entity User, [Entity UserWallet])
+requireClientData = do
     mclient <- maybeClient
     case mclient of
         Nothing         -> permissionDenied accessErrorClientOnly
