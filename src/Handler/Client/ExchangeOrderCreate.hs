@@ -209,6 +209,7 @@ postExchangeOrderCreateR = do
                     ExchangeRurPzm -> if oact == EAGive then (rurC, pzmC) else (pzmC, rurC)
             wout <- getOrCreateWallet clientId currency
             win  <- getOrCreateWallet clientId inCurrency
+            now <- liftIO getCurrentTime
             let excDirRatio = fromNormalizedRatio opair oratio
                 mamt = multAmt excDirRatio oamt
             let (outAmt, inAmt) = if oact == EAGive
@@ -228,7 +229,7 @@ postExchangeOrderCreateR = do
                     let exchange = if oact == EAGive
                             then opair
                             else flipPair opair
-                    (trid, _) <- freezeCoins clientId wout outAmt
+                    (trid, _) <- freezeCoins clientId wout outAmt now
                     -- Save order
                     -- TODO: FIXME: Save order transactionally with
                     -- instant exchnage (if possible).  We don't want
@@ -254,7 +255,6 @@ postExchangeOrderCreateR = do
                     $(logInfo) $ "orders: " <> (pack . show $ morders)
                     if length morders > 0
                         then do
-                            now <- liftIO getCurrentTime
                             -- take first order
                             let ( ( Entity matchId mo ) : mrest ) = morders
                             let mratio  = exchangeOrderNormalizedRatio mo
@@ -331,8 +331,8 @@ postExchangeOrderCreateR = do
                                         mRId <- insert $ WalletTransactionReason matchWInId
                                         -- Make chronological logs
                                         -- Wallet balances
-                                        insert $ WalletBalanceTransaction userWInId (ExchangeExchange finalUInAmt) uRId uInAmtB
-                                        insert $ WalletBalanceTransaction matchWInId (ExchangeExchange finalMInAmt) mRId mInAmtB
+                                        insert $ WalletBalanceTransaction userWInId (ExchangeExchange finalUInAmt) uRId uInAmtB now
+                                        insert $ WalletBalanceTransaction matchWInId (ExchangeExchange finalMInAmt) mRId mInAmtB now
                                         -- Order execution
                                         insert $ ExchangeOrderExecution orderId now mRId uRId True uOutAmt mOutAmt finalUInFee
                                         insert $ ExchangeOrderExecution matchId now uRId mRId True mOutAmt uOutAmt finalMInFee
@@ -389,7 +389,7 @@ postExchangeOrderCreateR = do
             -- save fees
             error "execute and recurse"
     multAmt = convertCents
-    freezeCoins uid ewallet = runDB . freezeUserCoins uid ewallet
+    freezeCoins uid ewallet t = runDB . freezeUserCoins uid ewallet t
     saveOrder uid pair ratio fee amount trid = runDB $ do
         time <- liftIO getCurrentTime
         let ratioNorm = defPairDir pair
@@ -404,9 +404,10 @@ freezeUserCoins
     :: UserId
     -> Entity UserWallet
     -> Int
+    -> UTCTime
     -> SqlPersistT Handler
         ( WalletTransactionReasonId, WalletBalanceTransactionId )
-freezeUserCoins userId eWallet amount = do
+freezeUserCoins userId eWallet amount t = do
     let (Entity walletId wallet) = eWallet
     let tr = WalletTransactionReason walletId
         famt = userWalletAmountCents wallet
@@ -416,7 +417,7 @@ freezeUserCoins userId eWallet amount = do
     update walletId [ UserWalletAmountCents -=. amount ]
     -- save balance transaction record
     wtid' <- insert $ WalletBalanceTransaction
-        walletId (ExchangeFreeze $ negate amount) trid' famt
+        walletId (ExchangeFreeze $ negate amount) trid' famt t
     return (trid', wtid')
 
 

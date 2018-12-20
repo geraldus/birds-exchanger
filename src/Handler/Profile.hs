@@ -24,7 +24,10 @@ getProfileR = do
         findWalletCurrency = userWalletCurrency . entityVal . findWallet
     -- Let JS Front-end take and visualize data
     walletOps <- runDB
-        $ selectList [WalletBalanceTransactionWalletId <-. walletIds] []
+        $ selectList
+            [ WalletBalanceTransactionWalletId <-. walletIds ]
+            [ Desc WalletBalanceTransactionTime
+            , Desc WalletBalanceTransactionId ]
     defaultLayout $ do
         setTitle . toHtml $ "Мой портфель | " <> userName
         $(widgetFile "profile")

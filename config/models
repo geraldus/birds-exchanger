@@ -45,6 +45,7 @@ WalletBalanceTransaction
     type WalletTransactionType
     walletTransactionReasonId WalletTransactionReasonId
     amountCentsBefore Int
+    time UTCTime
     deriving Show
 
 

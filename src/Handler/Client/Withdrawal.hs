@@ -50,6 +50,7 @@ postWithdrawalCreateR = do
                             (BalanceWithdrawal amt)
                             reasonId
                             walletCents
+                            time
                     _ <- runDB $ do
                         insert record
                         insert transaction
