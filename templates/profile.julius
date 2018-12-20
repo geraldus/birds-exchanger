@@ -1,0 +1,10 @@
+$(document).ready(() => {
+    $('#wallets-view a.nav-link')
+        .first()
+        .addClass('active')
+    $('#pills-tabContent .tab-pane')
+        .first()
+        .addClass('show')
+        .addClass('active')
+
+})

@@ -7,11 +7,24 @@ module Handler.Profile where
 
 import           Import
 import           Type.Auth.SuperUser            ( SuperUser(..) )
+import           Local.Persist.Wallet
+
+import           Data.Maybe                     ( fromJust )
 
 
 getProfileR :: Handler Html
 getProfileR = do
-    userName <- userNameF . snd <$> requireAuthPair
+    userName     <- userNameF . snd <$> requireAuthPair
+    (_, wallets) <- requireClientData
+    let walletIds  = map entityKey wallets
+        walletVals = map entityVal wallets
+        findWallet :: UserWalletId -> Entity UserWallet
+        findWallet wid =
+            fromJust $ find (\(Entity uwid w) -> uwid == wid) wallets
+        findWalletCurrency = userWalletCurrency . entityVal . findWallet
+    -- Let JS Front-end take and visualize data
+    walletOps <- runDB
+        $ selectList [WalletBalanceTransactionWalletId <-. walletIds] []
     defaultLayout $ do
         setTitle . toHtml $ "Мой портфель | " <> userName
         $(widgetFile "profile")
