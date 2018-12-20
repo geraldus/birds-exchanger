@@ -85,11 +85,6 @@ renderOrderCol title orders = [whamlet|
             $forall order <- orders
                 <tr>
                     <td>#{show (exchangeOrderNormalizedRatio order)}
-                    <td>#{renderCentsAmt (exchangeOrderAmountCents order)}
-                    <td>#{renderCentsAmt (convertCents (normalizeRatio (exchangeOrderPair order) (exchangeOrderRatioNoramlization order) (exchangeOrderNormalizedRatio order)) (exchangeOrderAmountCents order))}
+                    <td>#{cents2dblT (exchangeOrderAmountCents order)}
+                    <td>#{cents2dblT (convertCents (normalizeRatio (exchangeOrderPair order) (exchangeOrderRatioNoramlization order) (exchangeOrderNormalizedRatio order)) (exchangeOrderAmountCents order))}
     |]
-    where
-        renderCentsAmt :: Int -> Html
-        renderCentsAmt amt = [shamlet|#{real}.#{frac}|]
-            where
-                real = truncate $ fromIntegral amt / fromIntegral oneCoinCents
