@@ -384,7 +384,7 @@ postExchangeOrderCreateR = do
                                             insert $ WalletBalanceTransaction userWInId (ExchangeExchange userFinalIn) uRId uInAmtB now
                                             insert $ WalletBalanceTransaction matchWInId (ExchangeExchange matchFinalIn) mRId mInAmtB now
                                             -- Order execution
-                                            insert $ ExchangeOrderExecution orderId now mRId uRId True userFinalOut matchFinalOut userFinalFee
+                                            insert $ ExchangeOrderExecution orderId now mRId uRId False userFinalOut matchFinalOut userFinalFee
                                             insert $ ExchangeOrderExecution matchId now uRId mRId True matchFinalOut userFinalOut matchFinalFee
                                             -- Save fee data
                                             insert $ InnerProfitRecord uRId inCurrency userFinalFee ExchangeFee
