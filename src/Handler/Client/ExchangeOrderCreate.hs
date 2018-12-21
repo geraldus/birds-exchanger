@@ -357,10 +357,7 @@ postExchangeOrderCreateR = do
                                                     defaultExchangeFee mInAmt
                                             matchFinalOut = mOutAmt
                                             matchFinalIn  = mInAmt - matchFinalFee
-                                            (diffProfit, diffCurrency) =
-                                                if oratio == mratio
-                                                then (0, error "no diff")
-                                                else (matchFinalOut - userIn, inCurrency)
+                                            (diffProfit, diffCurrency) = (matchFinalOut - userIn, inCurrency)
                                         $(logInfo) $ "U out: " <> (pack . show) userFinalOut <> "; in: " <> (pack . show) userFinalIn <> " ; fee: " <> (pack . show) userFinalFee
                                         $(logInfo) $ "M out: " <> (pack . show) matchFinalOut <> " ; in: " <> (pack . show) matchFinalIn <> " ; fee: " <> (pack . show) matchFinalFee
                                         $(logInfo) $ "Diff: " <> (pack . show) diffProfit
