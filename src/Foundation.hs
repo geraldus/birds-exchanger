@@ -1,4 +1,5 @@
 {-# LANGUAGE ExplicitForAll        #-}
+{-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE InstanceSigs          #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -326,6 +327,29 @@ instance YesodAuth App where
     -- You can add other plugins like Google Email, email or OAuth here
     authPlugins :: App -> [AuthPlugin App]
     authPlugins _ = [authHardcoded, authPrizm]
+
+    loginHandler :: AuthHandler App Html
+    loginHandler = do
+        ma <- maybeAuthId
+        tp <- getRouteToParent
+        when (isJust ma) (redirect HomeR)
+        authLayout $ do
+            [whamlet|
+                <div .container>
+                    <div .row .justify-content-center>
+                        <div .col-6>
+                            <form pb-5 action=@{tp Local.Auth.loginR} method=post>
+                                <h2 .text-center>Вход
+                                <div .form-group>
+                                    <label for="input123">Адрес эл.почты
+                                    <input type=email .form-control #input123 placeholder="your-email@domain.zone" name="username">
+                                <div .form-group>
+                                    <label for="input1234">Пароль
+                                    <input type=password .form-control #input1234 placeholder="******" name="password">
+                                <div .form-group .row>
+                                    <div .col-9 .mx-auto>
+                                        <button .btn.btn-lg.btn-block.btn-outline-primary type=submit>войти
+                |]
 
 -- | Access function to determine if a user is logged in.
 isAuthenticated :: Handler AuthResult
