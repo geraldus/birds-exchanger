@@ -630,7 +630,7 @@ selectOppositeC :: ExchangePair -> Currency -> Currency
 selectOppositeC p c
     | p == ExchangePzmRur || p == ExchangeRurPzm = case c of
         CryptoC PZM -> rurC
-        FiatC RUR -> pzmC
+        FiatC RUR   -> pzmC
     | otherwise = error "No way to select opposite currency"
 
 normalizeRatio :: ExchangePair -> ExchangePair -> Double -> Double
