@@ -252,7 +252,7 @@ postExchangeOrderCreateR = do
                               , ExchangeOrderRatioNoramlization ==. orderRatioN
                               , ExchangeOrderPair ==. flipPair exchange ] )
                             [ Asc ExchangeOrderCreated ]
-                    $(logInfo) $ "orders: " <> (pack . show $ morders)
+                    $(logInfo) $ "Matching orders: " <> (pack . show $ morders)
                     if length morders > 0
                         then do
                             -- take first order
@@ -274,7 +274,7 @@ postExchangeOrderCreateR = do
                             let uInAmt = multAmt uDirRatio uOutAmt
                             let mInAmt = multAmt mDirRatio mOutAmt
                             $(logInfo) $ "M | Ratio direct: " <> (pack . show) mDirRatio <> "; amount = " <> (pack . show) mInAmt <> " | Out: " <> (pack . show) mOutAmt
-                            $(logInfo) $ "U | In: " <> (pack . show) inAmt <> "; Out: " <> (pack . show) mOutAmt
+                            $(logInfo) $ "U | In: " <> (pack . show) mInAmt <> "; Out: " <> (pack . show) mOutAmt
                             let mUserId = exchangeOrderUserId mo
                             uWIn  <- getOrCreateWallet clientId inCurrency
                             uWOut <- getOrCreateWallet clientId   currency
