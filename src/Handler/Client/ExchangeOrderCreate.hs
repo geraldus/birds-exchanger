@@ -195,7 +195,9 @@ postExchangeOrderCreateR = do
     ((res, widget), enctype) <- runFormPost $ createOrderForm ExchangePzmRur
     $(logInfo) $ pack . show $ res
     case res of
-        FormFailure es -> setMessage . renderFormErrors $ es
+        FormFailure es -> defaultLayout $ do
+            setMessage $ renderFormErrors es
+            redirect HomeR
         FormMissing -> redirect HomeR
         FormSuccess orderData -> do
             let oact = action orderData
