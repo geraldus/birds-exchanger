@@ -36,7 +36,7 @@ getSignUpR = do
     (widget, enctype) <- generateFormPost signUpForm
     defaultLayout $ do
         let mayError = Nothing :: Maybe Text
-        setTitle $ toHtml ("Регистрация / Вход" :: Text)
+        setTitle $ toHtml ("Регистрация" :: Text)
         $(widgetFile "auth/signup")
 
 
