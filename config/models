@@ -95,6 +95,32 @@ WithdrawalAccept
     deriving Show
 
 
+-- ExchangeOrder
+--     userId UserId
+--     walletInId UserWalletId
+--     walletOutId UserWalletId
+--     currencyOut Currency
+--     currencyIn  Currency
+--     amountCents Int -- Cent actually taken (frozen) from user balance
+--     ratio Double
+--     expectedFeeCents Int
+--     created UTCTime
+--     status ExchangeOrderStatus
+--     isActive Bool
+--     walletTransactionReasonId WalletTransactionReasonId
+--     deriving Show
+--
+-- ExchangeOrderExecution
+--     orderId ExchangeOrderId
+--     time UTCTime
+--     outWalletTransactionReasonId WalletTransactionReasonId
+--     inWalletTransactionReasonId WalletTransactionReasonId
+--     fullyExecuted Bool default=FALSE
+--     transferAmountCents Int
+--     incomeAmountCents Int
+--     feeCents Int
+--     deriving Show
+
 ExchangeOrder
     userId UserId
     pair ExchangePair
