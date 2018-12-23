@@ -28,10 +28,10 @@ getSignUpVerifyR email verkey = do
             Nothing -> return InvalidEmail
     defaultLayout $ case result of
         Verified -> do
-            setTitle "Проверка почты успешно пройдена!"
+            setMessage "Проверка почты успешно пройдена!"
             redirect HomeR
         VerifiedAlready -> do
-            setTitle "Проверка уже пройдена"
+            setMessage "Проверка уже пройдена"
             redirect HomeR
         _ -> $(widgetFile "auth/invalid-verification-data")
 
