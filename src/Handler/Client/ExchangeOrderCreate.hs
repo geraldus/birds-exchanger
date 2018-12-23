@@ -346,106 +346,63 @@ postExchangeOrderCreateR = do
                                     defaultLayout $ do
                                         setMessage "Ордер исполнен моментально"
                                         redirect HomeR
-                                else if outAmt > mInAmt
-                                    then do
-                                        let userFinalOut = mInAmt
-                                            userIn       = multAmt uDirRatio userFinalOut
-                                            userFinalFee = calcFeeCents
-                                                    defaultExchangeFee userIn
-                                            userFinalIn   = userIn - userFinalFee
-                                            matchFinalFee = calcFeeCents
-                                                    defaultExchangeFee mInAmt
-                                            matchFinalOut = mOutAmt
-                                            matchFinalIn  = mInAmt - matchFinalFee
-                                            (diffProfit, diffCurrency) = (matchFinalOut - userIn, inCurrency)
-                                        $(logInfo) $ "U out: " <> (pack . show) userFinalOut <> "; in: " <> (pack . show) userFinalIn <> " ; fee: " <> (pack . show) userFinalFee
-                                        $(logInfo) $ "M out: " <> (pack . show) matchFinalOut <> " ; in: " <> (pack . show) matchFinalIn <> " ; fee: " <> (pack . show) matchFinalFee
-                                        $(logInfo) $ "Diff: " <> (pack . show) diffProfit
-                                        runDB $ do
-                                            -- Update order statuses and data
-                                            update matchId setFullyExecuted
-                                            let uos = exchangeOrderStatus savedOrder
-                                                newUserOrderStatus =
-                                                    PartiallyExecuted now ((+) userFinalOut $ case uos of
-                                                        Created _ -> 0
-                                                        PartiallyExecuted _ x -> x)
-                                            update orderId
-                                                [ ExchangeOrderAmountLeft -=. userFinalOut
-                                                , ExchangeOrderStatus =. newUserOrderStatus ]
-                                            -- Update users balances
-                                            update userWInId [ UserWalletAmountCents +=. userFinalIn ]
-                                            update matchWInId [ UserWalletAmountCents +=. matchFinalIn ]
-                                            -- Record transaction details
-                                            -- First create transaction reasons
-                                            uRId <- insert $ WalletTransactionReason userWInId
-                                            mRId <- insert $ WalletTransactionReason matchWInId
-                                            -- Make chronological logs
-                                            -- Wallet balances
-                                            insert $ WalletBalanceTransaction userWInId (ExchangeExchange userFinalIn) uRId uInAmtB now
-                                            insert $ WalletBalanceTransaction matchWInId (ExchangeExchange matchFinalIn) mRId mInAmtB now
-                                            -- Order execution
-                                            insert $ ExchangeOrderExecution orderId now mRId uRId False userFinalOut matchFinalOut userFinalFee
-                                            insert $ ExchangeOrderExecution matchId now uRId mRId True matchFinalOut userFinalOut matchFinalFee
-                                            -- Save fee data
-                                            insert $ InnerProfitRecord uRId inCurrency userFinalFee ExchangeFee
-                                            insert $ InnerProfitRecord mRId currency matchFinalFee ExchangeFee
-                                            when (diffProfit > 0) $ do
-                                                insert $ InnerProfitRecord mRId diffCurrency diffProfit ExchangeDiff
-                                                return ()
-                                        defaultLayout $ do
-                                            setMessage "Ордер исполнен частично"
-                                            redirect HomeR
-                                    else do
-                                        -- user OUT < match IN
-                                        -- User's order will be fully executed
-                                        let userFinalOut = uOutAmt
-                                            userIn       = uInAmt
-                                            userFinalFee = calcFeeCents
-                                                    defaultExchangeFee userIn
-                                            userFinalIn   = userIn - userFinalFee
-                                            matchIn       = userFinalOut
-                                            matchFinalFee = calcFeeCents
-                                                    defaultExchangeFee matchIn
-                                            matchFinalIn  = matchIn - matchFinalFee
-                                            matchFinalOut = multAmt (1 / mDirRatio) matchIn
-                                            (diffProfit, diffCurrency) = (matchFinalOut - userIn, inCurrency)
-                                        $(logInfo) $ "U out: " <> (pack . show) userFinalOut <> "; in: " <> (pack . show) userFinalIn <> " ; fee: " <> (pack . show) userFinalFee
-                                        $(logInfo) $ "M out: " <> (pack . show) matchFinalOut <> " ; in: " <> (pack . show) matchFinalIn <> " ; fee: " <> (pack . show) matchFinalFee
-                                        $(logInfo) $ "Diff: " <> (pack . show) diffProfit
-                                        runDB $ do
-                                            -- Update order statuses and data
-                                            update orderId setFullyExecuted
-                                            let mos = exchangeOrderStatus mo
-                                                newMatchOrderStatus =
-                                                    PartiallyExecuted now ((+) matchFinalOut $ case mos of
-                                                        PartiallyExecuted _ x -> x
-                                                        _ -> 0)
-                                            update matchId
-                                                [ ExchangeOrderAmountLeft -=. matchFinalOut
-                                                , ExchangeOrderStatus =. newMatchOrderStatus ]
-                                            -- Update users balances
-                                            update userWInId [ UserWalletAmountCents +=. userFinalIn ]
-                                            update matchWInId [ UserWalletAmountCents +=. matchFinalIn ]
-                                            -- Record transaction details
-                                            -- First create transaction reasons
-                                            uRId <- insert $ WalletTransactionReason userWInId
-                                            mRId <- insert $ WalletTransactionReason matchWInId
-                                            -- Make chronological logs
-                                            -- Wallet balances
-                                            insert $ WalletBalanceTransaction userWInId (ExchangeExchange userFinalIn) uRId uInAmtB now
-                                            insert $ WalletBalanceTransaction matchWInId (ExchangeExchange matchFinalIn) mRId mInAmtB now
-                                            -- Order execution
-                                            insert $ ExchangeOrderExecution orderId now mRId uRId True userFinalOut matchFinalOut userFinalFee
-                                            insert $ ExchangeOrderExecution matchId now uRId mRId False matchFinalOut userFinalOut matchFinalFee
-                                            -- Save fee data
-                                            insert $ InnerProfitRecord uRId inCurrency userFinalFee ExchangeFee
-                                            insert $ InnerProfitRecord mRId currency matchFinalFee ExchangeFee
-                                            when (diffProfit > 0) $ do
-                                                insert $ InnerProfitRecord mRId diffCurrency diffProfit ExchangeDiff
-                                                return ()
-                                        defaultLayout $ do
-                                            setMessage "Ордер исполнен моментально"
-                                            redirect HomeR
+                                else do
+                                    let ( userFinalOut, userIn, userFinalIn, userFinalFee,
+                                          matchFinalOut, matchIn, matchFinalIn, matchFinalFee,
+                                          diffProfit, diffCurrency, userOrderUpdates, matchOrderUpdates ) =
+                                            if outAmt > mInAmt
+                                                then let uout = mInAmt
+                                                         uin  = multAmt uDirRatio uout
+                                                         ufee = calcFeeCents defaultExchangeFee uin
+                                                         mout = mOutAmt
+                                                         min  = mInAmt
+                                                         mfee = calcFeeCents defaultExchangeFee min
+                                                         st   = exchangeOrderStatus savedOrder
+                                                    in ( uout, uin, uin - ufee, ufee,
+                                                         mout, min, min - mfee, mfee,
+                                                         mout - uin, inCurrency, setPartiallyExecuted uout now st, setFullyExecuted )
+                                                else let uout = uOutAmt
+                                                         uin  = uInAmt
+                                                         ufee = calcFeeCents defaultExchangeFee uin
+                                                         min  = uout
+                                                         mfee = calcFeeCents defaultExchangeFee min
+                                                         mout = multAmt (1 / mDirRatio) min
+                                                         st = exchangeOrderStatus mo
+                                                    in ( uout, uin, uin - ufee, ufee,
+                                                         mout, min, min - mfee, mfee,
+                                                         mout - uin, inCurrency, setFullyExecuted, setPartiallyExecuted mout now st )
+                                    $(logInfo) $ "U out: " <> (pack . show) userFinalOut <> "; in: " <> (pack . show) userFinalIn <> " ; fee: " <> (pack . show) userFinalFee
+                                    $(logInfo) $ "M out: " <> (pack . show) matchFinalOut <> " ; in: " <> (pack . show) matchFinalIn <> " ; fee: " <> (pack . show) matchFinalFee
+                                    $(logInfo) $ "Diff: " <> (pack . show) diffProfit
+                                    runDB $ do
+                                        -- Update order statuses and data
+                                        update orderId userOrderUpdates
+                                        update matchId matchOrderUpdates
+                                        -- Update users balances
+                                        update userWInId [ UserWalletAmountCents +=. userFinalIn ]
+                                        update matchWInId [ UserWalletAmountCents +=. matchFinalIn ]
+                                        -- Record transaction details
+                                        -- First create transaction reasons
+                                        uRId <- insert $ WalletTransactionReason userWInId
+                                        mRId <- insert $ WalletTransactionReason matchWInId
+                                        -- Make chronological logs
+                                        -- Wallet balances
+                                        insert $ WalletBalanceTransaction userWInId (ExchangeExchange userFinalIn) uRId uInAmtB now
+                                        insert $ WalletBalanceTransaction matchWInId (ExchangeExchange matchFinalIn) mRId mInAmtB now
+                                        -- Order execution
+                                        insert $ ExchangeOrderExecution orderId now mRId uRId (uOutAmt == userFinalOut) userFinalOut matchFinalOut userFinalFee
+                                        insert $ ExchangeOrderExecution matchId now uRId mRId (mOutAmt == matchFinalOut) matchFinalOut userFinalOut matchFinalFee
+                                        -- Save fee data
+                                        insert $ InnerProfitRecord uRId inCurrency userFinalFee ExchangeFee
+                                        insert $ InnerProfitRecord mRId currency matchFinalFee ExchangeFee
+                                        when (diffProfit > 0) $ do
+                                            insert $ InnerProfitRecord mRId diffCurrency diffProfit ExchangeDiff
+                                            return ()
+                                    if outAmt <= mInAmt
+                                    then defaultLayout $ do
+                                        setMessage "Ордер исполнен моментально"
+                                        redirect HomeR
+                                    else error "recursive order execution"
                         else do
                             setMessage "Ордер на обмен создан"
                             redirect HomeR
@@ -461,6 +418,12 @@ postExchangeOrderCreateR = do
                 uid pair amount amount ratioNorm ratio fee time status True trid
         oid <- insert order
         return (oid, order)
+    setPartiallyExecuted :: Int -> UTCTime -> ExchangeOrderStatus -> [ Update ExchangeOrder ]
+    setPartiallyExecuted x t s =
+        [ ExchangeOrderStatus =. PartiallyExecuted t ((x +) $ case s of
+            PartiallyExecuted _ p -> p
+            _                     -> 0)
+        , ExchangeOrderAmountLeft -=. x ]
     renderFormErrors _ = error "wip" -- setMessage * redirect HomeR
 
 freezeUserCoins
