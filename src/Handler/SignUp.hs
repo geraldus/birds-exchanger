@@ -44,7 +44,7 @@ postSignUpR :: Handler Html
 postSignUpR = do
     ((signUpDataResult, widget), enctype) <- runFormPost signUpForm
     case signUpDataResult of
-        FormSuccess (SignUpFormData email pass conf) -> if (pass == conf)
+        FormSuccess (SignUpFormData email pass conf) -> if pass == conf
             then do
                 key          <- appNonce128urlT
                 createResult <- runDB $ do
