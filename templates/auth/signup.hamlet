@@ -1,9 +1,13 @@
-<h2>Регистрация
-
-$maybe error <- mayError
-    <h5>Ошбика отправки
-    #{error}
-
-<form method=post action=@{SignUpR} enctype=#{enctype}>
-    ^{widget}
-    <button type=submit>Регистрация
+<div .container>
+    $maybe error <- mayError
+        <div .row>
+            <div .col-8 .mx-auto>
+                <div .alert.alert-warning>
+                    <h5>Неверные регистрационные данные
+                    #{error}
+    <div .row>
+        <div .col-6 .mx-auto>
+            <form method=post action=@{SignUpR} enctype=#{enctype}>
+                ^{widget}
+                <div .form-group.row>
+                    <button .btn.btn-outline-primary.btn-lg .mx-auto type=submit>Регистрация
