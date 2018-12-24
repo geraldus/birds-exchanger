@@ -634,6 +634,10 @@ selectOppositeC p c
         FiatC RUR   -> pzmC
     | otherwise = error "No way to select opposite currency"
 
+unPairCurrency :: ExchangePair -> (Currency, Currency)
+unPairCurrency ExchangePzmRur = (pzmC, rurC)
+unPairCurrency ExchangeRurPzm = (rurC, pzmC)
+
 normalizeRatio :: ExchangePair -> ExchangePair -> Double -> Double
 normalizeRatio p d r
     | p == d = 1 / r
