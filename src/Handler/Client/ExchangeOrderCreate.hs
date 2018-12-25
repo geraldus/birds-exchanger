@@ -229,7 +229,10 @@ postExchangeOrderCreateR = do
                                     then defaultLayout $ do
                                         setMessage "Ордер исполнен моментально"
                                         redirect HomeR
-                                    else error "recursive order execution"
+                                    else do
+                                        setMessage "Ордер исполнен частично."
+                                        redirect HomeR
+                                        error "recursive order execution"
                         else do
                             setMessage "Ордер на обмен создан"
                             redirect HomeR
