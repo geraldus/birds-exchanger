@@ -1,0 +1,82 @@
+tanzas:
+    - type: webapp
+      exec: ../hello
+      # args:
+      #   - Hello World v1.0
+      #ssl : true
+#      ssl:
+#        key: /opt/keter/etc/cert/hello.key
+#        certificate: /opt/keter/etc/cert/hello.crt
+#        chain-certificates:
+#          - /opt/keter/etc/middle.crt
+#          - /opt/keter/etc/root.crt
+
+      # env:
+      #   FROM_KETER_CONFIG: foo bar baz
+      # forward-env:
+      #   - FROM_SYSTEM_ENV
+      #   - ANOTHER_ENV_VAR
+      hosts:
+        - keter1_0
+        - pong1_0
+      #connection-time-bound: 0
+
+    # - type: background
+    #   exec: ../worker
+    #   args:
+    #     - Keter Background Worker
+    #   env:
+    #     FROM_KETER_CONFIG: foo bar baz
+    #   forward-env:
+    #     - ENV_VAR_FOR_BACKGROUND
+    #   restart-count: 10
+    #   restart-delay-seconds: 6
+
+    # - type: static-files
+    #   host: unsafe1_1_0
+    #   directory-listing: true
+    #   requires-secure: true
+    #   root: ../../
+    #   #connection-time-bound: 0
+
+    # - type: static-files
+    #   host: unsafe2_1_0
+    #   root: /home
+    #   #directory-listing: true
+    #   middleware:
+    #      - autohead
+    #      - accept-override
+    #      - jsonp
+    #      - method-override
+    #      - method-override-post
+    #      - local:
+    #          status : 405
+    #          message: "Keter Rocks (local status message)"
+    #      - basic-auth:
+    #           realm: "Keter Basic Auth"
+    #           creds:
+    #              jon : rocks
+    #              bla : dada
+    #      - headers:
+    #          Access-Control-Allow-Origin : "*"
+
+    # - type: reverse-proxy
+    #   reversed-host: www.yesodweb.com
+    #   reversed-port: 80
+    #   reversing-host: localhost
+     # connection-time-bound: 0
+     # middleware:
+     #  - autohead
+     #     - basic-auth:
+     #          realm: "Keter Basic Auth"
+     #          creds:
+     #             keter : rocks
+     #     - headers:
+     #         Access-Control-Allow-Origin : "*"
+
+plugins:
+    postgres: true
+# Syntax for remote-DB server:
+  #  postgres:
+      - server: remoteServerNameOrIP
+        port: 1234
