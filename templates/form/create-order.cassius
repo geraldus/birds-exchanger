@@ -6,6 +6,11 @@
     display: none
 .action-give .#{sumid}-take
     display: none
+.action-take ##{sumid}-info-row .cur-sign-give
+    display: none
+.action-give ##{sumid}-info-row .cur-sign-take
+    display: none
 
-##{sumid}-total-tbl
-    font-size: 120%
+
+##{sumid}-info-row
+    font-size: 1.15rem

@@ -3,20 +3,20 @@
     ^{fvInput hiddenPairView}
     ^{fvInput hiddenFeeView}
     <div .form-group.row.justify-content-center>
-        <div .col-3>
+        <div .col-8 .col-sm-5>
             ^{fvInput actionView}
-        <div .col-4.input-group>
+        <div .input-group .col-8 .col-sm-6 .mt-3 .mt-sm-0>
             ^{fvInput amountView}
             <div .input-group-append>
                 <span .input-group-text>PZM
     <div .form-group.row.>
-        <label .col-2 .offset-3 .col-form-label .col-form-label-lg .text-right>курс
-        <div .input-group .col-3>
+        <label .col-2 .offset-2 .offset-sm-3 .col-form-label .col-form-label-lg .text-right>курс
+        <div .input-group .col-6 .col-sm-3>
             ^{fvInput ratioView}
             <div .input-group-append>
                 <span .input-group-text>₽/PZM
     <div .row .justify-content-center>
-        <table .col-6 .table.table-borderless .text-white-50>
+        <table .col-11 .col-sm-6 .table.table-borderless .text-white-50>
             <thead>
                 <tr>
                     <td .text-right .#{sumid}-take>получаю
@@ -24,7 +24,16 @@
                     <td>сервисный сбор
                     <th .text-left>ИТОГО
             <tbody>
-                <tr>
-                    <td ##{sumid}-tbl .text-right>-
-                    <td ##{feeid}-tbl>-
-                    <th ##{sumid}-total-tbl .text-left.text-white.font-weight-bold>-
+                <tr ##{sumid}-info-row>
+                    <td ##{sumid}-tbl .text-right>
+                        <span .val>-
+                        <span .cur-sign-take>PZM
+                        <span .cur-sign-give>₽
+                    <td ##{feeid}-tbl>
+                        <span .val>-
+                        <span .cur-sign-take>PZM
+                        <span .cur-sign-give>₽
+                    <th ##{sumid}-total-tbl .text-left.text-white.font-weight-bold>
+                        <span .val>-
+                        <span .cur-sign-take>PZM
+                        <span .cur-sign-give>₽
