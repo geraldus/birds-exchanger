@@ -24,3 +24,4 @@ cabal.sandbox.config
 prizm-exchange.cabal
 
 misc_ignore/
+/vps_upload/**
