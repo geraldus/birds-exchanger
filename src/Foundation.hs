@@ -40,10 +40,10 @@ import           Text.Read                   ( readMaybe )
 
 
 exchangerName :: Text
-exchangerName = "Обменник PRIZM"
+exchangerName = "OutBirds Cryptochanger"
 
 exchangerHost :: Text
-exchangerHost = "http://development-host"
+exchangerHost = "OutBirds (http://185.53.169.5)"
 
 -- | The foundation datatype for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
