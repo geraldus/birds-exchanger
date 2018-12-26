@@ -3,9 +3,9 @@
     ^{fvInput hiddenPairView}
     ^{fvInput hiddenFeeView}
     <div .form-group.row.justify-content-center>
-        <div .col-8 .col-sm-5>
+        <div .col-8 .col-sm-5 .col-lg-2>
             ^{fvInput actionView}
-        <div .input-group .col-8 .col-sm-6 .mt-3 .mt-sm-0>
+        <div .input-group .col-8 .col-sm-6 .col-lg-4 .mt-3 .mt-sm-0>
             ^{fvInput amountView}
             <div .input-group-append>
                 <span .input-group-text>PZM
