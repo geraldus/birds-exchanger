@@ -13,6 +13,8 @@ import           Local.Persist.ExchangeOrder
 import           Local.Persist.Wallet
 import           Utils.Deposit               ( oneCoinCents )
 
+import Data.Maybe ( fromJust )
+
 
 postExchangeOrderCreateR :: Handler Html
 postExchangeOrderCreateR = do
@@ -80,162 +82,14 @@ postExchangeOrderCreateR = do
                               , ExchangeOrderPair ==. flipPair exchange ] )
                             [ Asc ExchangeOrderCreated ]
                     $(logInfo) $ "Matching orders: " <> (pack . show $ morders)
-                    if length morders > 0
-                        then do
-                            -- take first order
-                            let ( ( Entity matchId mo ) : mrest ) = morders
-                            let mratio  = exchangeOrderNormalizedRatio mo
-                                mnormd  = exchangeOrderRatioNoramlization mo
-                                mpair   = exchangeOrderPair mo
-                                mOutAmt = exchangeOrderAmountLeft mo
-                                uOutAmt   = exchangeOrderAmountLeft savedOrder
-                            let uRatio  = exchangeOrderNormalizedRatio savedOrder
-                                uNormD  = exchangeOrderRatioNoramlization savedOrder
-                                uPair   = exchangeOrderPair savedOrder
-                                uDirRatio = normalizeRatio uNormD uPair uRatio
-                            let mDirRatio = normalizeRatio mnormd mpair mratio
-                            -- let's calculate what order will be
-                            -- fully executed
-                            -- x = outAmt cur.A is currency
-                            -- z = calculate pair amount ratio
-                            let uInAmt = multAmt uDirRatio uOutAmt
-                            let mInAmt = multAmt mDirRatio mOutAmt
-                            $(logInfo) $ "M | Ratio direct: " <> (pack . show) mDirRatio <> "; amount = " <> (pack . show) mInAmt <> " | Out: " <> (pack . show) mOutAmt
-                            $(logInfo) $ "U | In: " <> (pack . show) mInAmt <> "; Out: " <> (pack . show) mOutAmt
-                            let mUserId = exchangeOrderUserId mo
-                            uWIn  <- getOrCreateWallet clientId inCurrency
-                            uWOut <- getOrCreateWallet clientId   currency
-                            mWIn  <- getOrCreateWallet mUserId    currency
-                            mWOut <- getOrCreateWallet mUserId  inCurrency
-                            let setFullyExecuted =
-                                    [ ExchangeOrderStatus =. Executed now
-                                    , ExchangeOrderAmountLeft =. 0
-                                    , ExchangeOrderIsActive =. False ]
-                            let uInAmtB = userWalletAmountCents (entityVal uWIn)
-                                mInAmtB = userWalletAmountCents (entityVal mWIn)
-                            let userWInId   = entityKey uWIn
-                                userWOutId  = entityKey uWOut
-                                matchWInId  = entityKey mWIn
-                                matchWOutId = entityKey mWOut
-                            if uOutAmt == mInAmt
-                                -- Amount is equal.
-                                then do
-                                    let ( finalUInFee, finalMInFee, finalUInAmt, finalMInAmt, diffProfit ) =
-                                            if oratio == mratio
-                                            then ( calcFeeCents defaultExchangeFee mOutAmt
-                                                 , calcFeeCents defaultExchangeFee uOutAmt
-                                                 , mOutAmt - finalUInFee
-                                                 , uOutAmt - finalMInFee
-                                                 , 0 )
-                                            else
-                                                -- In this case user pays more.
-                                                -- Therefore, user expects
-                                                -- less than match gives.
-                                                -- Match will be fully executed
-                                                -- So, we take from match B fully.
-                                                ( calcFeeCents defaultExchangeFee uInAmt
-                                                 , calcFeeCents defaultExchangeFee mInAmt
-                                                 , uInAmt - finalUInFee
-                                                 , mInAmt - finalMInFee
-                                                 , mOutAmt - uInAmt )
-                                    -- Exchange orders having equal ratio and in/out amount
-                                    $(logInfo) $ "USER >>>" <> (pack . show) uOutAmt <> " <<< " <> (pack . show) finalUInAmt <> " - " <> (pack . show) finalUInFee
-                                    $(logInfo) $ "MATCH >>>" <> (pack . show) mOutAmt <> " <<< " <> (pack . show) finalMInAmt <> " - " <> (pack . show) finalMInFee
-                                    -- Exchange orders having equal in/out amount
-                                    -- Both orders will be closed
-                                    $(logInfo) $ "USER >>>" <> (pack . show) uOutAmt <> " <<< " <> (pack . show) finalUInAmt <> " - " <> (pack . show) finalUInFee
-                                    $(logInfo) $ "MATCH >>>" <> (pack . show) mOutAmt <> " <<< " <> (pack . show) finalMInAmt <> " - " <> (pack . show) finalMInFee
-                                    runDB $ do
-                                        -- Update order statuses and data
-                                        update matchId setFullyExecuted
-                                        update orderId setFullyExecuted
-                                        -- Update users balances
-                                        update userWInId [ UserWalletAmountCents +=. finalUInAmt ]
-                                        update matchWInId [ UserWalletAmountCents +=. finalMInAmt ]
-                                        -- Record transaction details
-                                        -- First create transaction reasons
-                                        uRId <- insert $ WalletTransactionReason userWInId
-                                        mRId <- insert $ WalletTransactionReason matchWInId
-                                        -- Make chronological logs
-                                        -- Wallet balances
-                                        insert $ WalletBalanceTransaction userWInId (ExchangeExchange finalUInAmt) uRId uInAmtB now
-                                        insert $ WalletBalanceTransaction matchWInId (ExchangeExchange finalMInAmt) mRId mInAmtB now
-                                        -- Order execution
-                                        insert $ ExchangeOrderExecution orderId now mRId uRId True uOutAmt mOutAmt finalUInFee
-                                        insert $ ExchangeOrderExecution matchId now uRId mRId True mOutAmt uOutAmt finalMInFee
-                                        -- Save fee data
-                                        insert $ InnerProfitRecord uRId inCurrency finalUInFee ExchangeFee
-                                        insert $ InnerProfitRecord mRId currency finalMInFee ExchangeFee
-                                        when (diffProfit > 0) $ do
-                                            $(logInfo) $ "PROFIT +++ " <> (pack . show) diffProfit <> currSign inCurrency
-                                            insert $ InnerProfitRecord mRId currency diffProfit ExchangeDiff
-                                            return ()
-                                    defaultLayout $ do
-                                        setMessage "Ордер исполнен моментально"
-                                        redirect HomeR
-                                else do
-                                    let ( userFinalOut, userIn, userFinalIn, userFinalFee,
-                                          matchFinalOut, matchIn, matchFinalIn, matchFinalFee,
-                                          diffProfit, diffCurrency, userOrderUpdates, matchOrderUpdates ) =
-                                            if outAmt > mInAmt
-                                                then let uout = mInAmt
-                                                         uin  = multAmt uDirRatio uout
-                                                         ufee = calcFeeCents defaultExchangeFee uin
-                                                         mout = mOutAmt
-                                                         min  = mInAmt
-                                                         mfee = calcFeeCents defaultExchangeFee min
-                                                         st   = exchangeOrderStatus savedOrder
-                                                    in ( uout, uin, uin - ufee, ufee,
-                                                         mout, min, min - mfee, mfee,
-                                                         mout - uin, inCurrency, setPartiallyExecuted uout now st, setFullyExecuted )
-                                                else let uout = uOutAmt
-                                                         uin  = uInAmt
-                                                         ufee = calcFeeCents defaultExchangeFee uin
-                                                         min  = uout
-                                                         mfee = calcFeeCents defaultExchangeFee min
-                                                         mout = multAmt (1 / mDirRatio) min
-                                                         st = exchangeOrderStatus mo
-                                                    in ( uout, uin, uin - ufee, ufee,
-                                                         mout, min, min - mfee, mfee,
-                                                         mout - uin, inCurrency, setFullyExecuted, setPartiallyExecuted mout now st )
-                                    $(logInfo) $ "U out: " <> (pack . show) userFinalOut <> "; in: " <> (pack . show) userFinalIn <> " ; fee: " <> (pack . show) userFinalFee
-                                    $(logInfo) $ "M out: " <> (pack . show) matchFinalOut <> " ; in: " <> (pack . show) matchFinalIn <> " ; fee: " <> (pack . show) matchFinalFee
-                                    $(logInfo) $ "Diff: " <> (pack . show) diffProfit
-                                    runDB $ do
-                                        -- Update order statuses and data
-                                        update orderId userOrderUpdates
-                                        update matchId matchOrderUpdates
-                                        -- Update users balances
-                                        update userWInId [ UserWalletAmountCents +=. userFinalIn ]
-                                        update matchWInId [ UserWalletAmountCents +=. matchFinalIn ]
-                                        -- Record transaction details
-                                        -- First create transaction reasons
-                                        uRId <- insert $ WalletTransactionReason userWInId
-                                        mRId <- insert $ WalletTransactionReason matchWInId
-                                        -- Make chronological logs
-                                        -- Wallet balances
-                                        insert $ WalletBalanceTransaction userWInId (ExchangeExchange userFinalIn) uRId uInAmtB now
-                                        insert $ WalletBalanceTransaction matchWInId (ExchangeExchange matchFinalIn) mRId mInAmtB now
-                                        -- Order execution
-                                        insert $ ExchangeOrderExecution orderId now mRId uRId (uOutAmt == userFinalOut) userFinalOut matchFinalOut userFinalFee
-                                        insert $ ExchangeOrderExecution matchId now uRId mRId (mOutAmt == matchFinalOut) matchFinalOut userFinalOut matchFinalFee
-                                        -- Save fee data
-                                        insert $ InnerProfitRecord uRId inCurrency userFinalFee ExchangeFee
-                                        insert $ InnerProfitRecord mRId currency matchFinalFee ExchangeFee
-                                        when (diffProfit > 0) $ do
-                                            insert $ InnerProfitRecord mRId diffCurrency diffProfit ExchangeDiff
-                                            return ()
-                                    if outAmt <= mInAmt
-                                    then defaultLayout $ do
-                                        setMessage "Ордер исполнен моментально"
-                                        redirect HomeR
-                                    else do
-                                        setMessage "Ордер исполнен частично."
-                                        redirect HomeR
-                                        error "recursive order execution"
-                        else do
-                            setMessage "Ордер на обмен создан"
-                            redirect HomeR
+                    res <- exchangeOrders (Entity orderId savedOrder) morders []
+                    setMessage $ case res of
+                        [] -> "Ордер создан"
+                        (tOrderClosed, _, _, _, _, _, _, _) : _ ->
+                            if tOrderClosed
+                            then "Ордер создан и полностью исполнен"
+                            else "Ордер создан и частично исполнен"
+                    redirect HomeR
     redirect HomeR
   where
     multAmt = convertCents
@@ -255,6 +109,168 @@ postExchangeOrderCreateR = do
             _                     -> 0)
         , ExchangeOrderAmountLeft -=. x ]
     renderFormErrors _ = error "wip" -- setMessage * redirect HomeR
+    exchangeOrders _      []      acc = return acc
+    exchangeOrders target matches acc = do
+        -- take first order
+        let ( Entity tOrderId tOrder )             = target
+            ((Entity mOrderId mOrder) : mRest) = matches
+        let tOutAmtLeft = exchangeOrderAmountLeft tOrder
+            tRatio      = exchangeOrderNormalizedRatio tOrder
+            tNormD      = exchangeOrderRatioNoramlization tOrder
+            tPair       = exchangeOrderPair tOrder
+            tDirRatio   = normalizeRatio tNormD tPair tRatio
+        let mOutAmtLeft = exchangeOrderAmountLeft mOrder
+            mRatio      = exchangeOrderNormalizedRatio mOrder
+            mNormD      = exchangeOrderRatioNoramlization mOrder
+            mPair       = exchangeOrderPair mOrder
+            mDirRatio   = normalizeRatio mNormD mPair mRatio
+        let tUserId = exchangeOrderUserId tOrder
+            mUserId = exchangeOrderUserId mOrder
+        let ( currencyA, currencyB ) = unPairCurrency tPair
+        -- let's calculate what order will be fully executed
+        let tInAmtExpects = multAmt tDirRatio tOutAmtLeft
+        let mInAmtExpects = multAmt mDirRatio mOutAmtLeft
+        $(logInfo) $ "M | Ratio direct: " <> (pack . show) mDirRatio <> "; amount = " <> (pack . show) mInAmtExpects <> " | Out: " <> (pack . show) mOutAmtLeft
+        $(logInfo) $ "U | In: " <> (pack . show) mInAmtExpects <> "; Out: " <> (pack . show) mOutAmtLeft
+        let mUserId = exchangeOrderUserId mOrder
+        tWalletOut <- getOrCreateWallet tUserId currencyA
+        tWalletIn@(Entity tWalletInId _)  <- getOrCreateWallet tUserId currencyB
+        mWalletOut <- getOrCreateWallet mUserId currencyB
+        mWalletIn@(Entity mWalletInId _)  <- getOrCreateWallet mUserId currencyA
+        timeNow <- liftIO getCurrentTime
+        let setFullyExecuted =
+                [ ExchangeOrderStatus =. Executed timeNow
+                , ExchangeOrderAmountLeft =. 0
+                , ExchangeOrderIsActive =. False ]
+        let tWalletInBalance = userWalletAmountCents (entityVal tWalletIn)
+            mWalletInBalance = userWalletAmountCents (entityVal mWalletIn)
+        let userWInId   = entityKey tWalletIn
+            userWOutId  = entityKey tWalletOut
+            matchWInId  = entityKey mWalletIn
+            matchWOutId = entityKey mWalletOut
+        if tOutAmtLeft == mInAmtExpects
+            -- Amount is equal.
+            then do
+                let ( finalUInFee, finalMInFee, finalUInAmt, finalMInAmt, diffProfit ) =
+                        if tRatio == mRatio
+                        then ( calcFeeCents defaultExchangeFee mOutAmtLeft
+                             , calcFeeCents defaultExchangeFee tOutAmtLeft
+                             , mOutAmtLeft - finalUInFee
+                             , tOutAmtLeft - finalMInFee
+                             , 0 )
+                        else
+                            -- In this case user pays more.
+                            -- Therefore, user expects
+                            -- less than match gives.
+                            -- Match will be fully executed
+                            -- So, we take from match B fully.
+                            ( calcFeeCents defaultExchangeFee tInAmtExpects
+                            , calcFeeCents defaultExchangeFee mInAmtExpects
+                            , tInAmtExpects - finalUInFee
+                            , mInAmtExpects - finalMInFee
+                            , mOutAmtLeft - tInAmtExpects )
+                -- Exchange orders having equal ratio and in/out amount
+                $(logInfo) $ "USER >>>" <> (pack . show) tOutAmtLeft <> " <<< " <> (pack . show) finalUInAmt <> " - " <> (pack . show) finalUInFee
+                $(logInfo) $ "MATCH >>>" <> (pack . show) mOutAmtLeft <> " <<< " <> (pack . show) finalMInAmt <> " - " <> (pack . show) finalMInFee
+                -- Exchange orders having equal in/out amount
+                -- Both orders will be closed
+                $(logInfo) $ "USER >>>" <> (pack . show) tOutAmtLeft <> " <<< " <> (pack . show) finalUInAmt <> " - " <> (pack . show) finalUInFee
+                $(logInfo) $ "MATCH >>>" <> (pack . show) mOutAmtLeft <> " <<< " <> (pack . show) finalMInAmt <> " - " <> (pack . show) finalMInFee
+                runDB $ do
+                    -- Update order statuses and data
+                    update mOrderId setFullyExecuted
+                    update tOrderId setFullyExecuted
+                    -- Update users balances
+                    update userWInId  [ UserWalletAmountCents +=. finalUInAmt ]
+                    update matchWInId [ UserWalletAmountCents +=. finalMInAmt ]
+                    -- Record transaction details
+                    -- First create transaction reasons
+                    tRId <- insert $ WalletTransactionReason userWInId
+                    mRId <- insert $ WalletTransactionReason matchWInId
+                    -- Make chronological logs
+                    -- Wallet balances
+                    tTransRec <- insert $ WalletBalanceTransaction userWInId (ExchangeExchange finalUInAmt) tRId  tWalletInBalance timeNow
+                    mTransRec <- insert $ WalletBalanceTransaction matchWInId (ExchangeExchange finalMInAmt) mRId mWalletInBalance timeNow
+                    -- Order execution
+                    tExecRec <- insert $ ExchangeOrderExecution tOrderId timeNow mRId tRId True tOutAmtLeft mOutAmtLeft finalUInFee
+                    mExecRec <- insert $ ExchangeOrderExecution mOrderId timeNow tRId mRId True mOutAmtLeft tOutAmtLeft finalMInFee
+                    -- Save fee data
+                    tFeeProfitRec <- insert $ InnerProfitRecord tRId currencyB finalUInFee ExchangeFee
+                    mFeeProfitRec <- insert $ InnerProfitRecord mRId currencyA finalMInFee ExchangeFee
+                    $(logInfo) $ "PROFIT +++ " <> (pack . show) diffProfit <> " " <> currSign currencyB
+                    diffProfitRec <- if diffProfit > 0
+                        then do
+                            diffProfitId <- insert $ InnerProfitRecord mRId currencyA diffProfit ExchangeDiff
+                            return [ diffProfitId ]
+                        else return []
+                    let profitRec = tFeeProfitRec : mFeeProfitRec : diffProfitRec
+                    return $ (True, tRId, mRId, tTransRec, mTransRec, tExecRec, mExecRec, profitRec) : acc
+                -- defaultLayout $ do
+                --     setMessage "Ордер исполнен моментально"
+                --     redirect HomeR
+            else do
+                let ( userFinalOut, userIn, userFinalIn, userFinalFee,
+                      matchFinalOut, matchIn, matchFinalIn, matchFinalFee,
+                      diffProfit, diffCurrency, userOrderUpdates, matchOrderUpdates ) =
+                        if tOutAmtLeft > mInAmtExpects
+                            then let tout = mInAmtExpects
+                                     tin  = convertCents tDirRatio tout
+                                     tfee = calcFeeCents defaultExchangeFee tin
+                                     mout = mOutAmtLeft
+                                     min  = mInAmtExpects
+                                     mfee = calcFeeCents defaultExchangeFee min
+                                     st   = exchangeOrderStatus tOrder
+                                in ( tout, tin, tin - tfee, tfee,
+                                     mout, min, min - mfee, mfee,
+                                     mout - tin, currencyB, setPartiallyExecuted tout timeNow st, setFullyExecuted )
+                            else let tout = tOutAmtLeft
+                                     tin  = tInAmtExpects
+                                     tfee = calcFeeCents defaultExchangeFee tin
+                                     min  = tout
+                                     mfee = calcFeeCents defaultExchangeFee min
+                                     mout = multAmt (1 / mDirRatio) min
+                                     st = exchangeOrderStatus mOrder
+                                in ( tout, tin, tin - tfee, tfee,
+                                     mout, min, min - mfee, mfee,
+                                     mout - tin, currencyB, setFullyExecuted, setPartiallyExecuted mout timeNow st )
+                $(logInfo) $ "U out: " <> (pack . show) userFinalOut <> "; in: " <> (pack . show) userFinalIn <> " ; fee: " <> (pack . show) userFinalFee
+                $(logInfo) $ "M out: " <> (pack . show) matchFinalOut <> " ; in: " <> (pack . show) matchFinalIn <> " ; fee: " <> (pack . show) matchFinalFee
+                $(logInfo) $ "Diff: " <> (pack . show) diffProfit
+                res <- runDB $ do
+                    -- Update order statuses and data
+                    update tOrderId userOrderUpdates
+                    update mOrderId matchOrderUpdates
+                    -- Update users balances
+                    update tWalletInId [ UserWalletAmountCents +=. userFinalIn ]
+                    update mWalletInId [ UserWalletAmountCents +=. matchFinalIn ]
+                    -- Record transaction details
+                    -- First create transaction reasons
+                    tRId <- insert $ WalletTransactionReason userWInId
+                    mRId <- insert $ WalletTransactionReason matchWInId
+                    -- Make chronological logs
+                    -- Wallet balances
+                    tTransRec <- insert $ WalletBalanceTransaction userWInId (ExchangeExchange userFinalIn) tRId tWalletInBalance timeNow
+                    mTransRec <- insert $ WalletBalanceTransaction matchWInId (ExchangeExchange matchFinalIn) mRId mWalletInBalance timeNow
+                    -- Order execution
+                    tExecRec <- insert $ ExchangeOrderExecution tOrderId timeNow mRId tRId (tOutAmtLeft == userFinalOut) userFinalOut matchFinalOut userFinalFee
+                    mExecRec <- insert $ ExchangeOrderExecution mOrderId timeNow tRId mRId (mOutAmtLeft == matchFinalOut) matchFinalOut userFinalOut matchFinalFee
+                    -- Save fee data
+                    tFeeProfitRec <- insert $ InnerProfitRecord tRId currencyB userFinalFee ExchangeFee
+                    mFeeProfitRec <- insert $ InnerProfitRecord mRId currencyA matchFinalFee ExchangeFee
+                    $(logInfo) $ "PROFIT +++ " <> (pack . show) diffProfit <> " " <> currSign currencyB
+                    diffProfitRec <- if diffProfit > 0
+                        then do
+                            diffProfitId <- insert $ InnerProfitRecord mRId currencyA diffProfit ExchangeDiff
+                            return [ diffProfitId ]
+                        else return []
+                    let profitRec = tFeeProfitRec : mFeeProfitRec : diffProfitRec
+                    let res' = ( tOutAmtLeft == userFinalOut, tRId, mRId, tTransRec, mTransRec, tExecRec, mExecRec, profitRec )
+                    return res'
+                if tOutAmtLeft <= mInAmtExpects
+                    then return $ res : acc
+                    else do
+                        target' <- fromJust <$> (runDB . get) tOrderId
+                        exchangeOrders (Entity tOrderId target') mRest (res : acc)
 
 freezeUserCoins
     :: UserId
