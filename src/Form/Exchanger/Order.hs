@@ -12,53 +12,6 @@ import           Utils.Deposit               ( doubleToCents, oneCoinCents )
 import           Text.Julius                 ( RawJS (..) )
 
 
--- | This form does not check if user specified valid coins amount.
---   You should do this check in handler yourself
--- formCreateExchageOrder :: Form ExchangeOrderData
--- formCreateExchageOrder extra = do
---     outIdent <- newIdent
---     inIdent <- newIdent
---     ratioIdent <- newIdent
---     amountIdent <- newIdent
---     feeIdent <- newIdent
---     (currencyOutRes, currencyOutView) <- mreq currencySelect (fsBs4WithId outIdent) Nothing
---     (currencyInRes, currencyInView)   <- mreq currencySelect (fsBs4WithId inIdent) Nothing
---     (ratioRes, ratioView)             <- mreq doubleField    (fsBs4WithId ratioIdent) Nothing
---     (amountRes, amountView)           <- mreq doubleField    (fsBs4WithId amountIdent) Nothing
---     let isValidExchangeR = isValidExchange <$> currencyOutRes <*> currencyInRes
---         amountCentsRes   = doubleToCents   <$> amountRes
---         feeRes           = targetFeeC      <$> amountCentsRes <*> ratioRes
---     let result = case isValidExchangeR of
---             FormSuccess True  -> ExchangeOrderData
---                     <$> currencyOutRes
---                     <*> currencyInRes
---                     <*> ratioRes
---                     <*> amountCentsRes
---                     <*> feeRes
---             FormSuccess False -> FormFailure ["Неверная пара для обмена"]
---             FormFailure es    -> FormFailure es
---             FormMissing       -> FormMissing
---     let widget = [whamlet|
---             #{extra}
---             <div .form-group>
---                 <label for="#{outIdent}">обмениваю
---                 ^{fvInput currencyOutView}
---             <div .form-group>
---                 <label for="#{inIdent}">на
---                 ^{fvInput currencyInView}
---             <div .form-group>
---                 <label for="#{ratioIdent}">по цене
---                 ^{fvInput ratioView}
---             <div .form-group>
---                 <label for="#{amountIdent}">шт.
---                 ^{fvInput amountView}
---             <div .form-group>
---                 <label for="#{feeIdent}">сервисный сбор
---                 <input ##{feeIdent} .form-control type=number readonly=readonly value="0">
---             |]
---     return (result, widget)
-
-
 createOrderForm :: ExchangePair -> Form OrderFD
 createOrderForm defaultPair extra = do
     (wrapid:actid:amtid:ratid:sumid:feeid:pairid:_) <- mapM (\_ -> newIdent) [ 1..8 ]
