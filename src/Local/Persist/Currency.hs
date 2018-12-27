@@ -39,7 +39,10 @@ rurC = FiatC RUR
 
 
 data FiatPaymentMethod
-    = Card2CardFPM
+    = SberBankCard2CardFPM
+    | AlphaBankCard2CardFPM
+    | TinkoffBankCard2CardFPM
+    | PayPalTransferFPM
     | QiwiFPM
     deriving (Show, Read, Eq)
 derivePersistField "FiatPaymentMethod"
@@ -49,3 +52,47 @@ data PaymentMethod
     | CryptoPM CryptoCurrency
     deriving (Show, Read, Eq)
 derivePersistField "PaymentMethod"
+
+pmSber :: FiatCurrency -> PaymentMethod
+pmSber = FiatPM SberBankCard2CardFPM
+
+pmAlpha :: FiatCurrency -> PaymentMethod
+pmAlpha = FiatPM AlphaBankCard2CardFPM
+
+pmTinkoff :: FiatCurrency -> PaymentMethod
+pmTinkoff = FiatPM TinkoffBankCard2CardFPM
+
+pmQiwi :: FiatCurrency -> PaymentMethod
+pmQiwi = FiatPM QiwiFPM
+
+pmPayPal :: FiatCurrency -> PaymentMethod
+pmPayPal = FiatPM PayPalTransferFPM
+
+fpmSberRur :: PaymentMethod
+fpmSberRur = pmSber RUR
+
+fpmAlphaRur :: PaymentMethod
+fpmAlphaRur = pmAlpha RUR
+
+fpmTinkoffRur :: PaymentMethod
+fpmTinkoffRur = pmTinkoff RUR
+
+fpmQiwiRur :: PaymentMethod
+fpmQiwiRur = pmQiwi RUR
+
+fpmPayPalRur :: PaymentMethod
+fpmPayPalRur = pmPayPal RUR
+
+fpmPayPalUsd :: PaymentMethod
+fpmPayPalUsd = pmPayPal USD
+
+cpmPzm :: PaymentMethod
+cpmPzm = CryptoPM PZM
+
+
+cpmBtc :: PaymentMethod
+cpmBtc = CryptoPM BTC
+
+
+cpmEth :: PaymentMethod
+cpmEth = CryptoPM ETH
