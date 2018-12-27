@@ -18,9 +18,9 @@ selectOpposite' :: Currency -> Currency
 selectOpposite' (FiatC RUR)   = CryptoC PZM
 selectOpposite' (CryptoC PZM) = FiatC RUR
 
-selectMethod' :: Currency -> PaymentMethod
-selectMethod' (FiatC RUR)   = FiatPM Card2CardFPM RUR
-selectMethod' (CryptoC PZM) = CryptoPM PZM
+-- selectMethod' :: Currency -> PaymentMethod
+-- selectMethod' (FiatC RUR)   = FiatPM Card2CardFPM RUR
+-- selectMethod' (CryptoC PZM) = CryptoPM PZM
 
 
 --         amountCents   = doubleToCents <$> paymentCurrencyAmountRes
@@ -119,18 +119,6 @@ data DepositRequestFD = DepositRequestFD
     , depReqTargetCurrency          :: Currency
     , depReqExpectedConversionRatio :: Double
     }
-
-
-paymentMethodOptions :: [(Text, PaymentMethod)]
-paymentMethodOptions =
-    [ ("Перевод с карты на карту, ₽ российский рубль", FiatPM Card2CardFPM RUR)
-    , ("Перевод криптовалюты, PZM криптовалюта Prizm", CryptoPM PZM) ]
-
-typedCurrencyOptions :: [(CurrencyType, Currency)]
-typedCurrencyOptions =
-    [ (FiatT, FiatC RUR)
-    , (CryptoT, CryptoC PZM)
-    ]
 
 
 data Money = Money Int Currency deriving Show
