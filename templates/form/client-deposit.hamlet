@@ -1,0 +1,18 @@
+#{extra}
+<div ##{inCurrencyId} .form-group>
+    <label for=#{cid}>Валюта
+    ^{fvInput paymentCurrencyView}
+    $maybe errors <- fvErrors paymentCurrencyView
+        <div .invalid-feedback> #{errors}
+<!-- <div ##{inTargetCurrencyId} .form-group>
+    ^{fvInput targetCurrencyView} -->
+<div .form-group>
+    <label for=#{pid}>Способ пополнения
+    ^{fvInput paymentMethodView}
+    $maybe errors <- fvErrors paymentMethodView
+        <div .invalid-feedback> #{errors}
+<div .form-group>
+    <label for=#{aid}>Сумма пополнения
+    ^{fvInput paymentAmountView}
+    $maybe errors <- fvErrors paymentAmountView
+        <div .invalid-feedback> #{errors}

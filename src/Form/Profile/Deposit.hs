@@ -6,7 +6,8 @@ import           Import
 import           Local.Persist.Currency
 import           Utils.Deposit
 
-import           Text.Blaze.Html.Renderer.Text (renderHtml)
+import           Text.Blaze.Html.Renderer.Text ( renderHtml )
+import           Text.Julius                   ( RawJS (..) )
 
 
 amountIsValidC :: Currency -> Double -> Bool
@@ -65,23 +66,37 @@ withdrawalForm extra = do
     return (res, widget)
 
 
-depositForm :: Form DepositRequestFD
-depositForm extra = do
-    (paymentCurrencyRes, paymentCurrencyView) <- mreq currencySelect "" Nothing
-    (paymentCurrencyAmountRes, paymentCurrencyAmountView) <- mreq doubleField "" Nothing
-    (targetCurrencyRes, targetCurrencyView) <- mreq (selectFieldList currencyOptions) "" Nothing
-    let amountIsValidRes = amountIsValidC <$> paymentCurrencyRes <*> paymentCurrencyAmountRes
-        amountCentsRes   = doubleToCents <$> paymentCurrencyAmountRes
-        paymentMethodRes = selectMethod' <$> paymentCurrencyRes
+depositForm :: Text -> Form DepositRequestFD
+depositForm formId extra = do
+    cid <- newIdent
+    pid <- newIdent
+    aid <- newIdent
+    (paymentCurrencyRes, paymentCurrencyView) <- mreq currencySelect' (fsBs4WithId cid) Nothing
+    (paymentAmountRes, paymentAmountView) <- mreq
+        doubleField
+        ( fsAddClasses
+            ( fsAddPlaceholder
+                ( fsBs4WithId aid ) "укажите сумму" )
+            [ "form-control-lg" ] )
+        Nothing
+    (paymentMethodRes, paymentMethodView) <- mreq paymentMethodSelect (fsBs4WithId pid) Nothing
+    -- (targetCurrencyRes, _) <- mreq
+    --     ( selectFieldList currencyOptions )
+    --     fsBs4
+    --     Nothing
+    let amountIsValidRes = amountIsValidC <$> paymentCurrencyRes <*> paymentAmountRes
+        amountCentsRes   = doubleToCents <$> paymentAmountRes
         matchingFee = selectFee <$> paymentCurrencyRes
         expectedFee = calcFeeCents <$> matchingFee <*> amountCentsRes
-        expectedRatio = selectRatio' <$> paymentCurrencyRes <*> targetCurrencyRes
+        expectedRatio = selectRatio' <$> paymentCurrencyRes <*> paymentCurrencyRes-- targetCurrencyRes
         depReqRes = DepositRequestFD
                         <$> paymentCurrencyRes
                         <*> paymentMethodRes
                         <*> amountCentsRes
                         <*> expectedFee
-                        <*> targetCurrencyRes
+                        <*> paymentCurrencyRes
+                        -- ^ for now no conversion; no instant exchange
+                        -- <*> targetCurrencyRes
                         <*> expectedRatio
         formResult = case amountIsValidRes of
             FormSuccess True -> depReqRes
@@ -95,19 +110,11 @@ depositForm extra = do
                 ]
             FormFailure es -> FormFailure es
             FormMissing -> FormMissing
+    let isValidPaymentMethod = isJust . fvErrors $ paymentMethodView
     let widget = do
             inCurrencyId <- newIdent
             inTargetCurrencyId <- newIdent
-            [whamlet|
-                #{extra}
-                <div ##{inCurrencyId}>
-                    ^{fvInput paymentCurrencyView}
-                <div ##{inTargetCurrencyId}>
-                    ^{fvInput targetCurrencyView}
-                <div>
-                    ^{fvInput paymentCurrencyAmountView}
-                |]
-                -- ^ {fvInput paymentMethodView}
+            $(widgetFile "form/client-deposit")
     return (formResult, widget)
 
 

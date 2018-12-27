@@ -1,0 +1,57 @@
+$(document).ready(() => {
+    const currencySelect = $('##{rawJS cid}')
+
+    let paymentMethodSelect = $('##{rawJS pid}')
+    let defaultOption = $('<option disabled selected>укажите способ пополнения</option>')
+    paymentMethodSelect.prepend(defaultOption)
+
+    const paymentMethods = $('##{rawJS pid} option')
+
+    const checkFeednack = () => {
+        const form = $('##{rawJS formId}')
+        console.log(form)
+        const feedback = $('.form-group .invalid-feedback', form)
+        console.log(feedback)
+        if (feedback.length) {
+            // form.addClass('was-validated')
+        }
+        feedback.each((i, f) => {
+            $(f).parent().find('.form-control').addClass('is-invalid')
+        })
+    }
+
+    const updatePayamentMethods = (currency, selectFirst = false) => {
+        paymentMethods.each((i, op) => {
+            $(op).attr('disabled', 'disabled')
+            $(op).removeAttr('selected')
+            $(op).hide()
+        })
+        $('##{rawJS pid} option[value^="' + currency + '"]').each((i, op) => {
+            $(op).removeAttr('disabled')
+            $(op).show()
+            if (i == 0 && selectFirst) {
+                $(op).attr('selected', '')
+            }
+        })
+        if (!selectFirst) {
+            console.log(defaultOption[0], paymentMethods)
+            defaultOption[0].setAttribute('selected', 'selected')
+        }
+    }
+
+    currencySelect.change(() => {
+        selectedCurrency = currencySelect.val()
+        switch (selectedCurrency) {
+            case 'rur':
+                updatePayamentMethods(selectedCurrency)
+                break
+            case 'pzm':
+                updatePayamentMethods(selectedCurrency, true)
+                break
+            default: break
+        }
+    })
+
+    checkFeednack()
+    updatePayamentMethods(currencySelect.val())
+})
