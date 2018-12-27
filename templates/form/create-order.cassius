@@ -6,10 +6,18 @@
     display: none
 .action-give .#{sumid}-take
     display: none
+
 .action-take ##{sumid}-info-row .cur-sign-give
     display: none
 .action-give ##{sumid}-info-row .cur-sign-take
     display: none
+
+.action-take ##{sumid}-info-row .val.give
+    display: none
+.action-give ##{sumid}-info-row .val.take
+    display: none
+
+
 
 
 ##{sumid}-info-row

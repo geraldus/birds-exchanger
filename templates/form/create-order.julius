@@ -5,9 +5,11 @@ $(document).ready(() => {
     const actIn = $('##{rawJS actid}')
     const amtIn = $('##{rawJS amtid}')
     const ratioIn = $('##{rawJS ratid}')
-    const feeOutTbl = $('##{rawJS feeid}-tbl .val')
-    const sumOutTbl = $('##{rawJS sumid}-tbl .val')
-    const sumOutTotalTbl = $('##{rawJS sumid}-total-tbl .val')
+    const sumOut = $('##{rawJS sumid}-tbl .val')
+    const feeOutTake = $('##{rawJS feeid}-tbl .val.take')
+    const feeOutGive = $('##{rawJS feeid}-tbl .val.give')
+    const sumOutTotalTake = $('##{rawJS sumid}-total-tbl .val.take')
+    const sumOutTotalGive = $('##{rawJS sumid}-total-tbl .val.give')
 
     const getRatio = () => ratioIn.val()
     const getAmount = () => amtIn.val()
@@ -18,14 +20,19 @@ $(document).ready(() => {
         if ($.isNumeric(r) && $.isNumeric(v)) {
             const vr = r * v
             const s = Math.floor(vr * 100) / 100
-            const f = Math.ceil(vr * defaultExchangeFeePercents) / 100
-            sumOutTbl.text(s)
-            feeOutTbl.text('-' + f)
-            sumOutTotalTbl.text((s - f))
+            const ft = Math.ceil(vr * defaultExchangeFeePercents) / 100
+            const fg = Math.ceil(v * defaultExchangeFeePercents) / 100
+            sumOut.text(s)
+            feeOutTake.text('-' + ft)
+            feeOutGive.text('-' + fg)
+            sumOutTotalTake.text((s - ft))
+            sumOutTotalGive.text((v - fg))
         } else {
-            sumOutTbl.text('-')
-            feeOutTbl.text('-')
-            sumOutTotalTbl.text('-')
+            sumOut.text('-')
+            feeOutTake.text('-')
+            feeOutGive.text('-')
+            sumOutTotalTake.text('-')
+            sumOutTotalGive.text('-')
         }
     }
 

@@ -11,7 +11,7 @@
                 <span .input-group-text>PZM
     <div .form-group.row.>
         <label .col-2 .offset-2 .offset-sm-3 .col-form-label .col-form-label-lg .text-right>курс
-        <div .input-group .col-6 .col-sm-3>
+        <div .input-group .col-6 .col-md-4>
             ^{fvInput ratioView}
             <div .input-group-append>
                 <span .input-group-text>₽/PZM
@@ -27,13 +27,14 @@
                 <tr ##{sumid}-info-row>
                     <td ##{sumid}-tbl .text-right>
                         <span .val>-
-                        <span .cur-sign-take>PZM
-                        <span .cur-sign-give>₽
+                        <span .cur-sign>&nbsp;₽
                     <td ##{feeid}-tbl>
-                        <span .val>-
-                        <span .cur-sign-take>PZM
-                        <span .cur-sign-give>₽
+                        <span .val.take>-
+                        <span .val.give>-
+                        <span .cur-sign-give>&nbsp;PZM
+                        <span .cur-sign-take>&nbsp;₽
                     <th ##{sumid}-total-tbl .text-left.text-white.font-weight-bold>
-                        <span .val>-
-                        <span .cur-sign-take>PZM
-                        <span .cur-sign-give>₽
+                        <span .val.take>-
+                        <span .val.give>-
+                        <span .cur-sign-give>&nbsp;PZM
+                        <span .cur-sign-take>&nbsp;₽
