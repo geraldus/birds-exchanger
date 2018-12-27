@@ -534,6 +534,21 @@ currencyOptions =
     [ ("₽ российский рубль", FiatC RUR)
     , ("PZM криптовалюта Prizm", CryptoC PZM) ]
 
+paymentMethodSelect :: Field (HandlerFor App) PaymentMethod
+paymentMethodSelect = selectField . pure $ mkOptionList paymentOptionsRaw
+
+paymentOptionsRaw :: [ Option PaymentMethod ]
+paymentOptionsRaw =
+    [ Option "перевод Prizm" cpmPzm "pzm_pm"
+    , Option "перевод Bitcoin" cpmBtc "btc_pm"
+    , Option "перевод Etherium" cpmBtc "eth_pm"
+    , Option "СберБанк - перевод на карту" fpmSberRur "rur_sber_pm"
+    , Option "АльфаБанк - перевод на карту" fpmAlphaRur "rur_alpha_pm"
+    , Option "Тинькофф Банк - перевод на карту" fpmTinkoffRur "rur_tinkoff_pm"
+    , Option "Qiwi - перевод на кошелёк" fpmQiwiRur "rur_qiwi_pm"
+    , Option "PayPal - перевод со счёта на счёт" fpmPayPalRur "rur_paypal_pm"
+    , Option "PayPal - перевод со счёта на счёт" fpmPayPalUsd "usd_paypal_pm"
+    ]
 
 accessErrorClientOnly :: Text
 accessErrorClientOnly = "Доступно только для аккаунтов уровня \"Клиент\""
