@@ -18,12 +18,12 @@ Comment json -- Adding "json" causes ToJSON and FromJSON instances to be derived
     deriving Show Eq
 
 
-FeeIncome
-    currency Currency
-    amountCents Int
-    walletTransactionReasonId WalletTransactionReasonId
-    time UTCTime
-    deriving Show
+-- FeeIncome
+--     currency Currency
+--     amountCents Int
+--     walletTransactionReasonId WalletTransactionReasonId
+--     time UTCTime
+--     deriving Show
 
 
 UserWallet
