@@ -586,6 +586,9 @@ fsAddAttrs attrs settings =
     let as = fsAttrs settings
     in settings { fsAttrs = as <> attrs }
 
+fsBs4 :: FieldSettings App
+fsBs4 = fsWithClasses [ "form-control" ] "" Nothing Nothing Nothing []
+
 fsBs4WithId :: Text -> FieldSettings App
 fsBs4WithId ident = fsWithClasses
     [ "form-control" ] "" Nothing (Just ident) Nothing []
