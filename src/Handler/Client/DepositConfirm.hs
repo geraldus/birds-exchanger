@@ -4,6 +4,7 @@ module Handler.Client.DepositConfirm where
 import Import
 
 import Local.Persist.Deposit
+import Local.Persist.Currency
 
 
 getDepositRequestConfirmationR :: Text -> Handler Html
@@ -12,7 +13,21 @@ getDepositRequestConfirmationR code = withRequest' code $ \(Entity _ t) -> do
         setMessage "Данная заявка проходит проверку..."
         redirect HomeR
     let transactionCode = depositRequestTransactionCode t
-        paymentGuide = [whamlet|Тут инструкция ща будет )))|]
+        paymentGuide = case depositRequestPaymentMethod t of
+            FiatPM SberBankCard2CardFPM RUR -> [whamlet|
+                <p>Переведите #
+                    <span .text-monospace.font-weight-bold>#{cents2dblT (depositRequestCentsAmount t)}
+                    \#{currSign (depositRequestCurrency t)}
+                    \ на карту #
+                    <span .font-weight-bold .text-monospace>XXXX XXXX XXXX XXXX
+                <p>В комментарии платежа #
+                    <span .font-weight-bold>ОБЯЗАТЕЛЬНО УКАЖИТЕ КОД ОПЕРАЦИИ!
+                <div .alert .alert-warning>
+                    <p .text-center>
+                        <small>КОД ОПЕРАЦИИ
+                    <div .text-monospace .text-center .h3>#{code}
+                |]
+            _ -> [whamlet|Приём средст временно приостановлен.  Попробуйте позже|]
     defaultLayout $(widgetFile "client/deposit-proceed")
 
 

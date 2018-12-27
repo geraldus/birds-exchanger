@@ -1,13 +1,10 @@
-<p .lead>Всё готово для зачисления средств
-
-^{paymentGuide}
-
-<h3>Код операции
-<p .text-monospace>#{transactionCode}
-
-
-<p .text-info>После выполнения перевода, нажмите на кнопку ниже.
+<div .container .mt-5>
+    <div .row>
+        <div .col-8 .mx-auto>
+            ^{paymentGuide}
+            <p>После выполнения перевода, нажмите на кнопку "Перевод подтверждаю"
 
 <form method=post action=@{DepositConfirmRequestR}>
     <input type=hidden name="transaction-code" value="#{transactionCode}">
-    <button type=submit>Перевод подтверждаю
+    <div .form-group .row>
+        <button .mx-auto .btn.btn-primary type=submit>Перевод подтверждаю
