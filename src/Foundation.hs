@@ -18,6 +18,7 @@ import           Yesod.Auth.Message
 import           Yesod.Core.Types            ( Logger )
 import qualified Yesod.Core.Unsafe           as Unsafe
 import           Yesod.Default.Util          ( addStaticContentExternal )
+import           Yesod.Form.I18n.Russian
 
 import           Control.Monad.Logger        ( LogSource )
 import qualified Data.CaseInsensitive        as CI
@@ -405,7 +406,10 @@ validPassword u p =
 -- achieve customized and internationalized form validation messages.
 instance RenderMessage App FormMessage where
     renderMessage :: App -> [Lang] -> FormMessage -> Text
-    renderMessage _ _ = defaultFormMessage
+    renderMessage _ ("ru":_) = russianFormMessage
+    renderMessage msg (_:rest) = renderMessage msg rest
+    renderMessage _ [] = defaultFormMessage
+
 
 -- Useful when writing code that is re-usable outside of the Handler context.
 -- An example is background jobs that send email.
