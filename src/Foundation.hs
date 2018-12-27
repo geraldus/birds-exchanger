@@ -529,10 +529,19 @@ headerUserBalanceRender ((amtCents, cur):ws) = do
 currencySelect :: Field (HandlerFor App) Currency
 currencySelect = selectFieldList currencyOptions
 
+currencySelect' :: Field (HandlerFor App) Currency
+currencySelect' = selectField . pure $ mkOptionList currencyOptionListRaw
+
 currencyOptions :: [(Text, Currency)]
 currencyOptions =
-    [ ("₽ российский рубль", FiatC RUR)
-    , ("PZM криптовалюта Prizm", CryptoC PZM) ]
+    [ ("Российский рубль ₽ (RUR)", FiatC RUR)
+    , ("Криптовалюта Prizm (PZM)", CryptoC PZM) ]
+
+currencyOptionListRaw :: [ Option Currency ]
+currencyOptionListRaw =
+    [ Option "Российский рубль ₽ (RUR)" (FiatC RUR) "rur"
+    , Option "Криптовалюта Prizm (PZM)" (CryptoC PZM) "pzm"
+    ]
 
 paymentMethodSelect :: Field (HandlerFor App) PaymentMethod
 paymentMethodSelect = selectField . pure $ mkOptionList paymentOptionsRaw
