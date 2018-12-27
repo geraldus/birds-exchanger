@@ -25,6 +25,7 @@ stanzas:
       # You can specify one or more hostnames for your application to respond
       # to. The primary hostname will be used for generating your application
       # root.
+      - outb.info
       - 185.53.169.5
       # - www.prizm-exchange.com
 
