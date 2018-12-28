@@ -332,6 +332,10 @@ instance YesodAuth App where
     authPlugins :: App -> [AuthPlugin App]
     authPlugins _ = [authHardcoded, authPrizm]
 
+    renderAuthMessage _ ("ru":_) = russianMessage
+    renderAuthMessage msg (_:rest) = renderAuthMessage msg rest
+    renderAuthMessage _ [] = defaultMessage
+
     loginHandler :: AuthHandler App Html
     loginHandler = do
         ma <- maybeAuthId
