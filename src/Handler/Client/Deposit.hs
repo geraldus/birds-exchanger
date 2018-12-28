@@ -4,7 +4,6 @@ module Handler.Client.Deposit where
 
 
 import Import
-import Local.Persist.Currency
 import Local.Persist.Deposit
 import Form.Profile.Deposit
 
