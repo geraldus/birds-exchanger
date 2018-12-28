@@ -216,6 +216,8 @@ instance Yesod App where
     isAuthorized (StaticR _) _                      = return Authorized
     isAuthorized SignUpR _                          = return Authorized
     isAuthorized (SignUpVerifyR _ _) _              = return Authorized
+    isAuthorized AdminLogInR _                      = return Authorized
+    isAuthorized OperatorLogInR _                   = return Authorized
     isAuthorized OperatorBidsR _                    = isStaffAuthenticated
     isAuthorized OperatorDepositRequestsListR _     = isStaffAuthenticated
     isAuthorized OperatorAcceptDepositRequestR _    = isStaffAuthenticated
@@ -285,6 +287,8 @@ instance YesodBreadcrumbs App where
     breadcrumb (DepositRequestConfirmationR _) =
         return ("Подтверждение", Just DepositR)
     breadcrumb WithdrawalR = return ("Вывод средств", Just ProfileR)
+    breadcrumb OperatorLogInR = return ("Оператор / Вход", Just HomeR)
+    breadcrumb AdminLogInR = return ("Вход для супер-пользователя", Just HomeR)
     breadcrumb  _          = return ("*", Nothing)
 
 -- How to run database actions.

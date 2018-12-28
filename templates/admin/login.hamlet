@@ -1,0 +1,14 @@
+<div .container>
+    <div .row .justify-content-center>
+        <div .col-6>
+            <form pb-5 action="/auth/page/hardcoded/login" method=post>
+                <h2 .text-center>Вход
+                <div .form-group>
+                    <label for="input123">Логин
+                    <input type=text .form-control #input123 placeholder="введите логин администратора" name="username">
+                <div .form-group>
+                    <label for="input1234">Пароль
+                    <input type=password .form-control #input1234 placeholder="******" name="password">
+                <div .form-group .row>
+                    <div .col-9 .mx-auto>
+                        <button .btn.btn-lg.btn-block.btn-outline-primary type=submit>войти

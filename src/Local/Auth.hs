@@ -9,5 +9,7 @@ import Type.Auth.SuperUser as Type
 import Local.Auth.Plugin   as Plugin
 
 
-superUsers :: [SuperUser]
-superUsers = [SuperUser "gman" "123123"]
+superUsers :: [ SuperUser ]
+superUsers =
+    [ SuperUser "gman" "alpha3003omega"
+    , SuperUser "ukropa" "Vanya999Velikiy!" ]

@@ -54,6 +54,8 @@ import           Handler.Client.ExchangeOrderCreate
 import           Handler.Comment
 import           Handler.Common
 import           Handler.Home
+import           Handler.Admin.LogIn
+import           Handler.Operator.LogIn
 import           Handler.Operator.Bids
 import           Handler.Operator.DepositRequestsList
 import           Handler.Operator.AcceptDeposit

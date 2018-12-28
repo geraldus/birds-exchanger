@@ -22,11 +22,16 @@
 /profile/withdrawal/create-request           WithdrawalCreateR            POST
 /profile/deposit/confirm                     DepositConfirmRequestR       POST
 -- TODO: FIXME:
+-- /profile/deposit/create-request              DepositCreateRequestR        POST
 /profile/exchange-order-create        ExchangeOrderCreateR         POST
 
-/operator/bids OperatorBidsR GET
+/operator/login  OperatorLogInR  GET
+/operator/bids   OperatorBidsR   GET
+
+/admin/login     AdminLogInR  GET
 
 /operator/deposit-requests-list      OperatorDepositRequestsListR      GET
 /operator/accept-deposit-request     OperatorAcceptDepositRequestR     POST
 /operator/withdrawal-requests-list   OperatorWithdrawalRequestsListR   GET
 /operator/accept-withdrawal-request  OperatorAcceptWithdrawalRequestR  POST
+-- /operator/finalize-deposit-request/#Text OperatorFinalizeDepositRequestR POST
