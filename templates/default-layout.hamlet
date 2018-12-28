@@ -29,14 +29,18 @@
 
 <div .container .mt-2>
     $if not $ Just HomeR == mcurrentRoute
-        <ul .breadcrumb>
-            $forall bc <- parents
-                <li .breadcrumb-item>
-                    <a href="@{fst bc}">#{snd bc}
-            <li .breadcrumb-item.active>#{title}
+        <div .row>
+            <div .col-10 .mx-auto>
+                <ul .breadcrumb>
+                    $forall bc <- parents
+                        <li .breadcrumb-item>
+                            <a href="@{fst bc}">#{snd bc}
+                    <li .breadcrumb-item.active>#{title}
 
         $maybe msg <- mmsg
-            <div .alert.alert-info #message>#{msg}
+            <div .row>
+                <div .col-10 .mx-auto>
+                    <div .alert.alert-warning #message>#{msg}
 
 
 $if (Just HomeR == mcurrentRoute)
