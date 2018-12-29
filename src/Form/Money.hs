@@ -16,10 +16,10 @@ moneyInput aid cid = do
     (cur, cv) <- mreq currencySelect (fsBs4WithId cid) Nothing
     let wid = [whamlet|
                 <div .form-row>
-                    <div .col-12.col-md-4>
+                    <div .form-group .col-12 .col-md-4>
                         <label for="#{aid}">сумма
                         ^{fvInput av}
-                    <div .col-12.col-md-8>
+                    <div .form-group .col-12 .col-md-8>
                         <label for="#{cid}">валюта
                         ^{fvInput cv}
                 |]
