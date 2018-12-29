@@ -1,8 +1,10 @@
 module Local.Persist.Currency where
 
 
-import Database.Persist.TH
-import Prelude
+import           Database.Persist.TH
+import           ClassyPrelude.Yesod
+import           Text.Read                      ( readMaybe )
+
 
 
 data CurrencyType
@@ -38,61 +40,66 @@ rurC :: Currency
 rurC = FiatC RUR
 
 
-data FiatPaymentMethod
-    = SberBankCard2CardFPM
-    | AlphaBankCard2CardFPM
-    | TinkoffBankCard2CardFPM
-    | PayPalTransferFPM
-    | QiwiFPM
+data FiatTransferMethod
+    = SberBankCard2CardFTM
+    | AlphaBankCard2CardFTM
+    | TinkoffBankCard2CardFTM
+    | PayPalTransferFTM
+    | QiwiFTM
     deriving (Show, Read, Eq)
-derivePersistField "FiatPaymentMethod"
+derivePersistField "FiatTransferMethod"
 
-data PaymentMethod
-    = FiatPM FiatPaymentMethod FiatCurrency
-    | CryptoPM CryptoCurrency
+data TransferMethod
+    = FiatTM FiatTransferMethod FiatCurrency
+    | CryptoTM CryptoCurrency
     deriving (Show, Read, Eq)
-derivePersistField "PaymentMethod"
+derivePersistField "TransferMethod"
 
-pmSber :: FiatCurrency -> PaymentMethod
-pmSber = FiatPM SberBankCard2CardFPM
+tmSber :: FiatCurrency -> TransferMethod
+tmSber = FiatTM SberBankCard2CardFTM
 
-pmAlpha :: FiatCurrency -> PaymentMethod
-pmAlpha = FiatPM AlphaBankCard2CardFPM
+tmAlpha :: FiatCurrency -> TransferMethod
+tmAlpha = FiatTM AlphaBankCard2CardFTM
 
-pmTinkoff :: FiatCurrency -> PaymentMethod
-pmTinkoff = FiatPM TinkoffBankCard2CardFPM
+tmTinkoff :: FiatCurrency -> TransferMethod
+tmTinkoff = FiatTM TinkoffBankCard2CardFTM
 
-pmQiwi :: FiatCurrency -> PaymentMethod
-pmQiwi = FiatPM QiwiFPM
+tmQiwi :: FiatCurrency -> TransferMethod
+tmQiwi = FiatTM QiwiFTM
 
-pmPayPal :: FiatCurrency -> PaymentMethod
-pmPayPal = FiatPM PayPalTransferFPM
+tmPayPal :: FiatCurrency -> TransferMethod
+tmPayPal = FiatTM PayPalTransferFTM
 
-fpmSberRur :: PaymentMethod
-fpmSberRur = pmSber RUR
+ftmSberRur :: TransferMethod
+ftmSberRur = tmSber RUR
 
-fpmAlphaRur :: PaymentMethod
-fpmAlphaRur = pmAlpha RUR
+ftmAlphaRur :: TransferMethod
+ftmAlphaRur = tmAlpha RUR
 
-fpmTinkoffRur :: PaymentMethod
-fpmTinkoffRur = pmTinkoff RUR
+ftmTinkoffRur :: TransferMethod
+ftmTinkoffRur = tmTinkoff RUR
 
-fpmQiwiRur :: PaymentMethod
-fpmQiwiRur = pmQiwi RUR
+ftmQiwiRur :: TransferMethod
+ftmQiwiRur = tmQiwi RUR
 
-fpmPayPalRur :: PaymentMethod
-fpmPayPalRur = pmPayPal RUR
+ftmPayPalRur :: TransferMethod
+ftmPayPalRur = tmPayPal RUR
 
-fpmPayPalUsd :: PaymentMethod
-fpmPayPalUsd = pmPayPal USD
+ftmPayPalUsd :: TransferMethod
+ftmPayPalUsd = tmPayPal USD
 
-cpmPzm :: PaymentMethod
-cpmPzm = CryptoPM PZM
-
-
-cpmBtc :: PaymentMethod
-cpmBtc = CryptoPM BTC
+ctmPzm :: TransferMethod
+ctmPzm = CryptoTM PZM
 
 
-cpmEth :: PaymentMethod
-cpmEth = CryptoPM ETH
+ctmBtc :: TransferMethod
+ctmBtc = CryptoTM BTC
+
+
+ctmEth :: TransferMethod
+ctmEth = CryptoTM ETH
+
+
+instance PathPiece TransferMethod where
+    fromPathPiece = readMaybe . unpack
+    toPathPiece = pack . show

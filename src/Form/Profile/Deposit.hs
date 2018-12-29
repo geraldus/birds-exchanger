@@ -69,7 +69,7 @@ withdrawalForm extra = do
 depositForm :: Text -> Form DepositRequestFD
 depositForm formId extra = do
     cid <- newIdent
-    pid <- newIdent
+    tid <- newIdent
     aid <- newIdent
     (paymentCurrencyRes, paymentCurrencyView) <- mreq currencySelect' (fsBs4WithId cid) Nothing
     (paymentAmountRes, paymentAmountView) <- mreq
@@ -79,7 +79,7 @@ depositForm formId extra = do
                 ( fsBs4WithId aid ) "укажите сумму" )
             [ "form-control-lg" ] )
         Nothing
-    (paymentMethodRes, paymentMethodView) <- mreq paymentMethodSelect (fsBs4WithId pid) Nothing
+    (transferMethodRes, transferMethodView) <- mreq transferMethodSelect (fsBs4WithId tid) Nothing
     -- (targetCurrencyRes, _) <- mreq
     --     ( selectFieldList currencyOptions )
     --     fsBs4
@@ -91,7 +91,7 @@ depositForm formId extra = do
         expectedRatio = selectRatio' <$> paymentCurrencyRes <*> paymentCurrencyRes-- targetCurrencyRes
         depReqRes = DepositRequestFD
                         <$> paymentCurrencyRes
-                        <*> paymentMethodRes
+                        <*> transferMethodRes
                         <*> amountCentsRes
                         <*> expectedFee
                         <*> paymentCurrencyRes
@@ -110,7 +110,7 @@ depositForm formId extra = do
                 ]
             FormFailure es -> FormFailure es
             FormMissing -> FormMissing
-    let isValidPaymentMethod = isJust . fvErrors $ paymentMethodView
+    let isValidTransferMethod = isJust . fvErrors $ transferMethodView
     let widget = do
             inCurrencyId <- newIdent
             inTargetCurrencyId <- newIdent
@@ -120,7 +120,7 @@ depositForm formId extra = do
 
 data DepositRequestFD = DepositRequestFD
     { depReqCurrency                :: Currency
-    , depReqPaymentMethod           :: PaymentMethod
+    , depReqTransferMethod          :: TransferMethod
     , depReqCentsAmount             :: Int
     , depReqCentsExpectedFee        :: Int
     , depReqTargetCurrency          :: Currency

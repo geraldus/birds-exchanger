@@ -1,11 +1,11 @@
 $(document).ready(() => {
     const currencySelect = $('##{rawJS cid}')
 
-    let paymentMethodSelect = $('##{rawJS pid}')
-    let defaultOption = $('<option disabled selected>укажите способ пополнения</option>')
-    paymentMethodSelect.prepend(defaultOption)
+    let transferMethodSelect = $('##{rawJS tid}')
+    let defaultOption = $('<option disabled selected>укажите способ перевода</option>')
+    transferMethodSelect.prepend(defaultOption)
 
-    const paymentMethods = $('##{rawJS pid} option')
+    const transferMethods = $('##{rawJS tid} option')
 
     const checkFeednack = () => {
         const form = $('##{rawJS formId}')
@@ -21,12 +21,12 @@ $(document).ready(() => {
     }
 
     const updatePayamentMethods = (currency, selectFirst = false) => {
-        paymentMethods.each((i, op) => {
+        transferMethods.each((i, op) => {
             $(op).attr('disabled', 'disabled')
             $(op).removeAttr('selected')
             $(op).hide()
         })
-        $('##{rawJS pid} option[value^="' + currency + '"]').each((i, op) => {
+        $('##{rawJS tid} option[value^="' + currency + '"]').each((i, op) => {
             $(op).removeAttr('disabled')
             $(op).show()
             if (i == 0 && selectFirst) {
@@ -34,7 +34,6 @@ $(document).ready(() => {
             }
         })
         if (!selectFirst) {
-            console.log(defaultOption[0], paymentMethods)
             defaultOption[0].setAttribute('selected', 'selected')
         }
     }

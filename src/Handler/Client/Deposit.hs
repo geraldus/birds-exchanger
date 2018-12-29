@@ -32,7 +32,7 @@ postDepositR = do
             time <- liftIO $ getCurrentTime
             let depReqRecord = DepositRequest
                     depReqCurrency
-                    depReqPaymentMethod
+                    depReqTransferMethod
                     depReqCentsAmount
                     depReqCentsExpectedFee
                     code

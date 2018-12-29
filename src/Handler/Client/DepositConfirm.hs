@@ -13,14 +13,14 @@ getDepositRequestConfirmationR code = withRequest' code $ \(Entity _ t) -> do
         setMessage "Данная заявка проходит проверку..."
         redirect HomeR
     let transactionCode = depositRequestTransactionCode t
-        paymentMethod = depositRequestPaymentMethod t
+        transferMethod = depositRequestTransferMethod t
         cents = depositRequestCentsAmount t
         currency = depositRequestCurrency t
-        paymentGuide = case paymentMethod of
-            FiatPM SberBankCard2CardFPM RUR -> paymentGuideCard2Card paymentMethod cents currency code
-            FiatPM TinkoffBankCard2CardFPM RUR -> paymentGuideCard2Card paymentMethod cents currency code
-            FiatPM QiwiFPM RUR -> paymentGuideQiwi paymentMethod cents currency code
-            CryptoPM PZM -> paymentGuideCryptoC paymentMethod cents currency code
+        paymentGuide = case transferMethod of
+            FiatTM SberBankCard2CardFTM RUR -> paymentGuideCard2Card transferMethod cents currency code
+            FiatTM TinkoffBankCard2CardFTM RUR -> paymentGuideCard2Card transferMethod cents currency code
+            FiatTM QiwiFTM RUR -> paymentGuideQiwi transferMethod cents currency code
+            CryptoTM PZM -> paymentGuideCryptoC transferMethod cents currency code
             _ -> [whamlet|Приём средст временно приостановлен.  Попробуйте позже|]
     defaultLayout $(widgetFile "client/deposit-proceed")
 
@@ -40,32 +40,32 @@ getDepositRequestConfirmationR code = withRequest' code $ \(Entity _ t) -> do
             <p .text-center>
                 <small>КОД ОПЕРАЦИИ
             <div .text-monospace .text-center .h3>#{code}|]
-    paymentGuideCard2Card pm cents curr code =
-        guideTemplate (paymentTitle pm) cents curr "на карту" (paymentAddr pm) code
-    paymentGuideQiwi pm cents curr code =
-        guideTemplate (paymentTitle pm) cents curr "на Qiwi-кошелёк" (paymentAddr pm) code
-    paymentGuideCryptoC pm cents curr code =
-        let c = case pm of
-                CryptoPM c' -> c'
+    paymentGuideCard2Card tm cents curr code =
+        guideTemplate (paymentTitle tm) cents curr "на карту" (paymentAddr tm) code
+    paymentGuideQiwi tm cents curr code =
+        guideTemplate (paymentTitle tm) cents curr "на Qiwi-кошелёк" (paymentAddr tm) code
+    paymentGuideCryptoC tm cents curr code =
+        let c = case tm of
+                CryptoTM c' -> c'
                 _ -> error "Ошибка.  Неверные данные"
-        in guideTemplate (paymentTitle pm) cents curr (cryptoCDesc c) (paymentAddr pm) code
-    paymentTitle :: PaymentMethod -> Text
-    paymentTitle (FiatPM SberBankCard2CardFPM _) = "Пополнение переводом на карту СберБанка"
-    paymentTitle (FiatPM TinkoffBankCard2CardFPM _) = "Пополнение переводом на карту Тинькофф Банка"
-    paymentTitle (FiatPM QiwiFPM _) = "Перевод на Qiwi кошелёк по номеру телефона"
-    paymentTitle (CryptoPM curr) = "Перевод на " <> cryptoName curr <> " кошелёк"
-    paymentAddr :: PaymentMethod -> Html
-    paymentAddr (FiatPM SberBankCard2CardFPM RUR) = "5469 7200 1260 8192"
-    paymentAddr (FiatPM TinkoffBankCard2CardFPM RUR) = "5536 9137 9169 3324"
-    paymentAddr (FiatPM QiwiFPM RUR) = "+79090991177"
-    paymentAddr (CryptoPM PZM) = [shamlet|
+        in guideTemplate (paymentTitle tm) cents curr (cryptoCDesc c) (paymentAddr tm) code
+    paymentTitle :: TransferMethod -> Text
+    paymentTitle (FiatTM SberBankCard2CardFTM _) = "Пополнение переводом на карту СберБанка"
+    paymentTitle (FiatTM TinkoffBankCard2CardFTM _) = "Пополнение переводом на карту Тинькофф Банка"
+    paymentTitle (FiatTM QiwiFTM _) = "Перевод на Qiwi кошелёк по номеру телефона"
+    paymentTitle (CryptoTM curr) = "Перевод на " <> cryptoName curr <> " кошелёк"
+    paymentAddr :: TransferMethod -> Html
+    paymentAddr (FiatTM SberBankCard2CardFTM RUR) = "5469 7200 1260 8192"
+    paymentAddr (FiatTM TinkoffBankCard2CardFTM RUR) = "5536 9137 9169 3324"
+    paymentAddr (FiatTM QiwiFTM RUR) = "+79090991177"
+    paymentAddr (CryptoTM PZM) = [shamlet|
         <br>
         PRIZM-8GBY-JZ9V-UJAZ-DNLU2
         <br>
         12d9435fa9a3ecf3c11c6b8bf7662dec44842616d2cde82cfbf8fb489b3d6d16
         |]
-    paymentAddr (CryptoPM BTC) = [shamlet|1Hih1ccN7oAxfYWh2tTENiesJ69vt8fdvS|]
-    paymentAddr (CryptoPM ETH) = [shamlet|0x790d1e80934232e16FEA0360Ad8963E04Ab528Dc|]
+    paymentAddr (CryptoTM BTC) = [shamlet|1Hih1ccN7oAxfYWh2tTENiesJ69vt8fdvS|]
+    paymentAddr (CryptoTM ETH) = [shamlet|0x790d1e80934232e16FEA0360Ad8963E04Ab528Dc|]
     cryptoCDesc curr = "на " <> cryptoName curr <> " кошелёк"
     cryptoName PZM = "Prizm"
     cryptoName BTC = "Bitcoin"

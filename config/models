@@ -51,7 +51,7 @@ WalletBalanceTransaction
 
 DepositRequest
     currency Currency
-    paymentMethod PaymentMethod
+    transferMethod TransferMethod
     centsAmount Int
     expectedFeeCents Int
     transactionCode Text
@@ -80,7 +80,7 @@ AcceptedDeposit
 
 WithdrawalRequest
     walletId UserWalletId
-    method Text
+    method TransferMethod
     addressee Text
     centsAmount Int
     created UTCTime
