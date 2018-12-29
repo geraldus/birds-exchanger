@@ -11,7 +11,7 @@ import           Import
 import           Local.Persist.Currency
 import           Local.Persist.ExchangeOrder
 import           Local.Persist.Wallet
-import           Utils.Deposit               ( oneCoinCents )
+import           Type.Money               ( oneCoinCents )
 
 import Data.Maybe ( fromJust )
 

@@ -34,7 +34,8 @@ import           Local.Persist.Currency
 import           Local.Persist.ExchangeOrder ( ExchangePair (..) )
 import           Local.Persist.UserRole
 import           Type.Fee
-import           Utils.Deposit               ( oneCoinCents )
+import           Type.Money                  ( oneCoinCents )
+import           Utils.Form                  ( transferOptionsRaw, currencyOptionListRaw )
 
 import qualified Crypto.Nonce                as CN
 import           Text.Read                   ( readMaybe )
@@ -536,39 +537,6 @@ headerUserBalanceRender ((amtCents, cur):ws) = do
     headerUserBalanceRender ws
 
 
-currencySelect :: Field (HandlerFor App) Currency
-currencySelect = selectFieldList currencyOptions
-
-currencySelect' :: Field (HandlerFor App) Currency
-currencySelect' = selectField . pure $ mkOptionList currencyOptionListRaw
-
-currencyOptions :: [(Text, Currency)]
-currencyOptions =
-    [ ("Российский рубль ₽ (RUR)", FiatC RUR)
-    , ("Криптовалюта Prizm (PZM)", CryptoC PZM) ]
-
-currencyOptionListRaw :: [ Option Currency ]
-currencyOptionListRaw =
-    [ Option "Российский рубль ₽ (RUR)" (FiatC RUR) "rur"
-    , Option "Криптовалюта Prizm (PZM)" (CryptoC PZM) "pzm"
-    ]
-
-paymentMethodSelect :: Field (HandlerFor App) PaymentMethod
-paymentMethodSelect = selectField . pure $ mkOptionList paymentOptionsRaw
-
-paymentOptionsRaw :: [ Option PaymentMethod ]
-paymentOptionsRaw =
-    [ Option "перевод Prizm" cpmPzm "pzm_pm"
-    , Option "перевод Bitcoin" cpmBtc "btc_pm"
-    , Option "перевод Etherium" cpmBtc "eth_pm"
-    , Option "СберБанк - перевод на карту" fpmSberRur "rur_sber_pm"
-    , Option "АльфаБанк - перевод на карту" fpmAlphaRur "rur_alpha_pm"
-    , Option "Тинькофф Банк - перевод на карту" fpmTinkoffRur "rur_tinkoff_pm"
-    , Option "Qiwi - перевод на кошелёк" fpmQiwiRur "rur_qiwi_pm"
-    , Option "PayPal - перевод со счёта на счёт" fpmPayPalRur "rur_paypal_pm"
-    , Option "PayPal - перевод со счёта на счёт" fpmPayPalUsd "usd_paypal_pm"
-    ]
-
 accessErrorClientOnly :: Text
 accessErrorClientOnly = "Доступно только для аккаунтов уровня \"Клиент\""
 
@@ -652,6 +620,12 @@ currSign (FiatC RUR)   = "₽"
 currSign (CryptoC PZM) = "PZM"
 currSign (CryptoC ETH) = "ETH"
 currSign (CryptoC BTC) = "BTC"
+
+currencySelect :: Field (HandlerFor App) Currency
+currencySelect = selectField . pure $ mkOptionList currencyOptionListRaw
+
+transferMethodSelect :: Field (HandlerFor App) TransferMethod
+transferMethodSelect = selectField . pure $ mkOptionList transferOptionsRaw
 
 
 -- | Defines devisor and qoutient when specifying exchange ratio for

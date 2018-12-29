@@ -7,7 +7,8 @@ import           Import
 import           Local.Persist.Currency
 import           Local.Persist.ExchangeOrder ( ExchangePair (..) )
 import           Type.Fee                    ( Fee (..) )
-import           Utils.Deposit               ( doubleToCents, oneCoinCents )
+import           Utils.Money                    ( truncCoins2Cents )
+import           Type.Money                     ( oneCoinCents )
 
 import           Text.Julius                 ( RawJS (..) )
 
@@ -36,12 +37,13 @@ createOrderForm defaultPair extra = do
         Nothing
     (feeRes, hiddenFeeView) <- mreq hiddenField (fsBs4WithId feeid) (Nothing :: Maybe Int)
     (pairRes, hiddenPairView) <- mreq hiddenField (fsBs4WithId pairid) (Just defaultPair)
-    let result = OrderFD
-            <$> actionRes
-            <*> (fmap doubleToCents amountRes)
-            <*> ratioRes
-            <*> feeRes
-            <*> pairRes
+    let result =
+            OrderFD
+                <$> actionRes
+                <*> fmap truncCoins2Cents amountRes
+                <*> ratioRes
+                <*> feeRes
+                <*> pairRes
         (Percent feePercent) = defaultExchangeFee
         widget = $(widgetFile "form/create-order")
     return (result, widget)

@@ -7,6 +7,7 @@ import Import
 import Local.Persist.Deposit
 import Local.Persist.Wallet
 import Utils.Deposit
+import Type.Money (oneCoinCents)
 
 import Database.Persist.Sql (toSqlKey)
 

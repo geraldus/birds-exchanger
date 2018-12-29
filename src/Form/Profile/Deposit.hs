@@ -4,46 +4,14 @@ module Form.Profile.Deposit where
 
 import           Import
 import           Local.Persist.Currency
+import           Type.Money                    ( oneCoinCents )
 import           Utils.Deposit
+import           Utils.Form
+import           Utils.Money                   ( truncCoins2Cents )
 
 import           Text.Blaze.Html.Renderer.Text ( renderHtml )
 import           Text.Julius                   ( RawJS (..) )
 
-
-amountIsValidC :: Currency -> Double -> Bool
-amountIsValidC (CryptoC PZM) a = a * fromIntegral oneCoinCents * depositPzmRurRatio >= fromIntegral depositMinCentAmount
-amountIsValidC (FiatC RUR) a = a * fromIntegral oneCoinCents >= fromIntegral depositMinCentAmount
-amountIsValidC _ _ = False
-
-selectOpposite' :: Currency -> Currency
-selectOpposite' (FiatC RUR)   = CryptoC PZM
-selectOpposite' (CryptoC PZM) = FiatC RUR
-
--- selectMethod' :: Currency -> PaymentMethod
--- selectMethod' (FiatC RUR)   = FiatPM Card2CardFPM RUR
--- selectMethod' (CryptoC PZM) = CryptoPM PZM
-
-
---         amountCents   = doubleToCents <$> paymentCurrencyAmountRes
---         targetCurrency = selectOpposite' <$> paymentCurrencyRes
---         paymentMethod = selectMethod' <$> paymentCurrencyRes
-
-moneyInput :: Text
-           -> Text
-           -> MForm (HandlerFor App) (FormResult Money, Widget)
-moneyInput aid cid = do
-    (amt, av) <- mreq doubleField (fsBs4WithId aid) Nothing
-    (cur, cv) <- mreq currencySelect (fsBs4WithId cid) Nothing
-    let wid = [whamlet|
-                <div .form-row>
-                    <div .col-12.col-md-4>
-                        <label for="#{aid}">кол-во
-                        ^{fvInput av}
-                    <div .col-12.col-md-8>
-                        <label for="#{cid}">валюта
-                        ^{fvInput cv}
-                |]
-    return  (Money <$> (doubleToCents <$> amt) <*> cur, wid)
 
 
 withdrawalForm :: Form WithdrawalM
@@ -71,7 +39,7 @@ depositForm formId extra = do
     cid <- newIdent
     tid <- newIdent
     aid <- newIdent
-    (paymentCurrencyRes, paymentCurrencyView) <- mreq currencySelect' (fsBs4WithId cid) Nothing
+    (paymentCurrencyRes, paymentCurrencyView) <- mreq currencySelect (fsBs4WithId cid) Nothing
     (paymentAmountRes, paymentAmountView) <- mreq
         doubleField
         ( fsAddClasses
@@ -85,7 +53,7 @@ depositForm formId extra = do
     --     fsBs4
     --     Nothing
     let amountIsValidRes = amountIsValidC <$> paymentCurrencyRes <*> paymentAmountRes
-        amountCentsRes   = doubleToCents <$> paymentAmountRes
+        amountCentsRes   = truncCoins2Cents <$> paymentAmountRes
         matchingFee = selectFee <$> paymentCurrencyRes
         expectedFee = calcFeeCents <$> matchingFee <*> amountCentsRes
         expectedRatio = selectRatio' <$> paymentCurrencyRes <*> paymentCurrencyRes-- targetCurrencyRes
@@ -126,8 +94,5 @@ data DepositRequestFD = DepositRequestFD
     , depReqTargetCurrency          :: Currency
     , depReqExpectedConversionRatio :: Double
     }
-
-
-data Money = Money Int Currency deriving Show
 
 data WithdrawalM = WithdrawalM Money Text deriving Show

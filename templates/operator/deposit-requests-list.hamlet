@@ -12,7 +12,7 @@
         $forall ((Entity depreqId DepositRequest{..}), (Entity _ UserWallet{..}), (Entity _ User{..}))  <- list
             <tr>
                 <td>#{cents2dblT depositRequestCentsAmount} #{currSign userWalletCurrency}
-                <td>#{cents2dblT (doubleToCents ((fromIntegral depositRequestCentsAmount * selectRatio' depositRequestCurrency depositRequestTargetCurrency) / 100))} #{currSign depositRequestTargetCurrency}
+                <td>#{cents2dblT (truncCoins2Cents ((fromIntegral depositRequestCentsAmount * selectRatio' depositRequestCurrency depositRequestTargetCurrency) / 100))} #{currSign depositRequestTargetCurrency}
                 <td>#{userIdent}
                 <td .text-monospace>#{depositRequestTransactionCode}
                 <td>

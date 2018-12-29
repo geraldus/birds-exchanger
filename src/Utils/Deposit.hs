@@ -3,6 +3,7 @@ module Utils.Deposit where
 
 import Prelude
 
+import Type.Money
 import Type.Fee
 import Local.Persist.Currency
 
@@ -33,11 +34,3 @@ depositPzmRurRatio = 25
 
 depositRurPzmRatio :: Double
 depositRurPzmRatio = 1 / depositPzmRurRatio
-
-
-oneCoinCents :: Int
-oneCoinCents = 100
-
--- TODO: FIXME: Rename to `trunc2cents`
-doubleToCents :: Double -> Int
-doubleToCents x = truncate $ x * fromIntegral oneCoinCents

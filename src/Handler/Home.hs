@@ -10,7 +10,7 @@ import           Import
 import           Form.Exchanger.Order
 import           Local.Persist.Currency
 import           Local.Persist.ExchangeOrder (ExchangePair (..))
-import           Utils.Deposit               ( oneCoinCents )
+import           Type.Money               ( oneCoinCents )
 
 
 -- Define our data that will be used for creating the form.

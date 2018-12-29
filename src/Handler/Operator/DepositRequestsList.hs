@@ -5,6 +5,7 @@ module Handler.Operator.DepositRequestsList where
 import           Import
 import           Local.Persist.Deposit
 import           Utils.Deposit
+import           Utils.Money ( truncCoins2Cents )
 
 import           Database.Persist.Sql           ( fromSqlKey
                                                 , rawSql
