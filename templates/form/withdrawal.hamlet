@@ -1,0 +1,23 @@
+#{extra}
+^{moneyWid}
+^{fvInput addressView}
+<div .form-row>
+    <div .form-group .col-12>
+        <label for="#{tid}">Способ получения средств
+        ^{fvInput transferMethodView}
+<div ##{adrid}-1-row .form-row .tm-addr-row >
+    <div .form-group .col-12>
+        <label for="#{adrid}-1" .rur_sber_tm>Номер карты СберБанка (₽/RUR)
+        <label for="#{adrid}-1" .rur_alpha_tm>Номер карты Альфа Банка (₽/RUR)
+        <label for="#{adrid}-1" .rur_tinkoff_tm>Номер карты Тинькофф Банка (₽/RUR)
+        <label for="#{adrid}-1" .rur_qiwi_tm>Qiwi кошелёк (номер телефона) (₽/RUR)
+        <label for="#{adrid}-1" .rur_paypal_tm>Аккаунт PayPal (₽/RUR)
+        <label for="#{adrid}-1" .usd_paypal_tm>Аккаунт PayPal ($/USD)
+        <label for="#{adrid}-1" .pzm_tm_addr>Адрес Prizm кошелька (PZM Address)
+        <label for="#{adrid}-1" .btc_addr_tm>Адрес Bitcoin кошелька  (BTC)
+        <label for="#{adrid}-1" .eth_addr_tm>Адрес Etherium кошелька (ETH)
+        <input ##{adrid}-1 type=text .form-control required>
+<div ##{adrid}-2-row .form-row .tm-addr-row>
+    <div .form-group .col-12>
+        <label for="#{adrid}-2" .pzm_tm_pubkey>Публичный ключ Prizm кошелька (PZM Public Key)
+        <input ##{adrid}-2 type=text .form-control required>

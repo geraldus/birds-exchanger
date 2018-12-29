@@ -1,0 +1,105 @@
+$(document).ready(() => {
+    const form = $('##{rawJS formId}')
+
+    const currencySelect = $('##{rawJS cid}')
+
+    const transferMethodSelect = $('##{rawJS tid}')
+
+    let defaultOption = $('<option disabled selected value="">укажите способ перевода</option>')
+    transferMethodSelect.prepend(defaultOption)
+
+    const transferMethodOpts = $('##{rawJS tid} option')
+
+    const addr1Row = $('##{rawJS adrid}-1-row')
+    const addr2Row = $('##{rawJS adrid}-2-row')
+
+    const checkFeedback = () => {
+        const feedback = $('.form-group .invalid-feedback', form)
+        feedback.each((i, f) => {
+            $(f).parent().find('.form-control').addClass('is-invalid')
+        })
+    }
+
+    const addressHidden = $('##{rawJS adrid}')
+    const address1 = $('##{rawJS adrid}-1')
+    const address2 = $('##{rawJS adrid}-2')
+
+    const updateTranserMethodView = (selectFirst = false) => {
+        const selectedCurrency = currencySelect.val()
+        transferMethodOpts.each((i, op) => {
+            $(op).attr('disabled', 'disabled')
+            $(op).removeAttr('selected')
+            $(op).hide()
+        })
+        $('option[value^="' + selectedCurrency + '"]', transferMethodSelect).each((i, op) => {
+            $(op).removeAttr('disabled')
+            $(op).show()
+            if (i == 0 && selectFirst) {
+                $(op).attr('selected', '')
+            }
+        })
+        if (!selectFirst) {
+            defaultOption.attr('selected', 'selected')
+        }
+        updateAddressView()
+    }
+
+    const updateAddressView = () => {
+        const selectedCurrency = currencySelect.val()
+        const selectedTransferMethod = transferMethodSelect.val()
+        $('.tm-addr-row label:not([class*="' + selectedTransferMethod + '"])', form).each((i, lbl) => {
+            $(lbl).hide()
+        })
+        $('.tm-addr-row label[class*="' + selectedTransferMethod + '"]', form).each((i, lbl) => {
+            $(lbl).show()
+        })
+        switch (selectedCurrency) {
+            case 'pzm':
+                addr2Row.show()
+                address2.attr('required', 'required')
+                break
+            default:
+                addr2Row.hide()
+                address2.removeAttr('required')
+                break
+        }
+        if (selectedTransferMethod === null) {
+            addr1Row.hide()
+            address1.removeAttr('required')
+        } else {
+            addr1Row.show()
+            address1.attr('required', 'required')
+        }
+        updateAddressField()
+    }
+
+    const updateAddressField = () => {
+        const addr1 = address1.val()
+        const addr2 = address2.val()
+        const selectedCurrency = currencySelect.val()
+        const selectedTransferMethod = transferMethodSelect.val()
+        if (selectedTransferMethod === null) {
+            addressHidden.val('')
+        } else {
+            addressHidden.val(selectedCurrency == 'pzm'? addr1 + '\n' + addr2 : addr1)
+        }
+    }
+
+    currencySelect.change(() => {
+        let selectedCurrency = currencySelect.val()
+        switch (selectedCurrency) {
+            case 'pzm':
+                updateTranserMethodView(true)
+                break
+            default:
+                updateTranserMethodView()
+                break
+        }
+    })
+
+    address1.change(updateAddressField)
+    address2.change(updateAddressField)
+
+    transferMethodSelect.change(updateAddressView)
+    updateTranserMethodView()
+})
