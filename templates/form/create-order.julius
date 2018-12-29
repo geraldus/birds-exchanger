@@ -30,10 +30,10 @@ $(document).ready(() => {
             sumOutTotalGive.text((v - fg))
             switch (actIn.val())  {
                 case '1':
-                    feeHidden.val(ft)
+                    feeHidden.val(Math.floor(ft * 100))
                     break
                 case '2':
-                    feeHidden.val(fg)
+                    feeHidden.val(Math.floor(fg * 100))
                     break
             }
         } else {
