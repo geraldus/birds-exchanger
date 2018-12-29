@@ -1,11 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE RecordWildCards   #-}
 module Handler.Client.Deposit where
 
 
-import Import
-import Local.Persist.Deposit
-import Form.Profile.Deposit
+import           Form.Profile.Deposit
+import           Import
+import           Local.Persist.Deposit
 
 
 getDepositR :: Handler Html
@@ -22,8 +22,8 @@ postDepositR = do
     ((res, widget), enctype) <- runFormPost $ depositForm formId
     mayError <- return $ case res of
         FormSuccess depReq -> Nothing
-        FormMissing -> Just  ["Не получены данные формы"]
-        FormFailure e -> Just e
+        FormMissing        -> Just  ["Не получены данные формы"]
+        FormFailure e      -> Just e
     case res of
         FormMissing -> defaultLayout $ defaultWidget formId widget enctype mayError
         FormFailure _ -> defaultLayout $ defaultWidget formId widget enctype mayError

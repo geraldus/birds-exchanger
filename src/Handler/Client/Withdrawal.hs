@@ -5,9 +5,9 @@ module Handler.Client.Withdrawal where
 
 import           Form.Profile.Deposit
 import           Import
-import           Local.Persist.Currency
-import           Local.Persist.Deposit
 import           Local.Persist.Wallet
+import           Type.Money              ( Money (..) )
+import           Type.Withdrawal
 
 
 
