@@ -1,10 +1,8 @@
 module Local.Persist.Currency where
 
-
 import           Database.Persist.TH
 import           ClassyPrelude.Yesod
 import           Text.Read                      ( readMaybe )
-
 
 
 data CurrencyType
