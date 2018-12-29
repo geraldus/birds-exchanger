@@ -32,13 +32,6 @@ getHomeR = do
         setTitle "(!) обменный пункт OutBirds"
         $(widgetFile "homepage")
 
-postHomeR :: Handler Html
-postHomeR = do
-    (mmsg, mayClientUser, orderCreateFormW, (pzmRurOrders, rurPzmOrders)) <- getData
-    defaultLayout $ do
-        setTitle "(!) обменный пункт OutBirds"
-        $(widgetFile "homepage")
-
 getData :: HandlerFor App (Maybe Html, Maybe (Key User), Widget,
         ([Entity ExchangeOrder], [Entity ExchangeOrder]))
 getData = do

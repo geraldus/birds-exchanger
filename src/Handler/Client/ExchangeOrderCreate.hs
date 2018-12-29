@@ -136,9 +136,9 @@ postExchangeOrderCreateR = do
         let mInAmtExpects = multAmt mDirRatio mOutAmtLeft
         $(logInfo) $ "M | Ratio direct: " <> (pack . show) mDirRatio <> "; amount = " <> (pack . show) mInAmtExpects <> " | Out: " <> (pack . show) mOutAmtLeft
         $(logInfo) $ "U | In: " <> (pack . show) mInAmtExpects <> "; Out: " <> (pack . show) mOutAmtLeft
-        tWalletOut <- getOrCreateWallet tUserId currencyA
+        -- tWalletOut <- getOrCreateWallet tUserId currencyA
         tWalletIn@(Entity tWalletInId _)  <- getOrCreateWallet tUserId currencyB
-        mWalletOut <- getOrCreateWallet mUserId currencyB
+        -- mWalletOut <- getOrCreateWallet mUserId currencyB
         mWalletIn@(Entity mWalletInId _)  <- getOrCreateWallet mUserId currencyA
         timeNow <- liftIO getCurrentTime
         let setFullyExecuted =
