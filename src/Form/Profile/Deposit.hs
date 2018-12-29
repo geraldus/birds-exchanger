@@ -1,37 +1,16 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes       #-}
 module Form.Profile.Deposit where
 
 
 import           Import
 import           Local.Persist.Currency
-import           Type.Money                    ( oneCoinCents )
 import           Utils.Deposit
 import           Utils.Form
 import           Utils.Money                   ( truncCoins2Cents )
 
 import           Text.Blaze.Html.Renderer.Text ( renderHtml )
 import           Text.Julius                   ( RawJS (..) )
-
-
-
-withdrawalForm :: Form WithdrawalM
-withdrawalForm extra = do
-    adrid <- newIdent
-    amtid <- newIdent
-    curid <- newIdent
-    (moneyRes, moneyWid) <- moneyInput amtid curid
-    (addressRes, addressView) <- mreq textField (fsBs4WithId adrid) Nothing
-    let widget = [whamlet|
-            #{extra}
-            <div .form-row>
-                <p .h4>Вывожу
-            ^{moneyWid}
-            <div .form-row>
-                <label for="#{adrid}">Карта или номер кошелька
-                ^{fvInput addressView}
-            |]
-        res = WithdrawalM <$> moneyRes <*> addressRes
-    return (res, widget)
 
 
 depositForm :: Text -> Form DepositRequestFD
@@ -68,20 +47,20 @@ depositForm formId extra = do
                         <*> expectedRatio
         formResult = case amountIsValidRes of
             FormSuccess True -> depReqRes
-            FormSuccess False -> FormFailure $ [
+            FormSuccess False -> FormFailure [
                     toStrict $ renderHtml [shamlet|
                         $newline never
                         Минимальная сумма пополнения #
-                        \#{show (round (fromIntegral depositMinCentAmount / fromIntegral oneCoinCents))} ₽ / #
-                        \#{show (fromIntegral depositMinCentAmount * (depositRurPzmRatio / fromIntegral oneCoinCents))} #
+                        \#{cents2dblT depositRurMinCentsAmount} ₽ / #
+                        \#{cents2dblT depositPzmMinCentsAmount} #
                         \PZM|]
                 ]
             FormFailure es -> FormFailure es
             FormMissing -> FormMissing
-    let isValidTransferMethod = isJust . fvErrors $ transferMethodView
+    -- let isValidTransferMethod = isJust . fvErrors $ transferMethodView
     let widget = do
             inCurrencyId <- newIdent
-            inTargetCurrencyId <- newIdent
+            -- inTargetCurrencyId <- newIdent
             $(widgetFile "form/client-deposit")
     return (formResult, widget)
 
@@ -94,5 +73,3 @@ data DepositRequestFD = DepositRequestFD
     , depReqTargetCurrency          :: Currency
     , depReqExpectedConversionRatio :: Double
     }
-
-data WithdrawalM = WithdrawalM Money Text deriving Show
