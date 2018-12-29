@@ -3,20 +3,17 @@ module Utils.Form where
 
 import           Local.Persist.Currency
 import           Import.NoFoundation
-import           Utils.Deposit                  ( depositMinCentAmount
-                                                , depositPzmRurRatio
+import           Utils.Deposit                  ( depositRurMinCentsAmount
+                                                , depositPzmMinCentsAmount
                                                 )
 import           Type.Money                     ( oneCoinCents )
 
 
 amountIsValidC :: Currency -> Double -> Bool
 amountIsValidC (CryptoC PZM) a =
-    a
-        *  fromIntegral oneCoinCents
-        *  depositPzmRurRatio
-        >= fromIntegral depositMinCentAmount
+    a * fromIntegral oneCoinCents >= fromIntegral depositPzmMinCentsAmount
 amountIsValidC (FiatC RUR) a =
-    a * fromIntegral oneCoinCents >= fromIntegral depositMinCentAmount
+    a * fromIntegral oneCoinCents >= fromIntegral depositRurMinCentsAmount
 amountIsValidC _ _ = False
 
 
