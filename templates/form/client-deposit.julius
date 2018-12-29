@@ -7,14 +7,9 @@ $(document).ready(() => {
 
     const transferMethods = $('##{rawJS tid} option')
 
-    const checkFeednack = () => {
+    const checkFeedback = () => {
         const form = $('##{rawJS formId}')
-        console.log(form)
         const feedback = $('.form-group .invalid-feedback', form)
-        console.log(feedback)
-        if (feedback.length) {
-            // form.addClass('was-validated')
-        }
         feedback.each((i, f) => {
             $(f).parent().find('.form-control').addClass('is-invalid')
         })
@@ -52,6 +47,6 @@ $(document).ready(() => {
         }
     })
 
-    checkFeednack()
+    checkFeedback()
     updatePayamentMethods(currencySelect.val())
 })
