@@ -287,6 +287,8 @@ instance YesodBreadcrumbs App where
     breadcrumb (DepositRequestConfirmationR _) =
         return ("Подтверждение", Just DepositR)
     breadcrumb WithdrawalR = return ("Вывод средств", Just ProfileR)
+    breadcrumb WithdrawalCreateR =
+        return ("Вывод средств", Just ProfileR)
     breadcrumb OperatorLogInR = return ("Оператор / Вход", Just HomeR)
     breadcrumb AdminLogInR = return ("Вход для супер-пользователя", Just HomeR)
     breadcrumb  _          = return ("*", Nothing)
