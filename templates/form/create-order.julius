@@ -6,6 +6,7 @@ $(document).ready(() => {
     const amtIn = $('##{rawJS amtid}')
     const ratioIn = $('##{rawJS ratid}')
     const sumOut = $('##{rawJS sumid}-tbl .val')
+    const feeHidden = $('##{rawJS feeid}')
     const feeOutTake = $('##{rawJS feeid}-tbl .val.take')
     const feeOutGive = $('##{rawJS feeid}-tbl .val.give')
     const sumOutTotalTake = $('##{rawJS sumid}-total-tbl .val.take')
@@ -27,12 +28,21 @@ $(document).ready(() => {
             feeOutGive.text('-' + fg)
             sumOutTotalTake.text((s - ft))
             sumOutTotalGive.text((v - fg))
+            switch (actIn.val())  {
+                case '1':
+                    feeHidden.val(ft)
+                    break
+                case '2':
+                    feeHidden.val(fg)
+                    break
+            }
         } else {
             sumOut.text('-')
             feeOutTake.text('-')
             feeOutGive.text('-')
             sumOutTotalTake.text('-')
             sumOutTotalGive.text('-')
+            feeHidden.val('')
         }
     }
 
@@ -49,5 +59,6 @@ $(document).ready(() => {
                 wrap.addClass('action-give').removeClass('action-take')
                 break
         }
+        updateStats()
     })
 })
