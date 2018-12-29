@@ -9,21 +9,18 @@
 
 / HomeR GET POST
 
-/comments CommentR POST
-
-/profile ProfileR GET
-
 /signup SignUpR GET POST
 /signup-verification/#Text/#Text SignUpVerifyR GET POST
 
+/profile ProfileR GET
 /profile/deposit                             DepositR                     GET POST
 /profile/deposit/request-confirmation/#Text  DepositRequestConfirmationR  GET
 /profile/withdrawal                          WithdrawalR                  GET
 /profile/withdrawal/create-request           WithdrawalCreateR            POST
 /profile/deposit/confirm                     DepositConfirmRequestR       POST
+/profile/exchange-order-create        ExchangeOrderCreateR         POST
 -- TODO: FIXME:
 -- /profile/deposit/create-request              DepositCreateRequestR        POST
-/profile/exchange-order-create        ExchangeOrderCreateR         POST
 
 /operator/login  OperatorLogInR  GET
 /operator/bids   OperatorBidsR   GET

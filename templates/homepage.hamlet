@@ -14,7 +14,7 @@
             <div .col>
                 <form method=post action=@{ExchangeOrderCreateR} enctype="">
                     ^{orderCreateFormW}
-                    $maybe client <- mayClientUser
+                    $maybe _ <- mayClientUser
                         <button .btn.btn-lg .mb-5 type=submit>обмен
                     $nothing
                         <div .text-muted .mb-5>

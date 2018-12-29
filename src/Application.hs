@@ -20,45 +20,44 @@ module Application
     , db
     ) where
 
-import           Control.Monad.Logger                 (liftLoc, runLoggingT)
+import           Control.Monad.Logger                 ( liftLoc, runLoggingT )
 import qualified Crypto.Nonce                         as CN
-import           Database.Persist.Postgresql          (createPostgresqlPool,
-                                                       pgConnStr, pgPoolSize,
-                                                       runSqlPool)
+import           Database.Persist.Postgresql          ( createPostgresqlPool,
+                                                        pgConnStr, pgPoolSize,
+                                                        runSqlPool )
 import           Import
-import           Language.Haskell.TH.Syntax           (qLocation)
-import           Network.HTTP.Client.TLS              (getGlobalManager)
-import           Network.Wai                          (Middleware)
-import           Network.Wai.Handler.Warp             (Settings,
-                                                       defaultSettings,
-                                                       defaultShouldDisplayException,
-                                                       getPort, runSettings,
-                                                       setHost, setOnException,
-                                                       setPort)
-import           Network.Wai.Middleware.RequestLogger (Destination (Logger),
-                                                       IPAddrSource (..),
-                                                       OutputFormat (..),
-                                                       destination,
-                                                       mkRequestLogger,
-                                                       outputFormat)
-import           System.Log.FastLogger                (defaultBufSize,
-                                                       newStdoutLoggerSet,
-                                                       toLogStr)
+import           Language.Haskell.TH.Syntax           ( qLocation )
+import           Network.HTTP.Client.TLS              ( getGlobalManager )
+import           Network.Wai                          ( Middleware )
+import           Network.Wai.Handler.Warp             ( Settings,
+                                                        defaultSettings,
+                                                        defaultShouldDisplayException,
+                                                        getPort, runSettings,
+                                                        setHost, setOnException,
+                                                        setPort )
+import           Network.Wai.Middleware.RequestLogger ( Destination (Logger),
+                                                        IPAddrSource (..),
+                                                        OutputFormat (..),
+                                                        destination,
+                                                        mkRequestLogger,
+                                                        outputFormat )
+import           System.Log.FastLogger                ( defaultBufSize,
+                                                        newStdoutLoggerSet,
+                                                        toLogStr )
 
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
+import           Handler.Admin.LogIn
 import           Handler.Client.Deposit
 import           Handler.Client.DepositConfirm
-import           Handler.Client.Withdrawal
 import           Handler.Client.ExchangeOrderCreate
-import           Handler.Comment
+import           Handler.Client.Withdrawal
 import           Handler.Common
 import           Handler.Home
-import           Handler.Admin.LogIn
-import           Handler.Operator.LogIn
+import           Handler.Operator.AcceptDeposit
 import           Handler.Operator.Bids
 import           Handler.Operator.DepositRequestsList
-import           Handler.Operator.AcceptDeposit
+import           Handler.Operator.LogIn
 import           Handler.Operator.WithdrawalRequest
 import           Handler.Profile
 import           Handler.SignUp
