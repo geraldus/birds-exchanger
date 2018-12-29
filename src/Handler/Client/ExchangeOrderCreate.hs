@@ -108,7 +108,11 @@ postExchangeOrderCreateR = do
             PartiallyExecuted _ p -> p
             _                     -> 0)
         , ExchangeOrderAmountLeft -=. x ]
-    renderFormErrors _ = error "wip" -- setMessage * redirect HomeR
+    renderFormErrors es = [shamlet|
+        $forall error <- es
+            <div .error>#{error}
+        |]
+
     exchangeOrders _      []      acc = return acc
     exchangeOrders target matches acc = do
         -- take first order
