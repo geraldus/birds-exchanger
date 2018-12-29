@@ -1,9 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards   #-}
+{-# LANGUAGE QuasiQuotes       #-}
 module Handler.Client.Withdrawal where
 
-
-import           Form.Profile.Deposit
+import           Form.Profile.Withdrawal
 import           Import
 import           Local.Persist.Wallet
 import           Type.Money              ( Money (..) )
@@ -14,32 +13,35 @@ import           Type.Withdrawal
 getWithdrawalR :: Handler Html
 getWithdrawalR = do
     requireClientId
-    (widget, enctype) <- generateFormPost withdrawalForm
-    defaultLayout $ defaultWidget widget enctype Nothing
+    formId <- newIdent
+    (widget, enctype) <- generateFormPost $ withdrawalForm formId
+    defaultLayout $ defaultWidget formId widget enctype Nothing
 
 postWithdrawalCreateR :: Handler Html
 postWithdrawalCreateR = do
-    ((res, widget), enctype) <- runFormPost withdrawalForm
+    requireClientId
+    formId <- newIdent
+    ((res, widget), enctype) <- runFormPost $ withdrawalForm formId
     userId <- requireClientId
-    mayError <- return $ case res of
-        FormSuccess _ -> Nothing
-        FormMissing   -> Just  ["Не получены данные формы"]
-        FormFailure e -> Just e
+    let mayError = case res of
+            FormSuccess _ -> Nothing
+            FormMissing   -> Just  ["Не получены данные формы"]
+            FormFailure e -> Just e
     case res of
-        FormMissing -> defaultLayout $ defaultWidget widget enctype mayError
-        FormFailure _ -> defaultLayout $ defaultWidget widget enctype mayError
-        FormSuccess (WithdrawalM (Money amt c) adr) -> do
+        FormMissing -> defaultLayout $ defaultWidget formId widget enctype mayError
+        FormFailure _ -> defaultLayout $ defaultWidget formId widget enctype mayError
+        FormSuccess (WithdrawalM (Money amt c) tm adr) -> do
             w <- getOrCreateWallet userId c
             let wid = entityKey w
             let walletCents = userWalletAmountCents (entityVal w)
             if amt > walletCents
-                then defaultLayout $ defaultWidget widget enctype (Just ["Недостаточно средств на счёте"])
+                then defaultLayout $ defaultWidget formId widget enctype (Just ["Недостаточно средств на счёте"])
                 else do
-                    time <- liftIO $ getCurrentTime
+                    time <- liftIO getCurrentTime
                     reasonId <- runDB . insert $ WalletTransactionReason wid
                     let record = WithdrawalRequest
                             wid
-                            "TODO: FIXME:  Make a data type for withdrawal method"
+                            tm
                             adr
                             amt
                             time
@@ -58,12 +60,16 @@ postWithdrawalCreateR = do
                     setMessage "Заявка на вывод успешно создана"
                     redirect HomeR
 
-defaultWidget :: Widget -> Enctype -> Maybe [Text] -> Widget
-defaultWidget widget enctype mayError = [whamlet|
+defaultWidget :: Text -> Widget -> Enctype -> Maybe [Text] -> Widget
+defaultWidget formId widget enctype mayError = [whamlet|
     $maybe error <- mayError
-        $forall e <- error
-            <div .error .text-muted>#{e}
-    <form method=post enctype=#{enctype} action=@{WithdrawalCreateR}>
+        <div .row>
+            <div .col-10 .mx-auto>
+                <div .alert.alert-warning>
+                    $forall e <- error
+                        <div .error>#{e}
+    <form ##{formId} method=post enctype=#{enctype} action=@{WithdrawalCreateR} .col-6 .mx-auto>
         ^{widget}
-        <button .btn.btn-primary .mt-2 type=submit>вывод
+        <div .form-group .row .justify-content-center>
+            <button .btn.btn-lg.btn-outline-primary .mt-2 type=submit>вывод
     |]
