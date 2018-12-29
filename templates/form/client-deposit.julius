@@ -2,7 +2,7 @@ $(document).ready(() => {
     const currencySelect = $('##{rawJS cid}')
 
     let transferMethodSelect = $('##{rawJS tid}')
-    let defaultOption = $('<option disabled selected>укажите способ перевода</option>')
+    let defaultOption = $('<option disabled selected value="">укажите способ перевода</option>')
     transferMethodSelect.prepend(defaultOption)
 
     const transferMethods = $('##{rawJS tid} option')
@@ -29,8 +29,7 @@ $(document).ready(() => {
             }
         })
         if (!selectFirst) {
-            console.log(defaultOption[0], transferMethods)
-            defaultOption[0].setAttribute('selected', 'selected')
+            defaultOption.attr('selected', 'selected')
         }
     }
 
