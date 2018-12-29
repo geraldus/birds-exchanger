@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes       #-}
 {-# LANGUAGE RecordWildCards   #-}
 module Handler.Client.Deposit where
 
@@ -20,16 +21,16 @@ postDepositR = do
     userId <- requireClientId
     formId <- newIdent
     ((res, widget), enctype) <- runFormPost $ depositForm formId
-    mayError <- return $ case res of
-        FormSuccess depReq -> Nothing
-        FormMissing        -> Just  ["Не получены данные формы"]
-        FormFailure e      -> Just e
+    let mayError = case res of
+            FormSuccess _ -> Nothing
+            FormMissing   -> Just  ["Не получены данные формы"]
+            FormFailure e -> Just e
     case res of
         FormMissing -> defaultLayout $ defaultWidget formId widget enctype mayError
         FormFailure _ -> defaultLayout $ defaultWidget formId widget enctype mayError
         FormSuccess DepositRequestFD{..} -> do
             code <- appNonce128urlT
-            time <- liftIO $ getCurrentTime
+            time <- liftIO getCurrentTime
             let depReqRecord = DepositRequest
                     depReqCurrency
                     depReqTransferMethod
@@ -46,14 +47,13 @@ postDepositR = do
             redirect $ DepositRequestConfirmationR code
 
 defaultWidget :: Text -> Widget -> Enctype -> Maybe [Text] -> Widget
-defaultWidget formId widget enctype mayError = do
-    [whamlet|
-        <form ##{formId} method=post enctype=#{enctype} .col-6 .mx-auto>
-            ^{widget}
-            $maybe error <- mayError
-                <div .alert .alert-danger role="alert">
-                    $forall e <- error
-                        <div .error>#{e}
-            <div .form-group .row>
-                <button type=submit .btn.btn-success.btn-lg .mx-auto>Продолжить
-        |]
+defaultWidget formId widget enctype mayError = [whamlet|
+    <form ##{formId} method=post enctype=#{enctype} .col-6 .mx-auto>
+        ^{widget}
+        $maybe error <- mayError
+            <div .alert .alert-danger role="alert">
+                $forall e <- error
+                    <div .error>#{e}
+        <div .form-group .row>
+            <button type=submit .btn.btn-success.btn-lg .mx-auto>Продолжить
+    |]
