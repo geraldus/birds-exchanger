@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE PartialTypeSignatures #-}
+{-# LANGUAGE QuasiQuotes           #-}
 {-# LANGUAGE RecordWildCards       #-}
 {-# LANGUAGE TypeFamilies          #-}
 module Handler.Client.ExchangeOrderCreate where
@@ -11,15 +12,14 @@ import           Import
 import           Local.Persist.Currency
 import           Local.Persist.ExchangeOrder
 import           Local.Persist.Wallet
-import           Type.Money               ( oneCoinCents )
 
-import Data.Maybe ( fromJust )
+import           Data.Maybe                  ( fromJust )
 
 
 postExchangeOrderCreateR :: Handler Html
 postExchangeOrderCreateR = do
     clientId <- requireClientId
-    ((res, widget), enctype) <- runFormPost $ createOrderForm ExchangePzmRur
+    ((res, _), _) <- runFormPost $ createOrderForm ExchangePzmRur
     $(logInfo) $ pack . show $ res
     case res of
         FormFailure es -> defaultLayout $ do
@@ -33,11 +33,11 @@ postExchangeOrderCreateR = do
                 oratio = ratio orderData
             -- TODO write a function for this: case (action, pair) of ...
             -- 1. Check if required coins amount is available in user's wallet
-            let (currency, inCurrency) = case opair of
+            let (currency, _) = case opair of
                     ExchangePzmRur -> if oact == EAGive then (pzmC, rurC) else (rurC, pzmC)
                     ExchangeRurPzm -> if oact == EAGive then (rurC, pzmC) else (pzmC, rurC)
             wout <- getOrCreateWallet clientId currency
-            win  <- getOrCreateWallet clientId inCurrency
+            -- win  <- getOrCreateWallet clientId inCurrency
             now <- liftIO getCurrentTime
             let excDirRatio = fromNormalizedRatio opair oratio
                 mamt = multAmt excDirRatio oamt
@@ -82,8 +82,8 @@ postExchangeOrderCreateR = do
                               , ExchangeOrderPair ==. flipPair exchange ] )
                             [ Asc ExchangeOrderCreated ]
                     $(logInfo) $ "Matching orders: " <> (pack . show $ morders)
-                    res <- exchangeOrders (Entity orderId savedOrder) morders []
-                    setMessage $ case res of
+                    exchRes <- exchangeOrders (Entity orderId savedOrder) morders []
+                    setMessage $ case exchRes of
                         [] -> "Ордер создан"
                         (tOrderClosed, _, _, _, _, _, _, _) : _ ->
                             if tOrderClosed
@@ -117,7 +117,7 @@ postExchangeOrderCreateR = do
     exchangeOrders target matches acc = do
         -- take first order
         let ( Entity tOrderId tOrder )             = target
-            ((Entity mOrderId mOrder) : mRest) = matches
+            ( Entity mOrderId mOrder : mRest ) = matches
         let tOutAmtLeft = exchangeOrderAmountLeft tOrder
             tRatio      = exchangeOrderNormalizedRatio tOrder
             tNormD      = exchangeOrderRatioNoramlization tOrder
@@ -136,7 +136,6 @@ postExchangeOrderCreateR = do
         let mInAmtExpects = multAmt mDirRatio mOutAmtLeft
         $(logInfo) $ "M | Ratio direct: " <> (pack . show) mDirRatio <> "; amount = " <> (pack . show) mInAmtExpects <> " | Out: " <> (pack . show) mOutAmtLeft
         $(logInfo) $ "U | In: " <> (pack . show) mInAmtExpects <> "; Out: " <> (pack . show) mOutAmtLeft
-        let mUserId = exchangeOrderUserId mOrder
         tWalletOut <- getOrCreateWallet tUserId currencyA
         tWalletIn@(Entity tWalletInId _)  <- getOrCreateWallet tUserId currencyB
         mWalletOut <- getOrCreateWallet mUserId currencyB
@@ -149,9 +148,9 @@ postExchangeOrderCreateR = do
         let tWalletInBalance = userWalletAmountCents (entityVal tWalletIn)
             mWalletInBalance = userWalletAmountCents (entityVal mWalletIn)
         let userWInId   = entityKey tWalletIn
-            userWOutId  = entityKey tWalletOut
+            -- userWOutId  = entityKey tWalletOut
             matchWInId  = entityKey mWalletIn
-            matchWOutId = entityKey mWalletOut
+            -- matchWOutId = entityKey mWalletOut
         if tOutAmtLeft == mInAmtExpects
             -- Amount is equal.
             then do
