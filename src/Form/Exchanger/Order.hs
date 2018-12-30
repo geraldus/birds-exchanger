@@ -15,9 +15,13 @@ import           Text.Julius                    ( RawJS(..) )
 
 createOrderForm :: ExchangePair -> Form OrderFD
 createOrderForm defaultPair extra = do
-    (wrapid : actid : amtid : ratid : sumid : feeid : pairid : _) <- mapM
-        (const newIdent)
-        [(1 :: Integer) .. 8]
+    wrapid                  <- newIdent
+    actid                   <- newIdent
+    amtid                   <- newIdent
+    ratid                   <- newIdent
+    sumid                   <- newIdent
+    feeid                   <- newIdent
+    pairid                  <- newIdent
     (actionRes, actionView) <- mreq
         actionField
         (fsAddClasses (fsBs4WithId actid) (fsOpts <> ["font-weight-bold"]))
