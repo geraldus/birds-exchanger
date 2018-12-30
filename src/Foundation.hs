@@ -5,6 +5,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE NoImplicitPrelude     #-}
 {-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE QuasiQuotes           #-}
 {-# LANGUAGE RankNTypes            #-}
 {-# LANGUAGE RecordWildCards       #-}
 {-# LANGUAGE TemplateHaskell       #-}
@@ -196,7 +197,6 @@ instance Yesod App where
 
         navWalletDropdownId <- newIdent
         navUserDropdownId <- newIdent
-
         pc <- widgetToPageContent $(widgetFile "default-layout")
         withUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
         where
@@ -359,11 +359,11 @@ instance YesodAuth App where
         ma <- maybeAuthId
         tp <- getRouteToParent
         when (isJust ma) (redirect HomeR)
-        authLayout $ do
+        authLayout
             [whamlet|
                 <div .container>
                     <div .row .justify-content-center>
-                        <div .col-6>
+                        <div .col-11 .col-md-6>
                             <form pb-5 action=@{tp Local.Auth.loginR} method=post>
                                 <h2 .text-center>Вход
                                 <div .form-group>
@@ -373,7 +373,7 @@ instance YesodAuth App where
                                     <label for="input1234">Пароль
                                     <input type=password .form-control #input1234 placeholder="******" name="password">
                                 <div .form-group .row>
-                                    <div .col-9 .mx-auto>
+                                    <div .col-12 .col-sm-9 col-md-6 .mx-auto>
                                         <button .btn.btn-lg.btn-block.btn-outline-primary type=submit>войти
                 |]
 

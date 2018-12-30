@@ -48,7 +48,7 @@ postDepositR = do
 
 defaultWidget :: Text -> Widget -> Enctype -> Maybe [Text] -> Widget
 defaultWidget formId widget enctype mayError = [whamlet|
-    <form ##{formId} method=post enctype=#{enctype} .col-6 .mx-auto>
+    <form ##{formId} method=post enctype=#{enctype} .col-12 .col-sm-10 .col-md-8 .mx-auto>
         ^{widget}
         $maybe error <- mayError
             <div .alert .alert-danger role="alert">

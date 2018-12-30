@@ -6,7 +6,7 @@
                     <h5>Неверные регистрационные данные
                     #{error}
     <div .row>
-        <div .col-6 .mx-auto>
+        <div .col-11 .col-md-6 .mx-auto>
             <form method=post action=@{SignUpR} enctype=#{enctype}>
                 ^{widget}
                 <div .form-group.row>

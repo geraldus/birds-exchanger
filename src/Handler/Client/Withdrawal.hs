@@ -12,7 +12,6 @@ import           Type.Withdrawal
 
 getWithdrawalR :: Handler Html
 getWithdrawalR = do
-
     requireClientId
     formId <- newIdent
     (widget, enctype) <- generateFormPost $ withdrawalForm formId
@@ -69,7 +68,7 @@ defaultWidget formId widget enctype mayError = [whamlet|
                 <div .alert.alert-warning>
                     $forall e <- error
                         <div .error>#{e}
-    <form ##{formId} method=post enctype=#{enctype} action=@{WithdrawalCreateR} .col-6 .mx-auto>
+    <form ##{formId} method=post enctype=#{enctype} action=@{WithdrawalCreateR} .col-12 .col-sm-10 .col-md-8 .mx-auto>
         ^{widget}
         <div .form-group .row .justify-content-center>
             <button .btn.btn-lg.btn-outline-primary .mt-2 type=submit>вывод
