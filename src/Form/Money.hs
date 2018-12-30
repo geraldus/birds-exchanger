@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes       #-}
 module Form.Money where
 
@@ -12,8 +13,16 @@ moneyInput :: Text
            -> Text
            -> MForm (HandlerFor App) (FormResult Money, Widget)
 moneyInput aid cid = do
-    (amt, av) <- mreq doubleField (fsBs4WithId aid) Nothing
-    (cur, cv) <- mreq currencySelect (fsBs4WithId cid) Nothing
+    (amt, av) <- mreq
+        doubleField
+        (fsAddClasses
+            (fsAddPlaceholder (fsBs4WithId aid) "0.00")
+            ["form-control-lg", "text-center"])
+        Nothing
+    (cur, cv) <- mreq
+        currencySelect
+        (fsAddClasses (fsBs4WithId cid) ["form-control-lg"])
+        Nothing
     let wid = [whamlet|
                 <div .form-row>
                     <div .form-group .col-12 .col-md-4>

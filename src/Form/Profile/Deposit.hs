@@ -23,8 +23,8 @@ depositForm formId extra = do
         doubleField
         ( fsAddClasses
             ( fsAddPlaceholder
-                ( fsBs4WithId aid ) "укажите сумму" )
-            [ "form-control-lg" ] )
+                ( fsBs4WithId aid ) "0.00" )
+            [ "form-control-lg", "text-center" ] )
         Nothing
     (transferMethodRes, transferMethodView) <- mreq transferMethodSelect (fsBs4WithId tid) Nothing
     -- (targetCurrencyRes, _) <- mreq
