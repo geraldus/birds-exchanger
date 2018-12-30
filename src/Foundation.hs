@@ -123,7 +123,8 @@ instance Yesod App where
     defaultLayout widget = do
         master <- getYesod
         mmsg <- getMessage
-        muser <- maybeAuthPair :: Handler (Maybe (Either UserId Text, Either User SuperUser))
+        muser <- maybeAuthPair
+        -- ^ @Handler (Maybe (Either UserId Text, Either User SuperUser))@
         let muserName = userNameF . snd <$> muser
         let isClient = isClientUser muser
         wallets <- if isClient then getUserWallets else pure []
@@ -338,9 +339,9 @@ instance YesodAuth App where
     authPlugins :: App -> [AuthPlugin App]
     authPlugins _ = [authHardcoded, authPrizm]
 
-    renderAuthMessage _ ("ru":_) = russianMessage
+    renderAuthMessage _ ("ru":_)   = russianMessage
     renderAuthMessage msg (_:rest) = renderAuthMessage msg rest
-    renderAuthMessage _ [] = defaultMessage
+    renderAuthMessage _ []         = defaultMessage
 
     loginHandler :: AuthHandler App Html
     loginHandler = do
@@ -418,9 +419,9 @@ validPassword u p =
 -- achieve customized and internationalized form validation messages.
 instance RenderMessage App FormMessage where
     renderMessage :: App -> [Lang] -> FormMessage -> Text
-    renderMessage _ ("ru":_) = russianFormMessage
+    renderMessage _ ("ru":_)   = russianFormMessage
     renderMessage msg (_:rest) = renderMessage msg rest
-    renderMessage _ [] = defaultFormMessage
+    renderMessage _ []         = defaultFormMessage
 
 
 -- Useful when writing code that is re-usable outside of the Handler context.
