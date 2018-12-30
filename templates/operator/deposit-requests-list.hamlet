@@ -3,18 +3,27 @@
 <table .table .table-striped>
     <thead>
         <tr>
-            <th>Сумма пополнения
-            <th>Расчётная сумма зачисления
-            <th>Пользователь
-            <th>Проверочный код
-            <th>Действия
+            <th>
+                Сумма пополнения (-%)
+                <br>
+                <small>
+                    Cумма к начислению (*K)
+            <th>
+                Метод перевода
+                <br>
+                <small>
+                    Пользователь
+            <th .text-center>
+                КОД
+            <th>
     <tbody>
-        $forall ((Entity depreqId DepositRequest{..}), (Entity _ UserWallet{..}), (Entity _ User{..}))  <- list
+        $forall ((Entity depreqId req@DepositRequest{..}), (Entity _ UserWallet{..}), eUser@(Entity _ User{..}))  <- list
             <tr>
-                <td>#{cents2dblT depositRequestCentsAmount} #{currSign userWalletCurrency}
-                <td>#{cents2dblT (truncCoins2Cents ((fromIntegral depositRequestCentsAmount * selectRatio' depositRequestCurrency depositRequestTargetCurrency) / 100))} #{currSign depositRequestTargetCurrency}
-                <td>#{userIdent}
-                <td .text-monospace>#{depositRequestTransactionCode}
+                <td>#{renderSums req}
+                <td>#{renderMethodUser req eUser}
+                <td .text-monospace .text-center .align-middle>
+                    <big>
+                        #{depositRequestTransactionCode}
                 <td>
                     <button
                         .accept-deposit-btn.btn.btn-success

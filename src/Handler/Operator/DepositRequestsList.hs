@@ -1,4 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes       #-}
+{-# LANGUAGE RecordWildCards   #-}
 module Handler.Operator.DepositRequestsList where
 
 
@@ -28,3 +30,33 @@ getOperatorDepositRequestsListR = do
         \ AND user_wallet.currency = deposit_request.currency \
         \ AND user_wallet.user_id = deposit_request.user_id \
         \ ORDER BY deposit_request.created ASC"
+
+
+renderSums :: DepositRequest -> Html
+renderSums DepositRequest{..} =
+    let iC = currSign depositRequestCurrency
+        tC = currSign depositRequestTargetCurrency
+        ratio = selectRatio depositRequestCurrency depositRequestTargetCurrency
+        ratioT = cents2dblT . truncCoins2Cents $ ratio
+        reqAmt = depositRequestCentsAmount
+        reqAmtT = cents2dblT reqAmt
+        feeAmt = calcFeeCents (selectFee depositRequestCurrency) reqAmt
+        feeAmtT = cents2dblT feeAmt
+        depAmt = convertCents ratio (reqAmt - feeAmt)
+        depAmtT = cents2dblT depAmt
+    in [shamlet|
+            <b>#{reqAmtT}&nbsp;#{iC} #
+            <small>(-#{feeAmtT}&nbsp;#{iC})
+            <br>
+            <small>
+                #{depAmtT}&nbsp;#{tC} #
+                <small>(x#{ratioT})
+            |]
+
+renderMethodUser :: DepositRequest -> Entity User -> Html
+renderMethodUser req (Entity userId user) = [shamlet|
+    #{tmTShort (depositRequestTransferMethod req)}
+    <br>
+    <small>
+        <a href="management/user-view/#{fromSqlKey userId}">
+            #{userIdent user}|]
