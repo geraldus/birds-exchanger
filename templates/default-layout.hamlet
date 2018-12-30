@@ -10,8 +10,26 @@
             $forall MenuItem label route _ <- navbarLeftFilteredMenuItems
                 <li .nav-item.mx-2 :Just route == mcurrentRoute:.active>
                     <a .nav-link href="@{route}">#{label}
-        <ul .navbar-nav>
-            $if isClient
+        $maybe userName <- muserName
+            <span .navbar-text .d-flex .d-lg-none>
+                <i .fas .fa-wallet .align-self-center>
+                <span .d-block .ml-2> Баланс
+            $forall (cents, cur) <- wallets
+                <span .navbar-text .font-weight-bold .d-flex .d-lg-none .wallet-balance-val>
+                    #{cents2dblT cents}&nbsp;<span class="font-weight-normal">#{currSign cur}</span>
+            <span .navbar-text .d-block .d-lg-none>
+                #{userName}
+            <ul .navbar-nav .d-flex .d-lg-none>
+                    $forall MenuItem label route _ <- userMenuItems
+                        <li .nav-item :Just route == mcurrentRoute:.active href="@{route}">
+                            <a .nav-link>#{label}
+        $nothing
+            <ul .navbar-nav>
+                $forall MenuItem label route _ <- navbarRightFilteredMenuItems
+                    <li .nav-item.mx-2 :Just route == mcurrentRoute:.active>
+                        <a .nav-link href="@{route}">#{label}
+        $maybe userName <- muserName
+            <ul .navbar-nav .d-none .d-lg-flex>
                 <li ##{navWalletDropdownId} .nav-item .dropdown>
                     <a
                             ##{navWalletDropdownId}-toggle
@@ -23,11 +41,9 @@
                             aria-haspopup="true">
                         <i .fas .fa-wallet>
                     <div .dropdown-menu aria-labelledby="#{navWalletDropdownId}-toggle">
-                        ^{headerUserBalanceRender wallets}
-            $forall MenuItem label route _ <- navbarRightFilteredMenuItems
-                <li .nav-item.mx-2 :Just route == mcurrentRoute:.active>
-                    <a .nav-link href="@{route}">#{label}
-            $maybe userName <- muserName
+                        $forall (cents, cur) <- wallets
+                            <a .dropdown-item .font-weight-bold .wallet-balance-val href="#">
+                                #{cents2dblT cents}&nbsp;<span class="font-weight-normal">#{currSign cur}</span>
                 <li ##{navUserDropdownId} .nav-item .dropdown>
                     <a
                         ##{navUserDropdownId}-toggle
@@ -43,10 +59,10 @@
                             <a .dropdown-item :Just route == mcurrentRoute:.active href="@{route}">#{label}
 <!-- Page Contents -->
 
-<div .container .mt-2>
-    $if not $ Just HomeR == mcurrentRoute
+$if not $ Just HomeR == mcurrentRoute
+    <div .container-fluid .mt-4>
         <div .row>
-            <div .col-10 .mx-auto>
+            <div .col-11 .mx-auto>
                 <ul .breadcrumb>
                     $forall bc <- parents
                         <li .breadcrumb-item>
@@ -55,9 +71,8 @@
 
         $maybe msg <- mmsg
             <div .row>
-                <div .col-10 .mx-auto>
+                <div .col-8 .col-lg-6 .mx-auto>
                     <div .alert.alert-warning #message>#{msg}
-
 
 $if (Just HomeR == mcurrentRoute)
     ^{widget}

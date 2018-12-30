@@ -87,7 +87,7 @@ postSignUpR = do
                                                   conn
                                 else putStrLn "Authentication failed."
                             closeSMTP conn
-                        defaultLayout $ $(widgetFile "auth/verify-message")
+                        defaultLayout $(widgetFile "auth/verify-message")
             else defaultLayout $(widgetFile "auth/verify-message")
         _ -> do
             let mayError = Nothing :: Maybe Text
@@ -99,7 +99,7 @@ data UserCreateResult
     | CreateSuccess
 
 textContent :: Text -> Text -> TL.Text
-textContent email url = renderHtml $ [shamlet|
+textContent email url = renderHtml [shamlet|
     Необходимо подтверждение электронной почты.
 
     Для завершения регистрации на сайте #{exchangerHost} пройдите по ссылке:
@@ -112,7 +112,7 @@ textContent email url = renderHtml $ [shamlet|
     |]
 
 htmlContent :: Text -> Text -> TL.Text
-htmlContent email url = renderHtml $ [shamlet|
+htmlContent email url = renderHtml [shamlet|
     <html>
         <head>
         <body>

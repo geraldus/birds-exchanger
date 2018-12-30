@@ -13,7 +13,7 @@
     color: rgb(255, 255, 255);
     background-color: #664e3a;
 }
-##{navWalletDropdownId} .dropdown-item {
+#main-nav-menu .wallet-balance-val {
     color: #ffc107!important;
 }
 

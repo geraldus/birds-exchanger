@@ -530,11 +530,11 @@ getUserWallets = do
         _ -> return []
 
 
-headerUserBalanceRender :: [(Int, Currency)] -> Widget
-headerUserBalanceRender balances = [whamlet|
-    $forall (cents, cur) <- balances
-        <a .dropdown-item .font-weight-bold href="#">
-            #{cents2dblT cents}&nbsp;<span class="font-weight-normal">#{currSign cur}</span> |]
+-- headerUserBalanceRender :: [(Int, Currency)] -> Widget
+-- headerUserBalanceRender balances = [whamlet|
+--     $forall (cents, cur) <- balances
+--         <a .dropdown-item .font-weight-bold href="#">
+--             #{cents2dblT cents}&nbsp;<span class="font-weight-normal">#{currSign cur}</span> |]
 
 
 accessErrorClientOnly :: Text
