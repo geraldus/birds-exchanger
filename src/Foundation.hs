@@ -614,13 +614,6 @@ calcFeeCents :: Fee -> Int -> Int
 calcFeeCents (Percent p) c = ceiling $ fromIntegral c * p / fromIntegral oneCoinCents
 calcFeeCents (CentsFixed f) c = c - f
 
-currSign :: Currency -> Text
-currSign (FiatC USD)   = "$"
-currSign (FiatC RUR)   = "₽"
-currSign (CryptoC PZM) = "PZM"
-currSign (CryptoC ETH) = "ETH"
-currSign (CryptoC BTC) = "BTC"
-
 currencySelect :: Field (HandlerFor App) Currency
 currencySelect = selectField . pure $ mkOptionList currencyOptionListRaw
 

@@ -4,6 +4,7 @@ module Handler.Operator.WithdrawalRequest where
 
 import           Import
 import           Local.Persist.Deposit
+import           Local.Persist.Currency         ( currSign )
 
 import           Database.Persist.Sql           ( fromSqlKey
                                                 , toSqlKey

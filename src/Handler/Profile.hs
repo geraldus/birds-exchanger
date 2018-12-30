@@ -8,6 +8,7 @@ module Handler.Profile where
 import           Import
 import           Type.Auth.SuperUser            ( SuperUser(..) )
 import           Local.Persist.Wallet
+import           Local.Persist.Currency         ( currSign )
 
 import           Data.Maybe                     ( fromJust )
 
