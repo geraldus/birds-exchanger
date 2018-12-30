@@ -30,20 +30,21 @@
                         <a .nav-link href="@{route}">#{label}
         $maybe userName <- muserName
             <ul .navbar-nav .d-none .d-lg-flex>
-                <li ##{navWalletDropdownId} .nav-item .dropdown>
-                    <a
-                            ##{navWalletDropdownId}-toggle
-                            .nav-link .dropdown-toggle
-                            data-toggle="dropdown"
-                            href="#"
-                            role="button"
-                            aria-expanded="false"
-                            aria-haspopup="true">
-                        <i .fas .fa-wallet>
-                    <div .dropdown-menu aria-labelledby="#{navWalletDropdownId}-toggle">
-                        $forall (cents, cur) <- wallets
-                            <a .dropdown-item .font-weight-bold .wallet-balance-val href="#">
-                                #{cents2dblT cents}&nbsp;<span class="font-weight-normal">#{currSign cur}</span>
+                $if isClient
+                    <li ##{navWalletDropdownId} .nav-item .dropdown>
+                        <a
+                                ##{navWalletDropdownId}-toggle
+                                .nav-link .dropdown-toggle
+                                data-toggle="dropdown"
+                                href="#"
+                                role="button"
+                                aria-expanded="false"
+                                aria-haspopup="true">
+                            <i .fas .fa-wallet>
+                        <div .dropdown-menu aria-labelledby="#{navWalletDropdownId}-toggle">
+                            $forall (cents, cur) <- wallets
+                                <a .dropdown-item .font-weight-bold .wallet-balance-val href="#">
+                                    #{cents2dblT cents}&nbsp;<span class="font-weight-normal">#{currSign cur}</span>
                 <li ##{navUserDropdownId} .nav-item .dropdown>
                     <a
                         ##{navUserDropdownId}-toggle
