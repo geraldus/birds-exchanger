@@ -12,6 +12,7 @@ import           Type.Withdrawal
 
 getWithdrawalR :: Handler Html
 getWithdrawalR = do
+
     requireClientId
     formId <- newIdent
     (widget, enctype) <- generateFormPost $ withdrawalForm formId

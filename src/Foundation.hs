@@ -35,7 +35,9 @@ import           Local.Persist.ExchangeOrder ( ExchangePair (..) )
 import           Local.Persist.UserRole
 import           Type.Fee
 import           Type.Money                  ( oneCoinCents )
-import           Utils.Form                  ( transferOptionsRaw, currencyOptionListRaw )
+import           Utils.Form                  ( currencyOptionListRaw,
+                                               transferOptionsRaw )
+import           Utils.Money                 ( truncCoins2Cents )
 
 import qualified Crypto.Nonce                as CN
 import           Text.Read                   ( readMaybe )
@@ -171,12 +173,14 @@ instance Yesod App where
                     , menuItemRoute = AuthR LoginR
                     , menuItemAccessCallback = isNothing muser
                     }
-                , NavbarRight $ MenuItem
+                ]
+
+        let userMenuItems =
+                [ MenuItem
                     { menuItemLabel = "Выход"
                     , menuItemRoute = AuthR LogoutR
                     , menuItemAccessCallback = isJust muser
-                    }
-                ]
+                    } ]
 
         let navbarLeftMenuItems = [x | NavbarLeft x <- menuItems]
         let navbarRightMenuItems = [x | NavbarRight x <- menuItems]
@@ -189,6 +193,9 @@ instance Yesod App where
         -- default-layout-wrapper is the entire page. Since the final
         -- value passed to hamletToRepHtml cannot be a widget, this allows
         -- you to use normal widget features in default-layout.
+
+        navWalletDropdownId <- newIdent
+        navUserDropdownId <- newIdent
 
         pc <- widgetToPageContent $(widgetFile "default-layout")
         withUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
@@ -524,23 +531,10 @@ getUserWallets = do
 
 
 headerUserBalanceRender :: [(Int, Currency)] -> Widget
-headerUserBalanceRender [] = mempty
-headerUserBalanceRender ((amtCents, cur):ws) = do
-    let amt = truncate $ fromIntegral amtCents / fromIntegral oneCoinCents
-    -- TODO: FIXME: Write functions to convert Int cents back to
-    -- double and render function
-    let cents = amtCents - amt * oneCoinCents
-    let currencySign = case cur of
-            FiatC RUR   -> "₽"
-            CryptoC PZM -> "PZM"
-            _           -> show cur
-    [whamlet|
-        <li .nav-item.mx-2>
-            <span .navbar-text>
-                <span .wallet-amount-value.font-weight-bold.text-warning>#{amt}.#{cents}
-                <span .wallet-currency-signature>#{currencySign}
-        |]
-    headerUserBalanceRender ws
+headerUserBalanceRender balances = [whamlet|
+    $forall (cents, cur) <- balances
+        <a .dropdown-item .font-weight-bold href="#">
+            #{cents2dblT cents}&nbsp;<span class="font-weight-normal">#{currSign cur}</span> |]
 
 
 accessErrorClientOnly :: Text

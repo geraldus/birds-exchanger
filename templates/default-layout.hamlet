@@ -11,20 +11,36 @@
                 <li .nav-item.mx-2 :Just route == mcurrentRoute:.active>
                     <a .nav-link href="@{route}">#{label}
         <ul .navbar-nav>
-            $maybe userName <- muserName
-                <li .nav-item .mr-2>
-                    <span .navbar-text>#{userName}
-
             $if isClient
-                <a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-                    Баланс
-
-                <div class="collapse" id="collapseExample">
-                    ^{headerUserBalanceRender wallets}
+                <li ##{navWalletDropdownId} .nav-item .dropdown>
+                    <a
+                            ##{navWalletDropdownId}-toggle
+                            .nav-link .dropdown-toggle
+                            data-toggle="dropdown"
+                            href="#"
+                            role="button"
+                            aria-expanded="false"
+                            aria-haspopup="true">
+                        <i .fas .fa-wallet>
+                    <div .dropdown-menu aria-labelledby="#{navWalletDropdownId}-toggle">
+                        ^{headerUserBalanceRender wallets}
             $forall MenuItem label route _ <- navbarRightFilteredMenuItems
                 <li .nav-item.mx-2 :Just route == mcurrentRoute:.active>
                     <a .nav-link href="@{route}">#{label}
-
+            $maybe userName <- muserName
+                <li ##{navUserDropdownId} .nav-item .dropdown>
+                    <a
+                        ##{navUserDropdownId}-toggle
+                        .nav-link .dropdown-toggle
+                        data-toggle="dropdown"
+                        href="#"
+                        role="button"
+                        aria-expanded="false"
+                        aria-haspopup="true">
+                        #{userName}
+                    <div .dropdown-menu aria-labelledby="#{navUserDropdownId}-toggle">
+                        $forall MenuItem label route _ <- userMenuItems
+                            <a .dropdown-item :Just route == mcurrentRoute:.active href="@{route}">#{label}
 <!-- Page Contents -->
 
 <div .container .mt-2>

@@ -3,6 +3,21 @@
     background-color: rgb(27, 28, 29);
 }
 
+#main-nav-menu .dropdown-menu {
+    background-color: rgb(63, 64, 65);
+}
+#main-nav-menu .dropdown-menu .dropdown-item {
+    color: rgba(255, 255, 255, 0.5);
+}
+#main-nav-menu .dropdown-menu .dropdown-item:hover {
+    color: rgb(255, 255, 255);
+    background-color: #664e3a;
+}
+##{navWalletDropdownId} .dropdown-item {
+    color: #ffc107!important;
+}
+
+
 .navbar-default .navbar-nav > .active > a {
     background-color: transparent;
     border-bottom: 2px solid white;
