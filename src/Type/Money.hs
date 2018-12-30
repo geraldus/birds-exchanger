@@ -1,8 +1,8 @@
 module Type.Money where
 
-import           Local.Persist.Currency
-
 import           ClassyPrelude.Yesod
+
+import           Local.Persist.Currency
 
 
 data Money = Money Int Currency deriving Show

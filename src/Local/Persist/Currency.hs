@@ -1,3 +1,5 @@
+{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE OverloadedStrings #-}
 module Local.Persist.Currency where
 
 import           Database.Persist.TH
@@ -24,7 +26,6 @@ data CryptoCurrency
     deriving (Show, Read, Eq)
 derivePersistField "CryptoCurrency"
 
-
 data Currency
     = FiatC FiatCurrency
     | CryptoC CryptoCurrency
@@ -36,6 +37,38 @@ pzmC = CryptoC PZM
 
 rurC :: Currency
 rurC = FiatC RUR
+
+fCurrencyCodeT :: FiatCurrency -> Text
+fCurrencyCodeT USD = "USD"
+fCurrencyCodeT RUR = "RUR"
+
+cCurrencyCodeT :: CryptoCurrency -> Text
+cCurrencyCodeT PZM = "PZM"
+cCurrencyCodeT BTC = "BTC"
+cCurrencyCodeT ETH = "ETH"
+
+fCurrencyTShort :: FiatCurrency -> Text
+fCurrencyTShort USD = "$"
+fCurrencyTShort RUR = "₽"
+
+fCurrencyTLong :: FiatCurrency -> Text
+fCurrencyTLong USD = "доллар США"
+fCurrencyTLong RUR = "российский рубль"
+
+cCurrencyTShort :: CryptoCurrency -> Text
+cCurrencyTShort = cCurrencyCodeT
+
+cCurrencyTLong :: CryptoCurrency -> Text
+cCurrencyTLong PZM = "Prizm"
+cCurrencyTLong BTC = "Bitcoin"
+cCurrencyTLong ETH = "Etherium"
+
+
+
+currSign :: Currency -> Text
+currSign (FiatC   USD) = "$"
+currSign (FiatC   RUR) = "₽"
+currSign (CryptoC c  ) = cCurrencyCodeT c
 
 
 data FiatTransferMethod
@@ -89,13 +122,29 @@ ftmPayPalUsd = tmPayPal USD
 ctmPzm :: TransferMethod
 ctmPzm = CryptoTM PZM
 
-
 ctmBtc :: TransferMethod
 ctmBtc = CryptoTM BTC
 
-
 ctmEth :: TransferMethod
 ctmEth = CryptoTM ETH
+
+fTmTShort :: FiatTransferMethod -> Html
+fTmTShort SberBankCard2CardFTM    = "СберБанк"
+fTmTShort AlphaBankCard2CardFTM   = "АльфаБанк"
+fTmTShort TinkoffBankCard2CardFTM = "Тинькофф Банк"
+fTmTShort PayPalTransferFTM       = "PayPal"
+fTmTShort QiwiFTM                 = "Qiwi"
+
+tmTShort :: TransferMethod -> Html
+tmTShort (FiatTM m fc) = [shamlet|
+    #{fTmTShort m} #
+    <small .text-muted>
+        #{fCurrencyCodeT fc} / #{fCurrencyTShort fc}
+    |]
+tmTShort (CryptoTM cc) = [shamlet|
+    #{cCurrencyTLong cc} #
+        <small .text-muted>#{cCurrencyCodeT cc}
+    |]
 
 
 instance PathPiece TransferMethod where
