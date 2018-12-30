@@ -11,10 +11,10 @@ selectFee :: Currency -> Fee
 selectFee (FiatC   RUR) = depositFeeRur
 selectFee (CryptoC PZM) = depositFeePzm
 
-selectRatio' :: Currency -> Currency -> Double
-selectRatio' (CryptoC PZM) (FiatC   RUR) = depositPzmRurRatio
-selectRatio' (FiatC   RUR) (CryptoC PZM) = depositRurPzmRatio
-selectRatio' a b | a == b    = 1
+selectRatio :: Currency -> Currency -> Double
+selectRatio (CryptoC PZM) (FiatC   RUR) = depositPzmRurRatio
+selectRatio (FiatC   RUR) (CryptoC PZM) = depositRurPzmRatio
+selectRatio a b | a == b    = 1
                  | otherwise = error "Ratio selection not described yet!"
 
 depositRurMinCentsAmount :: Int

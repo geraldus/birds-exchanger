@@ -35,7 +35,7 @@ depositForm formId extra = do
         amountCentsRes   = truncCoins2Cents <$> paymentAmountRes
         matchingFee = selectFee <$> paymentCurrencyRes
         expectedFee = calcFeeCents <$> matchingFee <*> amountCentsRes
-        expectedRatio = selectRatio' <$> paymentCurrencyRes <*> paymentCurrencyRes-- targetCurrencyRes
+        expectedRatio = selectRatio <$> paymentCurrencyRes <*> paymentCurrencyRes-- targetCurrencyRes
         depReqRes = DepositRequestFD
                         <$> paymentCurrencyRes
                         <*> transferMethodRes

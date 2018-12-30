@@ -42,7 +42,7 @@ postOperatorAcceptDepositRequestR = do
                             ]
                         let realAmountCents =
                                 floor (realAmount * fromIntegral oneCoinCents)
-                            ratio = selectRatio'
+                            ratio = selectRatio
                                 depositRequestCurrency
                                 depositRequestTargetCurrency
                             fee = calcFeeCents
