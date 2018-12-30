@@ -17,7 +17,7 @@
 #
 # resolver: ./custom-snapshot.yaml
 # resolver: https://example.com/snapshots/2018-01-01.yaml
-resolver: lts-12.18
+resolver: lts-13.0
 
 # User packages to be built.
 # Various formats can be used as shown in the example below.
@@ -37,7 +37,10 @@ packages:
 # Dependency packages to be pulled from upstream that are not in the resolver
 # using the same syntax as the packages field.
 # (e.g., acme-missiles-0.3)
-# extra-deps: []
+extra-deps:
+- HaskellNet-SSL-0.3.4.0@sha256:78d5afacfe668b503bdf7a74733a2205e6f73d5c7d6c60d1c489cc3a93bc2b03
+- network-2.6.3.6@sha256:1ca79d81af02d7acd6032d5e6c9bde4618a8fdcfbe19bd42b49d420183975df0
+# - esqueleto-2.5.3
 
 # Override default flag values for local packages and extra-deps
 # flags: {}
