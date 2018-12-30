@@ -55,5 +55,5 @@ defaultWidget formId widget enctype mayError = [whamlet|
                 $forall e <- error
                     <div .error>#{e}
         <div .form-group .row>
-            <button type=submit .btn.btn-success.btn-lg .mx-auto>Продолжить
+            <button type=submit .btn.btn-outline-primary.btn-lg .mx-auto>продолжить
     |]
