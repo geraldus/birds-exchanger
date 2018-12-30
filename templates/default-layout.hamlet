@@ -45,7 +45,7 @@
                             $forall (cents, cur) <- wallets
                                 <a .dropdown-item .font-weight-bold .wallet-balance-val href="#">
                                     #{cents2dblT cents}&nbsp;<span class="font-weight-normal">#{currSign cur}</span>
-                <li ##{navUserDropdownId} .nav-item .dropdown>
+                <li ##{navUserDropdownId} .nav-item .dropdown .mr-5>
                     <a
                         ##{navUserDropdownId}-toggle
                         .nav-link .dropdown-toggle
