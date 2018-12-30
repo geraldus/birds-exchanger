@@ -51,7 +51,7 @@ postExchangeOrderCreateR = do
                     let errorMsg = if outAmt <= 0
                             then "Неверная сумма" :: Text
                             else "Недостаточно средств"
-                    setMessage [shamlet|<p>#{errorMsg}|]
+                    setMessage [shamlet|<div .error>#{errorMsg}|]
                     redirect HomeR
                 else do
                     -- Freeze user coins
