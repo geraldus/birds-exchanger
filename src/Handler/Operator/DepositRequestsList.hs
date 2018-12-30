@@ -6,11 +6,9 @@ import           Import
 import           Local.Persist.Currency ( currSign, tmTShort )
 import           Local.Persist.Deposit
 import           Utils.Deposit
-import           Utils.Money                    ( truncCoins2Cents )
+import           Utils.Money            ( truncCoins2Cents )
 
-import           Database.Persist.Sql           ( fromSqlKey
-                                                , rawSql
-                                                )
+import           Database.Persist.Sql   ( fromSqlKey, rawSql )
 
 
 getOperatorDepositRequestsListR :: Handler Html

@@ -1,15 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE RecordWildCards   #-}
 module Handler.Operator.AcceptDeposit where
-
 
 import           Import
 import           Local.Persist.Deposit
 import           Local.Persist.Wallet
+import           Type.Money            ( oneCoinCents )
 import           Utils.Deposit
-import           Type.Money                     ( oneCoinCents )
+import           Utils.Money           ( truncCoins2Cents )
 
-import           Database.Persist.Sql           ( toSqlKey )
+import           Database.Persist.Sql  ( toSqlKey )
 
 
 postOperatorAcceptDepositRequestR :: Handler Html
@@ -21,7 +21,7 @@ postOperatorAcceptDepositRequestR = do
         )
     mdepreq <- runDB $ get drId
     case mdepreq of
-        Nothing                         -> notFound
+        Nothing                  -> notFound
         Just DepositRequest {..} -> do
             mue <- runDB . get $ depositRequestUserId
             case mue of
