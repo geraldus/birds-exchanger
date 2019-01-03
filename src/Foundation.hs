@@ -38,9 +38,10 @@ import           Type.Fee
 import           Type.Money                  ( oneCoinCents )
 import           Utils.Form                  ( currencyOptionListRaw,
                                                transferOptionsRaw )
-import           Utils.Money                 ( truncCoins2Cents )
+import           Utils.Time                  ( ruTimeLocale )
 
 import qualified Crypto.Nonce                as CN
+import           Data.Time.Format            ( TimeLocale (..) )
 import           Text.Read                   ( readMaybe )
 
 
@@ -532,6 +533,12 @@ getUserWallets = do
         _ -> return []
 
 
+selectLocale :: Handler TimeLocale
+selectLocale = locale <$> languages
+  where
+    locale ("ru":_) = ruTimeLocale
+    locale (_:rest) = locale rest
+    locale []       = defaultTimeLocale
 
 
 accessErrorClientOnly :: Text
