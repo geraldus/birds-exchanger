@@ -1,21 +1,27 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes       #-}
 {-# LANGUAGE RecordWildCards   #-}
+{-# LANGUAGE TypeFamilies      #-}
 module Handler.Operator.DepositRequestsList where
 
 
 import           Import
-import           Local.Persist.Currency ( currSign, tmTShort )
+import           Local.Persist.Currency ( currSign, tmTShort, rurC, pzmC )
 import           Local.Persist.Deposit
 import           Utils.Deposit
 import           Utils.Money            ( truncCoins2Cents )
+import Type.Fee
 
+import           Data.Time.Format       ( TimeLocale, formatTime )
 import           Database.Persist.Sql   ( fromSqlKey, rawSql )
-
 
 getOperatorDepositRequestsListR :: Handler Html
 getOperatorDepositRequestsListR = do
-    _    <- requireStaffId
+    requireStaffId
+    loc <- selectLocale
+    let reqDateT = renderRequestTime loc
+    -- let rurFee = selectFee rurC
+    --     pzmFee = selectFee pzmC
     list <-
         runDB $ rawSql s [toPersistValue ClientConfirmed] :: Handler
             [(Entity DepositRequest, Entity UserWallet, Entity User)]
@@ -33,11 +39,11 @@ getOperatorDepositRequestsListR = do
 
 
 renderSums :: DepositRequest -> Html
-renderSums DepositRequest{..} =
+renderSums req@DepositRequest{..} =
     let iC = currSign depositRequestCurrency
         tC = currSign depositRequestTargetCurrency
         ratio = selectRatio depositRequestCurrency depositRequestTargetCurrency
-        ratioT = cents2dblT . truncCoins2Cents $ ratio
+        ratioT = renderRequestRatio req
         reqAmt = depositRequestCentsAmount
         reqAmtT = cents2dblT reqAmt
         feeAmt = calcFeeCents (selectFee depositRequestCurrency) reqAmt
@@ -53,10 +59,42 @@ renderSums DepositRequest{..} =
                 <small>(x#{ratioT})
             |]
 
+renderRequestRatio :: DepositRequest -> Html
+renderRequestRatio DepositRequest{..} =
+    let ratio = selectRatio depositRequestCurrency depositRequestTargetCurrency
+        ratioT = cents2dblT . truncCoins2Cents $ ratio
+    in [shamlet|#{ratioT}|]
+
+
 renderMethodUser :: DepositRequest -> Entity User -> Html
 renderMethodUser req (Entity userId user) = [shamlet|
     #{tmTShort (depositRequestTransferMethod req)}
     <br>
     <small>
-        <a href="management/user-view/#{fromSqlKey userId}">
+        <a .user-profile-link href="management/user-view/#{fromSqlKey userId}">
             #{userIdent user}|]
+
+renderRequestTime :: TimeLocale -> DepositRequest -> Html
+renderRequestTime loc req = [shamlet|
+    #{timeFT utc}
+    <br>
+    <small>
+        #{dateFT utc}
+    |]
+  where
+    utc = depositRequestCreated req
+    timeFT t = toHtml . formatTime loc ("%H:%M:%S" :: String) $ (t :: UTCTime)
+    dateFT t = toHtml . formatTime loc ("%d.%m.%Y" :: String) $ (t :: UTCTime)
+
+renderRequestExpectedTotal :: DepositRequest -> Html
+renderRequestExpectedTotal DepositRequest{..} = [shamlet|#{cents2dblT total}|]
+  where
+    total = convertCents depositRequestExpectedConversionRatio (depositRequestCentsAmount - depositRequestExpectedFeeCents)
+
+renderFeeAsDbl :: DepositRequest -> Html
+renderFeeAsDbl DepositRequest{..} = [shamlet|#{ren}|]
+  where
+    fee = selectFee depositRequestCurrency
+    ren = case fee of
+            CentsFixed _ -> error "no fixed fee logics"
+            Percent p -> show $ p / 100

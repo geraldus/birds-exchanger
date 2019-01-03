@@ -1,81 +1,143 @@
 <h2>
 <h2>Список заявок
-<table .table .table-striped>
+<table .request-list .table .table-striped>
     <thead>
         <tr>
-            <th>
+            <th .align-middle>Создана
+            <th .align-middle>
                 Сумма пополнения (-%)
                 <br>
                 <small>
                     Cумма к начислению (*K)
-            <th>
+            <th .align-middle>
                 Метод перевода
                 <br>
                 <small>
                     Пользователь
-            <th .text-center>
-                КОД
-            <th>
+            <th .align-middle .text-center>
+                КОД ОПЕРАЦИИ
+            <th .align-middle>
     <tbody>
         $forall ((Entity depreqId req@DepositRequest{..}), (Entity _ UserWallet{..}), eUser@(Entity _ User{..}))  <- list
-            <tr>
+            <tr .request-data-row title="_{MsgProcessRequest}">
+                <td .text-muted>
+                    <small>#{reqDateT req}
                 <td>#{renderSums req}
                 <td>#{renderMethodUser req eUser}
                 <td .text-monospace .text-center .align-middle>
                     <big>
                         #{depositRequestTransactionCode}
-                <td>
+                <td .align-middle>
+                    <i .accept-deposit-icon .fas .fa-check .align-self-center>
                     <button
-                        .accept-deposit-btn.btn.btn-success
+                        .accept-deposit-btn .btn .btn-primary
+                        .d-none
                         data-toggle=modal
                         data-target="#depreq-modal-#{fromSqlKey depreqId}"
                         type=button
-                        title="подтвердить операцию">+
+                        title="подтвердить операцию пополнения">
+                            <i .fas .fa-check .align-self-center>
+                            <span> выполнить
 
 
-$forall ((Entity depreqId DepositRequest{..}), _, _) <- list
-    <div #depreq-modal-#{fromSqlKey depreqId} .modal.depreq-modal tabindex="-1" role=dialog>
+$forall ((Entity depreqId req@DepositRequest{..}), _, Entity _ User{..}) <- list
+    <div #depreq-modal-#{fromSqlKey depreqId} .modal .depreq-modal tabindex="-1" role=dialog>
         <div .modal-dialog role=document>
             <div .modal-content>
                 <div .modal-header>
-                    <h5 .modal-title>Уточните сумму
+                    <p .h5 .modal-title .text-center>
+                        <small>Заявка ##{fromSqlKey depreqId}
                     <button type=button .close data-dismiss=modal aria-label="Close">
                         <span aria-hidden="true">&times;
                 <form method=post action=@{OperatorAcceptDepositRequestR}>
                     <div .modal-body>
-                        <p>Операция на пополнение
                         <div .form-group>
-                            <label for="#{fromSqlKey depreqId}-deposit-id">
-                                # заявки
+                            <p .h4 .text-center>КОД ОПЕРАЦИИ
+                            <div .alert .alert-warning .py-1>
+                                <p .h3 .text-monospace .text-center .mt-3>
+                                    #{depositRequestTransactionCode}
+                            <input
+                                ##{fromSqlKey depreqId}-deposit-code
+                                .form-control
+                                type=hidden
+                                readonly=readonly
+                                name="deposit-code"
+                                value="#{depositRequestTransactionCode}">
                             <input
                                 ##{fromSqlKey depreqId}-deposit-id
                                 .form-control
                                 style="user-select:none"
-                                type=text
+                                type=hidden
                                 readonly=readonly
                                 name="deposit-id"
                                 value="#{fromSqlKey depreqId}">
                         <div .form-group>
-                            <label for="#{fromSqlKey depreqId}-deposit-code">
-                                код операции
-                            <input
-                                ##{fromSqlKey depreqId}-deposit-code
-                                .form-control
-                                type=text
-                                readonly=readonly
-                                name="deposit-code"
-                                value="#{depositRequestTransactionCode}">
+                            <p>
+                                <small>_{MsgTransferMethod} #
+                                #{tmTShort depositRequestTransferMethod}
+                                <br>
+                                <small>_{MsgUser} #
+                                <a href="#">#{userIdent}
                         <div .form-group>
                             <label for="#{fromSqlKey depreqId}-deposit-amount">
-                                Полученная сумма (по факту)
+                                Полученная сумма (#{currSign depositRequestCurrency})
+                                <small .text-muted>уточните сумму, полученную в переводе
                             <input
                                 ##{fromSqlKey depreqId}-deposit-amount
+                                .deposit-amount-input
                                 .form-control
+                                .form-control-lg
+                                .text-center
                                 type=number
                                 step=0.01
                                 min=0.01
                                 name="deposit-real-income"
-                                value=0>
+                                placeholder="0.00" >
+                        <div .form-group>
+                            <input .request-fee-val type=hidden value="#{renderFeeAsDbl req}">
+                            <p .h5 .text-cetner .text-puted>_{MsgDespoitRequestAcceptFormStatsTitle}
+                            <p .h5>
+                                <small>
+                                    _{MsgActualCalculation}
+                            <p .actual>
+                                (#
+                                <span .income-val>-#
+                                <span .income-cur>
+                                    <small>#{currSign depositRequestCurrency}
+                                \ - #
+                                <span .fee-val>-#
+                                <span .fee-cur>
+                                        <small>#{currSign depositRequestCurrency}#
+                                \) #
+                                <small>x
+                                    <span .ratio-val>#{renderRequestRatio req}
+                                \ = #
+                                <span .total-val>-#
+                                <span .total-cur>
+                                    <small>#{currSign depositRequestTargetCurrency}
+                            <p .h5>
+                                <small>
+                                    _{MsgExpectedCalculation}
+                            <p .expected>
+                                    (#
+                                    <span .income-val>#{cents2dblT depositRequestCentsAmount}#
+                                    <span .income-cur>
+                                        <small>#{currSign depositRequestCurrency}
+                                    \ - #
+                                    <span .fee-val>#{cents2dblT depositRequestExpectedFeeCents}#
+                                    <span .fee-cur>
+                                        <small>#{currSign depositRequestCurrency}#
+                                    \) #
+                                    <small>x
+                                        <!-- TODO: We should take ratio from request here
+                                            but we should take actual SYSTEM ratio conversion
+                                            rules during request execution!
+                                            -->
+                                        <span .ratio-val>#{renderRequestRatio req}
+                                    \ = #
+                                    <span .total-val>#{renderRequestExpectedTotal req}#
+                                    <span .total-cur>
+                                        <small>#{currSign depositRequestTargetCurrency}
                     <div .modal-footer>
-                        <button type=button .btn.btn-secondary data-dismiss=modal>закрыть
+                        <button type=button .btn.btn-outline-secondary data-dismiss=modal>закрыть
                         <button type=submit .btn.btn-primary>Принять операцию
