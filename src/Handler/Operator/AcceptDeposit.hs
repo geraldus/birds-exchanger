@@ -5,11 +5,11 @@ module Handler.Operator.AcceptDeposit where
 import           Import
 import           Local.Persist.Deposit
 import           Local.Persist.Wallet
-import           Type.Money            ( oneCoinCents )
+import           Type.Money                     ( oneCoinCents )
 import           Utils.Deposit
-import           Utils.Money           ( truncCoins2Cents )
+import           Local.Persist.ExchangeOrder    ( ProfitType(..) )
 
-import           Database.Persist.Sql  ( toSqlKey )
+import           Database.Persist.Sql           ( toSqlKey )
 
 
 postOperatorAcceptDepositRequestR :: Handler Html
@@ -32,8 +32,6 @@ postOperatorAcceptDepositRequestR = do
                         depositRequestTargetCurrency
                     let (Entity userWalletId userWallet) = walletEntity
                     runDB $ do
-                        -- TODO: FIXME: Save fee data
-                        -- Save inner profit record
                         wtrId <- insert $ WalletTransactionReason userWalletId
                         update
                             drId
@@ -58,7 +56,7 @@ postOperatorAcceptDepositRequestR = do
                                 Left uid -> Just uid
                                 _        -> Nothing
                         let time = userWalletCreated userWallet
-                        adid <- insert $ AcceptedDeposit
+                        _ <- insert $ AcceptedDeposit
                             drId
                             depositRequestCurrency
                             depositRequestTargetCurrency
@@ -70,7 +68,13 @@ postOperatorAcceptDepositRequestR = do
                             mStaffUserId
                             time
                             wtrId
-                        wtId <- insert $ WalletBalanceTransaction
+                        when (fee > 0) $ void . insert $
+                            InnerProfitRecord
+                                wtrId
+                                depositRequestCurrency
+                                fee
+                                DepositFee
+                        _ <- insert $ WalletBalanceTransaction
                             userWalletId
                             (BalanceDeposit realWalletIncome)
                             wtrId
