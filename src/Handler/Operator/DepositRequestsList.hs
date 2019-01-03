@@ -91,6 +91,14 @@ renderRequestExpectedTotal DepositRequest{..} = [shamlet|#{cents2dblT total}|]
   where
     total = convertCents depositRequestExpectedConversionRatio (depositRequestCentsAmount - depositRequestExpectedFeeCents)
 
+renderFeeAsPct :: DepositRequest -> Html
+renderFeeAsPct DepositRequest{..} = [shamlet|#{ren}|]
+  where
+    fee = selectFee depositRequestCurrency
+    ren = case fee of
+            CentsFixed _ -> error "no fixed fee logics"
+            Percent p -> show p
+
 renderFeeAsDbl :: DepositRequest -> Html
 renderFeeAsDbl DepositRequest{..} = [shamlet|#{ren}|]
   where

@@ -1,4 +1,5 @@
 User: Пользователь
+Execute: Исполнить
 
 
 ProcessRequest: Обработать запрос

@@ -95,49 +95,50 @@ $forall ((Entity depreqId req@DepositRequest{..}), _, Entity _ User{..}) <- list
                                 placeholder="0.00" >
                         <div .form-group>
                             <input .request-fee-val type=hidden value="#{renderFeeAsDbl req}">
-                            <p .h5 .text-cetner .text-puted>_{MsgDespoitRequestAcceptFormStatsTitle}
+                            <p .h5 .text-center .text-muted>_{MsgDespoitRequestAcceptFormStatsTitle}
                             <p .h5>
                                 <small>
                                     _{MsgActualCalculation}
-                            <p .actual>
-                                (#
+                            <p .actual .text-muted>
+                                <span>(#
                                 <span .income-val>-#
                                 <span .income-cur>
                                     <small>#{currSign depositRequestCurrency}
-                                \ - #
+                                <span> - #
                                 <span .fee-val>-#
-                                <span .fee-cur>
-                                        <small>#{currSign depositRequestCurrency}#
-                                \) #
+                                <span .fee-cur><small>#{currSign depositRequestCurrency}</small>#
+                                <span>) #
                                 <small>x
                                     <span .ratio-val>#{renderRequestRatio req}
-                                \ = #
+                                <span> = #
                                 <span .total-val>-#
                                 <span .total-cur>
                                     <small>#{currSign depositRequestTargetCurrency}
+                            <p .text-muted>
+                                <small>Комиссия: #
+                                <span .fee-percent-val>#{renderFeeAsPct req}#
+                                    <small>%
                             <p .h5>
                                 <small>
                                     _{MsgExpectedCalculation}
-                            <p .expected>
-                                    (#
+                            <p .expected .text-muted>
+                                    <span>(#
                                     <span .income-val>#{cents2dblT depositRequestCentsAmount}#
                                     <span .income-cur>
                                         <small>#{currSign depositRequestCurrency}
-                                    \ - #
+                                    <span> - #
                                     <span .fee-val>#{cents2dblT depositRequestExpectedFeeCents}#
-                                    <span .fee-cur>
-                                        <small>#{currSign depositRequestCurrency}#
-                                    \) #
+                                    <span .fee-cur><small>#{currSign depositRequestCurrency}</small>#
+                                    <span>) #
                                     <small>x
                                         <!-- TODO: We should take ratio from request here
                                             but we should take actual SYSTEM ratio conversion
                                             rules during request execution!
                                             -->
                                         <span .ratio-val>#{renderRequestRatio req}
-                                    \ = #
+                                    <span> = #
                                     <span .total-val>#{renderRequestExpectedTotal req}#
                                     <span .total-cur>
                                         <small>#{currSign depositRequestTargetCurrency}
-                    <div .modal-footer>
-                        <button type=button .btn.btn-outline-secondary data-dismiss=modal>закрыть
-                        <button type=submit .btn.btn-primary>Принять операцию
+                    <div .modal-footer .justify-content-center>
+                        <button type=submit .btn .btn-lg .btn-block .btn-primary>_{MsgExecute}

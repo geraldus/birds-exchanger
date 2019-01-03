@@ -35,7 +35,10 @@ $(document).ready(() => {
             feeVal.text(fee.toFixed(2))
             const t = val - fee
             totVal.text(t.toFixed(2))
-            console.log(val, fee.toFixed(2), t)
+        } else {
+            incVal.text('-')
+            feeVal.text('-')
+            totVal.text('-')
         }
     }
 

@@ -9,3 +9,6 @@
 
 .request-data-row:hover .accept-deposit-btn, .request-data-row:hover .accept-deposit-icon
     opacity: 1
+
+.actual .income-val, .actual .fee-val, .actual .total-val, .actual .fee-percent-val
+    color: black
