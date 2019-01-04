@@ -46,7 +46,7 @@ renderSums req@DepositRequest{..} =
         ratioT = renderRequestRatio req
         reqAmt = depositRequestCentsAmount
         reqAmtT = cents2dblT reqAmt
-        feeAmt = calcFeeCents (selectFee depositRequestCurrency) reqAmt
+        feeAmt = calcFeeCents (selectDepositFee depositRequestCurrency) reqAmt
         feeAmtT = cents2dblT feeAmt
         depAmt = convertCents ratio (reqAmt - feeAmt)
         depAmtT = cents2dblT depAmt
@@ -94,7 +94,7 @@ renderRequestExpectedTotal DepositRequest{..} = [shamlet|#{cents2dblT total}|]
 renderFeeAsPct :: DepositRequest -> Html
 renderFeeAsPct DepositRequest{..} = [shamlet|#{ren}|]
   where
-    fee = selectFee depositRequestCurrency
+    fee = selectDepositFee depositRequestCurrency
     ren = case fee of
             CentsFixed _ -> error "no fixed fee logics"
             Percent p -> show p
@@ -102,7 +102,7 @@ renderFeeAsPct DepositRequest{..} = [shamlet|#{ren}|]
 renderFeeAsDbl :: DepositRequest -> Html
 renderFeeAsDbl DepositRequest{..} = [shamlet|#{ren}|]
   where
-    fee = selectFee depositRequestCurrency
+    fee = selectDepositFee depositRequestCurrency
     ren = case fee of
             CentsFixed _ -> error "no fixed fee logics"
             Percent p -> show $ p / 100

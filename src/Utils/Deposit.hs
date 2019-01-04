@@ -7,9 +7,13 @@ import           Type.Fee
 import           Local.Persist.Currency
 
 
-selectFee :: Currency -> Fee
-selectFee (FiatC   RUR) = depositFeeRur
-selectFee (CryptoC PZM) = depositFeePzm
+-- TODO: FIXME: Make deposit and withdrawal fees configurable via admin's UI
+
+
+selectDepositFee :: Currency -> Fee
+selectDepositFee (FiatC   RUR) = depositFeeRur
+selectDepositFee (CryptoC PZM) = depositFeePzm
+selectDepositFee c = error $ "No deposit fee rules for " <> show c
 
 selectRatio :: Currency -> Currency -> Double
 selectRatio (CryptoC PZM) (FiatC   RUR) = depositPzmRurRatio

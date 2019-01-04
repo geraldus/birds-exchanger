@@ -44,7 +44,7 @@ postOperatorAcceptDepositRequestR = do
                                 depositRequestCurrency
                                 depositRequestTargetCurrency
                             fee = calcFeeCents
-                                (selectFee depositRequestCurrency)
+                                (selectDepositFee depositRequestCurrency)
                                 realAmountCents
                             realAmountToConvert = realAmountCents - fee
                             targetAmountCents =

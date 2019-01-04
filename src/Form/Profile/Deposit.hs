@@ -33,7 +33,7 @@ depositForm formId extra = do
     --     Nothing
     let amountIsValidRes = amountIsValidC <$> paymentCurrencyRes <*> paymentAmountRes
         amountCentsRes   = truncCoins2Cents <$> paymentAmountRes
-        matchingFee = selectFee <$> paymentCurrencyRes
+        matchingFee = selectDepositFee <$> paymentCurrencyRes
         expectedFee = calcFeeCents <$> matchingFee <*> amountCentsRes
         expectedRatio = selectRatio <$> paymentCurrencyRes <*> paymentCurrencyRes-- targetCurrencyRes
         depReqRes = DepositRequestFD
@@ -57,6 +57,7 @@ depositForm formId extra = do
                 ]
             FormFailure es -> FormFailure es
             FormMissing -> FormMissing
+    -- TODO: FIXME: Check if Transfer Method is valid
     -- let isValidTransferMethod = isJust . fvErrors $ transferMethodView
     let widget = do
             inCurrencyId <- newIdent
