@@ -12,14 +12,14 @@ module Local.Auth.Plugin
 
 import           Import.NoFoundation
 
-import           Yesod.Auth          (AuthHandler, AuthPlugin (..), AuthRoute,
-                                      Creds (..), Route (..), YesodAuth,
-                                      loginErrorMessageI, setCredsRedirect)
+import           Yesod.Auth          ( AuthHandler, AuthPlugin (..), AuthRoute,
+                                       Creds (..), Route (..), YesodAuth,
+                                       loginErrorMessageI, setCredsRedirect )
 import qualified Yesod.Auth.Message  as Msg
-import           Yesod.Form          (ireq, runInputPost, textField)
+import           Yesod.Form          ( ireq, runInputPost, textField )
 
-import           Control.Applicative ((<$>), (<*>))
-import           Data.Text           (Text)
+import           Control.Applicative ( (<$>), (<*>) )
+import           Data.Text           ( Text )
 
 
 -- TODO: FIXME: проверять статус активации при входе
@@ -34,13 +34,6 @@ class ( YesodAuth site
       , BaseBackend (YesodPersistBackend site) ~ SqlBackend
       , PersistUniqueRead (YesodPersistBackend site) )
       => PrizmAuthPlugin site
-{-
-  -- | Check whether given user name exists among hardcoded names.
-  doesUserNameExist :: Text -> AuthHandler site Bool
-
-  -- | Validate given user name with given password.
-  validatePassword :: Text -> Text -> AuthHandler site Bool
-  -}
 
 
 authPrizm :: PrizmAuthPlugin m => AuthPlugin m
