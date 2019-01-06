@@ -64,7 +64,6 @@ cCurrencyTLong BTC = "Bitcoin"
 cCurrencyTLong ETH = "Etherium"
 
 
-
 currSign :: Currency -> Text
 currSign (FiatC   USD) = "$"
 currSign (FiatC   RUR) = "₽"
