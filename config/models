@@ -80,6 +80,8 @@ WithdrawalRequest
     method TransferMethod
     addressee Text
     centsAmount Int
+    frozenAmount Int
+    feeAmount Int
     created UTCTime
     walletTransactionReasonId WalletTransactionReasonId
     accepted UTCTime Maybe
@@ -87,6 +89,8 @@ WithdrawalRequest
 
 WithdrawalAccept
     requestId WithdrawalRequestId
+    amountTransfered Int
+    actualFee Int
     staffIdent Text
     staffId UserId Maybe
     deriving Show
