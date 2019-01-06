@@ -342,6 +342,7 @@ instance YesodAuth App where
             Nothing -> UserError InvalidLogin
             Just m  -> Authenticated . Right $ suName m
         "prizm auth plugin" -> do
+            -- TODO: FIXME: Check if email is verified
             x <- liftHandler . runDB . getBy $ UniqueUser credsIdent
             return $ case x of
                 Just (Entity uid _) -> Authenticated $ Left uid

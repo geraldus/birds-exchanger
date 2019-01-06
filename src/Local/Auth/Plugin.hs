@@ -72,6 +72,7 @@ postLoginR = do
         ((,) Control.Applicative.<$> ireq textField "username"
              Control.Applicative.<*> ireq textField "password")
     authRes <- checkCreds username password
+    -- TODO: FIXME: Check if user have verified email address
     if authRes == AuthSuccess
         then setCredsRedirect (Creds "prizm auth plugin" username [])
         else loginErrorMessageI LoginR
