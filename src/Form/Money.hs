@@ -15,9 +15,12 @@ moneyInput :: Text
 moneyInput aid cid = do
     (amt, av) <- mreq
         doubleField
-        (fsAddClasses
-            (fsAddPlaceholder (fsBs4WithId aid) "0.00")
-            ["form-control-lg", "text-center"])
+        (fsAddAttrs
+            [ ("min", "0")
+            , ("step", "0.01") ]
+            (fsAddClasses
+                (fsAddPlaceholder (fsBs4WithId aid) "0.00")
+                    ["form-control-lg", "text-center"]))
         Nothing
     (cur, cv) <- mreq
         currencySelect
