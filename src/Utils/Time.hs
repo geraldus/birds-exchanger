@@ -1,11 +1,23 @@
+{-# LANGUAGE QuasiQuotes #-}
 module Utils.Time
     ( ruTimeLocale
+    , renderTimeDateRu
     )
 where
 
-import           Data.Time.Format               ( TimeLocale(..) )
-import           Data.Time.LocalTime            ( TimeZone(..) )
 import           ClassyPrelude.Yesod
+import           Data.Time.Format    ( TimeLocale (..) )
+import           Data.Time.LocalTime ( TimeZone (..) )
+
+
+renderTimeDateRu :: TimeLocale -> UTCTime -> Html
+renderTimeDateRu loc utc = [shamlet|
+    #{timeFT}<br>
+    <small>#{dateFT}
+    |]
+  where
+    timeFT = toHtml . formatTime loc ("%H:%M:%S" :: String) $ utc
+    dateFT = toHtml . formatTime loc ("%d.%m.%Y" :: String) $ utc
 
 -- | Locale representing Russian free-form usage.
 -- Note that the parsing functions will regardless parse "UTC", single-letter
