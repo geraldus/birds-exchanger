@@ -1,0 +1,9 @@
+.rur .fee-stats .percent:not(.rur)
+    display: none
+.pzm .fee-stats .percent:not(.pzm)
+    display: none
+
+.rur .fee-stats .currency:not(.rur)
+    display: none
+.pzm .fee-stats .currency:not(.pzm)
+    display: none

@@ -2,8 +2,28 @@
 ^{moneyWid}
 ^{fvInput addressView}
 <div .form-row>
+    <div .form-group .col-12 .fee-stats .text-muted>
+        <small>
+            <span>Сервисный сбор: #
+            <span .fee .val>?#
+            <small .currency .rur>₽#
+            <small .currency .pzm>PZM#
+            <small>
+                <span> (#
+                <span .def-fee .val .rur .percent>#{renderFeeAsPct defRurWithdrawalFee}#
+                <span .def-fee .val .pzm .percent>#{renderFeeAsPct defPzmWithdrawalFee}#
+                <!-- TODO: FIXME: Loop over values -->
+                <span>%)
+        <br>
+        <small>
+            <span>Итого будет удержано: #
+            <span .total .val>?#
+            <small .currency .rur>₽#
+            <small .currency .pzm>PZM#
+        ^{fvInput feeHiddenView}
+<div .form-row>
     <div .form-group .col-12>
-        <label for="#{tid}">Способ получения средств
+        <label for="#{tmid}">Способ получения средств
         ^{fvInput transferMethodView}
 <div ##{adrid}-1-row .form-row .tm-addr-row style="display: none">
     <div .form-group .col-12>

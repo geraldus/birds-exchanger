@@ -1,17 +1,23 @@
 $(document).ready(() => {
     const form = $('##{rawJS formId}')
-
     const currencySelect = $('##{rawJS cid}')
-
-    const transferMethodSelect = $('##{rawJS tid}')
-
+    const transferMethodSelect = $('##{rawJS tmid}')
     let defaultOption = $('<option disabled selected value="">укажите способ перевода</option>')
     transferMethodSelect.prepend(defaultOption)
+    const transferMethodOpts = $('##{rawJS tmid} option')
 
-    const transferMethodOpts = $('##{rawJS tid} option')
-
+    const addressHidden = $('##{rawJS adrid}')
+    const address1 = $('##{rawJS adrid}-1')
+    const address2 = $('##{rawJS adrid}-2')
     const addr1Row = $('##{rawJS adrid}-1-row')
     const addr2Row = $('##{rawJS adrid}-2-row')
+
+    const amountIn = $('##{rawJS amtid}')
+    const feeStats = $('.fee-stats', form)
+    const totalAmountOut = $('.total.val', feeStats)
+    const feeAmountOut = $('.fee.val', feeStats)
+    const feeAmountHidden = $('##{rawJS fid}')
+
 
     const checkFeedback = () => {
         const feedback = $('.form-group .invalid-feedback', form)
@@ -20,9 +26,14 @@ $(document).ready(() => {
         })
     }
 
-    const addressHidden = $('##{rawJS adrid}')
-    const address1 = $('##{rawJS adrid}-1')
-    const address2 = $('##{rawJS adrid}-2')
+    const updateView = (selectFirst = false, currency = null) => {
+        const selectedCurrency = currency || currencySelect.val()
+        form.removeClass('rur usd pzm btc eth')
+        form.addClass(selectedCurrency)
+        updateTranserMethodView(selectFirst)
+        updateAddressView()
+        updateFeeStats()
+    }
 
     const updateTranserMethodView = (selectFirst = false) => {
         const selectedCurrency = currencySelect.val()
@@ -41,7 +52,6 @@ $(document).ready(() => {
         if (!selectFirst) {
             defaultOption.attr('selected', 'selected')
         }
-        updateAddressView()
     }
 
     const updateAddressView = () => {
@@ -70,10 +80,10 @@ $(document).ready(() => {
             addr1Row.show()
             address1.attr('required', 'required')
         }
-        updateAddressField()
+        updateAddressHiddenField()
     }
 
-    const updateAddressField = () => {
+    const updateAddressHiddenField = () => {
         const addr1 = address1.val()
         const addr2 = address2.val()
         const selectedCurrency = currencySelect.val()
@@ -85,21 +95,54 @@ $(document).ready(() => {
         }
     }
 
+    const updateFeeStats = (e) => {
+        const c = currencySelect.val()
+        const a = amountIn.val()
+        const f = currencyFee(c)
+        if ($.isNumeric(a) && $.isNumeric(f)) {
+            // pure vals
+            let totalAmount = a / (100 - f) * 100
+            let feeAmount = a / (100 - f) * f
+            // ceiled vals
+            totalAmount = Math.ceil(totalAmount * 100) / 100
+            feeAmount   = Math.ceil(feeAmount   * 100) / 100
+            totalAmountOut.text(totalAmount.toFixed(2))
+            feeAmountOut.text(feeAmount.toFixed(2))
+            feeAmountHidden.val(Math.ceil(feeAmount * 100))
+        } else {
+            totalAmountOut.text('?')
+            feeAmountOut.text('?')
+            feeAmountHidden.val('')
+        }
+    }
+
+    const currencyFee = (currency = null) => {
+        const c = currency || currencySelect.val()
+        const curFeeDom = $('.def-fee.val.' + c, form).first()
+        return (curFeeDom.length? parseFloat(curFeeDom.text()) : NaN)
+    }
+
+
     currencySelect.change(() => {
         let selectedCurrency = currencySelect.val()
         switch (selectedCurrency) {
             case 'pzm':
-                updateTranserMethodView(true)
+                updateView(true)
                 break
             default:
-                updateTranserMethodView()
+                updateView()
                 break
         }
     })
 
-    address1.change(updateAddressField)
-    address2.change(updateAddressField)
+    address1.change(updateAddressHiddenField)
+    address2.change(updateAddressHiddenField)
 
     transferMethodSelect.change(updateAddressView)
-    updateTranserMethodView()
+
+    amountIn
+        .change(updateFeeStats)
+        .keyup(updateFeeStats)
+
+    updateView()
 })

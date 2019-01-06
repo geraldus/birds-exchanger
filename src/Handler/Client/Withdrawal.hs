@@ -30,12 +30,19 @@ postWithdrawalCreateR = do
     case res of
         FormMissing -> defaultLayout $ defaultWidget formId widget enctype mayError
         FormFailure _ -> defaultLayout $ defaultWidget formId widget enctype mayError
-        FormSuccess (WithdrawalM (Money amt c) tm adr) -> do
+        FormSuccess (WithdrawalM (Money amt c) tm fee adr) -> do
+            -- TODO: FIXME:  Check if Transfer Method is valid
             w <- getOrCreateWallet userId c
             let wid = entityKey w
             let walletCents = userWalletAmountCents (entityVal w)
-            if amt > walletCents
-                then defaultLayout $ defaultWidget formId widget enctype (Just ["Недостаточно средств на счёте"])
+            let amount2Freeze = amt + fee
+            if amount2Freeze > walletCents
+                then defaultLayout $
+                        defaultWidget
+                            formId
+                            widget
+                            enctype
+                            (Just ["Недостаточно средств на счёте"])
                 else do
                     time <- liftIO getCurrentTime
                     reasonId <- runDB . insert $ WalletTransactionReason wid
@@ -44,21 +51,24 @@ postWithdrawalCreateR = do
                             tm
                             adr
                             amt
+                            amount2Freeze
+                            fee
                             time
                             reasonId
                             Nothing
                     let transaction = WalletBalanceTransaction
                             wid
-                            (BalanceWithdrawal amt)
+                            (BalanceWithdrawal amount2Freeze)
                             reasonId
                             walletCents
                             time
                     _ <- runDB $ do
                         insert record
                         insert transaction
-                        update wid [UserWalletAmountCents -=. amt]
+                        update wid [UserWalletAmountCents -=. amount2Freeze]
                     setMessage "Заявка на вывод успешно создана"
                     redirect HomeR
+
 
 defaultWidget :: Text -> Widget -> Enctype -> Maybe [Text] -> Widget
 defaultWidget formId widget enctype mayError = [whamlet|
