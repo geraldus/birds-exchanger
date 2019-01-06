@@ -578,7 +578,7 @@ fsAddPlaceholder settings p = let
 fsAddClasses :: FieldSettings App -> [ Text ] -> FieldSettings App
 fsAddClasses settings cs = let
         attrs = fsAttrs settings
-        csi = intercalate " " cs
+        csi = unwords cs
         attrs' = updateAttrs attrs [] csi
     in settings { fsAttrs = attrs' }
     where
