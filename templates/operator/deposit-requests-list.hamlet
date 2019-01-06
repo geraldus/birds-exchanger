@@ -28,7 +28,7 @@
                     <big>
                         #{depositRequestTransactionCode}
                 <td .align-middle>
-                    <i .accept-deposit-icon .fas .fa-check .align-self-center>
+                    <i .accept-deposit-icon .fas .fa-check>
                     <button
                         .accept-deposit-btn .btn .btn-primary
                         .d-none
@@ -94,7 +94,7 @@ $forall ((Entity depreqId req@DepositRequest{..}), _, Entity _ User{..}) <- list
                                 name="deposit-real-income"
                                 placeholder="0.00" >
                         <div .form-group>
-                            <input .request-fee-val type=hidden value="#{renderFeeAsDbl req}">
+                            <input .request-fee-val type=hidden value="#{renderReqFeeAsDbl req}">
                             <p .h5 .text-center .text-muted>_{MsgDespoitRequestAcceptFormStatsTitle}
                             <p .h5>
                                 <small>
@@ -116,7 +116,7 @@ $forall ((Entity depreqId req@DepositRequest{..}), _, Entity _ User{..}) <- list
                                     <small>#{currSign depositRequestTargetCurrency}
                             <p .text-muted>
                                 <small>Комиссия: #
-                                <span .fee-percent-val>#{renderFeeAsPct req}#
+                                <span .fee-percent-val>#{renderReqFeeAsPct req}#
                                     <small>%
                             <p .h5>
                                 <small>
