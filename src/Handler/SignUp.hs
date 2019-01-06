@@ -20,10 +20,12 @@ import           Text.Blaze.Html.Renderer.Text (renderHtml)
 -- | Your settings
 server = "smtp.mail.ru"
 smtpPort = toEnum 465
-username = "mailer@prizmone.bizml.ru"
-password = "|DfDlVwB7zg0"
+username = "noreply@outb.info"
+password = "$afi2C3TFBsl"
+-- username = "mailer@prizmone.bizml.ru"
+-- password = "|DfDlVwB7zg0"
 authType = PLAIN
-from = "mailer@prizmone.bizml.ru"
+from = "noreply@outb.info"
 subject = "Подтвердите ваш электронный ящик"
 plainBody = textContent
 htmlBody = htmlContent

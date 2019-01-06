@@ -49,7 +49,7 @@ exchangerName :: Text
 exchangerName = "OutBirds Cryptochanger"
 
 exchangerHost :: Text
-exchangerHost = "OutBirds (http://185.53.169.5)"
+exchangerHost = "OutBirds (outb.info)"
 
 -- | The foundation datatype for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
