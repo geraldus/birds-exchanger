@@ -1,5 +1,3 @@
-<h2>
-<h2>Список заявок
 <table .request-list .table .table-striped>
     <thead>
         <tr>
@@ -18,8 +16,11 @@
                 КОД ОПЕРАЦИИ
             <th .align-middle>
     <tbody>
-        $forall ((Entity depreqId req@DepositRequest{..}), (Entity _ UserWallet{..}), eUser@(Entity _ User{..}))  <- list
-            <tr .request-data-row title="_{MsgProcessRequest}">
+        $forall ((Entity reqId req@DepositRequest{..}), (Entity _ UserWallet{..}), eUser@(Entity _ User{..}))  <- list
+            <tr
+                    .request-data-row
+                    title="_{MsgProcessRequest}"
+                    data-target="#req-modal-#{fromSqlKey reqId}">
                 <td .text-muted>
                     <small>#{reqDateT req}
                 <td>#{renderSums req}
@@ -28,25 +29,16 @@
                     <big>
                         #{depositRequestTransactionCode}
                 <td .align-middle>
-                    <i .accept-deposit-icon .fas .fa-check>
-                    <button
-                        .accept-deposit-btn .btn .btn-primary
-                        .d-none
-                        data-toggle=modal
-                        data-target="#depreq-modal-#{fromSqlKey depreqId}"
-                        type=button
-                        title="подтвердить операцию пополнения">
-                            <i .fas .fa-check .align-self-center>
-                            <span> выполнить
+                    <i .accept-icon .fas .fa-check>
 
 
-$forall ((Entity depreqId req@DepositRequest{..}), _, Entity _ User{..}) <- list
-    <div #depreq-modal-#{fromSqlKey depreqId} .modal .depreq-modal tabindex="-1" role=dialog>
+$forall ((Entity reqId req@DepositRequest{..}), _, Entity _ User{..}) <- list
+    <div #req-modal-#{fromSqlKey reqId} .modal .req-modal tabindex="-1" role=dialog>
         <div .modal-dialog role=document>
             <div .modal-content>
                 <div .modal-header>
                     <p .h5 .modal-title .text-center>
-                        <small>Заявка ##{fromSqlKey depreqId}
+                        <small>Заявка ##{fromSqlKey reqId}
                     <button type=button .close data-dismiss=modal aria-label="Close">
                         <span aria-hidden="true">&times;
                 <form method=post action=@{OperatorAcceptDepositRequestR}>
@@ -57,20 +49,20 @@ $forall ((Entity depreqId req@DepositRequest{..}), _, Entity _ User{..}) <- list
                                 <p .h3 .text-monospace .text-center .mt-3>
                                     #{depositRequestTransactionCode}
                             <input
-                                ##{fromSqlKey depreqId}-deposit-code
+                                ##{fromSqlKey reqId}-deposit-code
                                 .form-control
                                 type=hidden
                                 readonly=readonly
                                 name="deposit-code"
                                 value="#{depositRequestTransactionCode}">
                             <input
-                                ##{fromSqlKey depreqId}-deposit-id
+                                ##{fromSqlKey reqId}-deposit-id
                                 .form-control
                                 style="user-select:none"
                                 type=hidden
                                 readonly=readonly
                                 name="deposit-id"
-                                value="#{fromSqlKey depreqId}">
+                                value="#{fromSqlKey reqId}">
                         <div .form-group>
                             <p>
                                 <small>_{MsgTransferMethod} #
@@ -79,11 +71,11 @@ $forall ((Entity depreqId req@DepositRequest{..}), _, Entity _ User{..}) <- list
                                 <small>_{MsgUser} #
                                 <a href="#">#{userIdent}
                         <div .form-group>
-                            <label for="#{fromSqlKey depreqId}-deposit-amount">
+                            <label for="#{fromSqlKey reqId}-deposit-amount">
                                 Полученная сумма (#{currSign depositRequestCurrency})
                                 <small .text-muted>уточните сумму, полученную в переводе
                             <input
-                                ##{fromSqlKey depreqId}-deposit-amount
+                                ##{fromSqlKey reqId}-deposit-amount
                                 .deposit-amount-input
                                 .form-control
                                 .form-control-lg

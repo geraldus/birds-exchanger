@@ -1,27 +1,9 @@
 $(document).ready(() => {
-    const rows = $('.request-data-row')
-    const links = $('.user-profile-link')
     const inputs = $('.deposit-amount-input')
-
-    links.click((e) => {
-        console.log('Click', e)
-        e.preventDefault()
-        return false
-    })
-
-    rows.click((e) => {
-        const parentRow = $(e.target).parents('.request-data-row')
-        const btn = $('.accept-deposit-btn', parentRow)
-        console.log(btn)
-        const modalId = btn.data('target')
-        console.log(modalId)
-        $(modalId).modal('show')
-        // btn.click()
-    })
 
     const calculate = (e) => {
         const i = $(e.target)
-        const f = i.parents('form').first() // .depreq-modal
+        const f = i.parents('form').first()
         const feeI = $('.request-fee-val', f)
         const actual = $('.actual', f)
         const incVal = $('.income-val', actual)

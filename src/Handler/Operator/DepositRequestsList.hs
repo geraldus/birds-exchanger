@@ -23,7 +23,9 @@ getOperatorDepositRequestsListR = do
     list <-
         runDB $ rawSql s [toPersistValue ClientConfirmed] :: Handler
             [(Entity DepositRequest, Entity UserWallet, Entity User)]
-    defaultLayout $(widgetFile "operator/deposit-requests-list")
+    defaultLayout $ do
+        $(widgetFile "operator/request-list-common")
+        $(widgetFile "operator/deposit-requests-list")
   where
     s
         = "SELECT ??, ??, ?? FROM deposit_request, user_wallet, \"user\" \

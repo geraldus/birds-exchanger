@@ -1,14 +1,2 @@
-.request-list .request-data-row:hover > *
-    cursor: pointer
-    background-color: #007bff38
-
-
-.accept-deposit-btn, .accept-deposit-icon
-    opacity: 0
-
-
-.request-data-row:hover .accept-deposit-btn, .request-data-row:hover .accept-deposit-icon
-    opacity: 1
-
 .actual .income-val, .actual .fee-val, .actual .total-val, .actual .fee-percent-val
     color: black
