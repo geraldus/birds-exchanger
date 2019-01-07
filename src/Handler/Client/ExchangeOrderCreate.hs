@@ -31,8 +31,9 @@ postExchangeOrderCreateR = do
                 oamt = amount orderData
                 opair = pair orderData
                 oratio = ratio orderData
-            -- TODO write a function for this: case (action, pair) of ...
+            -- TODO: write a function for this: case (action, pair) of ...
             -- 1. Check if required coins amount is available in user's wallet
+            -- TODO: FIXME: use flipPair and unPairCurrency
             let (currency, _) = case opair of
                     ExchangePzmRur -> if oact == EAGive then (pzmC, rurC) else (rurC, pzmC)
                     ExchangeRurPzm -> if oact == EAGive then (rurC, pzmC) else (pzmC, rurC)

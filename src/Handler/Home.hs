@@ -62,7 +62,7 @@ getActiveOrders mu = do
 renderOrderCol :: Text -> [ExchangeOrder] -> Widget
 renderOrderCol title orders = [whamlet|
     <h5 .text-center>#{title}
-    <table .table.table-stripped>
+    <table .table .table-stripped>
         <thead>
             <tr>
                 <th>Цена
