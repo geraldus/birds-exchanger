@@ -22,6 +22,7 @@
 -- TODO: FIXME:
 -- /profile/deposit/create-request              DepositCreateRequestR        POST
 
+/client/orders                               ClientOrdersR                GET
 
 /operator/login                      OperatorLogInR  GET
 /operator/deposit-requests-list      OperatorDepositRequestsListR      GET

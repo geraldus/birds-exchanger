@@ -1,0 +1,8 @@
+##{pageId}-table tr td
+    vertical-align: middle
+
+##{pageId}-table.active .data-row:not(.active)
+    display: none
+
+##{pageId}-table.executed .data-row:not(.executed)
+    display: none

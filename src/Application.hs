@@ -52,6 +52,7 @@ import           Handler.Client.Deposit
 import           Handler.Client.DepositConfirm
 import           Handler.Client.ExchangeOrderCreate
 import           Handler.Client.Withdrawal
+import           Handler.Client.Orders
 import           Handler.Common
 import           Handler.Home
 import           Handler.Operator.AcceptDeposit

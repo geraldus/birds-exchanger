@@ -1,0 +1,22 @@
+<ul ##{pageId}-nav .nav .nav-pills .mt-2 .mb-5 .justify-content-center>
+    <li .nav-item data-target="all">
+        <a .nav-link href="#all-orders">_{MsgAllOrders}
+    <li .nav-item data-target="active">
+        <a .nav-link .active href="#active-orders">_{MsgActiveOrders}
+    <li .nav-item data-target="executed">
+        <a .nav-link href="#executed-orders">_{MsgExecutedOrders}
+
+<table ##{pageId}-table .table .active>
+    <thead .text-center .thead-light>
+        <th scope="row">
+            <small>_{MsgDateCreated}
+        <th scope="row">
+            <small>_{MsgIExchange}
+        <th scope="row">
+            <small>_{MsgRate}
+        <th scope="row">
+            <small>_{MsgRemainder}&nbsp;/&nbsp;_{MsgExecuted}
+        <th scope="row">
+    <tbody>
+        $forall order <- allOrders
+            #{renderOrderTr locale order}

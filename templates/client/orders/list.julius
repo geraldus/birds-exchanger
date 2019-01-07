@@ -1,0 +1,15 @@
+$(document).ready(() => {
+    const t = $('##{rawJS pageId}-table')
+    const ns = $('##{rawJS pageId}-nav .nav-item')
+    const as = $('##{rawJS pageId}-nav .nav-item .nav-link')
+
+    as.click((e) => {
+        let a = $(e.target)
+        $('.active', ns).removeClass('active')
+        a.addClass('active')
+        t.removeClass('active executed')
+        t.addClass(a.parent().data('target'))
+        e.preventDefault()
+    })
+
+})

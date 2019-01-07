@@ -153,6 +153,11 @@ instance Yesod App where
                     , menuItemAccessCallback = isClientUser muser
                     }
                 , NavbarLeft $ MenuItem
+                    { menuItemLabel = "Мои ордера"
+                    , menuItemRoute = ClientOrdersR
+                    , menuItemAccessCallback = isClientUser muser
+                    }
+                , NavbarLeft $ MenuItem
                     { menuItemLabel = "Пополни счёт"
                     , menuItemRoute = DepositR
                     , menuItemAccessCallback = isClientUser muser }
@@ -245,6 +250,7 @@ instance Yesod App where
     -- the profile route requires that the user is authenticated, so we
     -- delegate to that function
     isAuthorized ProfileR _                        = isAuthenticated
+    isAuthorized ClientOrdersR _                        = isClientAuthenticated
 
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
@@ -294,6 +300,7 @@ instance YesodBreadcrumbs App where
     breadcrumb (AuthR _)   = return ("Вход", Just HomeR)
     breadcrumb SignUpR     = return ("Регистрация", Just HomeR)
     breadcrumb ProfileR    = return ("Портфель", Just HomeR)
+    breadcrumb ClientOrdersR = return ("Мои ордера на обмен", Just HomeR)
     breadcrumb DepositR    = return ("Внесение средств", Just ProfileR)
     breadcrumb (DepositRequestConfirmationR _) =
         return ("Подтверждение", Just DepositR)
