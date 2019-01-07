@@ -73,5 +73,5 @@ renderOrderCol title orders = [whamlet|
                 <tr>
                     <td>#{show (exchangeOrderNormalizedRatio order)}
                     <td>#{cents2dblT (exchangeOrderAmountLeft order)}
-                    <td>#{cents2dblT (convertCents (normalizeRatio (exchangeOrderPair order) (exchangeOrderRatioNoramlization order) (exchangeOrderNormalizedRatio order)) (exchangeOrderAmountLeft order))}
+                    <td>#{cents2dblT (convertCents (normalizeRatio (exchangeOrderPair order) (exchangeOrderRatioNormalization order) (exchangeOrderNormalizedRatio order)) (exchangeOrderAmountLeft order))}
     |]

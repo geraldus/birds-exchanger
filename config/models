@@ -101,7 +101,7 @@ ExchangeOrder
     pair ExchangePair
     amountCents Int
     amountLeft Int
-    ratioNoramlization ExchangePair
+    ratioNormalization ExchangePair
     normalizedRatio Double
     expectedFeeCents Int
     created UTCTime

@@ -72,13 +72,13 @@ postExchangeOrderCreateR = do
                             if opair == defPairDir opair
                             then [ ExchangeOrderNormalizedRatio <=. oratio ]
                             else [ ExchangeOrderNormalizedRatio >=. oratio ]
-                    let orderRatioN = exchangeOrderRatioNoramlization savedOrder
+                    let orderRatioN = exchangeOrderRatioNormalization savedOrder
                     morders <- runDB $ selectList
                             (   ratioCondition <>
                               [ ExchangeOrderIsActive ==. True
                               , ExchangeOrderAmountLeft >=. 0
                               , ExchangeOrderId !=. orderId
-                              , ExchangeOrderRatioNoramlization ==. orderRatioN
+                              , ExchangeOrderRatioNormalization ==. orderRatioN
                               , ExchangeOrderPair ==. flipPair exchange ] )
                             [ Asc ExchangeOrderCreated ]
                     $(logInfo) $ "Matching orders: " <> (pack . show $ morders)
@@ -120,12 +120,12 @@ postExchangeOrderCreateR = do
             ( Entity mOrderId mOrder : mRest ) = matches
         let tOutAmtLeft = exchangeOrderAmountLeft tOrder
             tRatio      = exchangeOrderNormalizedRatio tOrder
-            tNormD      = exchangeOrderRatioNoramlization tOrder
+            tNormD      = exchangeOrderRatioNormalization tOrder
             tPair       = exchangeOrderPair tOrder
             tDirRatio   = normalizeRatio tNormD tPair tRatio
         let mOutAmtLeft = exchangeOrderAmountLeft mOrder
             mRatio      = exchangeOrderNormalizedRatio mOrder
-            mNormD      = exchangeOrderRatioNoramlization mOrder
+            mNormD      = exchangeOrderRatioNormalization mOrder
             mPair       = exchangeOrderPair mOrder
             mDirRatio   = normalizeRatio mNormD mPair mRatio
         let tUserId = exchangeOrderUserId tOrder
