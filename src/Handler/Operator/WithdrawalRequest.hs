@@ -8,7 +8,7 @@ import           Import
 import           Local.Persist.Currency
 import           Local.Persist.ExchangeOrder    ( ProfitType(..) )
 import           Utils.Render                   ( renderFeeAsPct )
-import           Utils.Time                     ( renderTimeDateRu )
+import           Utils.Time                     ( renderTimeDateCol )
 import           Utils.Withdrawal
 
 import qualified Data.Text                     as T
@@ -23,7 +23,7 @@ getOperatorWithdrawalRequestsListR :: Handler Html
 getOperatorWithdrawalRequestsListR = do
     requireStaffId
     loc <- selectLocale
-    let reqDateT = renderTimeDateRu loc . withdrawalRequestCreated
+    let reqDateT = renderTimeDateCol loc . withdrawalRequestCreated
     list <-
         runDB $ rawSql s [] :: Handler
             [(Entity WithdrawalRequest, Entity UserWallet, Entity User)]

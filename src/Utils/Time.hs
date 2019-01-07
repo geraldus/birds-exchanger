@@ -1,7 +1,8 @@
 {-# LANGUAGE QuasiQuotes #-}
 module Utils.Time
     ( ruTimeLocale
-    , renderTimeDateRu
+    , renderDateTimeRow
+    , renderTimeDateCol
     )
 where
 
@@ -10,14 +11,16 @@ import           Data.Time.Format    ( TimeLocale (..) )
 import           Data.Time.LocalTime ( TimeZone (..) )
 
 
-renderTimeDateRu :: TimeLocale -> UTCTime -> Html
-renderTimeDateRu loc utc = [shamlet|
-    #{timeFT}<br>
-    <small>#{dateFT}
+renderTimeDateCol :: TimeLocale -> UTCTime -> Html
+renderTimeDateCol loc utc = [shamlet|
+    #{localeFormatTime loc utc}<br>
+    <small>#{localeFormatDate loc utc}
     |]
-  where
-    timeFT = toHtml . formatTime loc ("%H:%M:%S" :: String) $ utc
-    dateFT = toHtml . formatTime loc ("%d.%m.%Y" :: String) $ utc
+
+renderDateTimeRow :: TimeLocale -> UTCTime -> Html
+renderDateTimeRow loc utc = [shamlet|
+    #{localeFormatDate loc utc} #{localeFormatTime loc utc}
+    |]
 
 -- | Locale representing Russian free-form usage.
 -- Note that the parsing functions will regardless parse "UTC", single-letter
@@ -69,3 +72,9 @@ ruTimeLocale = TimeLocale
                        , TimeZone (12 * 60) False "PETT"
                        ]
     }
+
+localeFormatTime :: TimeLocale -> UTCTime -> Html
+localeFormatTime l = toHtml . formatTime l (timeFmt l)
+
+localeFormatDate :: TimeLocale -> UTCTime -> Html
+localeFormatDate l = toHtml . formatTime l (dateFmt l)

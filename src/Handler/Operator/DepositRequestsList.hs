@@ -10,7 +10,7 @@ import           Local.Persist.Deposit
 import           Utils.Deposit
 import           Utils.Money            ( truncCoins2Cents )
 import           Utils.Render
-import           Utils.Time             ( renderTimeDateRu )
+import           Utils.Time             ( renderTimeDateCol )
 
 import           Database.Persist.Sql   ( fromSqlKey, rawSql )
 
@@ -19,7 +19,7 @@ getOperatorDepositRequestsListR :: Handler Html
 getOperatorDepositRequestsListR = do
     requireStaffId
     loc <- selectLocale
-    let reqDateT = renderTimeDateRu loc . depositRequestCreated
+    let reqDateT = renderTimeDateCol loc . depositRequestCreated
     list <-
         runDB $ rawSql s [toPersistValue ClientConfirmed] :: Handler
             [(Entity DepositRequest, Entity UserWallet, Entity User)]
