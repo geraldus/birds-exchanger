@@ -76,10 +76,7 @@ renderWalletCurrentFee :: UserWallet -> Html
 renderWalletCurrentFee w = renderFeeAsPct fee
   where
     currency = userWalletCurrency w
-    fee      = case currency of
-        (FiatC   RUR) -> defRurWithdrawalFee
-        (CryptoC PZM) -> defRurWithdrawalFee
-        c             -> error $ "no default fee for" <> show c
+    fee      = selectWithdrawalFee currency
 
 renderReqFee :: UserWallet -> WithdrawalRequest -> Html
 renderReqFee w r = [shamlet|#{cents2dblT (reqFeeCents w r)}|]
