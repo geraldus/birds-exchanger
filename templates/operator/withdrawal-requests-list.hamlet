@@ -1,49 +1,88 @@
-<table .table .table-striped>
+<table .request-list .table .table-striped>
     <thead>
         <tr>
-            <th>Сумма к выводу
-            <th>Куда выводить?
-            <th>Пользователь
-            <th>Дата заявки
-            <th>Действия
+            <th .align-top>Создана
+            <th .align-top>
+                <span>Сумма к выводу
+                <br>
+                <small>Пользователь
+            <th .align-top>
+                <span>Адрес получателя
+                <br>
+                <small>Способ перевода
+            <th .align-top>
     <tbody>
-    $forall (Entity eid WithdrawalRequest{..}, Entity _ UserWallet{..}, Entity _ User{..}) <- list
-        <tr>
-            <td>#{cents2dblT withdrawalRequestCentsAmount} #{currSign userWalletCurrency}
-            <td>#{withdrawalRequestAddressee}
-            <td>#{userIdent}
-            <td>#{show withdrawalRequestCreated}
-            <td>
-                <button
-                    .accept-withdrawal-btn.btn.btn-success
-                    data-toggle=modal
-                    data-target="#withdrawal-request-modal-#{fromSqlKey eid}"
-                    type=button
-                    title="подтвердить операцию">✔
+        $forall (Entity reqId req@WithdrawalRequest{..}, Entity _ UserWallet{..}, Entity _ User{..}) <- list
+            <tr
+                    .request-data-row
+                    title="_{MsgProcessRequest}"
+                    data-target="#req-modal-#{fromSqlKey reqId}">
+                <td .text-muted>
+                    <small>#{reqDateT req}
+                <td>
+                    <span>#{cents2dblT withdrawalRequestCentsAmount} #{currSign userWalletCurrency}
+                    <br>
+                    <small>
+                        <a href="#" title="Информация о пользователе">#{userIdent}
+                <td>
+                    <small>#{tmTShort withdrawalRequestMethod}
+                    <br>
+                    <span>#{renderReqAddress withdrawalRequestAddressee}
+                <td .align-middle>
+                    <i .accept-icon .fas .fa-check>
 
 
-$forall (Entity eid WithdrawalRequest{..}, Entity _ UserWallet{..}, _) <- list
-    <div #withdrawal-request-modal-#{fromSqlKey eid} .modal.withdrawal-modal tabindex="-1" role=dialog>
+$forall (Entity reqId r@WithdrawalRequest{..}, Entity _ w@UserWallet{..}, Entity _ User{..}) <- list
+    <div #req-modal-#{fromSqlKey reqId} .modal.withdrawal-modal tabindex="-1" role=dialog>
         <div .modal-dialog role=document>
             <div .modal-content>
                 <div .modal-header>
-                    <h5 .modal-title>Пометить заявку как выполненую?
+                    <p .h5 .modal-title .text-center>
+                        <small>Заявка ##{fromSqlKey reqId}
                     <button type=button .close data-dismiss=modal aria-label="Close">
                         <span aria-hidden="true">&times;
                 <form method=post action=@{OperatorAcceptWithdrawalRequestR}>
                     <div .modal-body>
-                        <p>Вы подтверждаете вывод <b>#{cents2dblT withdrawalRequestCentsAmount} #{currSign userWalletCurrency}</b> на
-                            <span>
-                                <pre>#{withdrawalRequestAddressee}
-                            ?
+                        <div .form-group>
+                            <p .h4 .text-center>АДРЕС ПОЛУЧАТЕЛЯ
+                            <div .alert .alert-warning .py-1>
+                                <p .text-center .mt-3>
+                                    #{tmTShort withdrawalRequestMethod}
+                                <p .h3 .text-monospace_ .text-center>
+                                    #{renderReqAddress withdrawalRequestAddressee}
+
+                        <p .lead .text-center>Переведите #
+                            <big>#{cents2dblT (reqTransferAmount w r)}#
+                                <small>#{currSign userWalletCurrency}
+
+                        <p>
+                            <small>_{MsgUser} #
+                                <a href="#">#{userIdent}
+                            <br>
+                            <small>
+                                <span>Удержано средств: #
+                            <span>#{cents2dblT withdrawalRequestFrozenAmount}#
+                                <small>#{currSign userWalletCurrency}#
+                            <br>
+                            <small>
+                                    <span>Комиссия на текущий момент: #{renderWalletCurrentFee w}%
+                            <span>= #{renderReqFee w r}
+                                <small>#{currSign userWalletCurrency}#
                         <input
-                            ##{fromSqlKey eid}-withdrawal-id
-                            .form-control
-                            style="user-select:none"
+                            ##{fromSqlKey reqId}-withdrawal-id
                             type=hidden
-                            readonly=readonly
                             name="withdrawal-id"
-                            value="#{fromSqlKey eid}">
+                            value="#{fromSqlKey reqId}">
+                        <input
+                            ##{fromSqlKey reqId}-withdrawal-fee
+                            type=hidden
+                            name="withdrawal-fee"
+                            value="#{show (withdrawalRequestFrozenAmount - reqTransferAmount w r)}">
+                        <input
+                            ##{fromSqlKey reqId}-withdrawal-transfered
+                            type=hidden
+                            name="withdrawal-transfered"
+                            value="#{show (reqTransferAmount w r)}">
                     <div .modal-footer>
-                        <button type=button .btn.btn-secondary data-dismiss=modal>закрыть
-                        <button type=submit .btn.btn-primary>Подтвердить операцию
+                        <button type=submit .btn .btn-block .btn-lg .btn-primary .text-lowercase>
+                            _{MsgWithdrawalExecuted}
