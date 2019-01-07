@@ -8,3 +8,5 @@ ExpectedCalculation: Ожидаемый расчёт
 ActualCalculation: Расчёт по факту
 
 DespoitRequestAcceptFormStatsTitle: Расчёт заявки
+
+WithdrawalExecuted: Перевод выполнен
