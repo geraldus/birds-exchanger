@@ -50,7 +50,7 @@ dependencies:
 - HaskellNet-SSL
 - mime-mail
 - blaze-html
-- format-numbers
+- formatting
 
 default-extensions:
 - TemplateHaskell

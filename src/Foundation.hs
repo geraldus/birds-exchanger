@@ -24,8 +24,9 @@ import           Yesod.Form.I18n.Russian
 import           Control.Monad.Logger        ( LogSource )
 import qualified Data.CaseInsensitive        as CI
 import qualified Data.Text.Encoding          as TE
-import           Data.Text.Format.Numbers    ( PrettyCfg (..), prettyF )
 import           Database.Persist.Sql        ( ConnectionPool, runSqlPool )
+import           Formatting                  ( sformat )
+import qualified Formatting.Formatters       as F
 import           Text.Hamlet                 ( hamletFile )
 import           Text.Jasmine                ( minifym )
 
@@ -665,8 +666,6 @@ convertCents r a =
     let x = truncate $ fromIntegral a * r * fromIntegral oneCoinCents :: Int
     in truncate (fromIntegral x / fromIntegral oneCoinCents :: Double)
 
-dblCfg :: PrettyCfg
-dblCfg = PrettyCfg 2 (Just '\'') '.'
 
 cents2dblT :: Int -> Text
-cents2dblT n = prettyF dblCfg (fromIntegral n / 100)
+cents2dblT n = sformat (F.fixed 2) (fromIntegral n / fromIntegral oneCoinCents)
