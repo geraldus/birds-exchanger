@@ -65,9 +65,19 @@ postOperatorAcceptWithdrawalRequestR = do
             WithdrawalFee
     redirect OperatorWithdrawalRequestsListR
 
+renderReqAddress :: UserWallet -> WithdrawalRequest -> Html
+renderReqAddress w r
+    | userWalletCurrency w == CryptoC PZM = [shamlet|
+        <small>
+            <small>
+                #{adr}
+        |]
+    | otherwise = adr
+  where
+    adr = renderAddress (withdrawalRequestAddressee r)
 
-renderReqAddress :: Text -> Html
-renderReqAddress adr = preEscapedToHtml res
+renderAddress :: Text -> Html
+renderAddress adr = preEscapedToHtml res
   where
     adrs = T.lines adr
     res  = T.intercalate "<br>" adrs
