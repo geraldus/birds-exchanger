@@ -55,7 +55,6 @@ import           Handler.Client.Withdrawal
 import           Handler.Common
 import           Handler.Home
 import           Handler.Operator.AcceptDeposit
-import           Handler.Operator.Bids
 import           Handler.Operator.DepositRequestsList
 import           Handler.Operator.LogIn
 import           Handler.Operator.WithdrawalRequest
