@@ -1,0 +1,9 @@
+.request-list .request-data-row:hover > *
+    cursor: pointer
+    background-color: #007bff38
+
+.accept-btn, .accept-icon
+    opacity: 0
+
+.request-data-row:hover .accept-btn, .request-data-row:hover .accept-icon
+    opacity: 1

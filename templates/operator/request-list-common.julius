@@ -1,0 +1,15 @@
+$(document).ready(() => {
+    const rows = $('.request-data-row')
+    const links = $('.user-profile-link')
+
+    links.click((e) => {
+        e.preventDefault()
+        return false
+    })
+
+    rows.click((e) => {
+        const parentRow = $(e.target).parents('.request-data-row')
+        const modalId = parentRow.data('target')
+        $(modalId).modal('show')
+    })
+})
