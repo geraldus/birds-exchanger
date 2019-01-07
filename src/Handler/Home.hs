@@ -65,7 +65,7 @@ renderOrderCol title orders = [whamlet|
     <table .table .table-stripped>
         <thead>
             <tr>
-                <th>Цена
+                <th>Ставка
                 <th>Кол-во
                 <th>Сумма
         <tbody>
