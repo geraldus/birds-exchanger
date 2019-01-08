@@ -1,4 +1,6 @@
-{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes       #-}
+{-# LANGUAGE FlexibleContexts       #-}
 module Handler.Client.Orders where
 
 import           Import
@@ -22,12 +24,47 @@ getClientOrdersR = do
         [ ExchangeOrderUserId ==. clientId ]
         [ Desc ExchangeOrderCreated ]
     pageId <- newIdent
+    msgRender <- getMessageRender
+    urlRender <- getUrlRender
     defaultLayout $ do
         setTitleI MsgMyOrders
         $(widgetFile "client/orders/list")
 
-renderOrderTr :: TimeLocale -> Entity ExchangeOrder -> Html
-renderOrderTr l (Entity orderId order) = [shamlet|
+
+getClientOrderViewR :: ExchangeOrderId -> Handler Html
+getClientOrderViewR orderId = do
+    clientId <- requireClientId
+    order <- runDB $ get404 orderId
+    if exchangeOrderUserId order /= clientId
+        then do
+            setMessageI MsgCantViewThisOrder
+            redirect ClientOrdersR
+        else do
+            l <- selectLocale
+            let ExchangeOrder _  pair amount _alft ratioN ratio expectedFee created status isActivel _wtr = order
+                r = normalizeRatio ratioN pair ratio
+                expectedIn = convertCents r amount
+            operations <- runDB $
+                selectList
+                    [ ExchangeOrderExecutionOrderId ==. orderId ]
+                    [ Desc ExchangeOrderExecutionTime ]
+            let totalIncome = totalIncomeSum operations
+                totalFee = totalFeeSum operations
+            defaultLayout $ do
+                setTitleI MsgOrderView
+                $(widgetFile "client/orders/view")
+  where
+    totalIncomeSum = totalSum exchangeOrderExecutionIncomeAmountCents
+    totalFeeSum = totalSum exchangeOrderExecutionFeeCents
+    totalSum
+        :: (ExchangeOrderExecution -> Int)
+        -> [Entity ExchangeOrderExecution]
+        -> Int
+    totalSum prop = sum . map (prop . entityVal)
+
+
+renderOrderTr :: (AppMessage -> Text) -> (Route App -> Text) -> TimeLocale -> Entity ExchangeOrder -> Html
+renderOrderTr messageRender urlRender l (Entity orderId order) = [shamlet|
     <tr #order-data-#{fromSqlKey orderId} .data-row :isActive:.active :isExecuted:.executed>
         <td .text-muted .text-center>
             <small>#{renderDateTimeRow l (exchangeOrderCreated order)}
@@ -41,13 +78,18 @@ renderOrderTr l (Entity orderId order) = [shamlet|
                 #{renderOrderNRatioSign order}
         <td .text-center>
             #{renderOrderRemainderExecuted l order}
-        <td>
+        <td .controls>
+            <a href=#{urlRender (ClientOrderViewR orderId)}>
+                <i .control .fas .fa-info-circle title="#{messageRender MsgViewOrderHistory}">
+            $if isActive
+                <i .control .fas .fa-times-circle title="#{messageRender MsgCancelOrder}">
     |]
   where
     isActive = exchangeOrderIsActive order
     isExecuted = case exchangeOrderStatus order of
         Executed _ -> True
         _          -> False
+
 
 
 renderOrderExchange :: ExchangeOrder -> Html
@@ -102,3 +144,59 @@ renderOrderRemainderExecuted l order =
         |]
     left = exchangeOrderAmountLeft order
     pair = exchangeOrderPair order
+
+
+orderOperationTr :: ExchangePair -> Entity ExchangeOrderExecution -> Widget
+orderOperationTr pair (Entity _ op) = do
+    l <- liftHandler selectLocale
+    toWidget [whamlet|
+        <tr .data-row>
+            <td .text-center>
+                <small>#{renderDateTimeRow l (exchangeOrderExecutionTime op)}
+            <td>
+                <small>_{MsgExchange} #
+                <span>
+                    <big>#{cents2dblT transfered}#
+                    <small .text-muted>#{renderPairOut pair}
+                $if exchangeOrderExecutionFullyExecuted op
+                    <small> _{MsgOrderWasExecuted} #
+            <td .text-center .align-middle>
+                +#
+                <span>
+                    <big>#{cents2dblT (income - fee)}#
+                    <small .text-muted>#{renderPairIn pair}
+            <td .text-center .align-middle>
+                -#
+                <span>#{cents2dblT fee}
+                    <small .text-muted>#{renderPairIn pair}
+            |]
+    where
+        transfered = exchangeOrderExecutionTransferAmountCents op
+        income = exchangeOrderExecutionIncomeAmountCents op
+        fee = exchangeOrderExecutionFeeCents op
+
+orderStatus :: ExchangeOrderStatus -> Widget
+-- TODO: Generalize this
+orderStatus (Created time) = do
+    let desc = toWidget [whamlet|
+            _{MsgOrderIsNew}, #
+            <span .text-loweracase>_{MsgOrderWasCreated}
+            |]
+    orderStatus' MsgOrderIsActive desc time
+orderStatus (Executed time) = do
+    let desc = toWidget [whamlet|_{MsgOrderLastOperation}|]
+    orderStatus' MsgOrderExecuted desc time
+orderStatus (PartiallyExecuted time _) = do
+    let desc = toWidget [whamlet|_{MsgOrderLastOperation}|]
+    orderStatus' MsgOrderExecution desc time
+orderStatus' :: AppMessage -> Widget -> UTCTime -> Widget
+orderStatus' stName stDesc time = do
+    l <- liftHandler selectLocale
+    toWidget [whamlet|
+        <big .text-uppercase>_{stName}
+        <br>
+        <small .text-muted>
+            ^{stDesc}
+        <br>
+        <small>#{renderDateTimeRow l time}
+        |]

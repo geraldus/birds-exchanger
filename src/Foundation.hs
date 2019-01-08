@@ -24,7 +24,8 @@ import           Yesod.Form.I18n.Russian
 import           Control.Monad.Logger        ( LogSource )
 import qualified Data.CaseInsensitive        as CI
 import qualified Data.Text.Encoding          as TE
-import           Database.Persist.Sql        ( ConnectionPool, runSqlPool )
+import           Database.Persist.Sql        ( ConnectionPool, fromSqlKey,
+                                               runSqlPool )
 import           Formatting                  ( sformat )
 import qualified Formatting.Formatters       as F
 import           Text.Hamlet                 ( hamletFile )
@@ -250,7 +251,8 @@ instance Yesod App where
     -- the profile route requires that the user is authenticated, so we
     -- delegate to that function
     isAuthorized ProfileR _                        = isAuthenticated
-    isAuthorized ClientOrdersR _                        = isClientAuthenticated
+    isAuthorized ClientOrdersR _                   = isClientAuthenticated
+    isAuthorized (ClientOrderViewR _) _            = isClientAuthenticated
 
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
@@ -301,6 +303,8 @@ instance YesodBreadcrumbs App where
     breadcrumb SignUpR     = return ("Регистрация", Just HomeR)
     breadcrumb ProfileR    = return ("Портфель", Just HomeR)
     breadcrumb ClientOrdersR = return ("Мои ордера на обмен", Just HomeR)
+    breadcrumb (ClientOrderViewR oid) =
+        return ("Ордер #" <> pack (show (fromSqlKey oid)), Just ClientOrdersR)
     breadcrumb DepositR    = return ("Внесение средств", Just ProfileR)
     breadcrumb (DepositRequestConfirmationR _) =
         return ("Подтверждение", Just DepositR)

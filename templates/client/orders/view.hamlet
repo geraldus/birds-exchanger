@@ -1,0 +1,58 @@
+<div .row .my-4>
+    <div .col-2 .justify-content-center>
+        <big>
+            <big>
+                <b>#{renderPairOut pair}
+                <span>⇢
+                <b>#{renderPairIn pair}
+        <br>
+        <small>x#
+        <span .normalized-ratio>#{dbl2MoneyT ratio}
+            <small .text-muted>
+                #{renderPairOut pair}/#{renderPairIn pair}
+    <div .col-6 .justify-content-center>
+        <big>
+            <big>
+                #{cents2dblT amount}#
+                <small .text-muted>#{renderPairOut pair}
+                ⇢
+                #{cents2dblT totalIncome}#
+                <small .text-muted>#{renderPairIn pair}
+                / #{cents2dblT expectedIn}#
+                <small .text-muted>#{renderPairIn pair}
+        <br>
+        <small>
+            _{MsgFee}: #
+            <big>-#{cents2dblT totalFee}#
+            <small .text-muted>#{renderPairIn pair}
+            <span .text-lowercase>_{MsgOrderActualIncome}: #
+            <big>+#
+                <b>#{cents2dblT (totalIncome - totalFee)}#
+            <small>#{renderPairIn pair}
+    <div .col-3 .justify-content-center>
+        ^{orderStatus status}
+
+
+<h5>_{MsgOrderHistory}
+
+<table .table .table-striped>
+    <thead>
+        <tr .text-center>
+            <th>_{MsgDate}
+            <th>_{MsgEvent}
+            <th>_{MsgBalance}
+            <th>_{MsgFee}
+    <tbody>
+        $forall operation <- operations
+            ^{orderOperationTr pair operation}
+        <tr .data-row>
+            <td .text-center>
+                <small>#{renderDateTimeRow l created}
+            <td>
+                <small>_{MsgOrderCreated} #
+            <td .text-center>
+                -#
+                <span>
+                    <big>#{cents2dblT amount}#
+                    <small .text-muted>#{renderPairOut pair}
+            <td .text-center>

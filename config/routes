@@ -23,6 +23,7 @@
 -- /profile/deposit/create-request              DepositCreateRequestR        POST
 
 /client/orders                               ClientOrdersR                GET
+/client/order/#ExchangeOrderId               ClientOrderViewR             GET
 
 /operator/login                      OperatorLogInR  GET
 /operator/deposit-requests-list      OperatorDepositRequestsListR      GET
