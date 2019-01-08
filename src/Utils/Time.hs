@@ -50,7 +50,7 @@ ruTimeLocale = TimeLocale
                        ]
     , amPm           = ("ДП", "ПП")
     , dateTimeFmt    = "%a, %e %b %Y %H:%M:%S %Z"
-    , dateFmt        = "%d.%m.%y"
+    , dateFmt        = "%d.%m.%Y"
     , timeFmt        = "%H:%M:%S"
     , time12Fmt      = "%I:%M:%S %p"
     , knownTimeZones = [ TimeZone 0         False "UT"
