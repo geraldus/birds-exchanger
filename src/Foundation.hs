@@ -674,4 +674,7 @@ convertCents r a =
 
 
 cents2dblT :: Int -> Text
-cents2dblT n = sformat (F.fixed 2) (fromIntegral n / fromIntegral oneCoinCents)
+cents2dblT n = dbl2MoneyT (fromIntegral n / fromIntegral oneCoinCents)
+
+dbl2MoneyT :: Double -> Text
+dbl2MoneyT = sformat (F.fixed (2 :: Int))
