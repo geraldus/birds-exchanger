@@ -1,17 +1,43 @@
 User: Пользователь
 
+Date: Дата
+DateCreated: Дата создания
+
 MyOrders: Мои ордера
+OrderView: Просмотр ордера
+OrderHistory: История ордера
+OrderCreated: Создание ордера
+OrderWasExecuted: Закрытие ордера
+OrderIsNew: Новый
+OrderWasCreated: Создан
+OrderIsActive: Активен
+OrderCancelled: Отменён
+OrderClosed: Закрыт
+OrderExecuted: Исполнен
+OrderExecution: Исполняется
+OrderLastOperation: Последняя операция
+OrderActualIncome: С учётом сборов
+
+Balance: Баланс
+Event: Событие
+Exchange: Обмен
 Execute: Исполнить
 Executed: Исполнено
+Fee: Сервисный сбор
 IExchange: Обмениваю
-Recieved: Получено
-Remainder: Остаток
 Rate: Ставка
+Received: Получено
+Remainder: Остаток
+
 AllOrders: Все ордера
 ActiveOrders: Активные
 ExecutedOrders: Выполненые
 
-DateCreated: Дата создания
+CantViewThisOrder: Невозможно отобразить данные ордера
+ViewOrderHistory: Показать историю ордера
+
+CancelOrder: Отменить ордер
+
 
 ProcessRequest: Обработать запрос
 TransferMethod: Способ перевода
