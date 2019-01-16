@@ -504,7 +504,7 @@ maybeClient = do
         Just (Left uid, Left user) -> case userRole user of
             Client -> do
                 wallets <- mapM (getOrCreateWallet uid) defaultWalletCurrencies
-                return $ Just ((Entity uid user), wallets)
+                return $ Just (Entity uid user, wallets)
             _ -> return Nothing
         _ -> return Nothing
 
