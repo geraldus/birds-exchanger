@@ -51,6 +51,7 @@ dependencies:
 - mime-mail
 - blaze-html
 - formatting
+- extra
 
 default-extensions:
 - TemplateHaskell
