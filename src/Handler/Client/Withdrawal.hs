@@ -58,7 +58,7 @@ postWithdrawalCreateR = do
                             Nothing
                     let transaction = WalletBalanceTransaction
                             wid
-                            (BalanceWithdrawal amount2Freeze)
+                            (BalanceWithdrawal (negate amount2Freeze))
                             reasonId
                             walletCents
                             time
