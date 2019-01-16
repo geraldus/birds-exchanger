@@ -1,10 +1,10 @@
-{-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes       #-}
 module Local.Persist.Currency where
 
-import           Database.Persist.TH
 import           ClassyPrelude.Yesod
-import           Text.Read                      ( readMaybe )
+import           Database.Persist.TH
+import           Text.Read           ( readMaybe )
 
 
 data CurrencyType
@@ -68,6 +68,10 @@ currSign :: Currency -> Text
 currSign (FiatC   USD) = "$"
 currSign (FiatC   RUR) = "₽"
 currSign (CryptoC c  ) = cCurrencyCodeT c
+
+currencyCodeT :: Currency -> Text
+currencyCodeT (FiatC c)   = fCurrencyCodeT c
+currencyCodeT (CryptoC c) = cCurrencyCodeT c
 
 
 data FiatTransferMethod
