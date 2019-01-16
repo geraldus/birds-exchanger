@@ -15,6 +15,12 @@
 
 
     <h2 .mt-3>История движения средств
+    <table .table .table-striped>
+        <thead>
+        <tbody>
+            $forall (op, Single c, Entity _ reason) <- ops
+                ^{transactionTr op c depositOps withdrawalOps exchangeOrderOps exchangeExectutionOps}
+
     $forall (Entity _ op) <- walletOps
         <div .balance-operation-data>
             $case (walletBalanceTransactionType op)
