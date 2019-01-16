@@ -188,7 +188,7 @@ orderStatus (Executed time) = do
     orderStatus' MsgOrderExecuted desc time
 orderStatus (PartiallyExecuted time _) = do
     let desc = toWidget [whamlet|_{MsgOrderLastOperation}|]
-    orderStatus' MsgOrderExecution desc time
+    orderStatus' MsgOrderStatusExecution desc time
 orderStatus' :: AppMessage -> Widget -> UTCTime -> Widget
 orderStatus' stName stDesc time = do
     l <- liftHandler selectLocale

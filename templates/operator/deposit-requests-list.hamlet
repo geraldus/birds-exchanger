@@ -87,7 +87,7 @@ $forall ((Entity reqId req@DepositRequest{..}), _, Entity _ User{..}) <- list
                                 placeholder="0.00" >
                         <div .form-group>
                             <input .request-fee-val type=hidden value="#{renderReqFeeAsDbl req}">
-                            <p .h5 .text-center .text-muted>_{MsgDespoitRequestAcceptFormStatsTitle}
+                            <p .h5 .text-center .text-muted>_{MsgDepositRequestAcceptFormStatsTitle}
                             <p .h5>
                                 <small>
                                     _{MsgActualCalculation}
