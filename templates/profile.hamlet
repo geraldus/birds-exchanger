@@ -20,22 +20,3 @@
         <tbody>
             $forall (op, Single c, Entity _ reason) <- ops
                 ^{transactionTr op c depositOps withdrawalOps exchangeOrderOps exchangeExectutionOps}
-
-    $forall (Entity _ op) <- walletOps
-        <div .balance-operation-data>
-            $case (walletBalanceTransactionType op)
-                $of ExchangeFreeze amt
-                    Создание ордера #
-                    <span .value.negative>#{cents2dblT amt}#
-                    \&nbsp;<span .currency>#{currSign (findWalletCurrency (walletBalanceTransactionWalletId op))}
-                $of ExchangeExchange amt
-                    Исполнение ордера на обмен #
-                    <span .value.positive>#{cents2dblT amt}#
-                    \&nbsp;<span .currency>#{currSign (findWalletCurrency (walletBalanceTransactionWalletId op))}
-                $of BalanceWithdrawal amt
-                    Вывод средств #
-                    <span .value.negative>#{cents2dblT amt}#
-                    \&nbsp;<span .currency>#{currSign (findWalletCurrency (walletBalanceTransactionWalletId op))}
-                $of t
-                    #{show t}
-
