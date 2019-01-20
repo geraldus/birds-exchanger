@@ -11,6 +11,7 @@ import           Utils.Time             ( renderDateTimeRow )
 import           Data.Maybe             ( fromJust )
 import           Data.Tuple.Extra       ( fst3, thd3 )
 import           Database.Persist.Sql   ( Single (..), fromSqlKey, rawSql )
+import           Text.Julius            ( RawJS (..) )
 
 
 getProfileR :: Handler Html
@@ -48,7 +49,7 @@ getProfileR = do
     runDB $ mapM_ (\(Entity wbtid wbt) -> do
                 let amt = case walletBalanceTransactionType wbt of
                             BalanceWithdrawal c -> negate c
-                            _ -> error "Shouldn't be"
+                            _                   -> error "Shouldn't be"
                 update wbtid [ WalletBalanceTransactionType =. BalanceWithdrawal amt ])
         targets
 
@@ -56,6 +57,8 @@ getProfileR = do
             :: Handler [ Entity ExchangeOrder ]
     exchangeExectutionOps <- runDB $ rawSql (ees . pack $ reasonIds') []
             :: Handler [ Entity ExchangeOrderExecution ]
+
+    dataTableId <- newIdent
 
     defaultLayout $ do
         setTitle . toHtml $ "Мой портфель | " <> userName
@@ -85,7 +88,7 @@ getProfileR = do
         \ WHERE exchange_order_execution.in_wallet_transaction_reason_id IN (" <> _in <>")"
     isPosWithdrawal wbt = case walletBalanceTransactionType wbt of
         BalanceWithdrawal c -> c > 0
-        _ -> False
+        _                   -> False
 
 
 
@@ -101,7 +104,7 @@ transactionTr (Entity wbtId wbt) wbtCurrency drsAdrs wrsAwrs eos ees = do
     l <- liftHandler selectLocale
     let timeT = renderDateTimeRow l
     toWidget [whamlet|
-        <tr #data-row-#{fromSqlKey wbtId} .data-row .deposit .#{wbtCC}>
+        <tr #data-row-#{fromSqlKey wbtId} .data-row .deposit .#{wbtCC} .#{trType}>
             <td .text-muted>
                 <small>
                     <small>
@@ -118,6 +121,12 @@ transactionTr (Entity wbtId wbt) wbtCurrency drsAdrs wrsAwrs eos ees = do
         ExchangeFreeze cents -> orderCreationDesc wbt cents wbtCurrency eos
         ExchangeExchange cents -> orderExecutionDesc wbt cents wbtCurrency ees
         _ -> toWidget (mempty :: Html)
+    trType = case wbtType of
+        BalanceDeposit _    -> "deposit" :: Html
+        BalanceWithdrawal _ -> "withdrawal" :: Html
+        ExchangeFreeze _    -> "exchange-freeze" :: Html
+        ExchangeExchange _  -> "exchange-exchange" :: Html
+        _                   -> mempty :: Html
 
 depositDesc
     :: WalletBalanceTransaction
@@ -134,7 +143,7 @@ depositDesc wbt cents c rsAws = toWidget
             $maybe eRequest <- mDepositRequestE
                 <span>: #
                 <a href="#" title="_{MsgViewRequestDetails}">
-                    \_{MsgRequest} ##_{requestIdStr eRequest}
+                    \_{MsgRequest} ##{requestIdStr eRequest}
         |]
   where
     reason = walletBalanceTransactionWalletTransactionReasonId wbt
@@ -150,17 +159,18 @@ withdrawalDesc
     -> Currency
     -> [ (Entity WithdrawalRequest, Entity WithdrawalAccept) ]
     -> Widget
-withdrawalDesc wbt cents c rsAs = toWidget
-    [whamlet|
-        <td>
-            #{renderAmount cents c}#
-        <td>
-            <span>_{MsgBalanceWithdrawal}#
-            $maybe eRequest <- mRequestE
-                <span>: #
-                <a href="#" title="_{MsgViewRequestDetails}">
-                    \_{MsgRequest} ##{requestIdStr eRequest}
-        |]
+withdrawalDesc wbt cents c rsAs =
+    toWidget
+        [whamlet|
+            <td>
+                #{renderAmount cents c}#
+            <td>
+                <span>_{MsgBalanceWithdrawal}#
+                $maybe eRequest <- mRequestE
+                    <span>: #
+                    <a href="#" title="_{MsgViewRequestDetails}">
+                        \_{MsgRequest} ##{requestIdStr eRequest}
+            |]
   where
     reason = walletBalanceTransactionWalletTransactionReasonId wbt
     mbRsAs = find (\(Entity _ wr, _) -> withdrawalRequestWalletTransactionReasonId wr == reason) rsAs

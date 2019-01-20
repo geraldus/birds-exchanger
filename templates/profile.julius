@@ -1,10 +1,29 @@
 $(document).ready(() => {
-    $('#wallets-view a.nav-link')
-        .first()
-        .addClass('active')
-    $('#pills-tabContent .tab-pane')
-        .first()
-        .addClass('show')
-        .addClass('active')
+    const navLinks = $('#wallets-view a.nav-link')
+    const table = $('##{rawJS dataTableId}')
 
+    const updateCurrencyFilter = (e) => {
+        e.preventDefault()
+        const selected = $(e.currentTarget)
+
+        $('#wallets-view a.nav-link.active').removeClass('active')
+        selected.addClass('active')
+        console.log(table)
+        let allTrs = $('.data-row', table)
+        allTrs.show()
+        console.log(allTrs)
+
+        const curr = selected.data('filter') || 'all'
+        if (curr != 'all') {
+            filteredTrs = $('.data-row:not(.' + curr + ')', table)
+            console.log(filteredTrs)
+            filteredTrs.hide()
+        }
+        console.log(curr)
+    }
+
+    navLinks
+        .click(updateCurrencyFilter)
+        .first()
+        .addClass('active')
 })

@@ -1,21 +1,21 @@
 <div .ui.container>
-    <ul #wallets-view .nav.nav-pills .mt-3>
+    <ul #wallets-view .nav.nav-pills .mt-3 .justify-content-center>
+        <li .nav-item>
+            <a #pills-all-tab .nav-link
+                href="#"
+                role="tab"
+                aria-selected="true">_{MsgAll}
         $forall wallet <- walletVals
-            <li .nav-item>
+            <li .nav-item .#{toLower (currencyCodeT (userWalletCurrency wallet))}-filter>
                 <a #pills-#{userWalletWalletId wallet}-tab .nav-link
+                    data-filter="#{toLower (currencyCodeT (userWalletCurrency wallet))}"
                     href="#"
-                    data-toggle="pill"
-                    href="#pills-#{userWalletWalletId wallet}"
                     role="tab"
-                    aria-controls="pills-#{userWalletWalletId wallet}"
-                    aria-selected="true">#{currSign (userWalletCurrency wallet)}
-        <div #pills-tabContent .tab-content>
-            $forall wallet <- walletVals
-                <div .tab-pane.fade #pills-#{userWalletWalletId wallet} role="tabpanel" aria-labelledby="pills-#{userWalletWalletId wallet}-tab">...
+                    aria-selected="false">#{currSign (userWalletCurrency wallet)}
 
 
     <h2 .mt-3>История движения средств
-    <table .table .table-striped>
+    <table ##{dataTableId} .table .table-striped>
         <thead>
         <tbody>
             $forall (op, Single c, Entity _ reason) <- ops
