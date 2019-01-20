@@ -1,5 +1,7 @@
 User: Пользователь
 
+All: Все
+
 Date: Дата
 DateCreated: Дата создания
 
