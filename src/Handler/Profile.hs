@@ -40,23 +40,30 @@ getProfileR = do
     let reasonIds :: [WalletTransactionReasonId]
         reasonIds = map (entityKey . thd3) operations
         reasonIds' = intercalate "," $ map (show . fromSqlKey) reasonIds
-    depositOps <- runDB $ rawSql (ds . pack $ reasonIds') []
-            :: Handler [ (Entity DepositRequest, Entity AcceptedDeposit) ]
+    (depositOps, withdrawalOps, exchangeOrderOps, exchangeExecutionOps) <-
+        case reasonIds of
+            [] -> pure ([], [], [], [])
+            _ -> do
+                dos <- runDB $ rawSql (ds . pack $ reasonIds') []
+                    :: Handler [ (Entity DepositRequest, Entity AcceptedDeposit) ]
 
-    withdrawalOps <- runDB $ rawSql (ws . pack $ reasonIds') []
-            :: Handler [ (Entity WithdrawalRequest, Entity WithdrawalAccept) ]
-    let targets = filter (\(Entity _ wbt) -> isPosWithdrawal wbt) (map fst3 ops)
-    runDB $ mapM_ (\(Entity wbtid wbt) -> do
-                let amt = case walletBalanceTransactionType wbt of
-                            BalanceWithdrawal c -> negate c
-                            _                   -> error "Shouldn't be"
-                update wbtid [ WalletBalanceTransactionType =. BalanceWithdrawal amt ])
-        targets
+                wos <- runDB $ rawSql (ws . pack $ reasonIds') []
+                    :: Handler [ (Entity WithdrawalRequest, Entity WithdrawalAccept) ]
+                -- let targets = filter
+                --         (\(Entity _ wbt) -> isPosWithdrawal wbt)
+                --         (map fst3 ops)
+                -- runDB $ mapM_ (\(Entity wbtid wbt) -> do
+                --     let amt = case walletBalanceTransactionType wbt of
+                --                 BalanceWithdrawal c -> negate c
+                --                 _                   -> error "Shouldn't be"
+                --     update wbtid [ WalletBalanceTransactionType =. BalanceWithdrawal amt ])
+                --     targets
 
-    exchangeOrderOps <- runDB $ rawSql (eos . pack $ reasonIds') []
-            :: Handler [ Entity ExchangeOrder ]
-    exchangeExectutionOps <- runDB $ rawSql (ees . pack $ reasonIds') []
-            :: Handler [ Entity ExchangeOrderExecution ]
+                eoos <- runDB $ rawSql (eos . pack $ reasonIds') []
+                    :: Handler [ Entity ExchangeOrder ]
+                eeos <- runDB $ rawSql (ees . pack $ reasonIds') []
+                    :: Handler [ Entity ExchangeOrderExecution ]
+                return (dos, wos, eoos, eeos)
 
     dataTableId <- newIdent
 
