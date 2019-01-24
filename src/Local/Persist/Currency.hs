@@ -3,7 +3,6 @@
 module Local.Persist.Currency where
 
 import           ClassyPrelude.Yesod
-import           Database.Persist.TH
 import           Text.Read           ( readMaybe )
 
 
