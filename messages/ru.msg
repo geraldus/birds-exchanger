@@ -1,6 +1,7 @@
 User: Пользователь
 
 All: Все
+NoOperationsYet: Операций не было
 
 Date: Дата
 DateCreated: Дата создания
