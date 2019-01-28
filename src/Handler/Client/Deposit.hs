@@ -171,6 +171,8 @@ depositHistoryRow (Entity ident request@DepositRequest{..}) aos = do
                             $of Just (Entity _ a)
                                 <br>
                                     <small .text-muted>
-                                        #{renderDateTimeRow l (acceptedDepositAccepted a)}|]
+                                        #{renderDateTimeRow l (acceptedDepositAccepted a)}
+                            $of Nothing
+                                |]
             x -> [whamlet|#{show x}|]
         byIdent (Entity _ a) = ident == acceptedDepositDepositRequestId a
