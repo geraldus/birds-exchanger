@@ -5,6 +5,7 @@ NoOperationsYet: Операций не было
 
 Date: Дата
 DateCreated: Дата создания
+Details: Подробности
 
 Order: Ордер
 MyOrders: Мои ордера
@@ -43,6 +44,13 @@ Remainder: Остаток
 
 Request: Заявка
 BalanceDeposit: Пополнение счёта
+DepositAmount: Сумма
+DepositRealAmount: К зачислению
+DepositConfirmTransfer: Подтвердить перевод
+AwaitingConfirmation: Ожидает подтверждения
+DepositConfirmed: Подтверждён
+DepositExecuted: Средства зачислены
+AwaitingExecution: Ожидает исполнения
 BalanceWithdrawal: Вывод средств
 ViewRequestDetails: Просмотр подробностей заявки
 
@@ -60,3 +68,10 @@ ActualCalculation: Расчёт по факту
 DepositRequestAcceptFormStatsTitle: Расчёт заявки
 
 WithdrawalExecuted: Перевод выполнен
+
+TMSberBankCard2Card: СберБанк
+TMTinkoffBankCard2Card: Тинькофф Банк
+TMAlphaBankCard2Card: Альфа Банк
+TMPayPalTransfer: PayPal
+TMQiwi: Qiwi кошелёк
+TMCryptoTransfer: Перевод
