@@ -1,13 +1,19 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes       #-}
+{-# LANGUAGE RecordWildCards   #-}
 module Handler.Client.Withdrawal where
 
-import           Form.Profile.Withdrawal
 import           Import
+
+import           Form.Profile.Withdrawal
+import           Local.Persist.Currency  ( currSign )
 import           Local.Persist.Wallet
 import           Type.Money              ( Money (..) )
 import           Type.Withdrawal
+import           Utils.I18n
+import           Utils.Time              ( renderDateTimeRow )
 
+import           Database.Persist.Sql    ( fromSqlKey )
 
 
 getWithdrawalR :: Handler Html
@@ -82,4 +88,105 @@ defaultWidget formId widget enctype mayError = [whamlet|
         ^{widget}
         <div .form-group .row .justify-content-center>
             <button .btn.btn-lg.btn-outline-primary .mt-2 type=submit>вывод
+    ^{withdrawalHistory}
     |]
+
+withdrawalHistory :: Widget
+withdrawalHistory = do
+    (_, wallets) <- handlerToWidget requireClientData
+    let walletIds = map entityKey wallets
+    withdrawalOps <- handlerToWidget . runDB $ selectList [ WithdrawalRequestWalletId <-. walletIds ] [ ]
+    let withdrawalIds = map entityKey withdrawalOps
+    acceptedOps <- handlerToWidget . runDB $ selectList [ WithdrawalAcceptRequestId <-. withdrawalIds ] [ ]
+    toWidget [whamlet|
+        <table .table .table-striped .mt-5>
+            <thead .thead-light>
+                <th .align-top>_{MsgDateCreated}
+                <th .align-top>
+                    _{MsgDepositAmount}
+                    <br>
+                    <small .text-muted>
+                        _{MsgTransferMethod}
+                <th .align-top>
+                    _{MsgFee}
+                <th .align-top>
+                    _{MsgDetails}
+            <tbody>
+                $forall op <- withdrawalOps
+                    ^{withdrawalHistoryRow op acceptedOps}
+        |]
+
+
+withdrawalHistoryRow :: Entity WithdrawalRequest -> [ Entity WithdrawalAccept ] -> Widget
+withdrawalHistoryRow (Entity ident request@WithdrawalRequest{..}) aos = do
+    l <- handlerToWidget selectLocale
+    wallet <- handlerToWidget . runDB $ get404 withdrawalRequestWalletId
+    let ew = Entity withdrawalRequestWalletId wallet
+    toWidget [whamlet|
+        <tr .data-row #data-row-#{fromSqlKey ident}>
+            <td>
+                <small .text-muted>
+                    #{renderDateTimeRow l withdrawalRequestCreated}
+            <td .align-middle>
+                #{cents2dblT withdrawalRequestCentsAmount}#
+                <small .text-muted>
+                    #{currSign (userWalletCurrency wallet)}
+                <br>
+                <small .text-muted>
+                    _{transferMethodMsg withdrawalRequestMethod}
+            <td .align-middle>
+                ^{renderExpected ew}
+            <td .align-middle>
+                ^{renderStatus}
+        |]
+    where
+        renderExpected :: Entity UserWallet -> Widget
+        renderExpected ew = case find byIdent aos of
+            Nothing -> do
+                let expectedCents = withdrawalRequestCentsAmount - withdrawalRequestFeeAmount
+                    feeSign = if withdrawalRequestFeeAmount == 0 then "" else "-" :: String
+                [whamlet|
+                    <big>
+                        <b>
+                            #{cents2dblT expectedCents}#
+                        <small .text-muted>
+                            #{currSign (userWalletCurrency (entityVal ew))}
+                    <br>
+                    <small .text-muted>
+                        #{feeSign}#{cents2dblT withdrawalRequestFeeAmount}#
+                        <small>
+                            #{currSign (userWalletCurrency (entityVal ew))}
+                    |]
+            Just (Entity _ a) -> do
+                let expectedCents = withdrawalAcceptAmountTransfered a - withdrawalAcceptActualFee a
+                    feeSign = if withdrawalAcceptActualFee a == 0 then "" else "-" :: String
+                [whamlet|
+                    <big>
+                        <b>
+                            #{cents2dblT expectedCents}#
+                        <small .text-muted>
+                            #{currSign (userWalletCurrency (entityVal ew))}
+                    <br>
+                    <small .text-muted>
+                        #{feeSign}#{cents2dblT (withdrawalAcceptActualFee a)}#
+                        <small>
+                            #{currSign (userWalletCurrency (entityVal ew))}
+                        \ (по факту)
+                    |]
+        renderStatus :: Widget
+        renderStatus = case withdrawalRequestAccepted of
+            Nothing -> [whamlet|_{MsgAwaitingExecution}|]
+            Just executed -> do
+                l <- handlerToWidget selectLocale
+                [whamlet|
+                    <p .text-uppercase>
+                        _{MsgDepositExecuted}
+                        <br>
+                        <small .text-muted>
+                            $case withdrawalRequestAccepted
+                                $of Just time
+                                    #{renderDateTimeRow l time}
+                                $of Nothing
+                                    |]
+            x -> [whamlet|#{show x}|]
+        byIdent (Entity _ a) = ident == withdrawalAcceptRequestId a
