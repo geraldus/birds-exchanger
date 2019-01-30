@@ -95,8 +95,6 @@ depositHistory = do
 depositHistoryRow :: Entity DepositRequest -> [ Entity AcceptedDeposit ] -> Widget
 depositHistoryRow (Entity ident request@DepositRequest{..}) aos = do
     l <- handlerToWidget selectLocale
-    let expectedCents = depositRequestCentsAmount - depositRequestExpectedFeeCents
-        feeSign = if depositRequestExpectedFeeCents == 0 then "" else "-" :: String
     toWidget [whamlet|
         <tr .data-row #data-row-#{fromSqlKey ident}>
             <td>
@@ -143,7 +141,7 @@ depositHistoryRow (Entity ident request@DepositRequest{..}) aos = do
                             #{currSign depositRequestCurrency}
                     <br>
                     <small .text-muted>
-                        #{feeSign}#{cents2dblT depositRequestExpectedFeeCents}#
+                        #{feeSign}#{cents2dblT (acceptedDepositCentsActualFee a)}#
                         <small>
                             #{currSign depositRequestCurrency}
                         \ (по факту)
