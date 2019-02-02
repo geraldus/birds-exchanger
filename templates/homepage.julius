@@ -1,6 +1,16 @@
 const init = () => {
-    const cbr_tree = $($('#cbr').text())
-    const btca_tree = $($('#btca').text())
+    const cbr_tree = $(
+        $('#cbr')
+            .text()
+            .replace(/<img.*?>/gm, '')
+            .replace(/<script.*?<\/script>/gm, '')
+            .replace(/<style.*?<\/style>/gm, ''))
+    const btca_tree = $(
+        $('#btca')
+            .text()
+            .replace(/<img.*?>/gm, '')
+            .replace(/<script.*?<\/script>/gm, '')
+            .replace(/<style.*?<\/style>/gm, ''))
     $('#rateData').remove()
     const cbr_data = $('#group_mainind .name_exchange.opened .w_data_wrap', cbr_tree).first()
     const cbr_nodes = getTextNodesIn(cbr_data)
