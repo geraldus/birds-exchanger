@@ -1,5 +1,5 @@
 name:    prizm-exchange
-version: "0.4.22"
+version: "0.4.23"
 
 dependencies:
 
@@ -36,22 +36,24 @@ dependencies:
 - monad-logger >=0.3 && <0.4
 - fast-logger >=2.2 && <2.5
 - wai-logger >=2.2 && <2.4
-- file-embed
-- safe
-- unordered-containers
-- containers
-- vector
-- time
+- blaze-html
 - case-insensitive
-- wai
+- containers
+- extra
+- file-embed
 - foreign-store
-- nonce
+- formatting
 - HaskellNet
 - HaskellNet-SSL
+- http-client
+- http-client-tls
 - mime-mail
-- blaze-html
-- formatting
-- extra
+- nonce
+- safe
+- time
+- unordered-containers
+- vector
+- wai
 
 default-extensions:
 - TemplateHaskell
