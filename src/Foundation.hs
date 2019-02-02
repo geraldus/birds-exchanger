@@ -207,7 +207,9 @@ instance Yesod App where
 
         navWalletDropdownId <- newIdent
         navUserDropdownId <- newIdent
-        pc <- widgetToPageContent $(widgetFile "default-layout")
+        pc <- widgetToPageContent $ do
+            $(widgetFile "form/common")
+            $(widgetFile "default-layout")
         withUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
         where
             isClientUser (Just (_, Left u)) = userRole u == Client
