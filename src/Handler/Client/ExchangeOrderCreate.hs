@@ -19,7 +19,8 @@ import           Data.Maybe                  ( fromJust )
 postExchangeOrderCreateR :: Handler Html
 postExchangeOrderCreateR = do
     clientId <- requireClientId
-    ((res, _), _) <- runFormPost $ createOrderForm ExchangePzmRur
+    ratioIdent <- newIdent
+    ((res, _), _) <- runFormPost $ createOrderForm ratioIdent ExchangePzmRur
     $(logInfo) $ pack . show $ res
     case res of
         FormFailure es -> defaultLayout $ do

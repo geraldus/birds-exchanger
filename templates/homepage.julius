@@ -1,0 +1,32 @@
+const init = () => {
+    const cbr_tree = $($('#cbr').text())
+    const btca_tree = $($('#btca').text())
+    $('#rateData').remove()
+    const cbr_data = $('#group_mainind .name_exchange.opened .w_data_wrap', cbr_tree).first()
+    const cbr_nodes = getTextNodesIn(cbr_data)
+    const cbr_rate = parseFloat($(cbr_nodes[cbr_nodes.length - 1]).text().replace(',', '.'))
+    const btca_data = $('#pair_PZM_USD .markets-col-price', btca_tree).text()
+    const btca_rate = parseFloat(btca_data)
+    const rateInput = $('##{rawJS ratioId}')
+    rateInput.attr('placeholder', (cbr_rate * btca_rate).toFixed(2))
+}
+
+const getTextNodesIn = (n, includeWhitespaceNodes) => {
+    const node = n[0]
+    var textNodes = [], nonWhitespaceMatcher = /\S/
+    const getTextNodes = (node) => {
+        if (node.nodeType == 3) {
+            if (includeWhitespaceNodes || nonWhitespaceMatcher.test(node.nodeValue)) {
+                textNodes.push(node)
+            }
+        } else {
+            for (var i = 0, len = node.childNodes.length; i < len; ++i) {
+                getTextNodes(node.childNodes[i])
+            }
+        }
+    }
+    getTextNodes(node)
+    return textNodes
+}
+
+$(document).ready(init)

@@ -13,12 +13,11 @@ import           Type.Money                     ( oneCoinCents )
 import           Text.Julius                    ( RawJS(..) )
 
 
-createOrderForm :: ExchangePair -> Form OrderFD
-createOrderForm defaultPair extra = do
+createOrderForm :: Text -> ExchangePair -> Form OrderFD
+createOrderForm ratid defaultPair extra = do
     wrapid                  <- newIdent
     actid                   <- newIdent
     amtid                   <- newIdent
-    ratid                   <- newIdent
     sumid                   <- newIdent
     feeid                   <- newIdent
     pairid                  <- newIdent

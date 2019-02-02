@@ -6,10 +6,15 @@
 {-# LANGUAGE TypeFamilies          #-}
 module Handler.Home where
 
-import           Import
+import           Import hiding (httpLbs, decodeUtf8)
 
 import           Form.Exchanger.Order
 import           Local.Persist.ExchangeOrder ( ExchangePair (..) )
+
+import           Network.HTTP.Client.TLS
+import           Network.HTTP.Client.Internal
+import Data.Text.Lazy.Encoding (decodeUtf8)
+import           Text.Julius                    ( RawJS(..) )
 
 
 -- Define our data that will be used for creating the form.
@@ -27,19 +32,29 @@ data FileForm = FileForm
 -- inclined, or create a single monolithic file.
 getHomeR :: Handler Html
 getHomeR = do
-    (mmsg, mayClientUser, orderCreateFormW, (pzmRurOrders, rurPzmOrders)) <- getData
+    ratioId <- newIdent
+    (mmsg, mayClientUser, orderCreateFormW, (pzmRurOrders, rurPzmOrders)) <- getData ratioId
+    (btcARes, cbrRes) <- runResourceT $ liftIO $ do
+        manager <- newTlsManager
+        btcAReq <- parseRequest "https://btc-alpha.com/exchange/PZM_USD"
+        cbrReq <- parseRequest "http://cbr.ru"
+        btcARes <- httpLbs btcAReq manager
+        cbrRes <- httpLbs cbrReq manager
+        return (rbt btcARes, rbt cbrRes)
     defaultLayout $ do
         setTitle "(!) обменный пункт OutBirds"
         $(widgetFile "homepage")
+  where
+    rbt = decodeUtf8 . responseBody
 
-getData :: HandlerFor App (Maybe Html, Maybe (Key User), Widget,
+getData :: Text -> HandlerFor App (Maybe Html, Maybe (Key User), Widget,
         ([Entity ExchangeOrder], [Entity ExchangeOrder]))
-getData = do
+getData ratioId = do
     mUser <- maybeClientUser
     (,,,)
         <$> getMessage
         <*> pure mUser
-        <*> fmap fst (generateFormPost (createOrderForm ExchangePzmRur))
+        <*> fmap fst (generateFormPost (createOrderForm ratioId ExchangePzmRur))
         <*> getActiveOrders mUser
 
 maybeClientUser :: HandlerFor App (Maybe (Key User))

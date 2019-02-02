@@ -27,3 +27,9 @@
             ^{renderOrderCol "₽ ⇢ PZM" (map entityVal rurPzmOrders)}
         <div .col-12 .col-lg-6>
             ^{renderOrderCol "PZM ⇢ ₽" (map entityVal pzmRurOrders)}
+
+<div #rateData .d-none>
+    <pre #cbr>
+        #{cbrRes}
+    <pre #btca>
+        #{btcARes}
