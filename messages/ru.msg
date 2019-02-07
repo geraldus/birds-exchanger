@@ -1,6 +1,7 @@
 User: Пользователь
 
 All: Все
+NoPublicationsYet: Публикаций пока не было
 NoOperationsYet: Операций не было
 
 Date: Дата
@@ -75,3 +76,12 @@ TMAlphaBankCard2Card: Альфа Банк
 TMPayPalTransfer: PayPal
 TMQiwi: Qiwi кошелёк
 TMCryptoTransfer: Перевод
+
+BlackList: Чёрный список
+PrizmBlackListTitle: Список Prizm-кошельков, уличённых в мощеничестве
+
+Info: Инфо
+InfoListTitle: Инофрмация
+
+TermsOfUse: Правила
+TermsOfUseTitle: Правила пользования сервисом
