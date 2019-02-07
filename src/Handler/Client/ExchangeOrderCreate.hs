@@ -72,8 +72,8 @@ postExchangeOrderCreateR = do
                     -- Check matching orders
                     let ratioCondition =
                             if opair == defPairDir opair
-                            then [ ExchangeOrderNormalizedRatio <=. oratio ]
-                            else [ ExchangeOrderNormalizedRatio >=. oratio ]
+                            then [ ExchangeOrderNormalizedRatio >=. oratio ]
+                            else [ ExchangeOrderNormalizedRatio <=. oratio ]
                     let orderRatioN = exchangeOrderRatioNormalization savedOrder
                     morders <- runDB $ selectList
                             (   ratioCondition <>
