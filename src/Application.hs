@@ -48,6 +48,7 @@ import           System.Log.FastLogger                ( defaultBufSize,
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
 import           Handler.Admin.LogIn
+import           Handler.BlackList
 import           Handler.Client.Deposit
 import           Handler.Client.DepositConfirm
 import           Handler.Client.ExchangeOrderCreate
@@ -55,6 +56,7 @@ import           Handler.Client.Withdrawal
 import           Handler.Client.Orders
 import           Handler.Common
 import           Handler.Home
+import           Handler.Info
 import           Handler.Operator.AcceptDeposit
 import           Handler.Operator.DepositRequestsList
 import           Handler.Operator.LogIn
@@ -62,6 +64,7 @@ import           Handler.Operator.WithdrawalRequest
 import           Handler.Profile
 import           Handler.SignUp
 import           Handler.SignUpVerification
+import           Handler.TermsOfUse
 
 
 -- This line actually creates our YesodDispatch instance. It is the second half

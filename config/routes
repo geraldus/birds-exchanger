@@ -31,4 +31,9 @@
 /operator/withdrawal-requests-list   OperatorWithdrawalRequestsListR   GET
 /operator/accept-withdrawal-request  OperatorAcceptWithdrawalRequestR  POST
 
+/blacklist                           BlackListR                        GET
+/info                                InfoListR                         GET
+/info/view/#Text                     InfoViewR                         GET
+/termsofuse                          TermsOfUseR                       GET
+
 /admin/login     AdminLogInR  GET

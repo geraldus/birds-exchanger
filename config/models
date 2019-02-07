@@ -127,3 +127,12 @@ InnerProfitRecord
     currency Currency
     amountCents Int
     profitType ProfitType
+
+
+Info
+    title Text
+    alias Text
+    contentHtml Text
+    created UTCTime default timezone('utc', now())
+    UniqueInfoAlias alias
+    deriving Show

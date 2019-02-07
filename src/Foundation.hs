@@ -132,6 +132,7 @@ instance Yesod App where
         master <- getYesod
         mmsg <- getMessage
         muser <- maybeAuthPair
+        mr    <- getMessageRender
         -- ^ @Handler (Maybe (Either UserId Text, Either User SuperUser))@
         let muserName = userNameF . snd <$> muser
         let isClient = isClientUser muser
@@ -174,6 +175,18 @@ instance Yesod App where
                     { menuItemLabel = "Заявки на вывод"
                     , menuItemRoute = OperatorWithdrawalRequestsListR
                     , menuItemAccessCallback = isStaffUser muser }
+                , NavbarLeft $ MenuItem
+                    { menuItemLabel = mr MsgInfo
+                    , menuItemRoute = InfoListR
+                    , menuItemAccessCallback = True }
+                , NavbarLeft $ MenuItem
+                    { menuItemLabel = mr MsgTermsOfUse
+                    , menuItemRoute = TermsOfUseR
+                    , menuItemAccessCallback = isNothing muser }
+                , NavbarLeft $ MenuItem
+                    { menuItemLabel = "Чёрный список"
+                    , menuItemRoute = BlackListR
+                    , menuItemAccessCallback = True }
                 , NavbarRight $ MenuItem
                     { menuItemLabel = "Регистрация"
                     , menuItemRoute = SignUpR
@@ -187,7 +200,11 @@ instance Yesod App where
                 ]
 
         let userMenuItems =
-                [ MenuItem
+                [  MenuItem
+                    { menuItemLabel = mr MsgTermsOfUse
+                    , menuItemRoute = TermsOfUseR
+                    , menuItemAccessCallback = isClientUser muser }
+                , MenuItem
                     { menuItemLabel = "Выход"
                     , menuItemRoute = AuthR LogoutR
                     , menuItemAccessCallback = isJust muser
@@ -255,6 +272,11 @@ instance Yesod App where
     isAuthorized ProfileR _                        = isAuthenticated
     isAuthorized ClientOrdersR _                   = isClientAuthenticated
     isAuthorized (ClientOrderViewR _) _            = isClientAuthenticated
+    -- common routes (guests including)
+    isAuthorized BlackListR _                      = return Authorized
+    isAuthorized InfoListR _                       = return Authorized
+    isAuthorized (InfoViewR _) _                   = return Authorized
+    isAuthorized TermsOfUseR _                     = return Authorized
 
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
@@ -297,29 +319,43 @@ instance YesodBreadcrumbs App where
     -- Takes the route that the user is currently on, and returns a tuple
     -- of the 'Text' that you want the label to display, and a previous
     -- breadcrumb route.
-    breadcrumb
-        :: Route App  -- ^ The route the user is visiting currently.
+    breadcrumb :: Route App  -- ^ The route the user is visiting currently.
         -> Handler (Text, Maybe (Route App))
-    breadcrumb HomeR       = return ("OutBirds", Nothing)
-    breadcrumb (AuthR _)   = return ("Вход", Just HomeR)
-    breadcrumb SignUpR     = return ("Регистрация", Just HomeR)
-    breadcrumb ProfileR    = return ("Портфель", Just HomeR)
-    breadcrumb ClientOrdersR = return ("Мои ордера на обмен", Just HomeR)
-    breadcrumb (ClientOrderViewR oid) =
-        return ("Ордер #" <> pack (show (fromSqlKey oid)), Just ClientOrdersR)
-    breadcrumb DepositR    = return ("Внесение средств", Just ProfileR)
-    breadcrumb (DepositRequestConfirmationR _) =
-        return ("Подтверждение", Just DepositR)
-    breadcrumb WithdrawalR = return ("Вывод средств", Just ProfileR)
-    breadcrumb WithdrawalCreateR =
-        return ("Вывод средств", Just ProfileR)
-    breadcrumb OperatorLogInR = return ("Оператор / Вход", Just HomeR)
-    breadcrumb OperatorDepositRequestsListR =
-        return ("Заявки на пополнение", Just HomeR)
-    breadcrumb OperatorWithdrawalRequestsListR =
-        return ("Заявки на вывод", Just HomeR)
-    breadcrumb AdminLogInR = return ("Вход для супер-пользователя", Just HomeR)
-    breadcrumb  _          = return ("*", Nothing)
+    breadcrumb r = do
+        mr <- getMessageRender
+        breadcrumb' mr r
+      where
+        breadcrumb'
+            :: (AppMessage -> Text)
+            -> Route App  -- ^ The route the user is visiting currently.
+            -> Handler (Text, Maybe (Route App))
+        breadcrumb' _ HomeR       = return ("OutBirds", Nothing)
+        breadcrumb' _ (AuthR _)   = return ("Вход", Just HomeR)
+        breadcrumb' _ SignUpR     = return ("Регистрация", Just HomeR)
+        breadcrumb' _ ProfileR    = return ("Портфель", Just HomeR)
+        breadcrumb' _ ClientOrdersR = return ("Мои ордера на обмен", Just HomeR)
+        breadcrumb' _ (ClientOrderViewR oid) =
+            return ("Ордер #" <> pack (show (fromSqlKey oid)), Just ClientOrdersR)
+        breadcrumb' _ DepositR    = return ("Внесение средств", Just ProfileR)
+        breadcrumb' _ (DepositRequestConfirmationR _) =
+            return ("Подтверждение", Just DepositR)
+        breadcrumb' _ WithdrawalR = return ("Вывод средств", Just ProfileR)
+        breadcrumb' _ WithdrawalCreateR =
+            return ("Вывод средств", Just ProfileR)
+        breadcrumb' _ OperatorLogInR = return ("Оператор / Вход", Just HomeR)
+        breadcrumb' _ OperatorDepositRequestsListR =
+            return ("Заявки на пополнение", Just HomeR)
+        breadcrumb' _ OperatorWithdrawalRequestsListR =
+            return ("Заявки на вывод", Just HomeR)
+        breadcrumb' _ AdminLogInR = return ("Вход для супер-пользователя", Just HomeR)
+        breadcrumb' _ BlackListR = return ("Чёрный список", Just HomeR)
+        breadcrumb' mr TermsOfUseR = return (mr MsgTermsOfUse, Just HomeR)
+        breadcrumb' mr InfoListR = return (mr MsgInfoListTitle, Just HomeR)
+        breadcrumb' mr (InfoViewR alias) = do
+            i <- runDB $ getBy404 (UniqueInfoAlias alias)
+            return ((infoTitle . entityVal) i, Just InfoListR)
+        breadcrumb' _ _          = return ("*", Nothing)
+
 
 -- How to run database actions.
 instance YesodPersist App where

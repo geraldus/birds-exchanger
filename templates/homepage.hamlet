@@ -20,6 +20,11 @@
                         <div .text-muted .mb-5>
                             <small>
                                 авторизуйтесь для обмена
+        <div .row .pb-5>
+            <div .col-8 .mx-auto .d-flex .justify-content-start>
+                <a .text-secondary .font-weight-bold .info-button href=@{InfoListR}>
+                    <img .logo src=@{StaticR images_pzm_color_icon_png} alt="pzm icon">
+                    \INFO
 
 <div .container .mt-5>
     <div .row>

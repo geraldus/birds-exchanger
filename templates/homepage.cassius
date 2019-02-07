@@ -1,2 +1,6 @@
 .masthead .form-control
     border: 1px solid #666
+
+.info-button .logo
+    width: 25px
+    height: 25px
