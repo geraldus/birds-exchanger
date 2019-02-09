@@ -240,7 +240,12 @@ postExchangeOrderCreateR = do
                                 in ( tout, tin, tin - tfee, tfee,
                                      mout, min, min - mfee, mfee,
                                      mout - tin, currencyB, setFullyExecuted, setPartiallyExecuted mout timeNow st )
-                $(logInfo) $ "U out: " <> (pack . show) userFinalOut <> "; in: " <> (pack . show) userFinalIn <> " ; fee: " <> (pack . show) userFinalFee
+                $(logInfo) $ if tOutAmtLeft > mInAmtExpects
+                    then "T OUT > M IN"
+                    else "T OUT < M IN"
+                $(logInfo) $ "Target Out/ExpIn " <> (pack . show) tOutAmtLeft <> " | " <> (pack . show) tInAmtExpects
+                $(logInfo) $ "Match  Out/ExpIn " <> (pack . show) mOutAmtLeft <> " | " <> (pack . show) mInAmtExpects
+                $(logInfo) $ "T out: " <> (pack . show) userFinalOut <> "; in: " <> (pack . show) userFinalIn <> " ; fee: " <> (pack . show) userFinalFee
                 $(logInfo) $ "M out: " <> (pack . show) matchFinalOut <> " ; in: " <> (pack . show) matchFinalIn <> " ; fee: " <> (pack . show) matchFinalFee
                 $(logInfo) $ "Diff: " <> (pack . show) diffProfit
                 res <- runDB $ do
