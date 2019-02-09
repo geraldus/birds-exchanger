@@ -9,7 +9,11 @@ module Handler.Home where
 import           Import hiding (httpLbs, decodeUtf8)
 
 import           Form.Exchanger.Order
+import           Local.Persist.Currency
 import           Local.Persist.ExchangeOrder ( ExchangePair (..) )
+import           Utils.Deposit
+import           Utils.Render
+import           Utils.Withdrawal
 
 import           Network.HTTP.Client.TLS
 import           Network.HTTP.Client.Internal
