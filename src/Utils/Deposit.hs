@@ -28,11 +28,16 @@ depositPzmMinCentsAmount :: Int
 depositPzmMinCentsAmount = 50 * oneCoinCents
 
 depositFeeRur :: Fee
-depositFeeRur = Percent 0
+depositFeeRur = defRurDepositFee
 
 depositFeePzm :: Fee
-depositFeePzm = Percent 4
+depositFeePzm = defPzmDepositFee
 
+defRurDepositFee :: Fee
+defRurDepositFee = Percent 0
+
+defPzmDepositFee :: Fee
+defPzmDepositFee = Percent 4
 
 depositPzmRurRatio :: Double
 depositPzmRurRatio = 25
