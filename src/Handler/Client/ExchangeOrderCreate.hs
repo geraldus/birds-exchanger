@@ -224,22 +224,22 @@ postExchangeOrderCreateR = do
                                      tin  = convertCents tDirRatio tout
                                      tfee = calcFeeCents defaultExchangeFee tin
                                      mout = mOutAmtLeft
-                                     min  = mInAmtExpects
-                                     mfee = calcFeeCents defaultExchangeFee min
+                                     mIn  = mInAmtExpects
+                                     mfee = calcFeeCents defaultExchangeFee mIn
                                      st   = exchangeOrderStatus tOrder
                                 in ( tout, tin, tin - tfee, tfee,
-                                     mout, min, min - mfee, mfee,
+                                     mout, mIn, mIn - mfee, mfee,
                                      mout - tin, currencyB, setPartiallyExecuted tout timeNow st, setFullyExecuted )
                             else let tout = tOutAmtLeft
                                      tin  = tInAmtExpects
                                      tfee = calcFeeCents defaultExchangeFee tin
-                                     min  = tout
-                                     mfee = calcFeeCents defaultExchangeFee min
-                                     mout = multAmt (1 / mDirRatio) min
+                                     mout  = tin
+                                     mfee = calcFeeCents defaultExchangeFee mIn
+                                     mIn = multAmt mDirRatio mout
                                      st = exchangeOrderStatus mOrder
                                 in ( tout, tin, tin - tfee, tfee,
-                                     mout, min, min - mfee, mfee,
-                                     mout - tin, currencyB, setFullyExecuted, setPartiallyExecuted mout timeNow st )
+                                     mout, mIn, mIn - mfee, mfee,
+                                     tout - mIn, currencyB, setFullyExecuted, setPartiallyExecuted mout timeNow st )
                 $(logInfo) $ if tOutAmtLeft > mInAmtExpects
                     then "T OUT > M IN"
                     else "T OUT < M IN"
