@@ -136,8 +136,8 @@ postExchangeOrderCreateR = do
         -- let's calculate what order will be fully executed
         let tInAmtExpects = multAmt tDirRatio tOutAmtLeft
         let mInAmtExpects = multAmt mDirRatio mOutAmtLeft
-        $(logInfo) $ "M | Ratio direct: " <> (pack . show) mDirRatio <> "; amount = " <> (pack . show) mInAmtExpects <> " | Out: " <> (pack . show) mOutAmtLeft
-        $(logInfo) $ "U | In: " <> (pack . show) mInAmtExpects <> "; Out: " <> (pack . show) mOutAmtLeft
+        $(logInfo) $ "M | Rd: " <> (pack . show) mDirRatio <> " In exp:" <> (pack . show) mInAmtExpects <> "; Out: " <> (pack . show) mOutAmtLeft
+        $(logInfo) $ "U | Rd: " <> (pack . show) tDirRatio <> " In exp: " <> (pack . show) tInAmtExpects <> "; Out: " <> (pack . show) tOutAmtLeft
         -- tWalletOut <- getOrCreateWallet tUserId currencyA
         tWalletIn@(Entity tWalletInId _)  <- getOrCreateWallet tUserId currencyB
         -- mWalletOut <- getOrCreateWallet mUserId currencyB
