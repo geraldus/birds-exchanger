@@ -1,8 +1,13 @@
 User: Пользователь
 
 All: Все
+Add: Добавить
+Manage: Управление
 NoPublicationsYet: Публикаций пока не было
 NoOperationsYet: Операций не было
+OperationDepositShort: Ввод
+OperationExchangeShort: Обмен
+OperationWithdrawShort: Вывод
 
 Date: Дата
 DateCreated: Дата создания
@@ -42,6 +47,8 @@ IExchange: Обмениваю
 Rate: Ставка
 Received: Получено
 Remainder: Остаток
+Withdraw: Вывод
+Deposit: Пополнение
 
 Request: Заявка
 BalanceDeposit: Пополнение счёта
