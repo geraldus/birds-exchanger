@@ -57,6 +57,8 @@ import           Handler.Client.Orders
 import           Handler.Common
 import           Handler.Home
 import           Handler.Info
+import           Handler.Manage.Info.Index
+import           Handler.Manage.Info.Add
 import           Handler.Operator.AcceptDeposit
 import           Handler.Operator.DepositRequestsList
 import           Handler.Operator.LogIn

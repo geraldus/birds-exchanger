@@ -30,6 +30,8 @@
 /operator/accept-deposit-request     OperatorAcceptDepositRequestR     POST
 /operator/withdrawal-requests-list   OperatorWithdrawalRequestsListR   GET
 /operator/accept-withdrawal-request  OperatorAcceptWithdrawalRequestR  POST
+/info/manage/index                   ManageInfoIndexR                  GET
+/info/manage/add                     ManageInfoAddR                    POST
 
 /blacklist                           BlackListR                        GET
 /info                                InfoListR                         GET

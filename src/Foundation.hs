@@ -253,12 +253,12 @@ instance Yesod App where
     isAuthorized (StaticR _) _                      = return Authorized
     isAuthorized SignUpR _                          = return Authorized
     isAuthorized (SignUpVerifyR _ _) _              = return Authorized
-    isAuthorized AdminLogInR _                      = return Authorized
-    isAuthorized OperatorLogInR _                   = return Authorized
-    isAuthorized OperatorDepositRequestsListR _     = isStaffAuthenticated
-    isAuthorized OperatorAcceptDepositRequestR _    = isStaffAuthenticated
-    isAuthorized OperatorWithdrawalRequestsListR _  = isStaffAuthenticated
-    isAuthorized OperatorAcceptWithdrawalRequestR _ = isStaffAuthenticated
+    -- the profile route requires that the user is authenticated, so we
+    -- delegate to that function
+    isAuthorized ProfileR _                        = isAuthenticated
+    isAuthorized ClientOrdersR _                   = isClientAuthenticated
+    isAuthorized (ClientOrderViewR _) _            = isClientAuthenticated
+    -- CLIENT
     isAuthorized DepositR _                         = isClientAuthenticated
     isAuthorized WithdrawalR _                      = isClientAuthenticated
     isAuthorized (DepositRequestConfirmationR _) _  = isClientAuthenticated
@@ -266,13 +266,18 @@ instance Yesod App where
     isAuthorized WithdrawalCreateR True             = isClientAuthenticated
     isAuthorized WithdrawalCreateR False            = return $ Unauthorized "Только POST запросы"
     isAuthorized ExchangeOrderCreateR _             = isClientAuthenticated
-
-    -- the profile route requires that the user is authenticated, so we
-    -- delegate to that function
-    isAuthorized ProfileR _                        = isAuthenticated
-    isAuthorized ClientOrdersR _                   = isClientAuthenticated
-    isAuthorized (ClientOrderViewR _) _            = isClientAuthenticated
-    -- common routes (guests including)
+    -- STAFF
+    isAuthorized AdminLogInR _                      = return Authorized
+    -- OPERATORS
+    isAuthorized OperatorLogInR _                   = return Authorized
+    isAuthorized OperatorDepositRequestsListR _     = isStaffAuthenticated
+    isAuthorized OperatorAcceptDepositRequestR _    = isStaffAuthenticated
+    isAuthorized OperatorWithdrawalRequestsListR _  = isStaffAuthenticated
+    isAuthorized OperatorAcceptWithdrawalRequestR _ = isStaffAuthenticated
+    -- ADMINS
+    isAuthorized ManageInfoIndexR _                 = isManagerAuthenticated
+    isAuthorized ManageInfoAddR _                   = isManagerAuthenticated
+    -- ALL: Common routes (guests including)
     isAuthorized BlackListR _                      = return Authorized
     isAuthorized InfoListR _                       = return Authorized
     isAuthorized (InfoViewR _) _                   = return Authorized
@@ -354,6 +359,8 @@ instance YesodBreadcrumbs App where
         breadcrumb' mr (InfoViewR alias) = do
             i <- runDB $ getBy404 (UniqueInfoAlias alias)
             return ((infoTitle . entityVal) i, Just InfoListR)
+        breadcrumb' mr ManageInfoIndexR =
+                return (mr MsgManage <> " / " <> mr MsgInfo, Just HomeR)
         breadcrumb' _ _          = return ("*", Nothing)
 
 
@@ -456,6 +463,15 @@ isStaffAuthenticated = do
                 Unauthorized "Для просмотра страницы нужен другой тип аккаунта"
             Operator -> Authorized
             Admin    -> Authorized
+        Just (_, Right _) -> Authorized
+isManagerAuthenticated :: Handler AuthResult
+isManagerAuthenticated = do
+    ma <- maybeAuthPair
+    return $ case ma of
+        Nothing -> Unauthorized "Войдите в систему для просмотра это страницы"
+        Just (_, Left user) -> case userRole user of
+            Admin    -> Authorized
+            _ -> Unauthorized "Для просмотра страницы нужен другой тип аккаунта"
         Just (_, Right _) -> Authorized
 
 
