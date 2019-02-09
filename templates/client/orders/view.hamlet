@@ -18,8 +18,10 @@
                 ⇢
                 #{cents2dblT totalIncome}#
                 <small .text-muted>#{renderPairIn pair}
-                / #{cents2dblT expectedIn}#
-                <small .text-muted>#{renderPairIn pair}
+                <small>
+                    <small .text-muted>
+                        / #{cents2dblT expectedIn}#
+                        <small .text-muted>#{renderPairIn pair}
         <br>
         <small>
             _{MsgFee}: #
