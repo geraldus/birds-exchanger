@@ -7,9 +7,17 @@
         <div .container .mt-3>
             <div .alert.alert-warning #message>#{msg}
     <div .container .mt-5>
-        <ul class="nav nav-tabs">
-            <li class="nav-item">
-                <a .nav-link.active href="#">PZM / RUR (₽)
+        <ul .nav .nav-tabs .justify-content-center>
+            <li .nav-item>
+                <a #pzm-rur-pair .nav-link.active .pzm .rur href="#" title="Показать информацию по комиссии">PZM / RUR (₽)
+        <div .row>
+            <div .col .mx-auto .pt-3>
+                <div .collapse #pzm-rur-fee-info>
+                    <p>_{MsgOperationDepositShort} #{currencyCodeT rurC} #{renderFeeAsPct defRurDepositFee}%
+                    <p>_{MsgOperationWithdrawShort} #{currencyCodeT pzmC} #{renderFeeAsPct defPzmWithdrawalFee}%
+                    <p>_{MsgOperationExchangeShort} #{renderFeeAsPct defaultExchangeFee}%
+                    <p>_{MsgOperationWithdrawShort} #{currencyCodeT pzmC} #{renderFeeAsPct defRurWithdrawalFee}%
+                    <p>_{MsgOperationDepositShort} #{currencyCodeT rurC} #{renderFeeAsPct defPzmDepositFee}%
         <div .row .mt-5>
             <div .col>
                 <form method=post action=@{ExchangeOrderCreateR} enctype="">

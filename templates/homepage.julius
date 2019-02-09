@@ -19,6 +19,12 @@ const init = () => {
     const btca_rate = parseFloat(btca_data)
     const rateInput = $('##{rawJS ratioId}')
     rateInput.attr('placeholder', (cbr_rate * btca_rate).toFixed(2))
+    const pzmRurTab = $('#pzm-rur-pair')
+    const pzmRurFeeInfo = $('#pzm-rur-fee-info')
+    pzmRurTab.click(() => {
+        pzmRurTab.parent().toggleClass('expanded')
+        pzmRurFeeInfo.collapse('toggle')
+    })
 }
 
 const getTextNodesIn = (n, includeWhitespaceNodes) => {

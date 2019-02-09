@@ -4,3 +4,7 @@
 .info-button .logo
     width: 25px
     height: 25px
+
+#pzm-rur-fee-info
+    border-bottom: 1px solid
+
