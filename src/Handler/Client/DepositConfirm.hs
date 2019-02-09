@@ -78,7 +78,7 @@ postDepositConfirmRequestR = do
     withRequest' code $ \(Entity tid t) -> do
         runDB $ update tid [DepositRequestStatus =. ClientConfirmed]
         setMessage "Заявка проходит проверку"
-        redirect HomeR
+        redirect DepositR
 
 
 withRequest'
