@@ -264,8 +264,8 @@ postExchangeOrderCreateR = do
                     tTransRec <- insert $ WalletBalanceTransaction userWInId (ExchangeExchange userFinalIn) tRId tWalletInBalance timeNow
                     mTransRec <- insert $ WalletBalanceTransaction matchWInId (ExchangeExchange matchFinalIn) mRId mWalletInBalance timeNow
                     -- Order execution
-                    tExecRec <- insert $ ExchangeOrderExecution tOrderId timeNow mRId tRId (tOutAmtLeft == userFinalOut) userFinalOut matchFinalOut userFinalFee
-                    mExecRec <- insert $ ExchangeOrderExecution mOrderId timeNow tRId mRId (mOutAmtLeft == matchFinalOut) matchFinalOut userFinalOut matchFinalFee
+                    tExecRec <- insert $ ExchangeOrderExecution tOrderId timeNow mRId tRId (tOutAmtLeft == userFinalOut) userFinalOut (userFinalIn + userFinalFee) userFinalFee
+                    mExecRec <- insert $ ExchangeOrderExecution mOrderId timeNow tRId mRId (mOutAmtLeft == matchFinalOut) matchFinalOut (matchFinalIn + matchFinalFee) matchFinalFee
                     -- Save fee data
                     tFeeProfitRec <- insert $ InnerProfitRecord tRId currencyB userFinalFee ExchangeFee
                     mFeeProfitRec <- insert $ InnerProfitRecord mRId currencyA matchFinalFee ExchangeFee
