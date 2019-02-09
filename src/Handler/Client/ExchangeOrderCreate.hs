@@ -83,6 +83,8 @@ postExchangeOrderCreateR = do
                               , ExchangeOrderRatioNormalization ==. orderRatioN
                               , ExchangeOrderPair ==. flipPair exchange ] )
                             [ Asc ExchangeOrderCreated ]
+                            -- TODO: Sort also by ratio (condition <> depends
+                            -- of exhange direction)
                     $(logInfo) $ "Matching orders: " <> (pack . show $ morders)
                     exchRes <- exchangeOrders (Entity orderId savedOrder) morders []
                     setMessage $ case exchRes of
