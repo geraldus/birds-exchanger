@@ -160,11 +160,11 @@ instance Yesod App where
                     , menuItemAccessCallback = isClientUser muser
                     }
                 , NavbarLeft $ MenuItem
-                    { menuItemLabel = "Пополни счёт"
+                    { menuItemLabel = mr MsgDeposit
                     , menuItemRoute = DepositR
                     , menuItemAccessCallback = isClientUser muser }
                 , NavbarLeft $ MenuItem
-                    { menuItemLabel = "Выводи средства"
+                    { menuItemLabel = mr MsgWithdraw
                     , menuItemRoute = WithdrawalR
                     , menuItemAccessCallback = isClientUser muser }
                 , NavbarLeft $ MenuItem
