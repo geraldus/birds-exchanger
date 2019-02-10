@@ -26,14 +26,12 @@ stanzas:
       # to. The primary hostname will be used for generating your application
       # root.
       - outb.info
-        secure: true
-        port: 443
       # - 185.53.169.5
       - www.outb.info
 
     # Enable to force Keter to redirect to https
     # Can be added to any stanza
-    # requires-secure: true
+    requires-secure: true
     ssl:
       key: /opt/keter/etc/cert/outb.info.key
       certificate: /opt/keter/etc/cert/outb.info.pem
