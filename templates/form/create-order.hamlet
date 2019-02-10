@@ -31,8 +31,9 @@
                         <span .val.give>-
                         <span .cur-sign-give>&nbsp;PZM
                         <span .cur-sign-take>&nbsp;₽
-                    <th ##{sumid}-total-tbl .text-left.text-white.font-weight-bold>
-                        <span .val.take>-
-                        <span .val.give>-
-                        <span .cur-sign-give>&nbsp;PZM
-                        <span .cur-sign-take>&nbsp;₽
+                    <th ##{sumid}-total-tbl .text-left .text-warning .font-weight-bold>
+                        <big>
+                            <span .val.take>-
+                            <span .val.give>-
+                            <span .cur-sign-give>&nbsp;PZM
+                            <span .cur-sign-take>&nbsp;₽
