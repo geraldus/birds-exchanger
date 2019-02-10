@@ -16,8 +16,8 @@
                     <p>_{MsgOperationDepositShort} #{currencyCodeT rurC} #{renderFeeAsPct defRurDepositFee}%
                     <p>_{MsgOperationWithdrawShort} #{currencyCodeT pzmC} #{renderFeeAsPct defPzmWithdrawalFee}%
                     <p>_{MsgOperationExchangeShort} #{renderFeeAsPct defaultExchangeFee}%
-                    <p>_{MsgOperationWithdrawShort} #{currencyCodeT pzmC} #{renderFeeAsPct defRurWithdrawalFee}%
-                    <p>_{MsgOperationDepositShort} #{currencyCodeT rurC} #{renderFeeAsPct defPzmDepositFee}%
+                    <p>_{MsgOperationWithdrawShort} #{currencyCodeT rurC} #{renderFeeAsPct defRurWithdrawalFee}%
+                    <p>_{MsgOperationDepositShort} #{currencyCodeT pzmC} #{renderFeeAsPct defPzmDepositFee}%
         <div .row .mt-5>
             <div .col>
                 <form method=post action=@{ExchangeOrderCreateR} enctype="">
