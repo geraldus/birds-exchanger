@@ -7,11 +7,13 @@
         <div .container .mt-3>
             <div .alert.alert-warning #message>#{msg}
     <div .container .mt-5>
-        <ul .nav .nav-tabs .justify-content-center>
-            <li .nav-item>
-                <a #pzm-rur-pair .nav-link.active .pzm .rur href="#" title="Показать информацию по комиссии">PZM / RUR (₽)
         <div .row>
-            <div .col .mx-auto .pt-3>
+            <div .col-8 .col-md-6 .col-lg-4 .mx-auto>
+                <ul .nav .nav-tabs .justify-content-center>
+                    <li .nav-item>
+                        <a #pzm-rur-pair .nav-link.active .pzm .rur href="#" title="Показать информацию по комиссии">PZM / RUR (₽)
+        <div .row>
+            <div .col-8 .col-md-6 .col-lg-4 .mx-auto .pt-3>
                 <div .collapse #pzm-rur-fee-info>
                     <p>_{MsgOperationDepositShort} #{currencyCodeT rurC} #{renderFeeAsPct defRurDepositFee}%
                     <p>_{MsgOperationWithdrawShort} #{currencyCodeT pzmC} #{renderFeeAsPct defPzmWithdrawalFee}%
