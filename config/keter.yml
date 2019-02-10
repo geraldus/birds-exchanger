@@ -26,7 +26,7 @@ stanzas:
       # to. The primary hostname will be used for generating your application
       # root.
       - outb.info
-      - 185.53.169.5
+      # - 185.53.169.5
       # - www.prizm-exchange.com
 
     # Enable to force Keter to redirect to https
