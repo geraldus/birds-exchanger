@@ -17,9 +17,9 @@
         <table .col-11 .col-sm-6 .table.table-borderless .text-white-50>
             <thead>
                 <tr>
-                    <td .text-right .#{sumid}-take>получаю
-                    <td .text-right .#{sumid}-give>отдаю
-                    <td>сервисный сбор
+                    <td .text-right .#{sumid}-take>ПОЛУЧАЮ
+                    <td .text-right .#{sumid}-give>ОТДАЮ
+                    <td>КОМИССИЯ
                     <th .text-left>ИТОГО
             <tbody>
                 <tr ##{sumid}-info-row>
