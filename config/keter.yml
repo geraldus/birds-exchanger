@@ -26,8 +26,10 @@ stanzas:
       # to. The primary hostname will be used for generating your application
       # root.
       - outb.info
+        secure: true
+        port: 443
       # - 185.53.169.5
-      # - www.prizm-exchange.com
+      - www.outb.info
 
     # Enable to force Keter to redirect to https
     # Can be added to any stanza
@@ -46,14 +48,13 @@ stanzas:
     # directory-listing: true
 
   # Redirect plain domain name to www.
-  # - type: redirect
-
-  #   hosts:
-  #     - prizm-exchange.com
-  #   actions:
-  #     - host: www.prizm-exchange.com
-        # secure: false
-        # port: 80
+  - type: redirect
+    hosts:
+      - www.outb.info
+    actions:
+      - host: outb.info
+        secure: true
+        port: 443
 
     # Uncomment to switch to a non-permanent redirect.
     # status: 303
