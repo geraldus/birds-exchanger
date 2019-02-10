@@ -8,6 +8,7 @@ NoOperationsYet: Операций не было
 OperationDepositShort: Ввод
 OperationExchangeShort: Обмен
 OperationWithdrawShort: Вывод
+CreateRequest: Создать заявку
 
 Date: Дата
 DateCreated: Дата создания
