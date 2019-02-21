@@ -1,3 +1,4 @@
+ProjectName: OutBirds
 User: Пользователь
 
 All: Все
@@ -89,7 +90,7 @@ BlackList: Чёрный список
 PrizmBlackListTitle: Список Prizm-кошельков, уличённых в мощеничестве
 
 Info: Инфо
-InfoListTitle: Инофрмация
+InfoListTitle: Информация
 
 TermsOfUse: Правила
 TermsOfUseTitle: Правила пользования сервисом
