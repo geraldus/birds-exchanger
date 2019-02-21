@@ -8,3 +8,6 @@
 #pzm-rur-fee-info
     border-bottom: 1px solid
 
+#clickable-order-modal .modal-content
+    background-color: #1a1c1d
+    border: 1px solid #666

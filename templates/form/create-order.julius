@@ -1,4 +1,7 @@
-const defaultExchangeFeePercents = #{toJSON feePercent}
+if (!window.defaultExchangeFeePercents) {
+    const defaultExchangeFeePercents = #{toJSON feePercent}
+    window.defaultExchangeFeePercents = defaultExchangeFeePercents
+}
 
 $(document).ready(() => {
     const wrap = $('##{rawJS wrapid}')

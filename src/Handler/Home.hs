@@ -79,18 +79,46 @@ getActiveOrders mu = do
 
 
 renderOrderCol :: Text -> [ExchangeOrder] -> Widget
-renderOrderCol title orders = [whamlet|
-    <h5 .text-center>#{title}
-    <table .table .table-stripped>
-        <thead>
-            <tr>
-                <th>Ставка
-                <th>Кол-во
-                <th>Сумма
-        <tbody>
-            $forall order <- orders
+renderOrderCol title orders =
+    [whamlet|
+        <h5 .text-center>#{title}
+        <table .table .table-hover>
+            <thead .thead-dark>
                 <tr>
-                    <td>#{show (exchangeOrderNormalizedRatio order)}
-                    <td>#{cents2dblT (exchangeOrderAmountLeft order)}
-                    <td>#{cents2dblT (convertCents (normalizeRatio (exchangeOrderPair order) (exchangeOrderRatioNormalization order) (exchangeOrderNormalizedRatio order)) (exchangeOrderAmountLeft order))}
+                    <th>Ставка
+                    <th>Кол-во
+                    <th>Сумма
+            <tbody>
+                $forall order <- orders
+                    <tr .clickable-order>
+                        <td .ratio>
+                            #{show (exchangeOrderNormalizedRatio order)}
+                        <td .amount-left>
+                            #{cents2dblT (exchangeOrderAmountLeft order)}
+                        <td .expected>
+                            #{cents2dblT (convertCents (normalizeRatio (exchangeOrderPair order) (exchangeOrderRatioNormalization order) (exchangeOrderNormalizedRatio order)) (exchangeOrderAmountLeft order))}
+        |]
+
+
+clickableOrderW :: Widget
+clickableOrderW = toWidget [julius|
+    const handleOrderClick = (e) => {
+        console.log('click!', e.currentTarget)
+        const row = $(e.currentTarget)
+        const ratio = $('.ratio', row).text()
+        const amountLeft = $('.amount-left', row).text()
+        console.log(ratio, amountLeft)
+        $('#clickable-order-modal').modal('show')
+    }
+    $(document).ready(() => {
+        const orders = $('.clickable-order')
+        orders.click(handleOrderClick)
+        // fix input sizes within modal
+        const divs = $('#clickable-order-modal .form-group.row').first().find('div')
+        divs.each((i, el) => {
+            el.className = el.className.replace(/col-\d/g, '')
+            el.className = el.className.replace(/col-lg-\d/g, '')
+            el.className = el.className.replace(/  /g, ' ')
+        })
+    })
     |]

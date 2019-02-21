@@ -38,10 +38,18 @@
 
 <div .container .mt-5>
     <div .row>
+        ^{clickableOrderW}
         <div .col-12 .col-lg-6>
             ^{renderOrderCol "₽ ⇢ PZM" (map entityVal rurPzmOrders)}
         <div .col-12 .col-lg-6>
             ^{renderOrderCol "PZM ⇢ ₽" (map entityVal pzmRurOrders)}
+
+<div #clickable-order-modal .modal .fade tabindex="-1" role=dialog>
+    <div .modal-dialog .modal-lg .modal-dialog-centered role=document>
+        <div .modal-content>
+            <div .modal-body>
+                <form method=post action=@{OperatorAcceptDepositRequestR}>
+                    ^{orderCreateFormW}
 
 <div #rateData .d-none>
     <pre #cbr>
