@@ -15,7 +15,7 @@ getInfoListR :: Handler Html
 getInfoListR = do
     infoItems <- runDB $ selectList [ ] [ Desc InfoCreated ]
     defaultLayout $ do
-        setTitleI MsgBlackList
+        setTitleI MsgInfo
         [whamlet|
             $case infoItems
                 $of []
