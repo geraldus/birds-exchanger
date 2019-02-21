@@ -46,7 +46,7 @@ getHomeR = do
         cbrRes <- httpLbs cbrReq manager
         return (rbt btcARes, rbt cbrRes)
     defaultLayout $ do
-        setTitle "(!) обменный пункт OutBirds"
+        setTitleI MsgProjectName
         $(widgetFile "homepage")
   where
     rbt = decodeUtf8 . responseBody
