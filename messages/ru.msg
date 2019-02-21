@@ -1,6 +1,7 @@
 ProjectName: OutBirds
 User: Пользователь
 
+
 All: Все
 Add: Добавить
 Manage: Управление
@@ -94,3 +95,12 @@ InfoListTitle: Информация
 
 TermsOfUse: Правила
 TermsOfUseTitle: Правила пользования сервисом
+
+
+WalletAddress: Адрес кошелька
+Card: Карта
+Phone: Телефон
+Skype: Skype
+TelegramTitle: Telegram
+WebSite: сайт
+VkComTitle: ВКонтакте
