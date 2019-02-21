@@ -56,7 +56,7 @@ getDepositRequestConfirmationR code = withRequest' code $ \(Entity _ t) -> do
     paymentTitle (CryptoTM curr) = "Перевод на " <> cryptoName curr <> " кошелёк"
     paymentAddr :: TransferMethod -> Html
     paymentAddr (FiatTM SberBankCard2CardFTM RUR) = "5469 7200 1260 8192"
-    paymentAddr (FiatTM TinkoffBankCard2CardFTM RUR) = "5536 9137 9169 3324"
+    paymentAddr (FiatTM TinkoffBankCard2CardFTM RUR) = "5536 9137 9648 0594"
     paymentAddr (FiatTM QiwiFTM RUR) = "+79090991177"
     paymentAddr (CryptoTM PZM) = [shamlet|
         <br>
