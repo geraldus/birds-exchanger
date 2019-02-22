@@ -11,29 +11,34 @@ import           Utils.Money                    ( truncCoins2Cents )
 import           Text.Julius                    ( RawJS(..) )
 
 
-createOrderForm :: Text -> ExchangePair -> Form OrderFD
-createOrderForm ratid defaultPair extra = do
-    wrapid                  <- newIdent
-    actid                   <- newIdent
-    amtid                   <- newIdent
-    sumid                   <- newIdent
-    feeid                   <- newIdent
-    pairid                  <- newIdent
+createOrderForm :: Text -> Text -> ExchangePair -> Form OrderFD
+createOrderForm wrapId ratid defaultPair extra = do
+    actid  <- newIdent
+    amtid  <- newIdent
+    sumid  <- newIdent
+    feeid  <- newIdent
+    pairid <- newIdent
+    let wrapid = wrapId
     (actionRes, actionView) <- mreq
         actionField
-        (fsAddClasses (fsBs4WithId actid) (fsOpts <> ["font-weight-bold"]))
+        (fsAddClasses
+            (fsBs4WithId actid)
+            (fsOpts <> ["font-weight-bold", "exchange-action-input"])
+        )
         Nothing
     (amountRes, amountView) <- mreq
         doubleField
         (fsAddClasses (fsAddPlaceholder (fsBs4WithId amtid) "кол-во")
-                      (fsOpts <> ["font-weight-bold"])
+                      (fsOpts <> ["font-weight-bold", "amount-input"])
         )
         Nothing
     (ratioRes, ratioView) <- mreq
         doubleField
         (fsAddAttrs
             [("autocomplete", "off")]
-            (fsAddClasses (fsAddPlaceholder (fsBs4WithId ratid) "67.00") fsOpts)
+            (fsAddClasses (fsAddPlaceholder (fsBs4WithId ratid) "67.00")
+                          (fsOpts <> ["ratio-input"])
+            )
         )
         Nothing
     (feeRes, hiddenFeeView) <- mreq hiddenField

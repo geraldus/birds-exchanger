@@ -20,8 +20,8 @@ postExchangeOrderCreateR :: Handler Html
 postExchangeOrderCreateR = do
     clientId <- requireClientId
     ratioIdent <- newIdent
-    ((res, _), _) <- runFormPost $ createOrderForm ratioIdent ExchangePzmRur
-    $(logInfo) $ pack . show $ res
+    wrapIdent <- newIdent
+    ((res, _), _) <- runFormPost $ createOrderForm wrapIdent ratioIdent ExchangePzmRur
     case res of
         FormFailure es -> defaultLayout $ do
             setMessage $ renderFormErrors es

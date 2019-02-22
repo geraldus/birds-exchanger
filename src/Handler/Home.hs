@@ -6,19 +6,19 @@
 {-# LANGUAGE TypeFamilies          #-}
 module Handler.Home where
 
-import           Import hiding (httpLbs, decodeUtf8)
+import           Import                       hiding ( decodeUtf8, httpLbs )
 
 import           Form.Exchanger.Order
 import           Local.Persist.Currency
-import           Local.Persist.ExchangeOrder ( ExchangePair (..) )
+import           Local.Persist.ExchangeOrder  ( ExchangePair (..) )
 import           Utils.Deposit
 import           Utils.Render
 import           Utils.Withdrawal
 
-import           Network.HTTP.Client.TLS
+import           Data.Text.Lazy.Encoding      ( decodeUtf8 )
 import           Network.HTTP.Client.Internal
-import Data.Text.Lazy.Encoding (decodeUtf8)
-import           Text.Julius                    ( RawJS(..) )
+import           Network.HTTP.Client.TLS
+import           Text.Julius                  ( RawJS (..) )
 
 
 -- Define our data that will be used for creating the form.
@@ -36,8 +36,11 @@ data FileForm = FileForm
 -- inclined, or create a single monolithic file.
 getHomeR :: Handler Html
 getHomeR = do
+    wrapId <- newIdent
     ratioId <- newIdent
-    (mmsg, mayClientUser, orderCreateFormW, (pzmRurOrders, rurPzmOrders)) <- getData ratioId
+    modalWrapId <- newIdent
+    modalRatioId <- newIdent
+    (mmsg, mayClientUser, orderCreateFormW, modalOrderCreateFormW, (pzmRurOrders, rurPzmOrders)) <- getData wrapId modalWrapId ratioId modalRatioId
     (btcARes, cbrRes) <- runResourceT $ liftIO $ do
         manager <- newTlsManager
         btcAReq <- parseRequest "https://btc-alpha.com/exchange/PZM_USD"
@@ -51,14 +54,15 @@ getHomeR = do
   where
     rbt = decodeUtf8 . responseBody
 
-getData :: Text -> HandlerFor App (Maybe Html, Maybe (Key User), Widget,
+getData :: Text -> Text -> Text -> Text -> HandlerFor App (Maybe Html, Maybe (Key User), Widget, Widget,
         ([Entity ExchangeOrder], [Entity ExchangeOrder]))
-getData ratioId = do
+getData wrapId modalWrapId ratioId modalRatioId = do
     mUser <- maybeClientUser
-    (,,,)
+    (,,,,)
         <$> getMessage
         <*> pure mUser
-        <*> fmap fst (generateFormPost (createOrderForm ratioId ExchangePzmRur))
+        <*> fmap fst (generateFormPost (createOrderForm wrapId ratioId ExchangePzmRur))
+        <*> fmap fst (generateFormPost (createOrderForm modalWrapId modalRatioId ExchangePzmRur))
         <*> getActiveOrders mUser
 
 maybeClientUser :: HandlerFor App (Maybe (Key User))
@@ -78,11 +82,11 @@ getActiveOrders mu = do
     where isPzmRurOrder = (== ExchangePzmRur) . exchangeOrderPair
 
 
-renderOrderCol :: Text -> [ExchangeOrder] -> Widget
-renderOrderCol title orders =
+renderOrderCol :: Text -> Text -> [ExchangeOrder] -> Widget
+renderOrderCol pair title orders =
     [whamlet|
         <h5 .text-center>#{title}
-        <table .table .table-hover>
+        <table .table .table-hover data-pair="#{pair}">
             <thead .thead-dark>
                 <tr>
                     <th>Ставка
@@ -100,14 +104,34 @@ renderOrderCol title orders =
         |]
 
 
-clickableOrderW :: Widget
-clickableOrderW = toWidget [julius|
+clickableOrderW :: Text -> Widget
+clickableOrderW wrapId = toWidget [julius|
     const handleOrderClick = (e) => {
-        console.log('click!', e.currentTarget)
         const row = $(e.currentTarget)
+        const table = row.parents('table').first()
+        const form = $('##{rawJS wrapId}')
+        const ratioInput = $('.ratio-input', form)
+        const amountInput = $('.amount-input', form)
+        const actionInput = $('.exchange-action-input', form)
+        const actions = $('option', actionInput)
         const ratio = $('.ratio', row).text()
         const amountLeft = $('.amount-left', row).text()
-        console.log(ratio, amountLeft)
+        const expected = $('.expected', row).text()
+        const action = table.data('pair')
+        ratioInput.val(ratio)
+        actions.removeAttr('selected')
+        switch (action) {
+            case 'rur_pzm':
+                $(actions[0]).attr('selected', 'selected')
+                amountInput.val(expected)
+                break
+            case 'pzm_rur':
+            default:
+                amountInput.val(amountLeft)
+                $(actions[1]).attr('selected', 'selected')
+                break
+        }
+        amountInput.change()
         $('#clickable-order-modal').modal('show')
     }
     $(document).ready(() => {
@@ -120,5 +144,8 @@ clickableOrderW = toWidget [julius|
             el.className = el.className.replace(/col-lg-\d/g, '')
             el.className = el.className.replace(/  /g, ' ')
         })
+        const form = $('##{rawJS wrapId}')
+        const actionInput = $('.exchange-action-input', form)
+        actionInput.attr('readonly', 'readonly')
     })
     |]
