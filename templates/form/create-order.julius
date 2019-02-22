@@ -27,10 +27,10 @@ $(document).ready(() => {
             const ft = Math.ceil(vr * defaultExchangeFeePercents) / 100
             const fg = Math.ceil(v * defaultExchangeFeePercents) / 100
             sumOut.text(s)
-            feeOutTake.text('-' + ft)
-            feeOutGive.text('-' + fg)
-            sumOutTotalTake.text((s - ft))
-            sumOutTotalGive.text((v - fg))
+            feeOutTake.text('-' + ft.toFixed(2))
+            feeOutGive.text('-' + fg.toFixed(2))
+            sumOutTotalTake.text((s - ft).toFixed(2))
+            sumOutTotalGive.text((v - fg).toFixed(2))
             switch (actIn.val())  {
                 case '1':
                     feeHidden.val(Math.floor(ft * 100))
