@@ -1,5 +1,6 @@
 ProjectName: OutBirds
 User: Пользователь
+Support: Тех.поддержка
 
 
 All: Все
