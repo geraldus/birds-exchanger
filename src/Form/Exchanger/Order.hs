@@ -70,25 +70,3 @@ data OrderFD = OrderFD
 
 data ExchangeAction = EAGive | EAReceive
     deriving (Show, Eq)
-
-isValidExchange :: Currency -> Currency -> Bool
-isValidExchange (FiatC   RUR) (CryptoC PZM) = True
-isValidExchange (CryptoC PZM) (FiatC   RUR) = True
-isValidExchange _             _             = False
-
-
-targetFeeC :: Int -> Double -> Int
-targetFeeC amt ratio = case defaultExchangeFee of
-    CentsFixed c -> c
-    Percent p ->
-        truncate $ fromIntegral amt * ratio * p / fromIntegral oneCoinCents
-
-
-data ExchangeOrderData = ExchangeOrderData
-    { orderDataCurrencyOut      :: Currency
-    , orderDataCurrencyIn       :: Currency
-    , orderDataRatio            :: Double
-    , orderDataAmountCents      :: Int
-    , orderDataExpectedFeeCents :: Int
-    }
-    deriving Show
