@@ -84,7 +84,14 @@ $else
                 ^{widget}
 
 <!-- Footer -->
-<footer .footer .mt-2>
+<footer .footer .mt-2 .pt-3>
     <div .container>
+        <div .row>
+            <div .col-12 .col-md-6 .col-lg-4>
+                <small>
+                    <p .text-muted>
+                        _{MsgSupport}: <a href="mailto:#{supportEmail}">
+                            #{supportEmail}
+
         <p .text-muted .text-center>
             #{appCopyright $ appSettings master}
