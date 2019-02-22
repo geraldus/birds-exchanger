@@ -4,11 +4,9 @@ module Form.Exchanger.Order where
 
 import           Import
 
-import           Local.Persist.Currency
 import           Local.Persist.ExchangeOrder    ( ExchangePair(..) )
 import           Type.Fee                       ( Fee(..) )
 import           Utils.Money                    ( truncCoins2Cents )
-import           Type.Money                     ( oneCoinCents )
 
 import           Text.Julius                    ( RawJS(..) )
 
