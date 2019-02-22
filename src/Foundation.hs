@@ -736,3 +736,7 @@ cents2dblT n = dbl2MoneyT (fromIntegral n / fromIntegral oneCoinCents)
 
 dbl2MoneyT :: Double -> Text
 dbl2MoneyT = sformat (F.fixed (2 :: Int))
+
+
+supportEmail :: Text
+supportEmail = "support@outb.info"
