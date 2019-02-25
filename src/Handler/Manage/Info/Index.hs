@@ -17,8 +17,9 @@ getManageInfoIndexR = do
         setTitle . toHtml $ mr MsgInfo <> " | " <> mr MsgManage
         [whamlet|
             <div .row .mb-5>
-                <div .col>
-                    <button .btn.btn-small.btn-primary>_{MsgAdd}
+                <ul .nav .nav-pills>
+                    <li .nav-item>
+                        <a .nav-link .active href=@{ManageInfoAddR}>_{MsgAdd}
 
             <div .row>
                 <div .col>
