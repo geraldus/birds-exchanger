@@ -59,6 +59,7 @@ import           Handler.Home
 import           Handler.Info
 import           Handler.Manage.Info.Index
 import           Handler.Manage.Info.Add
+import           Handler.Manage.Info.Update
 import           Handler.Operator.AcceptDeposit
 import           Handler.Operator.DepositRequestsList
 import           Handler.Operator.LogIn

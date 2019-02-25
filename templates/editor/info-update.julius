@@ -1,0 +1,21 @@
+$(document).ready(() => {
+    const titleHostId = '##{rawJS titleIdent}'
+    const aliasHostId = '##{rawJS aliasIdent}'
+    const contentHostId = '##{rawJS contentIdent}'
+    const titleInput = $('#title-input')
+    const aliasInput = $('#alias-input')
+    const titleData = $(titleHostId + '-data')
+    const aliasData = $(aliasHostId + '-data')
+    const contentData = $(contentHostId + '-data')
+    const updateTitleData = () => { titleData.val(titleInput.val()) }
+    const updateAliasData = () => { aliasData.val(aliasInput.val()) }
+    titleInput.change(updateTitleData).keyup(updateTitleData)
+    aliasInput.change(updateAliasData).keyup(updateAliasData)
+    InlineEditor
+        .create(document.querySelector(contentHostId))
+        .then(editor => {
+            editor.model.document.on('change:data', () => {
+                contentData.val(editor.getData())
+            })
+        })
+})

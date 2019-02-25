@@ -32,6 +32,7 @@
 /operator/accept-withdrawal-request  OperatorAcceptWithdrawalRequestR  POST
 /info/manage/index                   ManageInfoIndexR                  GET
 /info/manage/add                     ManageInfoAddR                    POST
+/info/manage/update                  ManageInfoUpdateR                 POST
 
 /blacklist                           BlackListR                        GET
 /info                                InfoListR                         GET

@@ -1,14 +1,16 @@
-{-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes       #-}
 module Handler.Info (
     getInfoListR
   , getInfoViewR ) where
 
-import Import
+import           Import
 
+import           Local.Persist.UserRole ( UserRole (..) )
 import           Utils.Time             ( renderDateTimeRow )
 
-import           Database.Persist.Sql        ( fromSqlKey )
+import           Database.Persist.Sql   ( fromSqlKey )
+import           Text.Julius            ( RawJS (..) )
 
 
 getInfoListR :: Handler Html
@@ -42,16 +44,44 @@ getInfoListR = do
 
 getInfoViewR :: Text -> Handler Html
 getInfoViewR alias = do
-    Entity _ info <- runDB $ getBy404 (UniqueInfoAlias alias)
+    Entity infoId info <- runDB $ getBy404 (UniqueInfoAlias alias)
     mr <- getMessageRender
     l <- selectLocale
+    mayUser <- maybeAuthPair
+    let isEditorLoggedIn = maybe False (isEditor . snd) mayUser
+    titleIdent <- newIdent
+    aliasIdent <- newIdent
+    contentIdent <- newIdent
     defaultLayout $ do
+        when isEditorLoggedIn $ do
+            addScriptRemote "https://cdn.ckeditor.com/ckeditor5/11.2.0/inline/ckeditor.js"
+            $(widgetFile "editor/info-update")
         setTitle $ toHtml $ infoTitle info <> " " <> mr MsgInfo
         [whamlet|
-            <h1>#{infoTitle info}
+            <div ##{titleIdent}>
+                $if isEditorLoggedIn
+                    <div .form-group>
+                        <input #title-input .form-control.form-control-lg type="text" required=required value="#{infoTitle info}"/>
+                    <div .form-group .row>
+                        <label .col-form-label .col-2 for="alias-input">Ссылка на статью
+                        <div .col-10>
+                            <input #alias-input .form-control type="text" required=required value="#{infoAlias info}"/>
+                $else
+                    <h1>#{infoTitle info}
+
             <p .mb-3>
                 <small .text-muted>
                     #{renderDateTimeRow l (infoCreated info)}
-            <div>
+            <div ##{contentIdent}>
                 #{preEscapedToMarkup (infoContentHtml info)}
+            $if isEditorLoggedIn
+                <form method=post action=@{ManageInfoUpdateR}>
+                    <input type=hidden name="info-id" value="#{fromSqlKey infoId}"/>
+                    <input ##{titleIdent}-data type=hidden name="title" value="#{infoTitle info}"/>
+                    <input ##{aliasIdent}-data type=hidden name="alias" value="#{infoTitle info}"/>
+                    <input ##{contentIdent}-data type=hidden name="content" value="#{preEscapedToMarkup (infoContentHtml info)}"/>
+                    <button #save-button .btn .btn-outline-primary .mt-2>_{MsgSave}
             |]
+  where
+    isEditor (Right _) = True
+    isEditor (Left u)  = userRole u == Editor
