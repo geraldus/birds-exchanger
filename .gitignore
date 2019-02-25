@@ -25,3 +25,5 @@ prizm-exchange.cabal
 
 misc_ignore/
 /vps_upload/**
+/src/outb.info.key
+/src/outb.info.pen
