@@ -473,6 +473,17 @@ isManagerAuthenticated = do
             _ -> Unauthorized "Для просмотра страницы нужен другой тип аккаунта"
         Just (_, Right _) -> Authorized
 
+isEditorAuthenticated :: Handler AuthResult
+isEditorAuthenticated = do
+    ma <- maybeAuthPair
+    return $ case ma of
+        Nothing -> Unauthorized "Войдите в систему для просмотра это страницы"
+        Just (_, Left user) -> case userRole user of
+            Admin    -> Authorized
+            Editor   -> Authorized
+            _ -> Unauthorized "Для просмотра страницы нужен другой тип аккаунта"
+        Just (_, Right _) -> Authorized
+
 
 instance YesodAuthPersist App where
     type AuthEntity App = Either User SuperUser
