@@ -9,5 +9,5 @@
         <div .col-11 .col-md-6 .mx-auto>
             <form method=post action=@{SignUpR} enctype=#{enctype}>
                 ^{widget}
-                <div .form-group.row>
+                <div .form-group.row .mt-3>
                     <button .btn.btn-outline-primary.btn-lg .mx-auto type=submit>Регистрация

@@ -1,5 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes       #-}
 module Form.Auth.SignUp where
 
 import Import
@@ -14,17 +15,31 @@ signUpForm extra = do
     (email, emailV) <- mreq emailField (fsAddPlaceholder (fsBs4WithId eid) "Ваш эл.ящик") Nothing
     (passw, passwV) <- mreq passwordField (fsBs4WithId pid) Nothing
     (confi, confiV) <- mreq passwordField (fsBs4WithId cid) Nothing
+    (terms, termsV) <- mreq
+            checkBoxField
+            (fsWithClasses
+                [ "form-check-input" ]
+                ""
+                Nothing
+                (Just "terms-check")
+                Nothing
+                [("required", "required")])
+            Nothing
     let widget = [whamlet|
             #{extra}
             <div .form-group.row>
-                <label for=#{eid}>Эл.почта
+                <label for=#{eid}>_{MsgEmailAddress}
                 ^{fvInput emailV}
             <div .form-group.row>
-                <label for=#{pid}>Пароль
+                <label for=#{pid}>_{MsgPassword}
                 ^{fvInput passwV}
             <div .form-group.row>
-                <label for=#{cid}>Подтверждение пароля
+                <label for=#{cid}>_{MsgPasswordConfirmation}
                 ^{fvInput confiV}
+            <div .form-check>
+                ^{fvInput termsV}
+                <label .form-check-label for="terms-check">
+                    <small>_{MsgIAcceptTemrsOfUseText}
             |]
     let res = SignUpFormData
             <$> email

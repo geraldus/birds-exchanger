@@ -60,7 +60,7 @@ postSignUpR = do
                             let newUser = User email (Just pass) Client
                             userId <- insert newUser
                             let newEmail = Email email (Just userId) (Just key)
-                            emailId <- insert newEmail
+                            _ <- insert newEmail
                             return CreateSuccess
                 case createResult of
                     CreateError e -> do
