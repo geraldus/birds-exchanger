@@ -135,6 +135,7 @@ instance Yesod App where
         -- ^ @Handler (Maybe (Either UserId Text, Either User SuperUser))@
         let muserName = userNameF . snd <$> muser
         let isClient = isClientUser muser
+        let isStaffLoggedIn = isStaffUser muser
         wallets <- if isClient then getUserWallets else pure []
         mcurrentRoute <- getCurrentRoute
 
@@ -209,6 +210,12 @@ instance Yesod App where
                     , menuItemAccessCallback = isJust muser
                     } ]
 
+        let manageMenuItems =
+                [ MenuItem
+                    { menuItemLabel = mr MsgInfo
+                    , menuItemRoute = ManageInfoIndexR
+                    , menuItemAccessCallback = isEditorUser muser } ]
+
         let navbarLeftMenuItems = [x | NavbarLeft x <- menuItems]
         let navbarRightMenuItems = [x | NavbarRight x <- menuItems]
 
@@ -223,6 +230,7 @@ instance Yesod App where
 
         navWalletDropdownId <- newIdent
         navUserDropdownId <- newIdent
+        navManageDropdownId <- newIdent
         pc <- widgetToPageContent $ do
             $(widgetFile "form/common")
             $(widgetFile "default-layout")
@@ -233,6 +241,9 @@ instance Yesod App where
             isStaffUser (Just (_, Left u))  = userRole u /= Client
             isStaffUser (Just (_, Right _)) = True
             isStaffUser _                   = False
+            isEditorUser (Just (_, Right _)) = True
+            isEditorUser (Just (_, Left u)) = userRole u == Editor
+            isEditorUser _ = False
 
     -- The page to be redirected to when authentication is required.
     authRoute
@@ -274,8 +285,9 @@ instance Yesod App where
     isAuthorized OperatorWithdrawalRequestsListR _  = isStaffAuthenticated
     isAuthorized OperatorAcceptWithdrawalRequestR _ = isStaffAuthenticated
     -- ADMINS
-    isAuthorized ManageInfoIndexR _                 = isManagerAuthenticated
-    isAuthorized ManageInfoAddR _                   = isManagerAuthenticated
+    isAuthorized ManageInfoIndexR _                 = isEditorAuthenticated
+    isAuthorized ManageInfoAddR _                   = isEditorAuthenticated
+    isAuthorized ManageInfoUpdateR _                = isEditorAuthenticated
     -- ALL: Common routes (guests including)
     isAuthorized BlackListR _                      = return Authorized
     isAuthorized InfoListR _                       = return Authorized
@@ -360,6 +372,8 @@ instance YesodBreadcrumbs App where
             return ((infoTitle . entityVal) i, Just InfoListR)
         breadcrumb' mr ManageInfoIndexR =
                 return (mr MsgManage <> " / " <> mr MsgInfo, Just HomeR)
+        breadcrumb' mr ManageInfoAddR =
+                return (mr MsgNewArticle, Just ManageInfoIndexR)
         breadcrumb' _ _          = return ("*", Nothing)
 
 
@@ -463,6 +477,7 @@ isStaffAuthenticated = do
             Operator -> Authorized
             Admin    -> Authorized
         Just (_, Right _) -> Authorized
+
 isManagerAuthenticated :: Handler AuthResult
 isManagerAuthenticated = do
     ma <- maybeAuthPair

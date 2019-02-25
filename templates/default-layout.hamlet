@@ -45,6 +45,20 @@
                             $forall (cents, cur) <- wallets
                                 <a .dropdown-item .font-weight-bold .wallet-balance-val href="#">
                                     #{cents2dblT cents}&nbsp;<span class="font-weight-normal">#{currSign cur}</span>
+                $elseif isStaffLoggedIn
+                    <li ##{navManageDropdownId} .nav-item .dropdown>
+                        <a
+                                ##{navManageDropdownId}-toggle
+                                .nav-link .dropdown-toggle
+                                data-toggle="dropdown"
+                                href="#"
+                                role="button"
+                                aria-expanded="false"
+                                aria-haspopup="true">
+                            _{MsgManage}
+                        <div .dropdown-menu aria-labelledby="#{navManageDropdownId}-toggle">
+                            $forall MenuItem label route _ <- manageMenuItems
+                                <a .dropdown-item :Just route == mcurrentRoute:.active href="@{route}">#{label}
                 <li ##{navUserDropdownId} .nav-item .dropdown .mr-5>
                     <a
                         ##{navUserDropdownId}-toggle
