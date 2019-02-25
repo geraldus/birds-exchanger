@@ -426,10 +426,10 @@ instance YesodAuth App where
                             <form pb-5 action=@{tp Local.Auth.loginR} method=post>
                                 <h2 .text-center>Вход
                                 <div .form-group>
-                                    <label for="input123">Адрес эл.почты
-                                    <input type=email .form-control #input123 placeholder="your-email@domain.zone" name="username">
+                                    <label for="input123">_{MsgEmailAddress}
+                                    <input type=email .form-control #input123 placeholder="email@domain.com" name="username">
                                 <div .form-group>
-                                    <label for="input1234">Пароль
+                                    <label for="input1234">_{MsgPassword}
                                     <input type=password .form-control #input1234 placeholder="******" name="password">
                                 <div .form-group .row>
                                     <div .col-12 .col-sm-9 col-md-6 .mx-auto>
