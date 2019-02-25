@@ -6,6 +6,6 @@ import Database.Persist.TH
 import Prelude
 
 
-data UserRole = Admin | Operator | Client
+data UserRole = Admin | Editor | Operator | Client
     deriving (Show, Read, Eq)
 derivePersistField "UserRole"
