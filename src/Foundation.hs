@@ -106,9 +106,8 @@ instance Yesod App where
     -- see: https://github.com/yesodweb/yesod/wiki/Overriding-approot
     approot :: Approot App
     approot = ApprootRequest $ \app req ->
-        case appRoot $ appSettings app of
-            Nothing   -> getApprootText guessApproot app req
-            Just root -> root
+        fromMaybe
+            (getApprootText guessApproot app req) (appRoot $ appSettings app)
 
     -- Store session data on the client in encrypted cookies,
     -- default session idle timeout is 120 minutes
@@ -674,7 +673,7 @@ fsWithClasses
     -> [ ( Text, Text ) ]
     -> FieldSettings App
 fsWithClasses classList lbl tlt mid mnam attrs =
-    let cs = intercalate " " classList
+    let cs = unwords classList
         as = attrs <> [ ( "class", cs ) ]
     in FieldSettings lbl tlt mid mnam as
 
