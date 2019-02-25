@@ -72,15 +72,19 @@ getInfoViewR alias = do
             <p .mb-3>
                 <small .text-muted>
                     #{renderDateTimeRow l (infoCreated info)}
-            <div ##{contentIdent}>
+            <div ##{contentIdent} .info-content>
                 #{preEscapedToMarkup (infoContentHtml info)}
             $if isEditorLoggedIn
                 <form method=post action=@{ManageInfoUpdateR}>
                     <input type=hidden name="info-id" value="#{fromSqlKey infoId}"/>
                     <input ##{titleIdent}-data type=hidden name="title" value="#{infoTitle info}"/>
                     <input ##{aliasIdent}-data type=hidden name="alias" value="#{infoTitle info}"/>
-                    <input ##{contentIdent}-data type=hidden name="content" value="#{preEscapedToMarkup (infoContentHtml info)}"/>
+                    <input ##{contentIdent}-data type=hidden name="content" value="#{infoContentHtml info}"/>
                     <button #save-button .btn .btn-outline-primary .mt-2>_{MsgSave}
+            |]
+        toWidget [cassius|
+            ##{contentIdent} img
+                max-width: 100%
             |]
   where
     isEditor (Right _) = True
