@@ -1,0 +1,11 @@
+$(document).ready(() => {
+    const contentHostId = '#content-editor'
+    const contentData = $('#content-data')
+    ClassicEditor
+        .create(document.querySelector(contentHostId))
+        .then(editor => {
+            editor.model.document.on('change:data', () => {
+                contentData.val(editor.getData())
+            })
+        })
+})
