@@ -78,7 +78,7 @@ getInfoViewR alias = do
                 <form method=post action=@{ManageInfoUpdateR}>
                     <input type=hidden name="info-id" value="#{fromSqlKey infoId}"/>
                     <input ##{titleIdent}-data type=hidden name="title" value="#{infoTitle info}"/>
-                    <input ##{aliasIdent}-data type=hidden name="alias" value="#{infoTitle info}"/>
+                    <input ##{aliasIdent}-data type=hidden name="alias" value="#{infoAlias info}"/>
                     <input ##{contentIdent}-data type=hidden name="content" value="#{infoContentHtml info}"/>
                     <button #save-button .btn .btn-outline-primary .mt-2>_{MsgSave}
             |]
