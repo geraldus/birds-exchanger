@@ -112,6 +112,16 @@ ExchangeOrderExecution
     feeCents Int
     deriving Show
 
+ExchangeOrderCancellation
+    orderId ExchangeOrderId
+    userId UserId
+    walletId UserWalletId
+    reasonId WalletTransactionReasonId
+    comment Text Maybe
+    time UTCTime
+    amountLeft Int
+    UniqueOrderCancellation orderId
+    deriving Show
 
 InnerProfitRecord
     reasonId WalletTransactionReasonId
