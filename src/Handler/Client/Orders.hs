@@ -79,7 +79,7 @@ renderOrderTr messageRender urlRender l tzo (Entity orderId order) = [shamlet|
             \#{renderOrderRate order}&nbsp;#
             <small .text-muted>
                 #{renderOrderNRatioSign order}
-        <td .text-center>
+        <td>
             #{renderOrderRemainderExecuted l tzo order}
         <td .controls>
             <a href=#{urlRender (ClientOrderViewR orderId)}>
