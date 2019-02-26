@@ -103,7 +103,8 @@ transactionTr
     -> Widget
 transactionTr (Entity wbtId wbt) wbtCurrency drsAdrs wrsAwrs eos ees ecs = do
     l <- liftHandler selectLocale
-    let timeT = renderDateTimeRow l
+    tzo <- handlerToWidget timezoneOffsetFromCookie
+    let timeT = renderDateTimeRow l tzo
     toWidget [whamlet|
         <tr #data-row-#{fromSqlKey wbtId} .data-row .deposit .#{wbtCC} .#{trType}>
             <td .text-muted>

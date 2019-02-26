@@ -120,13 +120,14 @@ withdrawalHistory = do
 withdrawalHistoryRow :: Entity WithdrawalRequest -> [ Entity WithdrawalAccept ] -> Widget
 withdrawalHistoryRow (Entity ident request@WithdrawalRequest{..}) aos = do
     l <- handlerToWidget selectLocale
+    tzo <- liftHandler timezoneOffsetFromCookie
     wallet <- handlerToWidget . runDB $ get404 withdrawalRequestWalletId
     let ew = Entity withdrawalRequestWalletId wallet
     toWidget [whamlet|
         <tr .data-row #data-row-#{fromSqlKey ident}>
             <td>
                 <small .text-muted>
-                    #{renderDateTimeRow l withdrawalRequestCreated}
+                    #{renderDateTimeRow l tzo withdrawalRequestCreated}
             <td .align-middle>
                 #{cents2dblT withdrawalRequestCentsAmount}#
                 <small .text-muted>
@@ -178,6 +179,7 @@ withdrawalHistoryRow (Entity ident request@WithdrawalRequest{..}) aos = do
             Nothing -> [whamlet|_{MsgAwaitingExecution}|]
             Just executed -> do
                 l <- handlerToWidget selectLocale
+                tzo <- liftHandler timezoneOffsetFromCookie
                 [whamlet|
                     <p .text-uppercase>
                         _{MsgDepositExecuted}
@@ -185,7 +187,7 @@ withdrawalHistoryRow (Entity ident request@WithdrawalRequest{..}) aos = do
                         <small .text-muted>
                             $case withdrawalRequestAccepted
                                 $of Just time
-                                    #{renderDateTimeRow l time}
+                                    #{renderDateTimeRow l tzo time}
                                 $of Nothing
                                     |]
             x -> [whamlet|#{show x}|]

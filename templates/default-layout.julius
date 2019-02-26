@@ -1,0 +1,3 @@
+
+var _date = new Date()
+document.cookie = "timezoneOffset=" + _date.getTimezoneOffset()

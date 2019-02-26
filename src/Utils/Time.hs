@@ -3,22 +3,37 @@ module Utils.Time
     ( ruTimeLocale
     , renderDateTimeRow
     , renderTimeDateCol
+    , offsetTime
     )
 where
 
 import           ClassyPrelude.Yesod
+import           Data.Time.Clock
 import           Data.Time.Format    ( TimeLocale (..) )
 import           Data.Time.LocalTime ( TimeZone (..) )
 
 
-renderTimeDateCol :: TimeLocale -> UTCTime -> Html
-renderTimeDateCol loc utc = [shamlet|
+renderTimeDateCol :: TimeLocale -> Int -> UTCTime -> Html
+renderTimeDateCol loc moff utc = [shamlet|
+    #{localeFormatTime loc utc'}<br>
+    <small>#{localeFormatDate loc utc'}
+    |]
+  where utc' = offsetTime moff utc
+
+renderDateTimeRow :: TimeLocale -> Int -> UTCTime -> Html
+renderDateTimeRow loc moff utc = [shamlet|
+    #{localeFormatDate loc utc'} #{localeFormatTime loc utc'}
+    |]
+  where utc' = offsetTime moff utc
+
+renderTimeDateCol' :: TimeLocale -> UTCTime -> Html
+renderTimeDateCol' loc utc = [shamlet|
     #{localeFormatTime loc utc}<br>
     <small>#{localeFormatDate loc utc}
     |]
 
-renderDateTimeRow :: TimeLocale -> UTCTime -> Html
-renderDateTimeRow loc utc = [shamlet|
+renderDateTimeRow' :: TimeLocale -> UTCTime -> Html
+renderDateTimeRow' loc utc = [shamlet|
     #{localeFormatDate loc utc} #{localeFormatTime loc utc}
     |]
 
@@ -78,3 +93,6 @@ localeFormatTime l = toHtml . formatTime l (timeFmt l)
 
 localeFormatDate :: TimeLocale -> UTCTime -> Html
 localeFormatDate l = toHtml . formatTime l (dateFmt l)
+
+offsetTime :: Int -> UTCTime -> UTCTime
+offsetTime minutesOffset = addUTCTime (negate . fromIntegral $ minutesOffset * 60)

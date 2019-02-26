@@ -19,4 +19,4 @@
         <th scope="row">
     <tbody>
         $forall order <- allOrders
-            #{renderOrderTr msgRender urlRender locale order}
+            #{renderOrderTr msgRender urlRender locale tzo order}

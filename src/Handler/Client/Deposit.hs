@@ -95,11 +95,12 @@ depositHistory = do
 depositHistoryRow :: Entity DepositRequest -> [ Entity AcceptedDeposit ] -> Widget
 depositHistoryRow (Entity ident request@DepositRequest{..}) aos = do
     l <- handlerToWidget selectLocale
+    tzo <- liftHandler timezoneOffsetFromCookie
     toWidget [whamlet|
         <tr .data-row #data-row-#{fromSqlKey ident}>
             <td>
                 <small .text-muted>
-                    #{renderDateTimeRow l depositRequestCreated}
+                    #{renderDateTimeRow l tzo depositRequestCreated}
             <td .align-middle>
                 #{cents2dblT depositRequestCentsAmount}#
                 <small .text-muted>
@@ -147,7 +148,7 @@ depositHistoryRow (Entity ident request@DepositRequest{..}) aos = do
                         \ (по факту)
                     |]
         renderStatus :: Widget
-        renderStatus = case depositRequestStatus of
+        renderStatus= case depositRequestStatus of
             New -> [whamlet|
                     <a href=@{DepositRequestConfirmationR depositRequestTransactionCode}>
                         _{MsgDepositConfirmTransfer}
@@ -162,6 +163,7 @@ depositHistoryRow (Entity ident request@DepositRequest{..}) aos = do
                             <small>_{MsgAwaitingExecution}|]
             OperatorAccepted _ -> do
                 l <- handlerToWidget selectLocale
+                tzo <- liftHandler timezoneOffsetFromCookie
                 [whamlet|
                     <p .text-uppercase>
                         _{MsgDepositExecuted}
@@ -169,7 +171,7 @@ depositHistoryRow (Entity ident request@DepositRequest{..}) aos = do
                             $of Just (Entity _ a)
                                 <br>
                                     <small .text-muted>
-                                        #{renderDateTimeRow l (acceptedDepositAccepted a)}
+                                        #{renderDateTimeRow l tzo (acceptedDepositAccepted a)}
                             $of Nothing
                                 |]
             x -> [whamlet|#{show x}|]

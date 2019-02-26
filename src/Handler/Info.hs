@@ -32,6 +32,7 @@ getInfoListR = do
     render' :: Entity Info -> Widget
     render' (Entity iid info) = do
         l <- handlerToWidget selectLocale
+        tzo <- handlerToWidget timezoneOffsetFromCookie
         [whamlet|
             <div .info-item #info-item#{fromSqlKey iid}>
                 <a
@@ -39,7 +40,7 @@ getInfoListR = do
                     href="@{InfoViewR (infoAlias info)}">
                     #{infoTitle info}
                     <small .text-muted>
-                        (#{renderDateTimeRow l (infoCreated info)})
+                        (#{renderDateTimeRow l tzo (infoCreated info)})
             |]
 
 getInfoViewR :: Text -> Handler Html
@@ -47,6 +48,7 @@ getInfoViewR alias = do
     Entity infoId info <- runDB $ getBy404 (UniqueInfoAlias alias)
     mr <- getMessageRender
     l <- selectLocale
+    tzo <- timezoneOffsetFromCookie
     mayUser <- maybeAuthPair
     let isEditorLoggedIn = maybe False (isEditor . snd) mayUser
     titleIdent <- newIdent
@@ -71,7 +73,7 @@ getInfoViewR alias = do
 
             <p .mb-3>
                 <small .text-muted>
-                    #{renderDateTimeRow l (infoCreated info)}
+                    #{renderDateTimeRow l tzo (infoCreated info)}
             <div ##{contentIdent} .info-content>
                 #{preEscapedToMarkup (infoContentHtml info)}
             $if isEditorLoggedIn

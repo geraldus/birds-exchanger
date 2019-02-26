@@ -19,7 +19,8 @@ getOperatorDepositRequestsListR :: Handler Html
 getOperatorDepositRequestsListR = do
     requireStaffId
     loc <- selectLocale
-    let reqDateT = renderTimeDateCol loc . depositRequestCreated
+    tzo <- timezoneOffsetFromCookie
+    let reqDateT = renderTimeDateCol loc tzo . depositRequestCreated
     list <-
         runDB $ rawSql s [toPersistValue ClientConfirmed] :: Handler
             [(Entity DepositRequest, Entity UserWallet, Entity User)]

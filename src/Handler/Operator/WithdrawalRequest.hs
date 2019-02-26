@@ -23,7 +23,8 @@ getOperatorWithdrawalRequestsListR :: Handler Html
 getOperatorWithdrawalRequestsListR = do
     requireStaffId
     loc <- selectLocale
-    let reqDateT = renderTimeDateCol loc . withdrawalRequestCreated
+    tzo <- timezoneOffsetFromCookie
+    let reqDateT = renderTimeDateCol loc tzo . withdrawalRequestCreated
     list <-
         runDB $ rawSql s [] :: Handler
             [(Entity WithdrawalRequest, Entity UserWallet, Entity User)]

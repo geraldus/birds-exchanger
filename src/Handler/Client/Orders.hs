@@ -21,6 +21,7 @@ getClientOrdersR :: Handler Html
 getClientOrdersR = do
     clientId <- requireClientId
     locale <- selectLocale
+    tzo <- timezoneOffsetFromCookie
     allOrders <- runDB $ selectList
         [ ExchangeOrderUserId ==. clientId ]
         [ Desc ExchangeOrderCreated ]
@@ -42,6 +43,7 @@ getClientOrderViewR orderId = do
             redirect ClientOrdersR
         else do
             l <- selectLocale
+            tzo <- timezoneOffsetFromCookie
             let ExchangeOrder _  pair amount _alft ratioN ratio expectedFee created status isActivel _wtr = order
                 r = normalizeRatio ratioN pair ratio
                 expectedIn = convertCents r amount
@@ -64,11 +66,11 @@ getClientOrderViewR orderId = do
     totalSum prop = sum . map (prop . entityVal)
 
 
-renderOrderTr :: (AppMessage -> Text) -> (Route App -> Text) -> TimeLocale -> Entity ExchangeOrder -> Html
-renderOrderTr messageRender urlRender l (Entity orderId order) = [shamlet|
+renderOrderTr :: (AppMessage -> Text) -> (Route App -> Text) -> TimeLocale -> Int -> Entity ExchangeOrder -> Html
+renderOrderTr messageRender urlRender l tzo (Entity orderId order) = [shamlet|
     <tr #order-data-#{fromSqlKey orderId} .data-row :isActive:.active :isExecuted:.executed>
         <td .text-muted .text-center>
-            <small>#{renderDateTimeRow l (exchangeOrderCreated order)}
+            <small>#{renderDateTimeRow l tzo (exchangeOrderCreated order)}
         <td .text-center>
             <big>
                 #{renderOrderExchange order}
@@ -78,7 +80,7 @@ renderOrderTr messageRender urlRender l (Entity orderId order) = [shamlet|
             <small .text-muted>
                 #{renderOrderNRatioSign order}
         <td .text-center>
-            #{renderOrderRemainderExecuted l order}
+            #{renderOrderRemainderExecuted l tzo order}
         <td .controls>
             <a href=#{urlRender (ClientOrderViewR orderId)}>
                 <i .control .fas .fa-info-circle title="#{messageRender MsgViewOrderHistory}">
@@ -123,8 +125,8 @@ renderOrderNRatioSign order = [shamlet|
   where
     rn = exchangeOrderRatioNormalization order
 
-renderOrderRemainderExecuted :: TimeLocale -> ExchangeOrder -> Html
-renderOrderRemainderExecuted l order =
+renderOrderRemainderExecuted :: TimeLocale -> Int -> ExchangeOrder -> Html
+renderOrderRemainderExecuted l tzo order =
     case exchangeOrderStatus order of
         Created _             -> [shamlet|<small>#{renderStatusNew}|]
         Executed t            -> [shamlet|<small>#{renderStatusExecuted t}|]
@@ -137,20 +139,20 @@ renderOrderRemainderExecuted l order =
         <span>Полностью исполнен
         <br>
         <small .text-muted>
-            #{renderDateTimeRow l t}
+            #{renderDateTimeRow l tzo t}
         |]
     renderStatusCancelled t = [shamlet|
         <span>Отменён
         <br>
         <small .text-muted>
-            #{renderDateTimeRow l t}
+            #{renderDateTimeRow l tzo t}
         |]
     renderStatusPartial t e = [shamlet|
         #{cents2dblT left}&nbsp;<small>#{renderPairOut pair}</small> / #
         #{cents2dblT e}&nbsp;<small>#{renderPairOut pair}</small>
         <br>
         <small .text-muted>
-            #{renderDateTimeRow l t}
+            #{renderDateTimeRow l tzo t}
         |]
     left = exchangeOrderAmountLeft order
     pair = exchangeOrderPair order
@@ -159,10 +161,11 @@ renderOrderRemainderExecuted l order =
 orderOperationTr :: ExchangePair -> Entity ExchangeOrderExecution -> Widget
 orderOperationTr pair (Entity _ op) = do
     l <- liftHandler selectLocale
+    tzo <- liftHandler timezoneOffsetFromCookie
     toWidget [whamlet|
         <tr .data-row>
             <td .text-center>
-                <small>#{renderDateTimeRow l (exchangeOrderExecutionTime op)}
+                <small>#{renderDateTimeRow l tzo (exchangeOrderExecutionTime op)}
             <td>
                 <small>_{MsgExchange} #
                 <span>
@@ -205,13 +208,14 @@ orderStatus (Cancelled time) = do
 orderStatus' :: AppMessage -> Widget -> UTCTime -> Widget
 orderStatus' stName stDesc time = do
     l <- liftHandler selectLocale
+    tzo <- liftHandler timezoneOffsetFromCookie
     toWidget [whamlet|
         <big .text-uppercase>_{stName}
         <br>
         <small .text-muted>
             ^{stDesc}
         <br>
-        <small>#{renderDateTimeRow l time}
+        <small>#{renderDateTimeRow l tzo time}
         |]
 
 

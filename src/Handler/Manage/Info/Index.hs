@@ -4,7 +4,7 @@ module Handler.Manage.Info.Index (getManageInfoIndexR) where
 
 import Import
 
-import           Utils.Time             ( renderDateTimeRow )
+import           Utils.Time                  ( renderDateTimeRow )
 
 import           Database.Persist.Sql        ( fromSqlKey )
 
@@ -36,6 +36,7 @@ getManageInfoIndexR = do
     render' :: Entity Info -> Widget
     render' (Entity iid info) = do
         l <- handlerToWidget selectLocale
+        tzo <- handlerToWidget timezoneOffsetFromCookie
         [whamlet|
             <div .info-item #info-item#{fromSqlKey iid}>
                 <a
@@ -43,5 +44,5 @@ getManageInfoIndexR = do
                     href="@{InfoViewR (infoAlias info)}">
                     #{infoTitle info}
                     <small .text-muted>
-                        (#{renderDateTimeRow l (infoCreated info)})
+                        (#{renderDateTimeRow l tzo (infoCreated info)})
             |]
