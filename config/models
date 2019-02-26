@@ -14,15 +14,6 @@ Email
     verkey Text Maybe
     UniqueEmail email
 
-
--- FeeIncome
---     currency Currency
---     amountCents Int
---     walletTransactionReasonId WalletTransactionReasonId
---     time UTCTime
---     deriving Show
-
-
 UserWallet
     userId UserId
     currency Currency
