@@ -20,7 +20,7 @@
             <thead>
             <tbody>
                 $forall (op, Single c, Entity _ reason) <- ops
-                    ^{transactionTr op c depositOps withdrawalOps exchangeOrderOps exchangeExecutionOps}
+                    ^{transactionTr op c depositOps withdrawalOps exchangeOrderOps exchangeExecutionOps exchangeOrderCancellations}
     $else
         <p .text-muted .text-center>
             <i>_{MsgNoOperationsYet}

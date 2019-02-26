@@ -9,9 +9,10 @@ import           Local.Persist.Currency      ( currSign )
 import           Local.Persist.ExchangeOrder ( ExchangeOrderStatus (..),
                                                ExchangePair (..) )
 import           Utils.Time                  ( renderDateTimeRow )
+import           Local.Persist.Wallet        ( WalletTransactionType (..) )
 
 import           Data.Time.Format            ( TimeLocale (..) )
-import           Database.Persist.Sql        ( fromSqlKey )
+import           Database.Persist.Sql        ( fromSqlKey, toSqlKey )
 import           Formatting
 import           Text.Julius                 ( rawJS )
 
@@ -82,7 +83,9 @@ renderOrderTr messageRender urlRender l (Entity orderId order) = [shamlet|
             <a href=#{urlRender (ClientOrderViewR orderId)}>
                 <i .control .fas .fa-info-circle title="#{messageRender MsgViewOrderHistory}">
             $if isActive
-                <i .control .fas .fa-times-circle title="#{messageRender MsgCancelOrder}">
+                <i .order-cancel-button .control .fas .fa-times-circle title="#{messageRender MsgCancelOrder}">
+                <form method=post action=#{urlRender ClientOrderCancelR}>
+                    <input type=hidden name="order-id" value="#{fromSqlKey orderId}">
     |]
   where
     isActive = exchangeOrderIsActive order
@@ -125,12 +128,19 @@ renderOrderRemainderExecuted l order =
     case exchangeOrderStatus order of
         Created _             -> [shamlet|<small>#{renderStatusNew}|]
         Executed t            -> [shamlet|<small>#{renderStatusExecuted t}|]
+        Cancelled t           -> [shamlet|<small>#{renderStatusCancelled t}|]
         PartiallyExecuted t e -> [shamlet|<small>#{renderStatusPartial t e}|]
         _                     -> [shamlet|>|]
   where
     renderStatusNew = [shamlet| Новый ордер, не исполнялся |]
     renderStatusExecuted t = [shamlet|
         <span>Полностью исполнен
+        <br>
+        <small .text-muted>
+            #{renderDateTimeRow l t}
+        |]
+    renderStatusCancelled t = [shamlet|
+        <span>Отменён
         <br>
         <small .text-muted>
             #{renderDateTimeRow l t}
@@ -189,6 +199,9 @@ orderStatus (Executed time) = do
 orderStatus (PartiallyExecuted time _) = do
     let desc = toWidget [whamlet|_{MsgOrderLastOperation}|]
     orderStatus' MsgOrderStatusExecution desc time
+orderStatus (Cancelled time) = do
+    let desc = toWidget [whamlet|_{MsgOrderLastOperation}|]
+    orderStatus' MsgOrderCancelled desc time
 orderStatus' :: AppMessage -> Widget -> UTCTime -> Widget
 orderStatus' stName stDesc time = do
     l <- liftHandler selectLocale
@@ -200,3 +213,40 @@ orderStatus' stName stDesc time = do
         <br>
         <small>#{renderDateTimeRow l time}
         |]
+
+
+postClientOrderCancelR :: Handler Html
+postClientOrderCancelR = do
+    orderId  <- toSqlKey <$> runInputPost (ireq intField "order-id")
+    clientId <- requireClientId
+    time <- liftIO getCurrentTime
+    messageRender <- getMessageRender
+    runDB $ do
+        order <- get404 orderId
+        when (exchangeOrderUserId order /= clientId) $ do
+            setMessageI MsgAccessDenied
+            redirect ClientOrdersR
+        let currency = fst . unPairCurrency . exchangeOrderPair $ order
+        (Entity walletId wallet) <- getBy404 (UniqueWallet clientId currency)
+        let income = exchangeOrderAmountLeft order
+            before = userWalletAmountCents wallet
+        update
+            orderId
+            [ ExchangeOrderIsActive =. False
+            , ExchangeOrderStatus =. Cancelled time ]
+        reasonId <- insert $ WalletTransactionReason walletId
+        insert $ WalletBalanceTransaction
+            walletId (ExchangeReturn income) reasonId before time
+        insert $ ExchangeOrderCancellation
+            orderId
+            clientId
+            walletId
+            reasonId
+            (Just $ messageRender MsgUserCancelled)
+            time
+            income
+        update
+            walletId
+            [ UserWalletAmountCents +=. income ]
+    setMessageI MsgOrderWasCancelled
+    redirect ClientOrdersR

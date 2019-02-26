@@ -266,8 +266,6 @@ instance Yesod App where
     -- the profile route requires that the user is authenticated, so we
     -- delegate to that function
     isAuthorized ProfileR _                        = isAuthenticated
-    isAuthorized ClientOrdersR _                   = isClientAuthenticated
-    isAuthorized (ClientOrderViewR _) _            = isClientAuthenticated
     -- CLIENT
     isAuthorized DepositR _                         = isClientAuthenticated
     isAuthorized WithdrawalR _                      = isClientAuthenticated
@@ -276,6 +274,9 @@ instance Yesod App where
     isAuthorized WithdrawalCreateR True             = isClientAuthenticated
     isAuthorized WithdrawalCreateR False            = return $ Unauthorized "Только POST запросы"
     isAuthorized ExchangeOrderCreateR _             = isClientAuthenticated
+    isAuthorized ClientOrdersR _                    = isClientAuthenticated
+    isAuthorized (ClientOrderViewR _) _             = isClientAuthenticated
+    isAuthorized ClientOrderCancelR _           = isClientAuthenticated
     -- STAFF
     isAuthorized AdminLogInR _                      = return Authorized
     -- OPERATORS

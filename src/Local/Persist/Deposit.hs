@@ -11,6 +11,7 @@ import Data.Text (Text)
 data DepositRequestStatus
     = New
     | ClientConfirmed
+    | ClientCancelled Text
     | OperatorRejected Text
     | OperatorAccepted Text
     | OperatorExecuted Text

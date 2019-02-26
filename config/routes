@@ -24,6 +24,7 @@
 
 /client/orders                               ClientOrdersR                GET
 /client/order/#ExchangeOrderId               ClientOrderViewR             GET
+/client/exchange-order-cancel                ClientOrderCancelR           POST
 
 /operator/login                      OperatorLogInR  GET
 /operator/deposit-requests-list      OperatorDepositRequestsListR      GET

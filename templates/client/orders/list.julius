@@ -2,6 +2,7 @@ $(document).ready(() => {
     const t = $('##{rawJS pageId}-table')
     const ns = $('##{rawJS pageId}-nav .nav-item')
     const as = $('##{rawJS pageId}-nav .nav-item .nav-link')
+    const cancelButtons = $('.order-cancel-button')
 
     as.click((e) => {
         let a = $(e.target)
@@ -10,6 +11,12 @@ $(document).ready(() => {
         t.removeClass('active executed')
         t.addClass(a.parent().data('target'))
         e.preventDefault()
+    })
+    cancelButtons.click((e) => {
+        if (confirm(#{msgRender MsgCancelOrderConfirmationText})) {
+            const f = $(e.currentTarget).parent().find('form')
+            f.submit()
+        }
     })
 
 })
