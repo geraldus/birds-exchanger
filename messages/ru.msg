@@ -6,6 +6,7 @@ PasswordConfirmation: Подтверждение пароля
 Support: Тех.поддержка
 Save: Сохранить
 ChangesSaved: Изменения сохранены
+AccessDenied: Недостаточно прав доступа
 
 IAcceptTemrsOfUseText: регистрируясь, я принимаю правила и условия использования сервиса
 
@@ -35,6 +36,8 @@ OrderIsNew: Новый
 OrderWasCreated: Создан
 OrderIsActive: Активен
 OrderCancelled: Отменён
+OrderWasCancelled: Ордер отменён
+OrderCancellation: Отмена ордера
 OrderClosed: Закрыт
 OrderExecuted: Исполнен
 OrderExecution: Исполнение ордера
@@ -46,6 +49,7 @@ AllOrders: Все ордера
 ActiveOrders: Активные
 ExecutedOrders: Выполненые
 ViewOrderDetails: Просмотр истории ордера
+CancelOrderConfirmationText: Вы уверены, что хотите отменить ордер на обмен?
 
 
 Balance: Баланс
@@ -77,6 +81,7 @@ CantViewThisOrder: Невозможно отобразить данные орд
 ViewOrderHistory: Показать историю ордера
 
 CancelOrder: Отменить ордер
+UserCancelled: Отменён пользователем
 
 
 ProcessRequest: Обработать запрос
