@@ -133,4 +133,36 @@ $forall ((Entity reqId req@DepositRequest{..}), _, Entity _ User{..}) <- list
                                     <span .total-cur>
                                         <small>#{currSign depositRequestTargetCurrency}
                     <div .modal-footer .justify-content-center>
-                        <button type=submit .btn .btn-lg .btn-block .btn-primary>_{MsgExecute}
+                        <div .container-fluid>
+                            <div .col>
+                                <div .row .justify-content-around>
+                                    <button
+                                            data-request-id="#{fromSqlKey reqId}"
+                                            .cancel-request-btn
+                                            .btn
+                                            .btn-lg
+                                            .btn-outline-danger>
+                                                _{MsgDeclineRequest}
+                                    <button
+                                        type=submit
+                                        .btn
+                                        .btn-lg
+                                        .btn-primary>_{MsgExecute}
+
+
+<div #decline-request-modal .modal tabindex="-1" role=dialog>
+    <form #decline-request-form method=post action=@{OperatorDeclineDepositRequestR}>
+        <div .modal-dialog role=document>
+            <div .modal-content>
+                <div .modal-header>
+                    _{MsgDeclineReason}
+                <div .modal-body>
+                    <input type=hidden name="request-id" value=""/>
+                    <div .form-group>
+                        <textarea required=required .form-control name="reason">
+                <div .modal-footer .justify-content-center>
+                    <div .container-fluid>
+                        <div .row>
+                            <div .col .justify-content-around>
+                                <button #close-decline-modal-btn .btn .btn-lg .btn-outline-primary>_{MsgCancel}
+                                <button  type=submit .btn .btn-lg .btn-primary>_{MsgDeclineRequest}

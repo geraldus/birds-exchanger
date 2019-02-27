@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
-module Handler.Operator.AcceptDeposit where
+module Handler.Operator.HandleDeposit where
 
 import           Import
 import           Local.Persist.Deposit
@@ -83,3 +83,22 @@ postOperatorAcceptDepositRequestR = do
                         update userWalletId
                                [UserWalletAmountCents +=. realWalletIncome]
                     redirect OperatorDepositRequestsListR
+
+
+postOperatorDeclineDepositRequestR :: Handler Html
+postOperatorDeclineDepositRequestR = do
+    staffId   <- requireStaffId
+    requestId <- fmap toSqlKey $ runInputPost $ ireq intField "request-id"
+    reason    <- runInputPost $ ireq textareaField "reason"
+    time      <- liftIO getCurrentTime
+    runDB $ do
+        get404 requestId
+        update
+            requestId
+            [ DepositRequestStatus =. OperatorRejected (pack . show $ staffId) ]
+        insert $ DepositReject
+            requestId
+            (pack . show $ staffId)
+            reason
+            time
+    redirect OperatorDepositRequestsListR

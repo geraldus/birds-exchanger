@@ -66,6 +66,14 @@ AcceptedDeposit
     walletTransactionReasonId WalletTransactionReasonId
     deriving Show
 
+DepositReject
+    requestId DepositRequestId
+    staffId Text
+    reason Textarea
+    time UTCTime default timezone('utc', now())
+    UniqueDepositReject requestId
+    deriving Show
+
 WithdrawalRequest
     walletId UserWalletId
     method TransferMethod

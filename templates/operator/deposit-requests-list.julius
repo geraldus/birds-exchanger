@@ -1,5 +1,9 @@
 $(document).ready(() => {
     const inputs = $('.deposit-amount-input')
+    const cancelRequestBtns = $('.cancel-request-btn')
+    const closeDeclineModalBtn = $('#close-decline-modal-btn')
+    const declineModal = $('#decline-request-modal')
+    const declineForm = $('#decline-request-form')
 
     const calculate = (e) => {
         const i = $(e.target)
@@ -27,4 +31,17 @@ $(document).ready(() => {
     inputs
         .change(calculate)
         .keyup(calculate)
+
+    cancelRequestBtns.click(e => {
+        e.preventDefault()
+        $('.req-modal.show').modal('hide')
+        declineModal.modal('show')
+        const requestId = $(e.currentTarget).data('request-id')
+        declineModal.find('input[name="request-id"]').val(requestId)
+        console.log()
+    })
+
+    closeDeclineModalBtn.click(() => {
+        declineModal.modal('hide')
+    })
 })
