@@ -104,7 +104,8 @@ $else
             <div .col-12 .col-md-6 .col-lg-4>
                 <small>
                     <p .text-muted>
-                        _{MsgSupport}: <a href="mailto:#{supportEmail}">
+                        _{MsgSupport}: #
+                        <a href="mailto:#{supportEmail}">
                             #{supportEmail}
 
         <p .text-muted .text-center>
