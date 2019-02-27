@@ -1,13 +1,9 @@
 {-# LANGUAGE QuasiQuotes #-}
 module Utils.Time
-    ( ruTimeLocale
-    , renderDateTimeRow
-    , renderTimeDateCol
-    , offsetTime
-    )
 where
 
 import           ClassyPrelude.Yesod
+
 import           Data.Time.Clock
 import           Data.Time.Format    ( TimeLocale (..) )
 import           Data.Time.LocalTime ( TimeZone (..) )
@@ -96,3 +92,4 @@ localeFormatDate l = toHtml . formatTime l (dateFmt l)
 
 offsetTime :: Int -> UTCTime -> UTCTime
 offsetTime minutesOffset = addUTCTime (negate . fromIntegral $ minutesOffset * 60)
+
