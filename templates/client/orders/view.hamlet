@@ -6,7 +6,7 @@
                 <span>⇢
                 <b>#{renderPairIn pair}
         <br>
-        <small>x#
+        <small>_{MsgRatio} #
         <span .normalized-ratio>#{dbl2MoneyT ratio}
             <small .text-muted>
                 #{renderPairOut pair}/#{renderPairIn pair}

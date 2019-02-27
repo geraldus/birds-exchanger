@@ -13,7 +13,7 @@
         <th scope="row">
             <small>_{MsgIExchange}
         <th scope="row">
-            <small>_{MsgRate}
+            <small>_{MsgRatio}
         <th scope="row">
             <small>_{MsgRemainder}&nbsp;/&nbsp;_{MsgExecuted}
         <th scope="row">
