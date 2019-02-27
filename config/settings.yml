@@ -38,5 +38,5 @@ database:
   database: "_env:YESOD_PGDATABASE:prizm-exchange"
   poolsize: "_env:YESOD_PGPOOLSIZE:10"
 
-copyright: © 2018 «OutBirds»
+copyright: © 2018-2019 «OutBirds»
 #analytics: UA-YOURCODE
