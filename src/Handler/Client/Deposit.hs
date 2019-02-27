@@ -1,16 +1,19 @@
+{-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes       #-}
 {-# LANGUAGE RecordWildCards   #-}
 module Handler.Client.Deposit where
 
-import           Import
+import           Import                 hiding ( on, (==.) )
 
 import           Form.Profile.Deposit
+import           Local.Persist.Currency ( Currency (..), currSign )
 import           Local.Persist.Deposit
-import           Utils.Time             ( renderDateTimeRow )
-import           Local.Persist.Currency ( currSign )
-import Utils.I18n
+import           Utils.I18n
+import           Utils.Time
 
+import           Data.Time.Format       ( TimeLocale (..) )
+import           Database.Esqueleto
 import           Database.Persist.Sql   ( fromSqlKey )
 
 
@@ -64,12 +67,29 @@ defaultWidget formId widget enctype mayError = [whamlet|
     ^{depositHistory}
     |]
 
+
+type DepositDetails =
+    ( Entity DepositRequest
+    , Maybe (Entity AcceptedDeposit)
+    , Maybe (Entity DepositReject) )
+
+data Details
+    = NoDetails (Entity DepositRequest)
+    | AcceptD (Entity DepositRequest) (Entity AcceptedDeposit)
+    | RejectD (Entity DepositRequest) (Entity DepositReject)
+    deriving Show
+
 depositHistory :: Widget
 depositHistory = do
     clientId <- handlerToWidget requireClientId
-    depositOps <- handlerToWidget . runDB $ selectList [ DepositRequestUserId ==. clientId ] [ ]
-    let depositIds = map entityKey depositOps
-    acceptedOps <- handlerToWidget . runDB $ selectList [ AcceptedDepositDepositRequestId <-. depositIds ] [ ]
+    depositDetails <- liftHandler . runDB . select $
+        from $ \(r `LeftOuterJoin` macc `LeftOuterJoin` mrej) -> do
+            on (just (r ^. DepositRequestId) ==. mrej ?. DepositRejectRequestId)
+            on (just (r ^. DepositRequestId) ==. macc ?. AcceptedDepositDepositRequestId)
+            where_ (r ^. DepositRequestUserId ==. val clientId)
+            orderBy [desc (r ^. DepositRequestCreated)]
+            return (r, macc, mrej)
+    let list = map wrapDetails depositDetails
     toWidget [whamlet|
         <table .table .table-striped .mt-5>
             <thead .thead-light>
@@ -87,20 +107,41 @@ depositHistory = do
                 <th .align-top>
                     _{MsgDetails}
             <tbody>
-                $forall op <- depositOps
-                    ^{depositHistoryRow op acceptedOps}
+                $forall r <- list
+                    ^{depositHistoryRow r}
         |]
+  where
+    wrapDetails (r, Just accepted, _) = AcceptD r accepted
+    wrapDetails (r, _, Just rejected) = RejectD r rejected
+    wrapDetails (r, _, _)             = NoDetails r
 
+unDetailsRequest :: Details -> Entity DepositRequest
+unDetailsRequest (NoDetails r) = r
+unDetailsRequest (AcceptD r _) = r
+unDetailsRequest (RejectD r _) = r
 
-depositHistoryRow :: Entity DepositRequest -> [ Entity AcceptedDeposit ] -> Widget
-depositHistoryRow (Entity ident request@DepositRequest{..}) aos = do
-    l <- handlerToWidget selectLocale
-    tzo <- liftHandler timezoneOffsetFromCookie
+depositHistoryRow :: Details -> Widget
+depositHistoryRow d = do
+    let r = unDetailsRequest d
+    (ur, mr) <- getRenders
+    fd <- getFormatDateRender
+    ft <- getFormatTimeRender
+    genericRow
+        r
+        (genericRequestAmount (requestAmounts d) (desc d))
+        (genericRequestStatus (requestStatuses ur mr (fd, ft) d))
+  where
+    desc d = case d of
+        NoDetails _ -> mempty
+        _           -> [whamlet|\ (_{MsgInFact})|]
+    isRejected (RejectD _ _) = True
+    isRejected _             = False
+
+genericRow :: Entity DepositRequest -> Widget -> Widget -> Widget
+genericRow (Entity ident r@DepositRequest{..}) expected status =
     toWidget [whamlet|
         <tr .data-row #data-row-#{fromSqlKey ident}>
-            <td>
-                <small .text-muted>
-                    #{renderDateTimeRow l tzo depositRequestCreated}
+            <td>^{requestTimeW r}
             <td .align-middle>
                 #{cents2dblT depositRequestCentsAmount}#
                 <small .text-muted>
@@ -109,70 +150,114 @@ depositHistoryRow (Entity ident request@DepositRequest{..}) aos = do
                 <small .text-muted>
                     _{transferMethodMsg depositRequestTransferMethod}
             <td .align-middle>
-                ^{renderExpected}
+                ^{expected}
             <td .align-middle>
-                ^{renderStatus}
+                ^{status}
         |]
-    where
-        renderExpected :: Widget
-        renderExpected = case find byIdent aos of
-            Nothing -> do
-                let expectedCents = depositRequestCentsAmount - depositRequestExpectedFeeCents
-                    feeSign = if depositRequestExpectedFeeCents == 0 then "" else "-" :: String
-                [whamlet|
-                    <big>
-                        <b>
-                            #{cents2dblT expectedCents}#
-                        <small .text-muted>
-                            #{currSign depositRequestCurrency}
-                    <br>
-                    <small .text-muted>
-                        #{feeSign}#{cents2dblT depositRequestExpectedFeeCents}#
-                        <small>
-                            #{currSign depositRequestCurrency}
-                    |]
-            Just (Entity _ a) -> do
-                let expectedCents = acceptedDepositCentsRealIncome a - acceptedDepositCentsActualFee a
-                    feeSign = if acceptedDepositCentsActualFee a == 0 then "" else "-" :: String
-                [whamlet|
-                    <big>
-                        <b>
-                            #{cents2dblT expectedCents}#
-                        <small .text-muted>
-                            #{currSign depositRequestCurrency}
-                    <br>
-                    <small .text-muted>
-                        #{feeSign}#{cents2dblT (acceptedDepositCentsActualFee a)}#
-                        <small>
-                            #{currSign depositRequestCurrency}
-                        \ (по факту)
-                    |]
-        renderStatus :: Widget
-        renderStatus= case depositRequestStatus of
-            New -> [whamlet|
-                    <a href=@{DepositRequestConfirmationR depositRequestTransactionCode}>
-                        _{MsgDepositConfirmTransfer}
-                    <p>
-                        <i .text-muted>
-                            <small>_{MsgAwaitingConfirmation}|]
-            ClientConfirmed -> [whamlet|
-                    <p>
-                        _{MsgDepositConfirmed}
-                        <br>
-                        <i .text-muted>
-                            <small>_{MsgAwaitingExecution}|]
-            OperatorAccepted _ -> do
-                l <- handlerToWidget selectLocale
-                tzo <- liftHandler timezoneOffsetFromCookie
-                [whamlet|
-                    <p .text-uppercase>
-                        _{MsgDepositExecuted}
-                        $case find byIdent aos
-                            $of Just (Entity _ a)
-                                <br>
-                                    <small .text-muted>
-                                        #{renderDateTimeRow l tzo (acceptedDepositAccepted a)}
-                            $of Nothing
-                                |]
-            x -> [whamlet|#{show x}|]
-        byIdent (Entity _ a) = ident == acceptedDepositDepositRequestId a
+
+requestTimeW :: DepositRequest -> Widget
+requestTimeW DepositRequest{..} =
+    toWidget [whamlet|
+        <small .text-muted>
+            ^{dateTimeRowW depositRequestCreated}|]
+
+requestAmounts :: Details -> (Int, Bool, Int, Currency)
+requestAmounts (NoDetails (Entity _ DepositRequest{..})) =
+    let amt = depositRequestCentsAmount - depositRequestExpectedFeeCents
+    in (amt, False, depositRequestExpectedFeeCents, depositRequestCurrency)
+requestAmounts (AcceptD (Entity _ r) (Entity _ AcceptedDeposit{..})) =
+    let amt = acceptedDepositCentsRealIncome - acceptedDepositCentsActualFee
+    in (amt, False, acceptedDepositCentsActualFee, depositRequestCurrency r)
+requestAmounts (RejectD (Entity _ r) _) =
+    (depositRequestCentsAmount r, True, 0, depositRequestCurrency r)
+
+requestStatuses
+    :: (Route App -> Text)
+    -> (AppMessage -> Text)
+    -> (UTCTime -> Html, UTCTime -> Html)
+    -> Details
+    -> (Widget, Widget, Widget)
+requestStatuses ur mr fs (NoDetails (Entity _ r@DepositRequest{..})) =
+    let (_, dm) = requestStatusMessages mr r
+        code = depositRequestTransactionCode
+        extra = [whamlet|
+            <a href=#{ur (DepositRequestConfirmationR code)}>
+                #{mr MsgDepositConfirmTransfer}|]
+        desc = [whamlet|<i .text-muted><small>#{dm}|]
+    in (extra, mempty, desc)
+requestStatuses
+    _ mr (fd, ft) (AcceptD (Entity _ r) (Entity _ AcceptedDeposit{..})) =
+        let (sm, _) = requestStatusMessages mr r
+            status = [whamlet|#{sm}<br>|]
+            desc = [whamlet|<small .text-muted>
+                #{fd acceptedDepositAccepted} #{ft acceptedDepositAccepted}|]
+        in (mempty, status, desc)
+requestStatuses
+    _ mr (fd, ft) (RejectD (Entity _ r) (Entity _ DepositReject{..})) =
+        let (sm, _) = requestStatusMessages mr r
+            status = [whamlet|#{sm}<br>|]
+            desc = [whamlet|<small .text-muted>
+                #{fd depositRejectTime} #{ft depositRejectTime}
+                <br>
+                #{depositRejectReason}|]
+        in (mempty, status, desc)
+
+requestStatusMessages :: (AppMessage -> Text) -> DepositRequest -> (Text, Text)
+requestStatusMessages mr r = case depositRequestStatus r of
+    New                -> (mempty, mr MsgAwaitingConfirmation)
+    ClientConfirmed    -> (mr MsgDepositConfirmed, mr MsgAwaitingExecution)
+    OperatorAccepted _ -> (mr MsgDepositExecuted, mempty)
+    OperatorRejected _ -> (mr MsgDepositRejected, mempty)
+
+genericRequestAmount :: (Int, Bool, Int, Currency) -> Widget -> Widget
+genericRequestAmount (a, rejected, f, c) desc =
+    [whamlet|
+        <big>
+            $if rejected
+                <s>#{ac}#
+            $else
+                <b>#{ac}#
+            <small .text-muted>
+                #{currSign c}
+        <br>
+        <small .text-muted>
+            #{sign}#{cents2dblT f}#
+            <small>
+                #{currSign c}
+            ^{desc}
+        |]
+  where
+    sign = if f == 0 then "" else "-" :: String
+    ac = cents2dblT a
+
+genericRequestStatus :: (Widget, Widget, Widget) -> Widget
+genericRequestStatus (extra, status, desc) =
+    [whamlet|
+        ^{extra}
+        <p>
+            <span .text-uppercase>^{status}
+            ^{desc}
+        |]
+
+
+getRenders :: WidgetFor App (Route App -> Text, AppMessage -> Text)
+getRenders = (,) <$> liftHandler getUrlRender <*> liftHandler getMessageRender
+
+dateTimeRowW :: UTCTime -> Widget
+dateTimeRowW t = do
+    fd <- getFormatDateRender
+    ft <- getFormatTimeRender
+    [whamlet|#{ft t} #{fd t}|]
+
+getFormatDateRender :: WidgetFor App (UTCTime -> Html)
+getFormatDateRender = (\(l, t) -> localeFormatDate l . offsetTime t)
+    <$> getFormatParams
+
+getFormatTimeRender :: WidgetFor App (UTCTime -> Html)
+getFormatTimeRender = (\(l, t) -> localeFormatTime l . offsetTime t)
+    <$> getFormatParams
+
+getFormatParams :: WidgetFor App (TimeLocale, Int)
+getFormatParams = (,)
+    <$> liftHandler selectLocale
+    <*> liftHandler timezoneOffsetFromCookie
