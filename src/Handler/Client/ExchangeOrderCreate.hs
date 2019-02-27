@@ -70,22 +70,19 @@ postExchangeOrderCreateR = do
                     -- it must be instantly executed
                     (orderId, savedOrder) <- saveOrder clientId exchange oratio fee outAmt trid
                     -- Check matching orders
-                    let ratioCondition =
+                    let (ratioCondition, ratioSort) =
                             if opair == defPairDir opair
-                            then [ ExchangeOrderNormalizedRatio >=. oratio ]
-                            else [ ExchangeOrderNormalizedRatio <=. oratio ]
+                            then (ExchangeOrderNormalizedRatio >=. oratio , Asc ExchangeOrderNormalizedRatio)
+                            else (ExchangeOrderNormalizedRatio <=. oratio, Desc ExchangeOrderNormalizedRatio)
                     let orderRatioN = exchangeOrderRatioNormalization savedOrder
                     morders <- runDB $ selectList
-                            (   ratioCondition <>
+                            (   ratioCondition :
                               [ ExchangeOrderIsActive ==. True
                               , ExchangeOrderAmountLeft >=. 0
                               , ExchangeOrderId !=. orderId
                               , ExchangeOrderRatioNormalization ==. orderRatioN
                               , ExchangeOrderPair ==. flipPair exchange ] )
-                            [ Asc ExchangeOrderCreated ]
-                            -- TODO: Sort also by ratio (condition <> depends
-                            -- of exhange direction)
-                    $(logInfo) $ "Matching orders: " <> (pack . show $ morders)
+                            ( ratioSort : [ Asc ExchangeOrderCreated ] )
                     exchRes <- exchangeOrders (Entity orderId savedOrder) morders []
                     setMessage $ case exchRes of
                         [] -> "Ордер создан"
