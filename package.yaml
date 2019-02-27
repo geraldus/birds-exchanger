@@ -39,6 +39,7 @@ dependencies:
 - blaze-html
 - case-insensitive
 - containers
+- esqueleto
 - extra
 - file-embed
 - foreign-store
