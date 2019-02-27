@@ -5,11 +5,11 @@ Password: Пароль
 PasswordConfirmation: Подтверждение пароля
 Support: Тех.поддержка
 Save: Сохранить
+Cancel: Отмена
 ChangesSaved: Изменения сохранены
 AccessDenied: Недостаточно прав доступа
 
 IAcceptTemrsOfUseText: регистрируясь, я принимаю правила и условия использования сервиса
-
 
 All: Все
 Add: Добавить
@@ -27,6 +27,7 @@ Details: Подробности
 
 Order: Ордер
 MyOrders: Мои ордера
+Ratio: Курс
 
 OrderView: Просмотр ордера
 OrderHistory: История ордера
@@ -43,7 +44,7 @@ OrderExecuted: Исполнен
 OrderExecution: Исполнение ордера
 OrderStatusExecution: Исполняется
 OrderLastOperation: Последняя операция
-OrderActualIncome: С учётом сборов
+OrderActualIncome: С учётом комиссии
 
 AllOrders: Все ордера
 ActiveOrders: Активные
@@ -57,7 +58,7 @@ Event: Событие
 Exchange: Обмен
 Execute: Исполнить
 Executed: Исполнено
-Fee: Сервисный сбор
+Fee: Комиссия
 IExchange: Обмениваю
 Rate: Ставка
 Received: Получено
@@ -73,6 +74,7 @@ DepositConfirmTransfer: Подтвердить перевод
 AwaitingConfirmation: Ожидает подтверждения
 DepositConfirmed: Подтверждён
 DepositExecuted: Средства зачислены
+DepositRejected: Отклонён
 AwaitingExecution: Ожидает исполнения
 BalanceWithdrawal: Вывод средств
 ViewRequestDetails: Просмотр подробностей заявки
@@ -89,7 +91,11 @@ TransferMethod: Способ перевода
 ExpectedCalculation: Ожидаемый расчёт
 ActualCalculation: Расчёт по факту
 
+# OPERATORS
 DepositRequestAcceptFormStatsTitle: Расчёт заявки
+DeclineRequestTitle: Отмена заявки
+DeclineRequest: Отклонить заявку
+DeclineReason: Причина отмены
 
 WithdrawalExecuted: Перевод выполнен
 
@@ -119,5 +125,9 @@ Card: Карта
 Phone: Телефон
 Skype: Skype
 TelegramTitle: Telegram
-WebSite: сайт
+WebSite: Веб.сайт
 VkComTitle: ВКонтакте
+
+
+# MISC COMMON PHRASES
+InFact: по факту
