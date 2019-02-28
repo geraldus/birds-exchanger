@@ -73,7 +73,7 @@ postWithdrawalCreateR = do
                         insert transaction
                         update wid [UserWalletAmountCents -=. amount2Freeze]
                     setMessage "Заявка на вывод успешно создана"
-                    redirect HomeR
+                    redirect WithdrawalR
 
 
 defaultWidget :: Text -> Widget -> Enctype -> Maybe [Text] -> Widget
