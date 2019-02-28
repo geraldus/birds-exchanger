@@ -95,7 +95,10 @@ withdrawalHistory :: Widget
 withdrawalHistory = do
     (_, wallets) <- handlerToWidget requireClientData
     let walletIds = map entityKey wallets
-    withdrawalOps <- handlerToWidget . runDB $ selectList [ WithdrawalRequestWalletId <-. walletIds ] [ ]
+    withdrawalOps <- handlerToWidget . runDB $
+        selectList
+            [ WithdrawalRequestWalletId <-. walletIds ]
+            [ Desc WithdrawalRequestCreated ]
     let withdrawalIds = map entityKey withdrawalOps
     acceptedOps <- handlerToWidget . runDB $ selectList [ WithdrawalAcceptRequestId <-. withdrawalIds ] [ ]
     toWidget [whamlet|
