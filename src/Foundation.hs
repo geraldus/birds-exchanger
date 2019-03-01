@@ -242,8 +242,8 @@ instance Yesod App where
             isStaffUser (Just (_, Right _)) = True
             isStaffUser _                   = False
             isEditorUser (Just (_, Right _)) = True
-            isEditorUser (Just (_, Left u)) = userRole u == Editor
-            isEditorUser _ = False
+            isEditorUser (Just (_, Left u))  = userRole u == Editor
+            isEditorUser _                   = False
 
     -- The page to be redirected to when authentication is required.
     authRoute
@@ -256,45 +256,46 @@ instance Yesod App where
         -> Bool       -- ^ Whether or not this is a "write" request.
         -> Handler AuthResult
     -- Routes not requiring authentication.
-    isAuthorized (AuthR _) _                        = return Authorized
-    isAuthorized HomeR _                            = return Authorized
-    isAuthorized FaviconR _                         = return Authorized
-    isAuthorized RobotsR _                          = return Authorized
-    isAuthorized (StaticR _) _                      = return Authorized
-    isAuthorized SignUpR _                          = return Authorized
-    isAuthorized (SignUpVerifyR _ _) _              = return Authorized
+    isAuthorized (AuthR _) _                         = return Authorized
+    isAuthorized HomeR _                             = return Authorized
+    isAuthorized FaviconR _                          = return Authorized
+    isAuthorized RobotsR _                           = return Authorized
+    isAuthorized (StaticR _) _                       = return Authorized
+    isAuthorized SignUpR _                           = return Authorized
+    isAuthorized (SignUpVerifyR _ _) _               = return Authorized
     -- the profile route requires that the user is authenticated, so we
     -- delegate to that function
-    isAuthorized ProfileR _                        = isAuthenticated
+    isAuthorized ProfileR _                          = isAuthenticated
     -- CLIENT
-    isAuthorized DepositR _                         = isClientAuthenticated
-    isAuthorized WithdrawalR _                      = isClientAuthenticated
-    isAuthorized (DepositRequestConfirmationR _) _  = isClientAuthenticated
-    isAuthorized DepositConfirmRequestR _           = isClientAuthenticated
-    isAuthorized WithdrawalCreateR True             = isClientAuthenticated
-    isAuthorized WithdrawalCreateR False            = return $ Unauthorized "Только POST запросы"
-    isAuthorized ExchangeOrderCreateR _             = isClientAuthenticated
-    isAuthorized ClientOrdersR _                    = isClientAuthenticated
-    isAuthorized (ClientOrderViewR _) _             = isClientAuthenticated
-    isAuthorized ClientOrderCancelR _           = isClientAuthenticated
+    isAuthorized DepositR _                          = isClientAuthenticated
+    isAuthorized WithdrawalR _                       = isClientAuthenticated
+    isAuthorized (DepositRequestConfirmationR _) _   = isClientAuthenticated
+    isAuthorized DepositConfirmRequestR _            = isClientAuthenticated
+    isAuthorized WithdrawalCreateR True              = isClientAuthenticated
+    isAuthorized WithdrawalCreateR False             =
+            return $ Unauthorized "Только POST запросы"
+    isAuthorized ExchangeOrderCreateR _              = isClientAuthenticated
+    isAuthorized ClientOrdersR _                     = isClientAuthenticated
+    isAuthorized (ClientOrderViewR _) _              = isClientAuthenticated
+    isAuthorized ClientOrderCancelR _                = isClientAuthenticated
     -- STAFF
-    isAuthorized AdminLogInR _                      = return Authorized
+    isAuthorized AdminLogInR _                       = return Authorized
     -- OPERATORS
-    isAuthorized OperatorLogInR _                   = return Authorized
-    isAuthorized OperatorDepositRequestsListR _     = isStaffAuthenticated
-    isAuthorized OperatorAcceptDepositRequestR _    = isStaffAuthenticated
-    isAuthorized OperatorDeclineDepositRequestR _   = isStaffAuthenticated
-    isAuthorized OperatorWithdrawalRequestsListR _  = isStaffAuthenticated
-    isAuthorized OperatorAcceptWithdrawalRequestR _ = isStaffAuthenticated
+    isAuthorized OperatorLogInR _                    = return Authorized
+    isAuthorized OperatorDepositRequestsListR _      = isStaffAuthenticated
+    isAuthorized OperatorAcceptDepositRequestR _     = isStaffAuthenticated
+    isAuthorized OperatorDeclineDepositRequestR _    = isStaffAuthenticated
+    isAuthorized OperatorWithdrawalRequestsListR _   = isStaffAuthenticated
+    isAuthorized OperatorAcceptWithdrawalRequestR _  = isStaffAuthenticated
     -- ADMINS
-    isAuthorized ManageInfoIndexR _                 = isEditorAuthenticated
-    isAuthorized ManageInfoAddR _                   = isEditorAuthenticated
-    isAuthorized ManageInfoUpdateR _                = isEditorAuthenticated
+    isAuthorized ManageInfoIndexR _                  = isEditorAuthenticated
+    isAuthorized ManageInfoAddR _                    = isEditorAuthenticated
+    isAuthorized ManageInfoUpdateR _                 = isEditorAuthenticated
     -- ALL: Common routes (guests including)
-    isAuthorized BlackListR _                      = return Authorized
-    isAuthorized InfoListR _                       = return Authorized
-    isAuthorized (InfoViewR _) _                   = return Authorized
-    isAuthorized TermsOfUseR _                     = return Authorized
+    isAuthorized BlackListR _                        = return Authorized
+    isAuthorized InfoListR _                         = return Authorized
+    isAuthorized (InfoViewR _) _                     = return Authorized
+    isAuthorized TermsOfUseR _                       = return Authorized
 
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
