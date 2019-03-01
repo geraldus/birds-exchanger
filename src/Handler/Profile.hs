@@ -172,9 +172,7 @@ withdrawalDesc
     -> Currency
     -> [ Entity WithdrawalRequest ]
     -> Widget
-withdrawalDesc wbt cents c rsAs = do
-    $(logInfo) (pack . show $ wbt)
-    $(logInfo) (pack . show $ rsAs)
+withdrawalDesc wbt cents c rsAs =
     toWidget
         [whamlet|
             <td>
