@@ -1,6 +1,11 @@
+
 $(document).ready(() => {
     const rows = $('.request-data-row')
     const links = $('.user-profile-link')
+
+    const cancelRequestBtns = $('.cancel-request-btn')
+    const closeDeclineModalBtn = $('#close-decline-modal-btn')
+    const declineModal = $('#decline-request-modal')
 
     links.click((e) => {
         e.preventDefault()
@@ -11,5 +16,17 @@ $(document).ready(() => {
         const parentRow = $(e.target).parents('.request-data-row')
         const modalId = parentRow.data('target')
         $(modalId).modal('show')
+    })
+
+    cancelRequestBtns.click(e => {
+        e.preventDefault()
+        $('.request-modal.show').modal('hide')
+        declineModal.modal('show')
+        const requestId = $(e.currentTarget).data('request-id')
+        declineModal.find('input[name="request-id"]').val(requestId)
+    })
+
+    closeDeclineModalBtn.click(() => {
+        declineModal.modal('hide')
     })
 })

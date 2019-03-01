@@ -33,7 +33,7 @@
 
 
 $forall ((Entity reqId req@DepositRequest{..}), _, Entity _ User{..}) <- list
-    <div #req-modal-#{fromSqlKey reqId} .modal .req-modal tabindex="-1" role=dialog>
+    <div #req-modal-#{fromSqlKey reqId} .modal .request-modal tabindex="-1" role=dialog>
         <div .modal-dialog role=document>
             <div .modal-content>
                 <div .modal-header>
@@ -132,22 +132,21 @@ $forall ((Entity reqId req@DepositRequest{..}), _, Entity _ User{..}) <- list
                                     <span .total-val>#{renderRequestExpectedTotal req}#
                                     <span .total-cur>
                                         <small>#{currSign depositRequestTargetCurrency}
-                    <div .modal-footer .justify-content-center>
+                    <div .modal-footer>
                         <div .container-fluid>
-                            <div .col>
-                                <div .row .justify-content-around>
-                                    <button
-                                            data-request-id="#{fromSqlKey reqId}"
-                                            .cancel-request-btn
-                                            .btn
-                                            .btn-lg
-                                            .btn-outline-danger>
-                                                _{MsgDeclineRequest}
-                                    <button
-                                        type=submit
+                            <div .row .justify-content-around>
+                                <button
+                                        data-request-id="#{fromSqlKey reqId}"
+                                        .cancel-request-btn
                                         .btn
                                         .btn-lg
-                                        .btn-primary>_{MsgExecute}
+                                        .btn-outline-danger>
+                                            _{MsgDeclineRequest}
+                                <button
+                                    type=submit
+                                    .btn
+                                    .btn-lg
+                                    .btn-primary>_{MsgExecute}
 
 
 <div #decline-request-modal .modal tabindex="-1" role=dialog>
@@ -162,7 +161,6 @@ $forall ((Entity reqId req@DepositRequest{..}), _, Entity _ User{..}) <- list
                         <textarea required=required .form-control name="reason">
                 <div .modal-footer .justify-content-center>
                     <div .container-fluid>
-                        <div .row>
-                            <div .col .justify-content-around>
-                                <button #close-decline-modal-btn .btn .btn-lg .btn-outline-primary>_{MsgCancel}
-                                <button  type=submit .btn .btn-lg .btn-primary>_{MsgDeclineRequest}
+                        <div .row .justify-content-around>
+                            <button #close-decline-modal-btn .btn .btn-lg .btn-outline-primary>_{MsgCancel}
+                            <button  type=submit .btn .btn-lg .btn-primary>_{MsgDeclineRequest}
