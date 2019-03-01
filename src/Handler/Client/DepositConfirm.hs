@@ -1,10 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Handler.Client.DepositConfirm where
 
-import Import
+import           Import
 
+import           Local.Persist.Currency
 import           Local.Persist.Wallet   ( DepositRequestStatus (..) )
-import Local.Persist.Currency
 
 
 getDepositRequestConfirmationR :: Text -> Handler Html
@@ -21,10 +21,8 @@ getDepositRequestConfirmationR code = withRequest' code $ \(Entity _ t) -> do
             FiatTM TinkoffBankCard2CardFTM RUR -> paymentGuideCard2Card transferMethod cents currency code
             FiatTM QiwiFTM RUR -> paymentGuideQiwi transferMethod cents currency code
             CryptoTM PZM -> paymentGuideCryptoC transferMethod cents currency code
-            _ -> [whamlet|Приём средст временно приостановлен.  Попробуйте позже|]
+            _ -> [whamlet|Приём средств временно приостановлен.  Попробуйте позже|]
     defaultLayout $(widgetFile "client/deposit-proceed")
-
-
   where
     guideTemplate :: Text -> Int -> Currency -> Text -> Html -> Text -> Widget
     guideTemplate title cents curr desc addr code = [whamlet|
@@ -47,7 +45,7 @@ getDepositRequestConfirmationR code = withRequest' code $ \(Entity _ t) -> do
     paymentGuideCryptoC tm cents curr code =
         let c = case tm of
                 CryptoTM c' -> c'
-                _ -> error "Ошибка.  Неверные данные"
+                _           -> error "Ошибка.  Неверные данные"
         in guideTemplate (paymentTitle tm) cents curr (cryptoCDesc c) (paymentAddr tm) code
     paymentTitle :: TransferMethod -> Text
     paymentTitle (FiatTM SberBankCard2CardFTM _) = "Пополнение переводом на карту СберБанка"
@@ -80,7 +78,6 @@ postDepositConfirmRequestR = do
         setMessage "Заявка проходит проверку"
         redirect DepositR
 
-
 withRequest'
     :: Text
     -> (Entity DepositRequest -> Handler Html)
@@ -97,4 +94,4 @@ withRequest code action fallback = do
     mdr <- runDB . getBy $ UniqueDepositRequest code
     case mdr of
         Nothing -> fallback
-        Just e -> action e
+        Just e  -> action e
