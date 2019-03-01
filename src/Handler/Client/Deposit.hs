@@ -10,9 +10,7 @@ import           Form.Profile.Deposit
 import           Local.Persist.Currency ( Currency (..), currSign )
 import           Local.Persist.Wallet   ( DepositRequestStatus (..) )
 import           Utils.I18n
-import           Utils.Time
 
-import           Data.Time.Format       ( TimeLocale (..) )
 import           Database.Esqueleto
 import           Database.Persist.Sql   ( fromSqlKey )
 
