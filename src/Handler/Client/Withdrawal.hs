@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes       #-}
 {-# LANGUAGE RecordWildCards   #-}
@@ -6,13 +7,15 @@ module Handler.Client.Withdrawal where
 import           Import
 
 import           Form.Profile.Withdrawal
-import           Local.Persist.Currency  ( currSign )
+import           Local.Persist.Currency  ( Currency (..), currSign )
 import           Local.Persist.Wallet
 import           Type.Money              ( Money (..) )
 import           Type.Withdrawal
+import           Utils.App.Client
+import           Utils.App.Common
 import           Utils.I18n
-import           Utils.Time              ( renderDateTimeRow )
 
+import qualified Database.Esqueleto      as E
 import           Database.Persist.Sql    ( fromSqlKey )
 
 
@@ -61,6 +64,7 @@ postWithdrawalCreateR = do
                             fee
                             time
                             reasonId
+                            WsNew
                             Nothing
                     let transaction = WalletBalanceTransaction
                             wid
@@ -84,23 +88,45 @@ defaultWidget formId widget enctype mayError = [whamlet|
                 <div .alert.alert-warning>
                     $forall e <- error
                         <div .error>#{e}
-    <form ##{formId} method=post enctype=#{enctype} action=@{WithdrawalCreateR} .col-12 .col-sm-10 .col-md-8 .mx-auto>
+    <form
+            ##{formId}
+            method=post
+            enctype=#{enctype}
+            action=@{WithdrawalCreateR}
+            .col-12 .col-sm-10 .col-md-8
+            .mx-auto>
         ^{widget}
         <div .form-group .row .justify-content-center>
             <button .btn.btn-lg.btn-outline-primary .mt-2 type=submit>вывод
     ^{withdrawalHistory}
     |]
 
+
+type WithdrawalDetails =
+    ( Entity WithdrawalRequest
+    , Maybe (Entity WithdrawalAccept)
+    , Maybe (Entity WithdrawalReject) )
+
+data Details
+    = NoDetails (Entity WithdrawalRequest) Currency
+    | AcceptD (Entity WithdrawalRequest) Currency (Entity WithdrawalAccept)
+    | RejectD (Entity WithdrawalRequest) Currency (Entity WithdrawalReject)
+    deriving Show
+
+
 withdrawalHistory :: Widget
 withdrawalHistory = do
-    (_, wallets) <- handlerToWidget requireClientData
-    let walletIds = map entityKey wallets
-    withdrawalOps <- handlerToWidget . runDB $
-        selectList
-            [ WithdrawalRequestWalletId <-. walletIds ]
-            [ Desc WithdrawalRequestCreated ]
-    let withdrawalIds = map entityKey withdrawalOps
-    acceptedOps <- handlerToWidget . runDB $ selectList [ WithdrawalAcceptRequestId <-. withdrawalIds ] [ ]
+    clientId <- liftHandler requireClientId
+    withdrawalDetails <- liftHandler . runDB . E.select $
+        E.from $ \(u `E.InnerJoin` w `E.InnerJoin` r `E.LeftOuterJoin` macc `E.LeftOuterJoin` mrej) -> do
+            E.on (E.just (r E.^. WithdrawalRequestId) E.==. mrej E.?. WithdrawalRejectRequestId)
+            E.on (E.just (r E.^. WithdrawalRequestId) E.==. macc E.?. WithdrawalAcceptRequestId)
+            E.on (w E.^. UserWalletId E.==. r E.^. WithdrawalRequestWalletId)
+            E.on (u E.^. UserId E.==. w E.^. UserWalletUserId)
+            E.where_ (u E.^. UserId E.==. E.val clientId)
+            E.orderBy [E.desc (r E.^. WithdrawalRequestCreated)]
+            return (r, w E.^. UserWalletCurrency, macc, mrej)
+    let list = map wrapDetails withdrawalDetails
     toWidget [whamlet|
         <table .table .table-striped .mt-5>
             <thead .thead-light>
@@ -115,83 +141,106 @@ withdrawalHistory = do
                 <th .align-top>
                     _{MsgDetails}
             <tbody>
-                $forall op <- withdrawalOps
-                    ^{withdrawalHistoryRow op acceptedOps}
+                $forall i <- list
+                    ^{withdrawalHistoryRow' i}
         |]
+  where
+    wrapDetails (r, c, Just accepted, _) = AcceptD r (E.unValue c) accepted
+    wrapDetails (r, c, _, Just rejected) = RejectD r (E.unValue c) rejected
+    wrapDetails (r, c, _, _)             = NoDetails r (E.unValue c)
 
+unDetailsRequest :: Details -> Entity WithdrawalRequest
+unDetailsRequest (NoDetails r _) = r
+unDetailsRequest (AcceptD r _ _) = r
+unDetailsRequest (RejectD r _ _) = r
 
-withdrawalHistoryRow :: Entity WithdrawalRequest -> [ Entity WithdrawalAccept ] -> Widget
-withdrawalHistoryRow (Entity ident request@WithdrawalRequest{..}) aos = do
-    l <- handlerToWidget selectLocale
-    tzo <- liftHandler timezoneOffsetFromCookie
-    wallet <- handlerToWidget . runDB $ get404 withdrawalRequestWalletId
-    let ew = Entity withdrawalRequestWalletId wallet
+unDetailsCurrency :: Details -> Currency
+unDetailsCurrency (NoDetails _ c) = c
+unDetailsCurrency (AcceptD _ c _) = c
+unDetailsCurrency (RejectD _ c _) = c
+
+withdrawalHistoryRow' :: Details -> Widget
+withdrawalHistoryRow' d = do
+    let r = unDetailsRequest d
+        c = unDetailsCurrency d
+    (ur, mr) <- getRenders
+    fd <- getFormatDateRender
+    ft <- getFormatTimeRender
+    genericRow
+        r
+        c
+        (genericRequestAmount (requestAmounts d) c (description d))
+        (genericRequestStatus (requestStatuses ur mr (fd, ft) d))
+  where
+    description d = case d of
+        NoDetails _ _ -> mempty
+        _             -> [whamlet|\ (_{MsgInFact})|]
+
+genericRow :: Entity WithdrawalRequest -> Currency -> Widget -> Widget -> Widget
+genericRow (Entity ident r@WithdrawalRequest{..}) c expected status =
     toWidget [whamlet|
         <tr .data-row #data-row-#{fromSqlKey ident}>
-            <td>
-                <small .text-muted>
-                    #{renderDateTimeRow l tzo withdrawalRequestCreated}
+            <td>^{requestTimeW withdrawalRequestCreated}
             <td .align-middle>
                 #{cents2dblT withdrawalRequestCentsAmount}#
                 <small .text-muted>
-                    #{currSign (userWalletCurrency wallet)}
+                    #{currSign c}
                 <br>
                 <small .text-muted>
                     _{transferMethodMsg withdrawalRequestMethod}
             <td .align-middle>
-                ^{renderExpected ew}
+                ^{expected}
             <td .align-middle>
-                ^{renderStatus}
+                ^{status}|]
+
+genericRequestAmount :: (Int, Bool) -> Currency -> Widget -> Widget
+genericRequestAmount (a, rejected) c d =
+    [whamlet|
+        #{sign}#{ac}#
+        <small .text-muted>
+            #{currSign c}
+        <small .text-muted>^{d}
         |]
-    where
-        renderExpected :: Entity UserWallet -> Widget
-        renderExpected ew = case find byIdent aos of
-            Nothing -> do
-                let expectedCents = withdrawalRequestCentsAmount - withdrawalRequestFeeAmount
-                    feeSign = if withdrawalRequestFeeAmount == 0 then "" else "-" :: String
-                [whamlet|
-                    <big>
-                        <b>
-                            #{cents2dblT expectedCents}#
-                        <small .text-muted>
-                            #{currSign (userWalletCurrency (entityVal ew))}
-                    <br>
-                    <small .text-muted>
-                        #{feeSign}#{cents2dblT withdrawalRequestFeeAmount}#
-                        <small>
-                            #{currSign (userWalletCurrency (entityVal ew))}
-                    |]
-            Just (Entity _ a) -> do
-                let expectedCents = withdrawalAcceptAmountTransfered a - withdrawalAcceptActualFee a
-                    feeSign = if withdrawalAcceptActualFee a == 0 then "" else "-" :: String
-                [whamlet|
-                    <big>
-                        <b>
-                            #{cents2dblT expectedCents}#
-                        <small .text-muted>
-                            #{currSign (userWalletCurrency (entityVal ew))}
-                    <br>
-                    <small .text-muted>
-                        #{feeSign}#{cents2dblT (withdrawalAcceptActualFee a)}#
-                        <small>
-                            #{currSign (userWalletCurrency (entityVal ew))}
-                        \ (по факту)
-                    |]
-        renderStatus :: Widget
-        renderStatus = case withdrawalRequestAccepted of
-            Nothing -> [whamlet|_{MsgAwaitingExecution}|]
-            Just executed -> do
-                l <- handlerToWidget selectLocale
-                tzo <- liftHandler timezoneOffsetFromCookie
-                [whamlet|
-                    <p .text-uppercase>
-                        _{MsgDepositExecuted}
-                        <br>
-                        <small .text-muted>
-                            $case withdrawalRequestAccepted
-                                $of Just time
-                                    #{renderDateTimeRow l tzo time}
-                                $of Nothing
-                                    |]
-            x -> [whamlet|#{show x}|]
-        byIdent (Entity _ a) = ident == withdrawalAcceptRequestId a
+  where
+    sign = if a == 0 then "" else "-" :: String
+    ac = cents2dblT a
+
+genericRequestStatus :: (Widget, Widget) -> Widget
+genericRequestStatus (status, description) =
+    [whamlet|
+        <p>
+            <span .text-uppercase>^{status}
+            ^{description}
+        |]
+
+requestAmounts :: Details -> (Int, Bool)
+requestAmounts (NoDetails (Entity _ WithdrawalRequest{..}) _) =
+    (withdrawalRequestFeeAmount, False)
+requestAmounts (AcceptD (Entity _ r) _ (Entity _ WithdrawalAccept{..})) =
+    (withdrawalAcceptActualFee, False)
+requestAmounts (RejectD (Entity _ r) _ _) =
+    (0, True)
+
+requestStatuses
+    :: (Route App -> Text)
+    -> (AppMessage -> Text)
+    -> (UTCTime -> Html, UTCTime -> Html)
+    -> Details
+    -> (Widget, Widget)
+requestStatuses ur mr fs (NoDetails (Entity _ r@WithdrawalRequest{..}) _) =
+    let status = [whamlet|#{mr MsgRequestProcessing}<br>|]
+    in (status, mempty)
+requestStatuses
+    _ mr (fd, ft) (AcceptD (Entity _ r) _ (Entity _ WithdrawalAccept{..})) =
+        let status = [whamlet|#{mr MsgDepositExecuted}<br>|]
+            description = [whamlet|<small .text-muted>
+                #{fd withdrawalAcceptTime} #{ft withdrawalAcceptTime}|]
+        in (status, description)
+requestStatuses
+    _ mr (fd, ft) (RejectD (Entity _ r) _ (Entity _ WithdrawalReject{..})) =
+        let status = [whamlet|#{mr MsgDepositRejected}<br>|]
+            description = [whamlet|<small .text-muted>
+                #{fd withdrawalRejectTime} #{ft withdrawalRejectTime}
+                <br>
+                #{withdrawalRejectReason}|]
+        in (status, description)
