@@ -13,7 +13,6 @@ import           ClassyPrelude.Yesod
 import           Database.Persist.Quasi
 
 import           Local.Persist.Currency
-import           Local.Persist.Deposit
 import           Local.Persist.UserRole
 import           Local.Persist.Wallet
 import           Local.Persist.ExchangeOrder

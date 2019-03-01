@@ -6,7 +6,7 @@ module Handler.Operator.DepositRequestsList where
 
 import           Import
 import           Local.Persist.Currency ( currSign, tmTShort )
-import           Local.Persist.Deposit
+import           Local.Persist.Wallet   ( DepositRequestStatus (..) )
 import           Utils.Deposit
 import           Utils.Money            ( truncCoins2Cents )
 import           Utils.Render

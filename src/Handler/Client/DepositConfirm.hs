@@ -3,7 +3,7 @@ module Handler.Client.DepositConfirm where
 
 import Import
 
-import Local.Persist.Deposit
+import           Local.Persist.Wallet   ( DepositRequestStatus (..) )
 import Local.Persist.Currency
 
 

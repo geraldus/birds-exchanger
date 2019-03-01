@@ -1,9 +1,6 @@
 module Local.Persist.Wallet where
 
-
-import Prelude
-
-import Database.Persist.TH
+import           ClassyPrelude.Yesod
 
 
 data WalletTransactionType
@@ -19,3 +16,15 @@ data WalletTransactionType
     | Bonus Int                   -- ^ + positive
     deriving (Show, Read, Eq)
 derivePersistField "WalletTransactionType"
+
+
+data DepositRequestStatus
+    = New
+    | ClientConfirmed
+    | ClientCancelled Text
+    | OperatorRejected Text
+    | OperatorAccepted Text
+    | OperatorArchived Text
+    | TimeoutArchieved Text
+    deriving (Show, Read, Eq)
+derivePersistField "DepositRequestStatus"

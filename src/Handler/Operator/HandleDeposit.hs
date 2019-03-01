@@ -3,7 +3,6 @@
 module Handler.Operator.HandleDeposit where
 
 import           Import
-import           Local.Persist.Deposit
 import           Local.Persist.Wallet
 import           Type.Money                     ( oneCoinCents )
 import           Utils.Deposit

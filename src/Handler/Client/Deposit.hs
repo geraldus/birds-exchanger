@@ -8,7 +8,7 @@ import           Import                 hiding ( on, (==.) )
 
 import           Form.Profile.Deposit
 import           Local.Persist.Currency ( Currency (..), currSign )
-import           Local.Persist.Deposit
+import           Local.Persist.Wallet   ( DepositRequestStatus (..) )
 import           Utils.I18n
 import           Utils.Time
 
