@@ -1,4 +1,7 @@
 ProjectName: OutBirds
+
+SignIn: Вход
+
 User: Пользователь
 EmailAddress: Адрес эл.почты
 Password: Пароль
@@ -76,8 +79,11 @@ DepositConfirmed: Подтверждён
 DepositExecuted: Средства зачислены
 DepositRejected: Отклонён
 AwaitingExecution: Ожидает исполнения
+RequestProcessing: В обработке
 BalanceWithdrawal: Вывод средств
+BalanceReturn: Возврат средств
 ViewRequestDetails: Просмотр подробностей заявки
+AmountFrozen: Удержано средств
 
 CantViewThisOrder: Невозможно отобразить данные ордера
 ViewOrderHistory: Показать историю ордера
