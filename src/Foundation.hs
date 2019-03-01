@@ -435,7 +435,9 @@ instance YesodAuth App where
         ma <- maybeAuthId
         tp <- getRouteToParent
         when (isJust ma) (redirect HomeR)
-        authLayout
+        mr <- getMessageRender
+        authLayout $ do
+            setTitleI $ mr MsgProjectName <> " | " <> mr MsgSignIn
             [whamlet|
                 <div .container>
                     <div .row .justify-content-center>
