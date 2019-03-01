@@ -28,3 +28,13 @@ data DepositRequestStatus
     | TimeoutArchieved Text
     deriving (Show, Read, Eq)
 derivePersistField "DepositRequestStatus"
+
+data WithdrawalStatus
+    = WsNew
+    | WsClientCancelled Text
+    | WsOperatorRejected Text
+    | WsOperatorExecuted Text
+    | WsOperatorArchived Text
+    | WsTimeoutArchieved Text
+    deriving (Show, Read, Eq)
+derivePersistField "WithdrawalStatus"
