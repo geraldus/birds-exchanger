@@ -287,6 +287,7 @@ instance Yesod App where
     isAuthorized OperatorDeclineDepositRequestR _    = isStaffAuthenticated
     isAuthorized OperatorWithdrawalRequestsListR _   = isStaffAuthenticated
     isAuthorized OperatorAcceptWithdrawalRequestR _  = isStaffAuthenticated
+    isAuthorized OperatorDeclineWithdrawalRequestR _ = isStaffAuthenticated
     -- ADMINS
     isAuthorized ManageInfoIndexR _                  = isEditorAuthenticated
     isAuthorized ManageInfoAddR _                    = isEditorAuthenticated

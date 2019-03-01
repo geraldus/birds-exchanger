@@ -32,6 +32,7 @@
 /operator/decline-deposit-request    OperatorDeclineDepositRequestR    POST
 /operator/withdrawal-requests-list   OperatorWithdrawalRequestsListR   GET
 /operator/accept-withdrawal-request  OperatorAcceptWithdrawalRequestR  POST
+/operator/decline-withdrawal-request OperatorDeclineWithdrawalRequestR POST
 /info/manage/index                   ManageInfoIndexR                  GET
 /info/manage/add                     ManageInfoAddR                    GET POST
 /info/manage/update                  ManageInfoUpdateR                 POST

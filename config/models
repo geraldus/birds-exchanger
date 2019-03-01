@@ -83,6 +83,7 @@ WithdrawalRequest
     feeAmount Int
     created UTCTime
     walletTransactionReasonId WalletTransactionReasonId
+    status WithdrawalStatus
     accepted UTCTime Maybe
     deriving Show
 
@@ -92,6 +93,16 @@ WithdrawalAccept
     actualFee Int
     staffIdent Text
     staffId UserId Maybe
+    time UTCTime
+    deriving Show
+
+WithdrawalReject
+    requestId WithdrawalRequestId
+    staffId Text
+    reason Textarea
+    transactionReasonId WalletTransactionReasonId
+    time UTCTime default timezone('utc', now())
+    UniqueWithdrawalReject requestId
     deriving Show
 
 

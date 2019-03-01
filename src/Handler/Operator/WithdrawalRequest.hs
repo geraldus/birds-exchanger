@@ -3,20 +3,16 @@
 {-# LANGUAGE RecordWildCards   #-}
 module Handler.Operator.WithdrawalRequest where
 
-
 import           Import
 import           Local.Persist.Currency
-import           Local.Persist.ExchangeOrder    ( ProfitType(..) )
-import           Utils.Render                   ( renderFeeAsPct )
-import           Utils.Time                     ( renderTimeDateCol )
+import           Local.Persist.Wallet   ( WithdrawalStatus (..) )
+import           Utils.Render           ( renderFeeAsPct )
+import           Utils.Time             ( renderTimeDateCol )
 import           Utils.Withdrawal
 
-import qualified Data.Text                     as T
-import           Database.Persist.Sql           ( fromSqlKey
-                                                , rawSql
-                                                , toSqlKey
-                                                )
-import           Text.Blaze.Html                ( preEscapedToHtml )
+import qualified Data.Text              as T
+import           Database.Persist.Sql   ( fromSqlKey, rawSql )
+import           Text.Blaze.Html        ( preEscapedToHtml )
 
 
 getOperatorWithdrawalRequestsListR :: Handler Html
@@ -26,7 +22,7 @@ getOperatorWithdrawalRequestsListR = do
     tzo <- timezoneOffsetFromCookie
     let reqDateT = renderTimeDateCol loc tzo . withdrawalRequestCreated
     list <-
-        runDB $ rawSql s [] :: Handler
+        runDB $ rawSql s [ toPersistValue WsNew ] :: Handler
             [(Entity WithdrawalRequest, Entity UserWallet, Entity User)]
     defaultLayout $ do
         $(widgetFile "operator/request-list-common")
@@ -34,37 +30,11 @@ getOperatorWithdrawalRequestsListR = do
   where
     s
         = "SELECT ??, ??, ?? FROM withdrawal_request, user_wallet, \"user\" \
-        \ WHERE withdrawal_request.accepted IS NULL \
+        \ WHERE withdrawal_request.status = ? \
         \ AND withdrawal_request.wallet_id = user_wallet.id \
         \ AND user_wallet.user_id = \"user\".id \
-        \ ORDER BY withdrawal_request.created ASC"
+        \ ORDER BY withdrawal_request.created DESC"
 
-
-postOperatorAcceptWithdrawalRequestR :: Handler Html
-postOperatorAcceptWithdrawalRequestR = do
-    staffId <- requireStaffId
-    let mStaffUserId = case staffId of
-            Left uid -> Just uid
-            _        -> Nothing
-    wid <- toSqlKey <$> runInputPost (ireq intField "withdrawal-id")
-    request <- runDB $ get404 wid
-    wallet <- runDB $ get404 (withdrawalRequestWalletId request)
-    fee <- runInputPost (ireq intField "withdrawal-fee")
-    trans <- runInputPost (ireq intField "withdrawal-transfered")
-    time <- liftIO getCurrentTime
-    runDB $ do
-        insert $ WithdrawalAccept wid
-                                  trans
-                                  fee
-                                  (pack $ show staffId)
-                                  mStaffUserId
-        update wid [WithdrawalRequestAccepted =. Just time]
-        insert $ InnerProfitRecord
-            (withdrawalRequestWalletTransactionReasonId request)
-            (userWalletCurrency wallet)
-            fee
-            WithdrawalFee
-    redirect OperatorWithdrawalRequestsListR
 
 renderReqAddress :: UserWallet -> WithdrawalRequest -> Html
 renderReqAddress w r

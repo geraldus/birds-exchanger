@@ -33,7 +33,7 @@
 
 
 $forall (Entity reqId r@WithdrawalRequest{..}, Entity _ w@UserWallet{..}, Entity _ User{..}) <- list
-    <div #req-modal-#{fromSqlKey reqId} .modal.withdrawal-modal tabindex="-1" role=dialog>
+    <div #req-modal-#{fromSqlKey reqId} .modal .request-modal .withdrawal-modal tabindex="-1" role=dialog>
         <div .modal-dialog .modal-lg role=document>
             <div .modal-content>
                 <div .modal-header>
@@ -84,5 +84,41 @@ $forall (Entity reqId r@WithdrawalRequest{..}, Entity _ w@UserWallet{..}, Entity
                             name="withdrawal-transfered"
                             value="#{show (reqTransferAmount w r)}">
                     <div .modal-footer>
-                        <button type=submit .btn .btn-block .btn-lg .btn-primary .text-lowercase>
-                            _{MsgWithdrawalExecuted}
+                        <div .container-fluid>
+                            <div .row .justify-content-around>
+                                <button
+                                        data-request-id="#{fromSqlKey reqId}"
+                                        .cancel-request-btn
+                                        .btn
+                                        .btn-lg
+                                        .btn-outline-danger>
+                                            _{MsgDeclineRequest}
+                                <button
+                                    type=submit
+                                    .btn
+                                    .btn-lg
+                                    .btn-primary>_{MsgWithdrawalExecuted}
+
+
+<div #decline-request-modal .modal tabindex="-1" role=dialog>
+    <form
+            #decline-request-form
+            method=post
+            action=@{OperatorDeclineWithdrawalRequestR}>
+        <div .modal-dialog role=document>
+            <div .modal-content>
+                <div .modal-header>
+                    _{MsgDeclineReason}
+                <div .modal-body>
+                    <input type=hidden name="request-id" value=""/>
+                    <div .form-group>
+                        <textarea required=required .form-control name="reason">
+                <div .modal-footer .justify-content-center>
+                    <div .container-fluid>
+                        <div .row .justify-content-around>
+                            <button
+                                #close-decline-modal-btn
+                                .btn .btn-lg .btn-outline-primary>
+                                    _{MsgCancel}
+                            <button  type=submit .btn .btn-lg .btn-primary>
+                                _{MsgDeclineRequest}
