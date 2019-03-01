@@ -9,6 +9,8 @@ import           Import                 hiding ( on, (==.) )
 import           Form.Profile.Deposit
 import           Local.Persist.Currency ( Currency (..), currSign )
 import           Local.Persist.Wallet   ( DepositRequestStatus (..) )
+import           Utils.App.Client
+import           Utils.App.Common
 import           Utils.I18n
 
 import           Database.Esqueleto
@@ -126,20 +128,18 @@ depositHistoryRow d = do
     ft <- getFormatTimeRender
     genericRow
         r
-        (genericRequestAmount (requestAmounts d) (desc d))
+        (genericRequestAmount (requestAmounts d) (description d))
         (genericRequestStatus (requestStatuses ur mr (fd, ft) d))
   where
-    desc d = case d of
+    description d = case d of
         NoDetails _ -> mempty
         _           -> [whamlet|\ (_{MsgInFact})|]
-    isRejected (RejectD _ _) = True
-    isRejected _             = False
 
 genericRow :: Entity DepositRequest -> Widget -> Widget -> Widget
 genericRow (Entity ident r@DepositRequest{..}) expected status =
     toWidget [whamlet|
         <tr .data-row #data-row-#{fromSqlKey ident}>
-            <td>^{requestTimeW r}
+            <td>^{requestTimeW depositRequestCreated}
             <td .align-middle>
                 #{cents2dblT depositRequestCentsAmount}#
                 <small .text-muted>
@@ -152,12 +152,6 @@ genericRow (Entity ident r@DepositRequest{..}) expected status =
             <td .align-middle>
                 ^{status}
         |]
-
-requestTimeW :: DepositRequest -> Widget
-requestTimeW DepositRequest{..} =
-    toWidget [whamlet|
-        <small .text-muted>
-            ^{dateTimeRowW depositRequestCreated}|]
 
 requestAmounts :: Details -> (Int, Bool, Int, Currency)
 requestAmounts (NoDetails (Entity _ DepositRequest{..})) =
@@ -176,29 +170,33 @@ requestStatuses
     -> Details
     -> (Widget, Widget, Widget)
 requestStatuses ur mr fs (NoDetails (Entity _ r@DepositRequest{..})) =
-    let (_, dm) = requestStatusMessages mr r
+    let (sm, dm) = requestStatusMessages mr r
         code = depositRequestTransactionCode
-        extra = [whamlet|
-            <a href=#{ur (DepositRequestConfirmationR code)}>
-                #{mr MsgDepositConfirmTransfer}|]
-        desc = [whamlet|<i .text-muted><small>#{dm}|]
-    in (extra, mempty, desc)
+        (extra, status) = case depositRequestStatus of
+            New ->
+                ( [whamlet|
+                    <a href=#{ur (DepositRequestConfirmationR code)}>
+                        #{mr MsgDepositConfirmTransfer}|]
+                , mempty)
+            _ -> (mempty, [whamlet|#{sm}<br>|])
+        description = [whamlet|<i .text-muted><small>#{dm}|]
+    in (extra, status, description)
 requestStatuses
     _ mr (fd, ft) (AcceptD (Entity _ r) (Entity _ AcceptedDeposit{..})) =
         let (sm, _) = requestStatusMessages mr r
             status = [whamlet|#{sm}<br>|]
-            desc = [whamlet|<small .text-muted>
+            description = [whamlet|<small .text-muted>
                 #{fd acceptedDepositAccepted} #{ft acceptedDepositAccepted}|]
-        in (mempty, status, desc)
+        in (mempty, status, description)
 requestStatuses
     _ mr (fd, ft) (RejectD (Entity _ r) (Entity _ DepositReject{..})) =
         let (sm, _) = requestStatusMessages mr r
             status = [whamlet|#{sm}<br>|]
-            desc = [whamlet|<small .text-muted>
+            description = [whamlet|<small .text-muted>
                 #{fd depositRejectTime} #{ft depositRejectTime}
                 <br>
                 #{depositRejectReason}|]
-        in (mempty, status, desc)
+        in (mempty, status, description)
 
 requestStatusMessages :: (AppMessage -> Text) -> DepositRequest -> (Text, Text)
 requestStatusMessages mr r = case depositRequestStatus r of
@@ -208,7 +206,7 @@ requestStatusMessages mr r = case depositRequestStatus r of
     OperatorRejected _ -> (mr MsgDepositRejected, mempty)
 
 genericRequestAmount :: (Int, Bool, Int, Currency) -> Widget -> Widget
-genericRequestAmount (a, rejected, f, c) desc =
+genericRequestAmount (a, rejected, f, c) d =
     [whamlet|
         <big>
             $if rejected
@@ -222,40 +220,17 @@ genericRequestAmount (a, rejected, f, c) desc =
             #{sign}#{cents2dblT f}#
             <small>
                 #{currSign c}
-            ^{desc}
+            ^{d}
         |]
   where
     sign = if f == 0 then "" else "-" :: String
     ac = cents2dblT a
 
 genericRequestStatus :: (Widget, Widget, Widget) -> Widget
-genericRequestStatus (extra, status, desc) =
+genericRequestStatus (extra, status, description) =
     [whamlet|
         ^{extra}
         <p>
             <span .text-uppercase>^{status}
-            ^{desc}
+            ^{description}
         |]
-
-
-getRenders :: WidgetFor App (Route App -> Text, AppMessage -> Text)
-getRenders = (,) <$> liftHandler getUrlRender <*> liftHandler getMessageRender
-
-dateTimeRowW :: UTCTime -> Widget
-dateTimeRowW t = do
-    fd <- getFormatDateRender
-    ft <- getFormatTimeRender
-    [whamlet|#{ft t} #{fd t}|]
-
-getFormatDateRender :: WidgetFor App (UTCTime -> Html)
-getFormatDateRender = (\(l, t) -> localeFormatDate l . offsetTime t)
-    <$> getFormatParams
-
-getFormatTimeRender :: WidgetFor App (UTCTime -> Html)
-getFormatTimeRender = (\(l, t) -> localeFormatTime l . offsetTime t)
-    <$> getFormatParams
-
-getFormatParams :: WidgetFor App (TimeLocale, Int)
-getFormatParams = (,)
-    <$> liftHandler selectLocale
-    <*> liftHandler timezoneOffsetFromCookie
