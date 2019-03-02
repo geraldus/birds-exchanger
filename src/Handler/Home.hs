@@ -90,9 +90,9 @@ renderOrderCol pair title orders =
         <table .table .table-hover data-pair="#{pair}">
             <thead .thead-dark>
                 <tr>
-                    <th>Ставка
-                    <th>Кол-во
-                    <th>Сумма
+                    <th>_{MsgRatio}
+                    <th>_{MsgQuantityShort}
+                    <th>_{MsgAmount}
             <tbody>
                 $forall order <- orders
                     <tr .clickable-order>
