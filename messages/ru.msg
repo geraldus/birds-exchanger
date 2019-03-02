@@ -39,9 +39,11 @@ Date: Дата
 DateCreated: Дата создания
 Details: Подробности
 
-Order: Ордер
 Ratio: Курс
 
+# ORDERS
+
+Order: Ордер
 OrderView: Просмотр ордера
 OrderHistory: История ордера
 OrderCreated: Создание ордера
@@ -58,11 +60,11 @@ OrderExecution: Исполнение ордера
 OrderStatusExecution: Исполняется
 OrderLastOperation: Последняя операция
 OrderActualIncome: С учётом комиссии
-
 AllOrders: Все ордера
 ActiveOrders: Активные
 ExecutedOrders: Выполненые
 ViewOrderDetails: Просмотр истории ордера
+CancelOrder: Отменить ордер
 CancelOrderConfirmationText: Вы уверены, что хотите отменить ордер на обмен?
 
 
@@ -73,13 +75,15 @@ Execute: Исполнить
 Executed: Исполнено
 Fee: Комиссия
 IExchange: Обмениваю
-Rate: Ставка
 Received: Получено
 Remainder: Остаток
 Withdraw: Вывод
 Deposit: Пополнение
 Amount: Сумма
 QuantityShort: Кол-во
+
+
+# DEPOSIT / WITHDRAWAL
 
 Request: Заявка
 BalanceDeposit: Пополнение счёта
@@ -95,11 +99,8 @@ BalanceWithdrawal: Вывод средств
 BalanceReturn: Возврат средств
 ViewRequestDetails: Просмотр подробностей заявки
 AmountFrozen: Удержано средств
-
 CantViewThisOrder: Невозможно отобразить данные ордера
 ViewOrderHistory: Показать историю ордера
-
-CancelOrder: Отменить ордер
 UserCancelled: Отменён пользователем
 
 
