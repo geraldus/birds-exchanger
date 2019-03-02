@@ -31,16 +31,6 @@ renderDateTimeRow loc moff utc = [shamlet|
     |]
   where utc' = offsetTime moff utc
 
-renderTimeDateCol' :: TimeLocale -> UTCTime -> Html
-renderTimeDateCol' loc utc = [shamlet|
-    #{localeFormatTime loc utc}<br>
-    <small>#{localeFormatDate loc utc}
-    |]
-
-renderDateTimeRow' :: TimeLocale -> UTCTime -> Html
-renderDateTimeRow' loc utc = [shamlet|
-    #{localeFormatDate loc utc} #{localeFormatTime loc utc}
-    |]
 
 -- | Locale representing Russian free-form usage.
 -- Note that the parsing functions will regardless parse "UTC", single-letter
