@@ -709,3 +709,9 @@ transferMethodSelect = selectField . pure $ mkOptionList transferOptionsRaw
 
 supportEmail :: Text
 supportEmail = "support@outb.info"
+
+setAppTitle :: [ AppMessage ] -> Widget
+setAppTitle = setCompositeTitle . (:) MsgProjectName
+
+setAppPageTitle :: AppMessage -> Widget
+setAppPageTitle = setAppTitle . (: [])
