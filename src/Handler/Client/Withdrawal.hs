@@ -133,7 +133,7 @@ withdrawalHistory = do
             <thead .thead-light>
                 <th .align-top>_{MsgDateCreated}
                 <th .align-top>
-                    _{MsgDepositAmount}
+                    _{MsgAmount}
                     <br>
                     <small .text-muted>
                         _{MsgTransferMethod}

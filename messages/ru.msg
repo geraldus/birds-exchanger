@@ -68,10 +68,10 @@ Received: Получено
 Remainder: Остаток
 Withdraw: Вывод
 Deposit: Пополнение
+Amount: Сумма
 
 Request: Заявка
 BalanceDeposit: Пополнение счёта
-DepositAmount: Сумма
 DepositRealAmount: К зачислению
 DepositConfirmTransfer: Подтвердить перевод
 AwaitingConfirmation: Ожидает подтверждения
