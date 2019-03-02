@@ -1,11 +1,35 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Handler.Client.DepositConfirm where
+module Handler.Client.HandleDeposit where
 
 import           Import
 
 import           Local.Persist.Currency
 import           Local.Persist.Wallet   ( DepositRequestStatus (..) )
 import           Utils.Money
+
+
+{-
+Qiwi
+  +79090991177
+
+Sber
+  5469 7200 1260 8192
+
+Tinkoff
+  5536 9137 9169 3324
+  5536 9137 9648 0594 Pavel Koval
+  5536 9137 9788 6542 Pavel Golenkov
+
+PRIZM
+  PRIZM-8GBY-JZ9V-UJAZ-DNLU2
+  12d9435fa9a3ecf3c11c6b8bf7662dec44842616d2cde82cfbf8fb489b3d6d16
+
+Bitcoin
+  1Hih1ccN7oAxfYWh2tTENiesJ69vt8fdvS
+
+Etherium
+  0x790d1e80934232e16FEA0360Ad8963E04Ab528Dc
+-}
 
 
 getDepositRequestConfirmationR :: Text -> Handler Html

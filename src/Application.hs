@@ -50,8 +50,8 @@ import           System.Log.FastLogger                ( defaultBufSize,
 import           Handler.Admin.LogIn
 import           Handler.BlackList
 import           Handler.Client.Deposit
-import           Handler.Client.DepositConfirm
 import           Handler.Client.ExchangeOrderCreate
+import           Handler.Client.HandleDeposit
 import           Handler.Client.Orders
 import           Handler.Client.Withdrawal
 import           Handler.Common
