@@ -52,13 +52,13 @@ import           Handler.BlackList
 import           Handler.Client.Deposit
 import           Handler.Client.DepositConfirm
 import           Handler.Client.ExchangeOrderCreate
-import           Handler.Client.Withdrawal
 import           Handler.Client.Orders
+import           Handler.Client.Withdrawal
 import           Handler.Common
 import           Handler.Home
 import           Handler.Info
-import           Handler.Manage.Info.Index
 import           Handler.Manage.Info.Add
+import           Handler.Manage.Info.Index
 import           Handler.Manage.Info.Update
 import           Handler.Operator.DepositRequestsList
 import           Handler.Operator.HandleDeposit
