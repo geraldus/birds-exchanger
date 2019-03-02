@@ -1,12 +1,12 @@
 {-# LANGUAGE QuasiQuotes #-}
 module Handler.BlackList ( getBlackListR ) where
 
-import Import
+import           Import
 
 
 getBlackListR :: Handler Html
 getBlackListR = defaultLayout $ do
-    setTitleI MsgBlackList
+    setAppPageTitle MsgBlackList
     [whamlet|
         <h5 .mb-5>_{MsgPrizmBlackListTitle}
         <table .table .table-striped .table-hover .table-sm .table-hover>
@@ -98,7 +98,7 @@ getBlackListR = defaultLayout $ do
                             id480538496
                 <tr>
                     <td>
-                        PRIZM-N67D-F8DX-JWZL-59MKT 
+                        PRIZM-N67D-F8DX-JWZL-59MKT
                     <td>
                     <td>
                         83852580826

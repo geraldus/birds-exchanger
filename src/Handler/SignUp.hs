@@ -7,13 +7,13 @@ module Handler.SignUp where
 import           Form.Auth.SignUp
 import           Import
 import           Local.Persist.UserRole
-import           Type.Auth.SignUp              (SignUpFormData (..))
+import           Type.Auth.SignUp              ( SignUpFormData (..) )
 
 import qualified Data.Text                     as T
 import qualified Data.Text.Lazy                as TL
 import           Network.HaskellNet.SMTP
 import           Network.HaskellNet.SMTP.SSL
-import           Text.Blaze.Html.Renderer.Text (renderHtml)
+import           Text.Blaze.Html.Renderer.Text ( renderHtml )
 
 
 
@@ -38,7 +38,7 @@ getSignUpR = do
     (widget, enctype) <- generateFormPost signUpForm
     defaultLayout $ do
         let mayError = Nothing :: Maybe Text
-        setTitle $ toHtml ("Регистрация" :: Text)
+        setAppPageTitle MsgSignUpPageTitle
         $(widgetFile "auth/signup")
 
 

@@ -1,12 +1,12 @@
 {-# LANGUAGE QuasiQuotes #-}
 module Handler.TermsOfUse ( getTermsOfUseR ) where
 
-import Import
+import           Import
 
 
 getTermsOfUseR :: Handler Html
 getTermsOfUseR = defaultLayout $ do
-    setTitleI MsgTermsOfUse
+    setAppPageTitle MsgTermsOfUse
     [whamlet|
         <h5>_{MsgTermsOfUseTitle}
         <p>Добро пожаловать на P2P обменник OUTBIRDS!

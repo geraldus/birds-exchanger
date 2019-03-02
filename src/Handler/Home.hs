@@ -50,7 +50,7 @@ getHomeR = do
         cbrRes <- httpLbs cbrReq manager
         return (rbt btcARes, rbt cbrRes)
     defaultLayout $ do
-        setTitleI MsgProjectName
+        setAppPageTitle MsgHomePageTitle
         $(widgetFile "homepage")
   where
     rbt = decodeUtf8 . responseBody

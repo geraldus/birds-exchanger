@@ -59,7 +59,7 @@ getProfileR = do
                 return (dos, wos, wros, eoos, eoes, eocs)
     dataTableId <- newIdent
     defaultLayout $ do
-        setTitle . toHtml $ "Мой портфель | " <> userName
+        setAppPageTitle MsgClientProfilePageTitle
         $(widgetFile "profile")
   where
     s

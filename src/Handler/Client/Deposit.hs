@@ -57,17 +57,19 @@ postDepositR = do
             redirect $ DepositRequestConfirmationR code
 
 defaultWidget :: Text -> Widget -> Enctype -> Maybe [Text] -> Widget
-defaultWidget formId widget enctype mayError = [whamlet|
-    <form ##{formId} method=post enctype=#{enctype} .col-12 .col-sm-10 .col-md-8 .mx-auto>
-        ^{widget}
-        $maybe error <- mayError
-            <div .alert .alert-danger role="alert">
-                $forall e <- error
-                    <div .error>#{e}
-        <div .form-group .row>
-            <button type=submit .btn.btn-outline-primary.btn-lg .mx-auto>продолжить
-    ^{depositHistory}
-    |]
+defaultWidget formId widget enctype mayError = do
+    setAppPageTitle MsgClientDepositPageTitle
+    [whamlet|
+        <form ##{formId} method=post enctype=#{enctype} .col-12 .col-sm-10 .col-md-8 .mx-auto>
+            ^{widget}
+            $maybe error <- mayError
+                <div .alert .alert-danger role="alert">
+                    $forall e <- error
+                        <div .error>#{e}
+            <div .form-group .row>
+                <button type=submit .btn.btn-outline-primary.btn-lg .mx-auto>продолжить
+        ^{depositHistory}
+        |]
 
 
 type DepositDetails =

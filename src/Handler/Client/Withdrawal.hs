@@ -83,25 +83,27 @@ postWithdrawalCreateR = do
 
 
 defaultWidget :: Text -> Widget -> Enctype -> Maybe [Text] -> Widget
-defaultWidget formId widget enctype mayError = [whamlet|
-    $maybe error <- mayError
-        <div .row>
-            <div .col-10 .mx-auto>
-                <div .alert.alert-warning>
-                    $forall e <- error
-                        <div .error>#{e}
-    <form
-            ##{formId}
-            method=post
-            enctype=#{enctype}
-            action=@{WithdrawalCreateR}
-            .col-12 .col-sm-10 .col-md-8
-            .mx-auto>
-        ^{widget}
-        <div .form-group .row .justify-content-center>
-            <button .btn.btn-lg.btn-outline-primary .mt-2 type=submit>вывод
-    ^{withdrawalHistory}
-    |]
+defaultWidget formId widget enctype mayError = do
+    setAppPageTitle MsgClientWithdrawalPageTitle
+    [whamlet|
+        $maybe error <- mayError
+            <div .row>
+                <div .col-10 .mx-auto>
+                    <div .alert.alert-warning>
+                        $forall e <- error
+                            <div .error>#{e}
+        <form
+                ##{formId}
+                method=post
+                enctype=#{enctype}
+                action=@{WithdrawalCreateR}
+                .col-12 .col-sm-10 .col-md-8
+                .mx-auto>
+            ^{widget}
+            <div .form-group .row .justify-content-center>
+                <button .btn.btn-lg.btn-outline-primary .mt-2 type=submit>вывод
+        ^{withdrawalHistory}
+        |]
 
 
 type WithdrawalDetails =
