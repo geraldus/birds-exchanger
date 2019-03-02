@@ -28,14 +28,18 @@ createOrderForm wrapId ratid defaultPair extra = do
         Nothing
     (amountRes, amountView) <- mreq
         doubleField
-        (fsAddClasses (fsAddPlaceholder (fsBs4WithId amtid) "кол-во")
+        (fsAddAttrs
+            [("min", "0")]
+            (fsAddClasses (fsAddPlaceholder (fsBs4WithId amtid) "кол-во")
                       (fsOpts <> ["font-weight-bold", "amount-input"])
+            )
         )
         Nothing
     (ratioRes, ratioView) <- mreq
         doubleField
         (fsAddAttrs
-            [("autocomplete", "off")]
+            [("autocomplete", "off")
+            ,("min", "0")]
             (fsAddClasses (fsAddPlaceholder (fsBs4WithId ratid) "67.00")
                           (fsOpts <> ["ratio-input"])
             )
