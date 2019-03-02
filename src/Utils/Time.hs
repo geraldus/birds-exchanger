@@ -93,11 +93,14 @@ ruTimeLocale = TimeLocale
                        ]
     }
 
+dateFormatMNH :: String
+dateFormatMNH = "%e %b %Y"
+
 localeFormatTime :: TimeLocale -> UTCTime -> Html
 localeFormatTime l = toHtml . formatTime l (timeFmt l)
 
 localeFormatDate :: TimeLocale -> UTCTime -> Html
-localeFormatDate l = toHtml . formatTime l (dateFmt l)
+localeFormatDate l = toHtml . formatTime l dateFormatMNH
 
 offsetTime :: Int -> UTCTime -> UTCTime
 offsetTime minutesOffset = addUTCTime (negate . fromIntegral $ minutesOffset * 60)
