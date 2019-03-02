@@ -90,7 +90,11 @@ BalanceDeposit: Пополнение счёта
 DepositRealAmount: К зачислению
 DepositConfirmTransfer: Подтвердить перевод
 AwaitingConfirmation: Ожидает подтверждения
+DepositRequestConfirmedMessage: Заявка подтверждена
+DepositRequestAlreadyConfirmed: Заявка уже подтверждена
 DepositConfirmed: Подтверждён
+DepositConfirmCancellationText: Вы уверены, что хотите отменить заявку на ввод средств?
+DepoistCancelled: Пополнение отменено
 DepositExecuted: Средства зачислены
 DepositRejected: Отклонён
 AwaitingExecution: Ожидает исполнения
