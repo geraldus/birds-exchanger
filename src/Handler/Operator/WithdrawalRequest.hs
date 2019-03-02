@@ -7,7 +7,7 @@ import           Import
 import           Local.Persist.Currency
 import           Local.Persist.Wallet   ( WithdrawalStatus (..) )
 import           Utils.Render           ( renderFeeAsPct )
-import           Utils.Time             ( renderTimeDateCol )
+import           Utils.Time
 import           Utils.Withdrawal
 
 import qualified Data.Text              as T

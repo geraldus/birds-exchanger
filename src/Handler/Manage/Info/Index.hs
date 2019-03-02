@@ -1,12 +1,12 @@
-{-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes       #-}
 module Handler.Manage.Info.Index (getManageInfoIndexR) where
 
-import Import
+import           Import
 
-import           Utils.Time                  ( renderDateTimeRow )
+import           Utils.Time
 
-import           Database.Persist.Sql        ( fromSqlKey )
+import           Database.Persist.Sql ( fromSqlKey )
 
 
 getManageInfoIndexR :: Handler Html

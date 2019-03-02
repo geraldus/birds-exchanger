@@ -10,7 +10,7 @@ import           Local.Persist.Wallet   ( DepositRequestStatus (..) )
 import           Utils.Deposit
 import           Utils.Money            ( truncCoins2Cents )
 import           Utils.Render
-import           Utils.Time             ( renderTimeDateCol )
+import           Utils.Time
 
 import           Database.Persist.Sql   ( fromSqlKey, rawSql )
 

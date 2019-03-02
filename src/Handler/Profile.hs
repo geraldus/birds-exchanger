@@ -6,7 +6,7 @@ module Handler.Profile where
 import           Import
 import           Local.Persist.Currency ( Currency, currSign, currencyCodeT )
 import           Local.Persist.Wallet
-import           Utils.Time             ( renderDateTimeRow )
+import           Utils.Time
 
 import           Data.Maybe             ( fromJust )
 import           Data.Tuple.Extra       ( fst3, thd3 )

@@ -1,4 +1,5 @@
-{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes       #-}
 module Utils.Time
 where
 
@@ -7,6 +8,14 @@ import           ClassyPrelude.Yesod
 import           Data.Time.Clock
 import           Data.Time.Format    ( TimeLocale (..) )
 import           Data.Time.LocalTime ( TimeZone (..) )
+import           Text.Read           ( readMaybe )
+
+
+mayCookie :: MonadHandler m => Text -> Text -> m Text
+mayCookie name defaultVal = fromMaybe defaultVal <$> lookupCookie name
+
+timezoneOffsetFromCookie :: MonadHandler m => m Int
+timezoneOffsetFromCookie = fromMaybe 0 . readMaybe . unpack <$> mayCookie "timezoneOffset" ""
 
 
 renderTimeDateCol :: TimeLocale -> Int -> UTCTime -> Html

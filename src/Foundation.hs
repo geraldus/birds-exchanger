@@ -771,10 +771,3 @@ dbl2MoneyT = sformat (F.fixed (2 :: Int))
 
 supportEmail :: Text
 supportEmail = "support@outb.info"
-
-
-mayCookie :: MonadHandler m => Text -> Text -> m Text
-mayCookie name defaultVal = fromMaybe defaultVal <$> lookupCookie name
-
-timezoneOffsetFromCookie :: Handler Int
-timezoneOffsetFromCookie = fromMaybe 0 . readMaybe . unpack <$> mayCookie "timezoneOffset" ""

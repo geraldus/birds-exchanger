@@ -1,6 +1,6 @@
+{-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes       #-}
-{-# LANGUAGE FlexibleContexts       #-}
 module Handler.Client.Orders where
 
 import           Import
@@ -8,8 +8,8 @@ import           Import
 import           Local.Persist.Currency      ( currSign )
 import           Local.Persist.ExchangeOrder ( ExchangeOrderStatus (..),
                                                ExchangePair (..) )
-import           Utils.Time                  ( renderDateTimeRow )
 import           Local.Persist.Wallet        ( WalletTransactionType (..) )
+import           Utils.Time
 
 import           Data.Time.Format            ( TimeLocale (..) )
 import           Database.Persist.Sql        ( fromSqlKey, toSqlKey )

@@ -7,7 +7,7 @@ module Handler.Info (
 import           Import
 
 import           Local.Persist.UserRole ( UserRole (..) )
-import           Utils.Time             ( renderDateTimeRow )
+import           Utils.Time
 
 import           Database.Persist.Sql   ( fromSqlKey )
 import           Text.Julius            ( RawJS (..) )
