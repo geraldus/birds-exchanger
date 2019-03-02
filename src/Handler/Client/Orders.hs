@@ -31,7 +31,7 @@ getClientOrdersR = do
     msgRender <- getMessageRender
     urlRender <- getUrlRender
     defaultLayout $ do
-        setTitleI MsgMyOrders
+        setAppPageTitle MsgClientOrdersPageTitle
         $(widgetFile "client/orders/list")
 
 

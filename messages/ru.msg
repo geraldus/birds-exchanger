@@ -1,6 +1,9 @@
 ProjectName: OutBirds
 
 SignIn: Вход
+# PAGE TITLES
+## CLIENT
+ClientOrdersPageTitle: Мои ордера
 
 User: Пользователь
 EmailAddress: Адрес эл.почты
@@ -29,7 +32,6 @@ DateCreated: Дата создания
 Details: Подробности
 
 Order: Ордер
-MyOrders: Мои ордера
 Ratio: Курс
 
 OrderView: Просмотр ордера
