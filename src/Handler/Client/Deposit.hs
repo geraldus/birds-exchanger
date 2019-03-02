@@ -167,7 +167,9 @@ genericRow (Entity ident r@DepositRequest{..}) expected status =
 requestAmounts :: Details -> (Int, Bool, Int, Currency)
 requestAmounts (NoDetails (Entity _ DepositRequest{..})) =
     let amt = depositRequestCentsAmount - depositRequestExpectedFeeCents
-    in (amt, False, depositRequestExpectedFeeCents, depositRequestCurrency)
+        isCancelled = case depositRequestStatus of
+            ClientCancelled _ -> True; _ -> False
+    in (amt, isCancelled, depositRequestExpectedFeeCents, depositRequestCurrency)
 requestAmounts (AcceptD (Entity _ r) (Entity _ AcceptedDeposit{..})) =
     let amt = acceptedDepositCentsRealIncome - acceptedDepositCentsActualFee
     in (amt, False, acceptedDepositCentsActualFee, depositRequestCurrency r)
@@ -213,6 +215,7 @@ requestStatusMessages :: (AppMessage -> Text) -> DepositRequest -> (Text, Text)
 requestStatusMessages mr r = case depositRequestStatus r of
     New                -> (mempty, mr MsgAwaitingConfirmation)
     ClientConfirmed    -> (mr MsgDepositConfirmed, mr MsgAwaitingExecution)
+    ClientCancelled t  -> (mr MsgUserCancelled, mempty)
     OperatorAccepted _ -> (mr MsgDepositExecuted, mempty)
     OperatorRejected _ -> (mr MsgDepositRejected, mempty)
 
