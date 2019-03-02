@@ -26,7 +26,10 @@ dateTimeRowW :: (WidgetFor s ~ m, MonadWidget m) => UTCTime -> m ()
 dateTimeRowW t = do
     fd <- getFormatDateRender
     ft <- getFormatTimeRender
-    [whamlet|#{ft t} #{fd t}|]
+    [whamlet|
+        <span .text-uppercase>#{fd t}#
+        &nbsp;&nbsp;#
+        <span .text-muted>#{ft t}|]
 
 getFormatDateRender :: MonadWidget m => m (UTCTime -> Html)
 getFormatDateRender = (\(l, t) -> localeFormatDate l . offsetTime t)
