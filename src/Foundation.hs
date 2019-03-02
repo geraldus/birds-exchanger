@@ -32,18 +32,14 @@ import           Text.Jasmine            ( minifym )
 -- Extra imports
 import           Local.Auth
 import           Local.Persist.Currency
-import           Local.Persist.Exchange  ( ExchangePair (..) )
 import           Local.Persist.UserRole
 import           Type.Fee
-import           Type.Money              ( oneCoinCents )
 import           Utils.Common
 import           Utils.Form              ( currencyOptionListRaw,
                                            transferOptionsRaw )
 import           Utils.Money
-import           Utils.Time              ( ruTimeLocale )
 
 import qualified Crypto.Nonce            as CN
-import           Data.Time.Format        ( TimeLocale (..) )
 import           Text.Read               ( readMaybe )
 
 
@@ -271,6 +267,7 @@ instance Yesod App where
     isAuthorized WithdrawalR _                       = isClientAuthenticated
     isAuthorized (DepositRequestConfirmationR _) _   = isClientAuthenticated
     isAuthorized DepositConfirmRequestR _            = isClientAuthenticated
+    isAuthorized ClientCancelDepositR _              = isClientAuthenticated
     isAuthorized WithdrawalCreateR True              = isClientAuthenticated
     isAuthorized WithdrawalCreateR False             =
             return $ Unauthorized "Только POST запросы"

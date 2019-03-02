@@ -7,6 +7,7 @@ import           Local.Persist.Currency
 import           Local.Persist.Wallet   ( DepositRequestStatus (..) )
 import           Utils.Money
 
+import           Database.Persist.Sql   ( toSqlKey )
 
 {-
 Qiwi
@@ -33,9 +34,9 @@ Etherium
 
 
 getDepositRequestConfirmationR :: Text -> Handler Html
-getDepositRequestConfirmationR code = withRequest' code $ \(Entity _ t) -> do
+getDepositRequestConfirmationR code = withClientRequestByCode code $ \(Entity _ t) -> do
     when (depositRequestStatus t /= New) $ do
-        setMessage "Данная заявка проходит проверку..."
+        setMessageI MsgDepositRequestAlreadyConfirmed
         redirect HomeR
     let transactionCode = depositRequestTransactionCode t
         transferMethod = depositRequestTransferMethod t
@@ -97,26 +98,41 @@ getDepositRequestConfirmationR code = withRequest' code $ \(Entity _ t) -> do
 
 postDepositConfirmRequestR :: Handler Html
 postDepositConfirmRequestR = do
+    clientId <- requireClientId
     code <- runInputPost $ ireq textField "transaction-code"
-    withRequest' code $ \(Entity tid t) -> do
-        runDB $ update tid [DepositRequestStatus =. ClientConfirmed]
-        setMessage "Заявка проходит проверку"
+    withClientRequestByCode code $ \(Entity tid t) -> do
+        runDB $
+            update tid [DepositRequestStatus =. ClientConfirmed]
+        setMessageI MsgDepositRequestConfirmedMessage
         redirect DepositR
 
-withRequest'
-    :: Text
-    -> (Entity DepositRequest -> Handler Html)
-    -> Handler Html
-withRequest' code action =
-    requireClientId >> withRequest code action notFound
+postClientCancelDepositR :: Handler Html
+postClientCancelDepositR = do
+    requestId <- fmap toSqlKey $ runInputPost $ ireq intField "request-id"
+    withClientRequest requestId $ \(Entity tid _) -> do
+        t <- liftIO getCurrentTime
+        runDB $ update tid [DepositRequestStatus =. ClientCancelled t]
+        setMessageI MsgDepoistCancelled
+        redirect DepositR
 
-withRequest
+withClientRequestByCode
     :: Text
     -> (Entity DepositRequest -> Handler Html)
     -> Handler Html
+withClientRequestByCode code action = do
+    clientId <- requireClientId
+    r <- runDB . getBy404 $ UniqueDepositRequest code
+    if depositRequestUserId (entityVal r) /= clientId
+        then notFound
+        else action r
+
+withClientRequest
+    :: DepositRequestId
+    -> (Entity DepositRequest -> Handler Html)
     -> Handler Html
-withRequest code action fallback = do
-    mdr <- runDB . getBy $ UniqueDepositRequest code
-    case mdr of
-        Nothing -> fallback
-        Just e  -> action e
+withClientRequest rid action = do
+    clientId <- requireClientId
+    r <- runDB $ get404 rid
+    if depositRequestUserId r /= clientId
+        then notFound
+        else action (Entity rid r)

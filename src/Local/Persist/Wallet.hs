@@ -21,7 +21,7 @@ derivePersistField "WalletTransactionType"
 data DepositRequestStatus
     = New
     | ClientConfirmed
-    | ClientCancelled Text
+    | ClientCancelled UTCTime
     | OperatorRejected Text
     | OperatorAccepted Text
     | OperatorArchived Text

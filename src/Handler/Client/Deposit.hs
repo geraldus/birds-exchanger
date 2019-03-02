@@ -160,7 +160,7 @@ genericRow (Entity ident r@DepositRequest{..}) expected status =
             <td .controls .align-middle>
                 $if isNew r
                     <i .request-cancel-button .control .fas .fa-times-circle title=_{MsgCancelRequest}>
-                    <form .request-cancel-form .d-none method=post action=@{HomeR}>
+                    <form .request-cancel-form .d-none method=post action=@{ClientCancelDepositR}>
                         <input type=hidden name="request-id" value="#{fromSqlKey ident}">
         |]
 
