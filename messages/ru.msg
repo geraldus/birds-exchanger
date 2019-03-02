@@ -69,6 +69,7 @@ Remainder: Остаток
 Withdraw: Вывод
 Deposit: Пополнение
 Amount: Сумма
+QuantityShort: Кол-во
 
 Request: Заявка
 BalanceDeposit: Пополнение счёта
