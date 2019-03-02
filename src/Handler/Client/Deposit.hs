@@ -59,6 +59,7 @@ postDepositR = do
 defaultWidget :: Text -> Widget -> Enctype -> Maybe [Text] -> Widget
 defaultWidget formId widget enctype mayError = do
     setAppPageTitle MsgClientDepositPageTitle
+    messageRender <- liftHandler getMessageRender
     $(widgetFile "client/request/common")
     [whamlet|
         <form ##{formId} method=post enctype=#{enctype} .col-12 .col-sm-10 .col-md-8 .mx-auto>

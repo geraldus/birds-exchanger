@@ -85,6 +85,8 @@ postWithdrawalCreateR = do
 defaultWidget :: Text -> Widget -> Enctype -> Maybe [Text] -> Widget
 defaultWidget formId widget enctype mayError = do
     setAppPageTitle MsgClientWithdrawalPageTitle
+    messageRender <- liftHandler getMessageRender
+        :: WidgetFor App (AppMessage -> Text)
     $(widgetFile "client/request/common")
     [whamlet|
         $maybe error <- mayError
