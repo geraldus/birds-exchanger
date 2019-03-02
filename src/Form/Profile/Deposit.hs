@@ -7,7 +7,7 @@ import           Import
 import           Local.Persist.Currency
 import           Utils.Deposit
 import           Utils.Form
-import           Utils.Money                   ( truncCoins2Cents )
+import           Utils.Money
 
 import           Text.Blaze.Html.Renderer.Text ( renderHtml )
 import           Text.Julius                   ( RawJS (..) )

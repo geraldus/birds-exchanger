@@ -4,11 +4,11 @@ module Form.Exchanger.Order where
 
 import           Import
 
-import           Local.Persist.ExchangeOrder    ( ExchangePair(..) )
-import           Type.Fee                       ( Fee(..) )
-import           Utils.Money                    ( truncCoins2Cents )
+import           Local.Persist.Exchange ( ExchangePair (..) )
+import           Type.Fee               ( Fee (..) )
+import           Utils.Money            ( truncCoins2Cents )
 
-import           Text.Julius                    ( RawJS(..) )
+import           Text.Julius            ( RawJS (..) )
 
 
 createOrderForm :: Text -> Text -> ExchangePair -> Form OrderFD

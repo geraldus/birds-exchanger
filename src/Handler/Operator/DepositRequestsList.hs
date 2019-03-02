@@ -8,7 +8,7 @@ import           Import
 import           Local.Persist.Currency ( currSign, tmTShort )
 import           Local.Persist.Wallet   ( DepositRequestStatus (..) )
 import           Utils.Deposit
-import           Utils.Money            ( truncCoins2Cents )
+import           Utils.Money
 import           Utils.Render
 import           Utils.Time
 

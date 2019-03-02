@@ -40,7 +40,6 @@ dependencies:
 - case-insensitive
 - containers
 - esqueleto
-- extra
 - file-embed
 - foreign-store
 - formatting

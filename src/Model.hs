@@ -13,9 +13,9 @@ import           ClassyPrelude.Yesod
 import           Database.Persist.Quasi
 
 import           Local.Persist.Currency
+import           Local.Persist.Exchange
 import           Local.Persist.UserRole
 import           Local.Persist.Wallet
-import           Local.Persist.ExchangeOrder
 
 -- You can define all of your database entities in the entities file.
 -- You can find more information on persistent and how to declare entities

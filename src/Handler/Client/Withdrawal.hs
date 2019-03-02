@@ -14,6 +14,7 @@ import           Type.Withdrawal
 import           Utils.App.Client
 import           Utils.App.Common
 import           Utils.I18n
+import           Utils.Money
 
 import qualified Database.Esqueleto      as E
 import           Database.Persist.Sql    ( fromSqlKey )

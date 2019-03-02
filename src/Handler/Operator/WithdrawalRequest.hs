@@ -6,6 +6,7 @@ module Handler.Operator.WithdrawalRequest where
 import           Import
 import           Local.Persist.Currency
 import           Local.Persist.Wallet   ( WithdrawalStatus (..) )
+import           Utils.Money
 import           Utils.Render           ( renderFeeAsPct )
 import           Utils.Time
 import           Utils.Withdrawal

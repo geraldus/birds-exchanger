@@ -3,12 +3,14 @@
 module Handler.Operator.HandleDeposit where
 
 import           Import
-import           Local.Persist.ExchangeOrder ( ProfitType (..) )
+import           Local.Persist.Exchange ( ProfitType (..) )
 import           Local.Persist.Wallet
-import           Type.Money                  ( oneCoinCents )
+import           Type.Fee
+import           Type.Money             ( oneCoinCents )
 import           Utils.Deposit
+import           Utils.Money
 
-import           Database.Persist.Sql        ( toSqlKey )
+import           Database.Persist.Sql   ( toSqlKey )
 
 
 postOperatorAcceptDepositRequestR :: Handler Html

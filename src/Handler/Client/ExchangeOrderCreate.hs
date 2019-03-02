@@ -6,14 +6,15 @@
 {-# LANGUAGE TypeFamilies          #-}
 module Handler.Client.ExchangeOrderCreate where
 
+import           Import
 
 import           Form.Exchanger.Order
-import           Import
 import           Local.Persist.Currency
-import           Local.Persist.ExchangeOrder
+import           Local.Persist.Exchange
 import           Local.Persist.Wallet
+import           Utils.Money
 
-import           Data.Maybe                  ( fromJust )
+import           Data.Maybe             ( fromJust )
 
 
 postExchangeOrderCreateR :: Handler Html

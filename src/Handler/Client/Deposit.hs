@@ -12,6 +12,7 @@ import           Local.Persist.Wallet   ( DepositRequestStatus (..) )
 import           Utils.App.Client
 import           Utils.App.Common
 import           Utils.I18n
+import           Utils.Money
 
 import           Database.Esqueleto
 import           Database.Persist.Sql   ( fromSqlKey )

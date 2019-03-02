@@ -6,10 +6,10 @@ module Handler.Profile where
 import           Import
 import           Local.Persist.Currency ( Currency, currSign, currencyCodeT )
 import           Local.Persist.Wallet
+import           Utils.Money
 import           Utils.Time
 
 import           Data.Maybe             ( fromJust )
-import           Data.Tuple.Extra       ( fst3, thd3 )
 import           Database.Persist.Sql   ( Single (..), fromSqlKey, rawSql )
 import           Text.Julius            ( RawJS (..) )
 
@@ -96,6 +96,8 @@ getProfileR = do
     isPosWithdrawal wbt = case walletBalanceTransactionType wbt of
         BalanceWithdrawal c -> c > 0
         _                   -> False
+    thd3 :: (a, b, c) -> c
+    thd3 (_, _, x) = x
 
 
 

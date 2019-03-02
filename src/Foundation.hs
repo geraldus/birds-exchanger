@@ -16,35 +16,34 @@ module Foundation where
 import           Import.NoFoundation
 import           Yesod.Auth.Hardcoded
 import           Yesod.Auth.Message
-import           Yesod.Core.Types            ( Logger )
-import qualified Yesod.Core.Unsafe           as Unsafe
-import           Yesod.Default.Util          ( addStaticContentExternal )
+import           Yesod.Core.Types        ( Logger )
+import qualified Yesod.Core.Unsafe       as Unsafe
+import           Yesod.Default.Util      ( addStaticContentExternal )
 import           Yesod.Form.I18n.Russian
 
-import           Control.Monad.Logger        ( LogSource )
-import qualified Data.CaseInsensitive        as CI
-import qualified Data.Text.Encoding          as TE
-import           Database.Persist.Sql        ( ConnectionPool, fromSqlKey,
-                                               runSqlPool )
-import           Formatting                  ( sformat )
-import qualified Formatting.Formatters       as F
-import           Text.Hamlet                 ( hamletFile )
-import           Text.Jasmine                ( minifym )
+import           Control.Monad.Logger    ( LogSource )
+import qualified Data.CaseInsensitive    as CI
+import qualified Data.Text.Encoding      as TE
+import           Database.Persist.Sql    ( ConnectionPool, fromSqlKey,
+                                           runSqlPool )
+import           Text.Hamlet             ( hamletFile )
+import           Text.Jasmine            ( minifym )
 
 -- Extra imports
 import           Local.Auth
 import           Local.Persist.Currency
-import           Local.Persist.ExchangeOrder ( ExchangePair (..) )
+import           Local.Persist.Exchange  ( ExchangePair (..) )
 import           Local.Persist.UserRole
 import           Type.Fee
-import           Type.Money                  ( oneCoinCents )
-import           Utils.Form                  ( currencyOptionListRaw,
-                                               transferOptionsRaw )
-import           Utils.Time                  ( ruTimeLocale )
+import           Type.Money              ( oneCoinCents )
+import           Utils.Form              ( currencyOptionListRaw,
+                                           transferOptionsRaw )
+import           Utils.Money
+import           Utils.Time              ( ruTimeLocale )
 
-import qualified Crypto.Nonce                as CN
-import           Data.Time.Format            ( TimeLocale (..) )
-import           Text.Read                   ( readMaybe )
+import qualified Crypto.Nonce            as CN
+import           Data.Time.Format        ( TimeLocale (..) )
+import           Text.Read               ( readMaybe )
 
 
 exchangerName :: Text
@@ -709,65 +708,11 @@ fsWithClasses classList lbl tlt mid mnam attrs =
         as = attrs <> [ ( "class", cs ) ]
     in FieldSettings lbl tlt mid mnam as
 
-
--- | Calculate fee
-calcFeeCents :: Fee -> Int -> Int
-calcFeeCents (Percent p) c = ceiling $ fromIntegral c * p / fromIntegral oneCoinCents
-calcFeeCents (CentsFixed f) c = c - f
-
 currencySelect :: Field (HandlerFor App) Currency
 currencySelect = selectField . pure $ mkOptionList currencyOptionListRaw
 
 transferMethodSelect :: Field (HandlerFor App) TransferMethod
 transferMethodSelect = selectField . pure $ mkOptionList transferOptionsRaw
-
-
--- | Defines devisor and qoutient when specifying exchange ratio for
--- given pair.  E.g. for PZM -> RUR and RUR -> PZM exchange orders
--- ratio should always be specified as PZM/RUR pair.
-defPairDir :: ExchangePair -> ExchangePair
-defPairDir p = case p of
-    ExchangePzmRur -> ExchangeRurPzm
-    ExchangeRurPzm -> ExchangeRurPzm
-
-flipPair :: ExchangePair -> ExchangePair
-flipPair ExchangePzmRur = ExchangeRurPzm
-flipPair ExchangeRurPzm = ExchangePzmRur
-
--- TODO: FIXME:  Do not use this fragile appoarch
--- Rather write a function which converts Pair -> (Cur, Cur)
-selectOppositeC :: ExchangePair -> Currency -> Currency
-selectOppositeC p c
-    | p == ExchangePzmRur || p == ExchangeRurPzm = case c of
-        CryptoC PZM -> rurC
-        FiatC RUR   -> pzmC
-    | otherwise = error "No way to select opposite currency"
-
-unPairCurrency :: ExchangePair -> (Currency, Currency)
-unPairCurrency ExchangePzmRur = (pzmC, rurC)
-unPairCurrency ExchangeRurPzm = (rurC, pzmC)
-
-normalizeRatio :: ExchangePair -> ExchangePair -> Double -> Double
-normalizeRatio p d r
-    | p == d = 1 / r
-    | otherwise = r
-
--- | Convert ratio according to desired normalized pair exchange direction
-fromNormalizedRatio :: ExchangePair -> Double -> Double
-fromNormalizedRatio p = normalizeRatio (defPairDir p) p
-
-convertCents :: Double -> Int -> Int
-convertCents r a =
-    let x = truncate $ fromIntegral a * r * fromIntegral oneCoinCents :: Int
-    in truncate (fromIntegral x / fromIntegral oneCoinCents :: Double)
-
-
-cents2dblT :: Int -> Text
-cents2dblT n = dbl2MoneyT (fromIntegral n / fromIntegral oneCoinCents)
-
-dbl2MoneyT :: Double -> Text
-dbl2MoneyT = sformat (F.fixed (2 :: Int))
-
 
 supportEmail :: Text
 supportEmail = "support@outb.info"

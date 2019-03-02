@@ -5,16 +5,17 @@ module Handler.Client.Orders where
 
 import           Import
 
-import           Local.Persist.Currency      ( currSign )
-import           Local.Persist.ExchangeOrder ( ExchangeOrderStatus (..),
-                                               ExchangePair (..) )
-import           Local.Persist.Wallet        ( WalletTransactionType (..) )
+import           Local.Persist.Currency ( currSign )
+import           Local.Persist.Exchange ( ExchangeOrderStatus (..),
+                                          ExchangePair (..) )
+import           Local.Persist.Wallet   ( WalletTransactionType (..) )
+import           Utils.Money
 import           Utils.Time
 
-import           Data.Time.Format            ( TimeLocale (..) )
-import           Database.Persist.Sql        ( fromSqlKey, toSqlKey )
+import           Data.Time.Format       ( TimeLocale (..) )
+import           Database.Persist.Sql   ( fromSqlKey, toSqlKey )
 import           Formatting
-import           Text.Julius                 ( rawJS )
+import           Text.Julius            ( rawJS )
 
 
 getClientOrdersR :: Handler Html

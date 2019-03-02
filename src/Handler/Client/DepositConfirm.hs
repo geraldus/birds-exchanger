@@ -5,6 +5,7 @@ import           Import
 
 import           Local.Persist.Currency
 import           Local.Persist.Wallet   ( DepositRequestStatus (..) )
+import           Utils.Money
 
 
 getDepositRequestConfirmationR :: Text -> Handler Html
