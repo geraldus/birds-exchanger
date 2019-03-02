@@ -1,7 +1,8 @@
 ProjectName: OutBirds
 
-SignIn: Вход
 # PAGE TITLES
+## COMMON
+SignInPageTitle: Вход
 ## CLIENT
 ClientOrdersPageTitle: Мои ордера
 

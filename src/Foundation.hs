@@ -436,15 +436,15 @@ instance YesodAuth App where
         ma <- maybeAuthId
         tp <- getRouteToParent
         when (isJust ma) (redirect HomeR)
-        mr <- getMessageRender
+        mr <- getMessageRender :: AuthHandler App (AppMessage -> Text)
         authLayout $ do
-            setTitleI $ mr MsgProjectName <> " | " <> mr MsgSignIn
+            setAppPageTitle MsgSignInPageTitle
             [whamlet|
                 <div .container>
                     <div .row .justify-content-center>
                         <div .col-11 .col-md-6>
                             <form pb-5 action=@{tp Local.Auth.loginR} method=post>
-                                <h2 .text-center>Вход
+                                <h2 .text-center>_{MsgSignInPageTitle}
                                 <div .form-group>
                                     <label for="input123">_{MsgEmailAddress}
                                     <input type=email .form-control #input123 placeholder="email@domain.com" name="username">
