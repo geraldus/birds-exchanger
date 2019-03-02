@@ -145,7 +145,7 @@ genericRow :: Entity DepositRequest -> Widget -> Widget -> Widget
 genericRow (Entity ident r@DepositRequest{..}) expected status =
     toWidget [whamlet|
         <tr .data-row #data-row-#{fromSqlKey ident}>
-            <td>^{requestTimeW depositRequestCreated}
+            <td>^{dateTimeRowW depositRequestCreated}
             <td .align-middle>
                 #{cents2dblT depositRequestCentsAmount}#
                 <small .text-muted>

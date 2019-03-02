@@ -6,6 +6,7 @@ module Handler.Profile where
 import           Import
 import           Local.Persist.Currency ( Currency, currSign, currencyCodeT )
 import           Local.Persist.Wallet
+import           Utils.App.Client
 import           Utils.Common           ( selectLocale )
 import           Utils.Money
 import           Utils.Time
@@ -40,14 +41,16 @@ getProfileR = do
     let reasonIds :: [WalletTransactionReasonId]
         reasonIds = map (entityKey . thd3) operations
         reasonIds' = intercalate "," $ map (show . fromSqlKey) reasonIds
-    (depositOps, osWithdrawal, osWithdrawalReject, exchangeOrderOps, exchangeExecutionOps, exchangeOrderCancellations) <-
+    (depositOps, osWithdrawal, osWithdrawalCancel, osWithdrawalReject, exchangeOrderOps, exchangeExecutionOps, exchangeOrderCancellations) <-
         case reasonIds of
-            [] -> pure ([], [], [], [], [], [])
+            [] -> pure ([], [], [], [], [], [], [])
             _ -> do
                 dos <- runDB $ rawSql (ds . pack $ reasonIds') []
                     :: Handler [ (Entity DepositRequest, Entity AcceptedDeposit) ]
                 wos <- runDB $ rawSql (ws . pack $ reasonIds') []
                     :: Handler [ Entity WithdrawalRequest ]
+                wcos <- runDB $ rawSql (wcs . pack $ reasonIds') []
+                    :: Handler [ (Entity WithdrawalRequest, Entity WithdrawalCancel) ]
                 wros <- runDB $ rawSql (wrs . pack $ reasonIds') []
                     :: Handler [ (Entity WithdrawalRequest, Entity WithdrawalReject) ]
                 eoos <- runDB $ rawSql (eos . pack $ reasonIds') []
@@ -56,7 +59,7 @@ getProfileR = do
                     :: Handler [ Entity ExchangeOrderExecution ]
                 eocs <- runDB $ rawSql (ecs . pack $ reasonIds') []
                     :: Handler [ Entity ExchangeOrderCancellation ]
-                return (dos, wos, wros, eoos, eoes, eocs)
+                return (dos, wos, wcos, wros, eoos, eoes, eocs)
     dataTableId <- newIdent
     defaultLayout $ do
         setAppPageTitle MsgClientProfilePageTitle
@@ -77,6 +80,10 @@ getProfileR = do
     ws _in
         = "SELECT ?? FROM withdrawal_request \
         \ WHERE withdrawal_request.wallet_transaction_reason_id IN (" <> _in <>")"
+    wcs _in
+        = "SELECT ??, ?? FROM withdrawal_request, withdrawal_cancel \
+        \ WHERE withdrawal_request.id = withdrawal_cancel.request_id \
+        \ AND withdrawal_cancel.transaction_reason_id IN (" <> _in <>")"
     was _in
         = "SELECT ??, ?? FROM withdrawal_request, withdrawal_accept \
         \ WHERE withdrawal_request.id = withdrawal_accept.request_id \
@@ -107,21 +114,17 @@ transactionTr
     -> Currency
     -> [ (Entity DepositRequest, Entity AcceptedDeposit) ]
     -> [ Entity WithdrawalRequest ]
+    -> [ ( Entity WithdrawalRequest, Entity WithdrawalCancel ) ]
     -> [ ( Entity WithdrawalRequest, Entity WithdrawalReject ) ]
     -> [ Entity ExchangeOrder ]
     -> [ Entity ExchangeOrderExecution ]
     -> [ Entity ExchangeOrderCancellation ]
     -> Widget
-transactionTr (Entity wbtId wbt) wbtCurrency drsAdrs wos wros eos ees ecs = do
-    l <- liftHandler selectLocale
-    tzo <- handlerToWidget timezoneOffsetFromCookie
-    let timeT = renderDateTimeRow l tzo
+transactionTr (Entity wbtId wbt) wbtCurrency drsAdrs wos wcos wros eos ees ecs =
     toWidget [whamlet|
         <tr #data-row-#{fromSqlKey wbtId} .data-row .deposit .#{wbtCC} .#{trType}>
-            <td .text-muted>
-                <small>
-                    <small>
-                        #{timeT wbtTime}
+            <td>
+                ^{dateTimeRowW wbtTime}
             ^{wbtDesc}
         |]
   where
@@ -131,18 +134,23 @@ transactionTr (Entity wbtId wbt) wbtCurrency drsAdrs wos wros eos ees ecs = do
     wbtDesc = case wbtType of
         BalanceDeposit cents -> depositDesc wbt cents wbtCurrency drsAdrs
         BalanceWithdrawal cents -> withdrawalDesc wbt cents wbtCurrency wos
-        BalanceWithdrawalCancel cents -> withdrawalRejectDesc wbt cents wbtCurrency wros
+        BalanceWithdrawalCancel cents ->
+            withdrawalCancelDesc wbt cents wbtCurrency wcos
+        BalanceWithdrawalReject cents ->
+            withdrawalRejectDesc wbt cents wbtCurrency wros
         ExchangeFreeze cents -> orderCreationDesc wbt cents wbtCurrency eos
         ExchangeExchange cents -> orderExecutionDesc wbt cents wbtCurrency ees
         ExchangeReturn cents -> orderCancelDesc wbt cents wbtCurrency ecs
         _ -> toWidget (mempty :: Html)
+    trType :: Html
     trType = case wbtType of
-        BalanceDeposit _          -> "deposit" :: Html
-        BalanceWithdrawal _       -> "withdrawal" :: Html
-        BalanceWithdrawalCancel _ -> "withdrawal" :: Html
-        ExchangeFreeze _          -> "exchange-freeze" :: Html
-        ExchangeExchange _        -> "exchange-exchange" :: Html
-        _                         -> mempty :: Html
+        BalanceDeposit _          -> "deposit"
+        BalanceWithdrawal _       -> "withdrawal"
+        BalanceWithdrawalCancel _ -> "withdrawal"
+        BalanceWithdrawalReject _ -> "withdrawal"
+        ExchangeFreeze _          -> "exchange-freeze"
+        ExchangeExchange _        -> "exchange-exchange"
+        _                         -> mempty
 
 depositDesc
     :: WalletBalanceTransaction
@@ -216,6 +224,31 @@ withdrawalRejectDesc wbt cents c rs =
     mbr = find (\(_, Entity _ wr) -> withdrawalRejectTransactionReasonId wr == reason) rs
     requestIdStr :: Entity WithdrawalRequest -> Text
     requestIdStr = pack . show . fromSqlKey . entityKey
+
+withdrawalCancelDesc
+    :: WalletBalanceTransaction
+    -> Int
+    -> Currency
+    -> [ ( Entity WithdrawalRequest, Entity WithdrawalCancel ) ]
+    -> Widget
+withdrawalCancelDesc wbt cents c rs =
+    toWidget
+        [whamlet|
+            <td>
+                #{renderAmount cents c}#
+            <td>
+                <span>_{MsgBalanceReturn}#
+                $maybe eRequest <- fmap fst mbr
+                    <span>: #
+                    <a href="@{WithdrawalR}/#data-row-#{requestIdStr eRequest}" title="_{MsgViewRequestDetails}">
+                        \_{MsgRequest} ##{requestIdStr eRequest}
+            |]
+  where
+    reason = walletBalanceTransactionWalletTransactionReasonId wbt
+    mbr = find (\(_, Entity _ wc) -> withdrawalCancelTransactionReasonId wc == reason) rs
+    requestIdStr :: Entity WithdrawalRequest -> Text
+    requestIdStr = pack . show . fromSqlKey . entityKey
+
 
 orderCreationDesc
     :: WalletBalanceTransaction

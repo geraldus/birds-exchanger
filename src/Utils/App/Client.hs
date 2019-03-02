@@ -5,8 +5,8 @@ import           Import
 import           Utils.Common
 
 
-requestTimeW :: UTCTime -> Widget
-requestTimeW t =
+dateTimeRowW :: UTCTime -> Widget
+dateTimeRowW t =
     toWidget [whamlet|
         <small>
-            ^{dateTimeRowW t}|]
+            ^{dateTimeRowWM t}|]

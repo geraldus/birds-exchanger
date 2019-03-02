@@ -9,6 +9,7 @@ data WalletTransactionType
     = BalanceDeposit Int          -- ^ + positive
     | BalanceWithdrawal Int       -- ^ - negative
     | BalanceWithdrawalCancel Int -- ^ + positive
+    | BalanceWithdrawalReject Int -- ^ + positive
     | ExchangeFreeze Int          -- ^ - negative
     | ExchangeReturn Int          -- ^ + positive
     | ExchangeExchange Int        -- ^ + positive
@@ -31,7 +32,7 @@ derivePersistField "DepositRequestStatus"
 
 data WithdrawalStatus
     = WsNew
-    | WsClientCancelled Text
+    | WsClientCancelled UTCTime
     | WsOperatorRejected Text
     | WsOperatorExecuted Text
     | WsOperatorArchived Text

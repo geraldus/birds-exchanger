@@ -111,13 +111,16 @@ defaultWidget formId widget enctype mayError = do
 
 type WithdrawalDetails =
     ( Entity WithdrawalRequest
+    , Maybe (Entity WithdrawalCancel)
     , Maybe (Entity WithdrawalAccept)
-    , Maybe (Entity WithdrawalReject) )
+    , Maybe (Entity WithdrawalReject)
+    )
 
 data Details
     = NoDetails (Entity WithdrawalRequest) Currency
     | AcceptD (Entity WithdrawalRequest) Currency (Entity WithdrawalAccept)
     | RejectD (Entity WithdrawalRequest) Currency (Entity WithdrawalReject)
+    | CancelD (Entity WithdrawalRequest) Currency (Entity WithdrawalCancel)
     deriving Show
 
 
@@ -125,14 +128,15 @@ withdrawalHistory :: Widget
 withdrawalHistory = do
     clientId <- liftHandler requireClientId
     withdrawalDetails <- liftHandler . runDB . E.select $
-        E.from $ \(u `E.InnerJoin` w `E.InnerJoin` r `E.LeftOuterJoin` macc `E.LeftOuterJoin` mrej) -> do
+        E.from $ \(u `E.InnerJoin` w `E.InnerJoin` r `E.LeftOuterJoin` mcan `E.LeftOuterJoin` macc `E.LeftOuterJoin` mrej) -> do
             E.on (E.just (r E.^. WithdrawalRequestId) E.==. mrej E.?. WithdrawalRejectRequestId)
             E.on (E.just (r E.^. WithdrawalRequestId) E.==. macc E.?. WithdrawalAcceptRequestId)
+            E.on (E.just (r E.^. WithdrawalRequestId) E.==. mcan E.?. WithdrawalCancelRequestId)
             E.on (w E.^. UserWalletId E.==. r E.^. WithdrawalRequestWalletId)
             E.on (u E.^. UserId E.==. w E.^. UserWalletUserId)
             E.where_ (u E.^. UserId E.==. E.val clientId)
             E.orderBy [E.desc (r E.^. WithdrawalRequestCreated)]
-            return (r, w E.^. UserWalletCurrency, macc, mrej)
+            return (r, w E.^. UserWalletCurrency, mcan, macc, mrej)
     let list = map wrapDetails withdrawalDetails
     toWidget [whamlet|
         <table .table .table-striped .mt-5>
@@ -149,25 +153,28 @@ withdrawalHistory = do
                     _{MsgDetails}
             <tbody>
                 $forall i <- list
-                    ^{withdrawalHistoryRow' i}
+                    ^{withdrawalHistoryRow i}
         |]
   where
-    wrapDetails (r, c, Just accepted, _) = AcceptD r (E.unValue c) accepted
-    wrapDetails (r, c, _, Just rejected) = RejectD r (E.unValue c) rejected
-    wrapDetails (r, c, _, _)             = NoDetails r (E.unValue c)
+    wrapDetails (r, c, Just cancelled, _, _) = CancelD r (E.unValue c) cancelled
+    wrapDetails (r, c, _, Just accepted, _)  = AcceptD r (E.unValue c) accepted
+    wrapDetails (r, c, _, _, Just rejected)  = RejectD r (E.unValue c) rejected
+    wrapDetails (r, c, _, _, _)              = NoDetails r (E.unValue c)
 
 unDetailsRequest :: Details -> Entity WithdrawalRequest
 unDetailsRequest (NoDetails r _) = r
 unDetailsRequest (AcceptD r _ _) = r
 unDetailsRequest (RejectD r _ _) = r
+unDetailsRequest (CancelD r _ _) = r
 
 unDetailsCurrency :: Details -> Currency
 unDetailsCurrency (NoDetails _ c) = c
 unDetailsCurrency (AcceptD _ c _) = c
 unDetailsCurrency (RejectD _ c _) = c
+unDetailsCurrency (CancelD _ c _) = c
 
-withdrawalHistoryRow' :: Details -> Widget
-withdrawalHistoryRow' d = do
+withdrawalHistoryRow :: Details -> Widget
+withdrawalHistoryRow d = do
     let r = unDetailsRequest d
         c = unDetailsCurrency d
     (ur, mr) <- getRenders
@@ -176,6 +183,7 @@ withdrawalHistoryRow' d = do
     genericRow
         r
         c
+        (isCancelledOrRejected d)
         (genericRequestAmount (requestAmounts d) c (description d))
         (genericRequestStatus (requestStatuses ur mr (fd, ft) d))
   where
@@ -183,15 +191,25 @@ withdrawalHistoryRow' d = do
         NoDetails _ _ -> mempty
         _             -> [whamlet|\ (_{MsgInFact})|]
 
-genericRow :: Entity WithdrawalRequest -> Currency -> Widget -> Widget -> Widget
-genericRow (Entity ident r@WithdrawalRequest{..}) c expected status =
+genericRow
+    :: Entity WithdrawalRequest
+    -> Currency
+    -> Bool
+    -- ^ 'True' if request was cancelled or rejected
+    -> Widget
+    -> Widget
+    -> Widget
+genericRow (Entity ident r@WithdrawalRequest{..}) c strikeout expected status =
     toWidget [whamlet|
         <tr .data-row #data-row-#{fromSqlKey ident}>
-            <td>^{requestTimeW withdrawalRequestCreated}
+            <td>^{dateTimeRowW withdrawalRequestCreated}
             <td .align-middle>
-                #{cents2dblT withdrawalRequestCentsAmount}#
-                <small .text-muted>
-                    #{currSign c}
+                $if strikeout
+                    <s>^{valueW}
+                $elseif isNew r
+                    <b>^{valueW}
+                $else
+                    <span>^{valueW}
                 <br>
                 <small .text-muted>
                     _{transferMethodMsg withdrawalRequestMethod}
@@ -202,8 +220,15 @@ genericRow (Entity ident r@WithdrawalRequest{..}) c expected status =
             <td .controls .align-middle>
                 $if isNew r
                     <i .request-cancel-button .control .fas .fa-times-circle title=_{MsgCancelRequest}>
-                    <form .request-cancel-form .d-none method=post action=@{HomeR}>
+                    <form .request-cancel-form .d-none method=post action=@{ClientCancelWithdrawalR}>
                         <input type=hidden name="request-id" value="#{fromSqlKey ident}">
+        |]
+  where
+    valueW :: Widget
+    valueW = [whamlet|
+        #{cents2dblT withdrawalRequestCentsAmount}#
+        <small .text-muted>
+            #{currSign c}
         |]
 
 genericRequestAmount :: (Int, Bool) -> Currency -> Widget -> Widget
@@ -232,8 +257,8 @@ requestAmounts (NoDetails (Entity _ WithdrawalRequest{..}) _) =
     (withdrawalRequestFeeAmount, False)
 requestAmounts (AcceptD (Entity _ r) _ (Entity _ WithdrawalAccept{..})) =
     (withdrawalAcceptActualFee, False)
-requestAmounts (RejectD (Entity _ r) _ _) =
-    (0, True)
+requestAmounts (RejectD (Entity _ _) _ _) = (0, True)
+requestAmounts (CancelD (Entity _ _) _ _) = (0, True)
 
 requestStatuses
     :: (Route App -> Text)
@@ -244,6 +269,12 @@ requestStatuses
 requestStatuses ur mr fs (NoDetails (Entity _ r@WithdrawalRequest{..}) _) =
     let status = [whamlet|#{mr MsgRequestProcessing}<br>|]
     in (status, mempty)
+requestStatuses
+    _ mr (fd, ft) (CancelD (Entity _ r) _ (Entity _ WithdrawalCancel{..})) =
+        let status = [whamlet|#{mr MsgUserCancelled}<br>|]
+            description = [whamlet|<small .text-muted>
+                #{fd withdrawalCancelTime} #{ft withdrawalCancelTime} |]
+        in (status, description)
 requestStatuses
     _ mr (fd, ft) (AcceptD (Entity _ r) _ (Entity _ WithdrawalAccept{..})) =
         let status = [whamlet|#{mr MsgDepositExecuted}<br>|]
@@ -262,3 +293,8 @@ requestStatuses
 
 isNew :: WithdrawalRequest -> Bool
 isNew r = withdrawalRequestStatus r == WsNew
+
+isCancelledOrRejected :: Details -> Bool
+isCancelledOrRejected CancelD{} = True
+isCancelledOrRejected RejectD{} = True
+isCancelledOrRejected _         = False

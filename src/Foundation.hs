@@ -269,9 +269,12 @@ instance Yesod App where
     isAuthorized DepositConfirmRequestR _            = isClientAuthenticated
     isAuthorized ClientCancelDepositR _              = isClientAuthenticated
     isAuthorized WithdrawalCreateR True              = isClientAuthenticated
-    isAuthorized WithdrawalCreateR False             =
-            return $ Unauthorized "Только POST запросы"
-    isAuthorized ExchangeOrderCreateR _              = isClientAuthenticated
+    isAuthorized ClientCancelWithdrawalR True        = isClientAuthenticated
+    isAuthorized WithdrawalCreateR False             = postOnly
+    isAuthorized ClientCancelWithdrawalR False       = postOnly
+
+    isAuthorized ExchangeOrderCreateR True           = isClientAuthenticated
+    isAuthorized ExchangeOrderCreateR False          = postOnly
     isAuthorized ClientOrdersR _                     = isClientAuthenticated
     isAuthorized (ClientOrderViewR _) _              = isClientAuthenticated
     isAuthorized ClientOrderCancelR _                = isClientAuthenticated
@@ -452,6 +455,11 @@ instance YesodAuth App where
                                     <div .col-12 .col-sm-9 col-md-6 .mx-auto>
                                         <button .btn.btn-lg.btn-block.btn-outline-primary type=submit>войти
                 |]
+
+postOnly :: Handler AuthResult
+postOnly = do
+    mr <- getMessageRender
+    return $ Unauthorized (mr MsgWrongRequest)
 
 -- | Access function to determine if a user is logged in.
 isAuthenticated :: Handler AuthResult

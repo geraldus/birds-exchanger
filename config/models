@@ -96,6 +96,13 @@ WithdrawalAccept
     time UTCTime
     deriving Show
 
+WithdrawalCancel
+    requestId WithdrawalRequestId
+    transactionReasonId WalletTransactionReasonId
+    time UTCTime default timezone('utc', now())
+    UniqueWithdrawalCancel requestId
+    deriving Show
+
 WithdrawalReject
     requestId WithdrawalRequestId
     staffId Text

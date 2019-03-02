@@ -1,5 +1,7 @@
 ProjectName: OutBirds
 
+WrongRequest: Неверный запрос
+
 # PAGE TITLES
 ## COMMON
 HomePageTitle: Главная страница
@@ -95,6 +97,7 @@ DepositRequestAlreadyConfirmed: Заявка уже подтверждена
 DepositConfirmed: Подтверждён
 DepositConfirmCancellationText: Вы уверены, что хотите отменить заявку на ввод средств?
 DepoistCancelled: Пополнение отменено
+WithdrawalCancelled: Вывод средств отменён
 DepositExecuted: Средства зачислены
 DepositRejected: Отклонён
 AwaitingExecution: Ожидает исполнения

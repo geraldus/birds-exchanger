@@ -66,7 +66,7 @@ postOperatorDeclineWithdrawalRequestR = do
             time
         insert $ WalletBalanceTransaction
             walletId
-            (BalanceWithdrawalCancel amount)
+            (BalanceWithdrawalReject amount)
             transactionReasonId
             before
             time

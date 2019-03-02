@@ -13,19 +13,17 @@
 /signup-verification/#Text/#Text SignUpVerifyR GET POST
 
 /profile ProfileR GET
-/profile/deposit                             DepositR                     GET POST
-/profile/deposit/request-confirmation/#Text  DepositRequestConfirmationR  GET
-/profile/withdrawal                          WithdrawalR                  GET
-/profile/withdrawal/create-request           WithdrawalCreateR            POST
-/profile/deposit/confirm                     DepositConfirmRequestR       POST
-/profile/exchange-order-create               ExchangeOrderCreateR         POST
--- TODO: FIXME:
--- /profile/deposit/create-request              DepositCreateRequestR        POST
-
-/client/orders                               ClientOrdersR                GET
-/client/order/#ExchangeOrderId               ClientOrderViewR             GET
-/client/exchange-order-cancel                ClientOrderCancelR           POST
-/client/deposit-cancel               ClientCancelDepositR                POST
+/deposit                             DepositR                        GET POST
+/profile/deposit/confirmation/#Text  DepositRequestConfirmationR     GET
+/client/deposit/confirm              DepositConfirmRequestR              POST
+/client/deposit/cancel               ClientCancelDepositR                POST
+/withdrawal                          WithdrawalR             GET
+/client/withdrawal/create            WithdrawalCreateR                   POST
+/client/withdrawal/cancel            ClientCancelWithdrawalR             POST
+/orders                              ClientOrdersR                   GET
+/order/#ExchangeOrderId              ClientOrderViewR                GET
+/client/order/create                 ExchangeOrderCreateR                POST
+/client/order/cancel                 ClientOrderCancelR                  POST
 
 /operator/login                      OperatorLogInR  GET
 /operator/deposit-requests-list      OperatorDepositRequestsListR      GET
@@ -37,6 +35,7 @@
 /info/manage/index                   ManageInfoIndexR                  GET
 /info/manage/add                     ManageInfoAddR                    GET POST
 /info/manage/update                  ManageInfoUpdateR                 POST
+-- /info/manage/archive                 ManageInfoArchiveR                POST
 
 /blacklist                           BlackListR                        GET
 /info                                InfoListR                         GET

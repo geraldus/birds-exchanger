@@ -22,8 +22,8 @@ setCompositeTitle ms = do
 
 {- TIME -}
 
-dateTimeRowW :: (WidgetFor s ~ m, MonadWidget m) => UTCTime -> m ()
-dateTimeRowW t = do
+dateTimeRowWM :: (WidgetFor s ~ m, MonadWidget m) => UTCTime -> m ()
+dateTimeRowWM t = do
     fd <- getFormatDateRender
     ft <- getFormatTimeRender
     [whamlet|
