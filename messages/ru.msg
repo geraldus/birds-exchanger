@@ -101,6 +101,7 @@ ViewRequestDetails: Просмотр подробностей заявки
 AmountFrozen: Удержано средств
 CantViewThisOrder: Невозможно отобразить данные ордера
 ViewOrderHistory: Показать историю ордера
+CancelRequest: Отменить заявку
 UserCancelled: Отменён пользователем
 
 
