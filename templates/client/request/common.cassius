@@ -1,0 +1,6 @@
+.data-row .controls .request-cancel-button
+    color: #00000080
+    cursor: pointer
+
+.data-row .controls .request-cancel-button:hover
+    color: #ef7f19

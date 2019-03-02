@@ -85,6 +85,7 @@ postWithdrawalCreateR = do
 defaultWidget :: Text -> Widget -> Enctype -> Maybe [Text] -> Widget
 defaultWidget formId widget enctype mayError = do
     setAppPageTitle MsgClientWithdrawalPageTitle
+    $(widgetFile "client/request/common")
     [whamlet|
         $maybe error <- mayError
             <div .row>
@@ -142,7 +143,7 @@ withdrawalHistory = do
                         _{MsgTransferMethod}
                 <th .align-top>
                     _{MsgFee}
-                <th .align-top>
+                <th colspan=2 .align-top>
                     _{MsgDetails}
             <tbody>
                 $forall i <- list
@@ -195,7 +196,13 @@ genericRow (Entity ident r@WithdrawalRequest{..}) c expected status =
             <td .align-middle>
                 ^{expected}
             <td .align-middle>
-                ^{status}|]
+                ^{status}
+            <td .controls .align-middle>
+                $if isNew r
+                    <i .request-cancel-button .control .fas .fa-times-circle title=_{MsgCancelRequest}>
+                    <form .request-cancel-form .d-none method=post action=@{HomeR}>
+                        <input type=hidden name="request-id" value="#{fromSqlKey ident}">
+        |]
 
 genericRequestAmount :: (Int, Bool) -> Currency -> Widget -> Widget
 genericRequestAmount (a, rejected) c d =
@@ -213,7 +220,8 @@ genericRequestStatus :: (Widget, Widget) -> Widget
 genericRequestStatus (status, description) =
     [whamlet|
         <p>
-            <span .text-uppercase>^{status}
+            <span .text-uppercase>
+                ^{status}
             ^{description}
         |]
 
@@ -248,3 +256,7 @@ requestStatuses
                 <br>
                 #{withdrawalRejectReason}|]
         in (status, description)
+
+
+isNew :: WithdrawalRequest -> Bool
+isNew r = withdrawalRequestStatus r == WsNew

@@ -59,6 +59,7 @@ postDepositR = do
 defaultWidget :: Text -> Widget -> Enctype -> Maybe [Text] -> Widget
 defaultWidget formId widget enctype mayError = do
     setAppPageTitle MsgClientDepositPageTitle
+    $(widgetFile "client/request/common")
     [whamlet|
         <form ##{formId} method=post enctype=#{enctype} .col-12 .col-sm-10 .col-md-8 .mx-auto>
             ^{widget}
@@ -108,7 +109,7 @@ depositHistory = do
                     <br>
                     <small .text-muted>
                         _{MsgFee}
-                <th .align-top>
+                <th colspan=2 .align-top>
                     _{MsgDetails}
             <tbody>
                 $forall r <- list
@@ -155,6 +156,11 @@ genericRow (Entity ident r@DepositRequest{..}) expected status =
                 ^{expected}
             <td .align-middle>
                 ^{status}
+            <td .controls .align-middle>
+                $if isNew r
+                    <i .request-cancel-button .control .fas .fa-times-circle title=_{MsgCancelRequest}>
+                    <form .request-cancel-form .d-none method=post action=@{HomeR}>
+                        <input type=hidden name="request-id" value="#{fromSqlKey ident}">
         |]
 
 requestAmounts :: Details -> (Int, Bool, Int, Currency)
@@ -234,7 +240,12 @@ genericRequestStatus :: (Widget, Widget, Widget) -> Widget
 genericRequestStatus (extra, status, description) =
     [whamlet|
         ^{extra}
-        <p>
-            <span .text-uppercase>^{status}
+        <div>
+            <span .text-uppercase>
+                ^{status}
             ^{description}
         |]
+
+
+isNew :: DepositRequest -> Bool
+isNew r = depositRequestStatus r == New

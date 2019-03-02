@@ -8,5 +8,5 @@ import           Utils.Common
 requestTimeW :: UTCTime -> Widget
 requestTimeW t =
     toWidget [whamlet|
-        <small .text-muted>
+        <small>
             ^{dateTimeRowW t}|]

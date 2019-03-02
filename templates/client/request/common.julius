@@ -1,0 +1,10 @@
+
+$(document).ready(() => {
+    const cancelButtons = $('.data-row .controls .request-cancel-button')
+    cancelButtons.click(e => {
+        $(e.currentTarget)
+            .parents('td.controls')
+            .find('form.request-cancel-form')
+            .submit()
+    })
+})
