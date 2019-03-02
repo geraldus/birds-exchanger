@@ -1,3 +1,9 @@
 
 var _date = new Date()
 document.cookie = "timezoneOffset=" + _date.getTimezoneOffset()
+
+$(document).ready(() => {
+    setTimeout(() => {
+        $('#message').hide()
+    }, 10*1000)
+})
