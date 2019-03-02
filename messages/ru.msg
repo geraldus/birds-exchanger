@@ -2,9 +2,16 @@ ProjectName: OutBirds
 
 # PAGE TITLES
 ## COMMON
+HomePageTitle: Главная страница
 SignInPageTitle: Вход
+SignUpPageTitle: Регистрация
+
 ## CLIENT
+ClientProfilePageTitle: Мой портфель
 ClientOrdersPageTitle: Мои ордера
+ClientDepositPageTitle: Пополнение счёта
+ClientWithdrawalPageTitle: Вывод средств
+
 
 User: Пользователь
 EmailAddress: Адрес эл.почты
