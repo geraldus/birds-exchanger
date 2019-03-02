@@ -11,6 +11,7 @@ import           Local.Persist.Currency ( Currency (..), currSign )
 import           Local.Persist.Wallet   ( DepositRequestStatus (..) )
 import           Utils.App.Client
 import           Utils.App.Common
+import           Utils.Common
 import           Utils.I18n
 import           Utils.Money
 

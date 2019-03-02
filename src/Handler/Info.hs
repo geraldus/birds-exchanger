@@ -7,6 +7,7 @@ module Handler.Info (
 import           Import
 
 import           Local.Persist.UserRole ( UserRole (..) )
+import           Utils.Common           ( selectLocale )
 import           Utils.Time
 
 import           Database.Persist.Sql   ( fromSqlKey )

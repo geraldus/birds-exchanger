@@ -2,7 +2,7 @@ module Utils.App.Client where
 
 import           Import
 
-import           Utils.App.Common
+import           Utils.Common
 
 
 requestTimeW :: UTCTime -> Widget

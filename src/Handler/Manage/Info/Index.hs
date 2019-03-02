@@ -4,6 +4,7 @@ module Handler.Manage.Info.Index (getManageInfoIndexR) where
 
 import           Import
 
+import           Utils.Common         ( selectLocale )
 import           Utils.Time
 
 import           Database.Persist.Sql ( fromSqlKey )

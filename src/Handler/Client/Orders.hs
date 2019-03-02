@@ -9,6 +9,7 @@ import           Local.Persist.Currency ( currSign )
 import           Local.Persist.Exchange ( ExchangeOrderStatus (..),
                                           ExchangePair (..) )
 import           Local.Persist.Wallet   ( WalletTransactionType (..) )
+import           Utils.Common           ( selectLocale )
 import           Utils.Money
 import           Utils.Time
 

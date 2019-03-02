@@ -6,6 +6,7 @@ module Handler.Profile where
 import           Import
 import           Local.Persist.Currency ( Currency, currSign, currencyCodeT )
 import           Local.Persist.Wallet
+import           Utils.Common           ( selectLocale )
 import           Utils.Money
 import           Utils.Time
 

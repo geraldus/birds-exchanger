@@ -36,6 +36,7 @@ import           Local.Persist.Exchange  ( ExchangePair (..) )
 import           Local.Persist.UserRole
 import           Type.Fee
 import           Type.Money              ( oneCoinCents )
+import           Utils.Common
 import           Utils.Form              ( currencyOptionListRaw,
                                            transferOptionsRaw )
 import           Utils.Money
@@ -627,14 +628,6 @@ getUserWallets = do
             return $
                 map (\(Entity _ w) -> (userWalletAmountCents w, userWalletCurrency w)) wallets
         _ -> return []
-
-
-selectLocale :: Handler TimeLocale
-selectLocale = locale <$> languages
-  where
-    locale ("ru":_) = ruTimeLocale
-    locale (_:rest) = locale rest
-    locale []       = defaultTimeLocale
 
 
 accessErrorClientOnly :: Text
