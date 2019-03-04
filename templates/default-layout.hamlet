@@ -1,7 +1,11 @@
 
 <!-- Static navbar -->
 
-<nav .navbar.sticky-top.navbar-dark.navbar-expand-lg.style="background-color: black;">
+<nav
+        .navbar .sticky-top
+        .navbar-dark
+        .navbar-expand-lg
+        style="background-color: black;">
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#main-nav-menu" aria-controls="main-nav-menu" aria-expanded="false" aria-label="Показать меню">
         <span class="navbar-toggler-icon">
 
@@ -21,8 +25,8 @@
                 #{userName}
             <ul .navbar-nav .d-flex .d-lg-none>
                     $forall MenuItem label route _ <- userMenuItems
-                        <li .nav-item :Just route == mcurrentRoute:.active href="@{route}">
-                            <a .nav-link>#{label}
+                        <li .nav-item :Just route == mcurrentRoute:.active>
+                            <a .nav-link href="@{route}">#{label}
         $nothing
             <ul .navbar-nav>
                 $forall MenuItem label route _ <- navbarRightFilteredMenuItems
