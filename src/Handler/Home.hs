@@ -19,6 +19,7 @@ import           Utils.Withdrawal
 import           Data.Text.Lazy.Encoding      ( decodeUtf8 )
 import           Network.HTTP.Client.Internal
 import           Network.HTTP.Client.TLS
+import           Prelude                      ( foldl )
 import           Text.Julius                  ( RawJS (..) )
 
 
@@ -41,7 +42,9 @@ getHomeR = do
     ratioId <- newIdent
     modalWrapId <- newIdent
     modalRatioId <- newIdent
-    (mmsg, mayClientUser, orderCreateFormW, modalOrderCreateFormW, (pzmRurOrders, rurPzmOrders)) <- getData wrapId modalWrapId ratioId modalRatioId
+    (mmsg, mayClientUser, orderCreateFormW, modalOrderCreateFormW, (pzmRurOrders, rurPzmOrders')) <- getData wrapId modalWrapId ratioId modalRatioId
+    -- Sort RUR to PZM orders by descending order ratio
+    let rurPzmOrders = foldl (flip (:)) [] rurPzmOrders'
     (btcARes, cbrRes) <- runResourceT $ liftIO $ do
         manager <- newTlsManager
         btcAReq <- parseRequest "https://btc-alpha.com/exchange/PZM_USD"
