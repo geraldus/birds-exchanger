@@ -469,45 +469,43 @@ isAuthenticated = do
         Just _  -> Authorized
 
 isClientAuthenticated :: Handler AuthResult
-isClientAuthenticated = do
-    ma <- maybeAuthPair
-    return $ case ma of
-        Nothing -> Unauthorized "Войдите в систему для просмотра этой страницы"
-        Just (_, Right _) -> Unauthorized "Аккаунт оператора не имеет счёта"
-        Just (_, Left _) -> Authorized
+isClientAuthenticated = authorizeRoles [ Client ]
 
 isStaffAuthenticated :: Handler AuthResult
-isStaffAuthenticated = do
-    ma <- maybeAuthPair
-    return $ case ma of
-        Nothing -> Unauthorized "Войдите в систему для просмотра это страницы"
-        Just (_, Left user) -> case userRole user of
-            Client ->
-                Unauthorized "Для просмотра страницы нужен другой тип аккаунта"
-            Operator -> Authorized
-            Admin    -> Authorized
-        Just (_, Right _) -> Authorized
+isStaffAuthenticated = authorizeStaffRoles [ Admin, Operator ]
 
 isManagerAuthenticated :: Handler AuthResult
-isManagerAuthenticated = do
-    ma <- maybeAuthPair
-    return $ case ma of
-        Nothing -> Unauthorized "Войдите в систему для просмотра это страницы"
-        Just (_, Left user) -> case userRole user of
-            Admin    -> Authorized
-            _ -> Unauthorized "Для просмотра страницы нужен другой тип аккаунта"
-        Just (_, Right _) -> Authorized
+isManagerAuthenticated = authorizeStaffRoles [ Admin ]
 
 isEditorAuthenticated :: Handler AuthResult
-isEditorAuthenticated = do
+-- TODO:  DOUBLE CHECK if ADMINS should be IN LIST for sure
+isEditorAuthenticated = authorizeStaffRoles [ Admin, Editor ]
+
+isOperatorAuthenticated :: Handler AuthResult
+isOperatorAuthenticated = authorizeStaffRoles [ Operator ]
+
+authorizeRoles :: [ UserRole ] -> Handler AuthResult
+authorizeRoles rs = authorizeRolesRedirect rs Nothing Nothing
+
+authorizeStaffRoles :: [ UserRole ] -> Handler AuthResult
+authorizeStaffRoles rs =
+    authorizeRolesRedirect rs (Just notFound) (Just notFound)
+
+
+authorizeRolesRedirect
+    :: [ UserRole ]
+    -> Maybe (Handler AuthResult)
+    -> Maybe (Handler AuthResult)
+    -> Handler AuthResult
+authorizeRolesRedirect rs maybeGuestHandler maybeOtherHandler = do
     ma <- maybeAuthPair
-    return $ case ma of
-        Nothing -> Unauthorized "Войдите в систему для просмотра это страницы"
-        Just (_, Left user) -> case userRole user of
-            Admin    -> Authorized
-            Editor   -> Authorized
-            _ -> Unauthorized "Для просмотра страницы нужен другой тип аккаунта"
-        Just (_, Right _) -> Authorized
+    case ma of
+        Nothing ->
+            fromMaybe (unauthorizedI MsgPleaseLogInText) maybeGuestHandler
+        Just (_, Left user) -> if userRole user `elem` rs
+            then pure Authorized
+            else fromMaybe (unauthorizedI MsgPleaseLogInText) maybeOtherHandler
+        Just (_, Right _) -> pure Authorized
 
 
 instance YesodAuthPersist App where
