@@ -4,7 +4,7 @@
 {-# LANGUAGE QuasiQuotes           #-}
 {-# LANGUAGE RecordWildCards       #-}
 {-# LANGUAGE TypeFamilies          #-}
-module Handler.Client.ExchangeOrderCreate where
+module Handler.Client.Order.Create where
 
 import           Import
 
@@ -29,16 +29,25 @@ postExchangeOrderCreateR = do
             redirect HomeR
         FormMissing -> redirect HomeR
         FormSuccess orderData -> do
+            $(logInfo) "\n"
+            $(logInfo) (pack . show $ orderData)
             let oact = action orderData
                 oamt = amount orderData
                 opair = pair orderData
                 oratio = ratio orderData
             -- TODO: write a function for this: case (action, pair) of ...
             -- 1. Check if required coins amount is available in user's wallet
+            --
             -- TODO: FIXME: use flipPair and unPairCurrency
-            let (currency, _) = case opair of
-                    ExchangePzmRur -> if oact == EAGive then (pzmC, rurC) else (rurC, pzmC)
-                    ExchangeRurPzm -> if oact == EAGive then (rurC, pzmC) else (pzmC, rurC)
+            --
+            -- EXCHANGE PAIR in form doesn't change when ACTION changed
+            -- It ALWAYS gives Currency Pair with direction, e.g. ACTION
+            --
+            let (currency, _) = unPairCurrency $ if oact == EAGive
+                    then opair
+                    else flipPair opair
+            let exchangeDirection = if oact == EAGive
+                    then opair else flipPair opair
             wout <- getOrCreateWallet clientId currency
             -- win  <- getOrCreateWallet clientId inCurrency
             now <- liftIO getCurrentTime
@@ -48,6 +57,11 @@ postExchangeOrderCreateR = do
                     then (oamt, mamt)
                     else (mamt, oamt)
                 wamt = userWalletAmountCents . entityVal $ wout
+            $(logInfo) (pack . show $ excDirRatio)
+            $(logInfo) (pack . show $ exchangeDirection)
+            $(logInfo) (pack . show $ outAmt)
+            $(logInfo) (pack . show $ inAmt)
+            $(logInfo) "\n"
             let fee = calcFeeCents defaultExchangeFee inAmt
             if wamt < outAmt || outAmt <= 0
                 then do
@@ -79,6 +93,7 @@ postExchangeOrderCreateR = do
                     morders <- runDB $ selectList
                             (   ratioCondition :
                               [ ExchangeOrderIsActive ==. True
+                              , ExchangeOrderUserId !=. clientId
                               , ExchangeOrderAmountLeft >=. 0
                               , ExchangeOrderId !=. orderId
                               , ExchangeOrderRatioNormalization ==. orderRatioN
@@ -281,6 +296,67 @@ postExchangeOrderCreateR = do
                     else do
                         target' <- fromJust <$> (runDB . get) tOrderId
                         exchangeOrders (Entity tOrderId target') mRest (res : acc)
+    -- instantExchange order match = do
+    --     -- take first order
+    --     let Entity orderId tOrder = order
+    --         Entity matchId mOrder = match
+    --     let tRatio      = exchangeOrderNormalizedRatio tOrder
+    --         tNormD      = exchangeOrderRatioNormalization tOrder
+    --         tPair       = exchangeOrderPair tOrder
+    --         tOutAmtLeft = exchangeOrderAmountLeft tOrder
+    --         tDirRatio   = normalizeRatio tNormD tPair tRatio
+    --     let mRatio      = exchangeOrderNormalizedRatio mOrder
+    --         mNormD      = exchangeOrderRatioNormalization mOrder
+    --         mPair       = exchangeOrderPair mOrder
+    --         mOutAmtLeft = exchangeOrderAmountLeft mOrder
+    --         mDirRatio   = normalizeRatio mNormD mPair mRatio
+    --     -- let's calculate what order will be
+    --     -- fully executed
+    --     -- x = outAmt cur.A is currency
+    --     -- z = calculate pair amount ratio
+    --     let tInAmtExpect = convertCents tDirRatio tOutAmtLeft
+    --     let mInAmtExpect = convertCents mDirRatio mOutAmtLeft
+    --     -- $(logInfo) $ "M | Ratio direct: " <> (pack . show) mDirRatio <> "; amount = " <> (pack . show) mInAmt <> " | Out: " <> (pack . show) mOutAmt
+    --     -- $(logInfo) $ "U | In: " <> (pack . show) mInAmt <> "; Out: " <> (pack . show) mOutAmt
+    --     let tUserId = exchangeOrderUserId tOrder
+    --         mUserId = exchangeOrderUserId mOrder
+    --     let ( currencyA, currencyB ) = unPairCurrency tPair
+    --     -- get both in and out wallets for exchanging users
+    --     tOutWallet <- getOrCreateWallet tUserId currencyA
+    --     tInWallet  <- getOrCreateWallet tUserId currencyB
+    --     mOutWallet <- getOrCreateWallet mUserId currencyB
+    --     mInWallet  <- getOrCreateWallet mUserId currencyA
+    --     timeNow <- liftIO getCurrentTime
+    --     let setFullyExecuted =
+    --             [ ExchangeOrderStatus =. Executed timeNow
+    --             , ExchangeOrderAmountLeft =. 0
+    --             , ExchangeOrderIsActive =. False ]
+    --     let tInWalletAmt = userWalletAmountCents (entityVal tInWallet)
+    --         mInWalletAmt = userWalletAmountCents (entityVal mInWallet)
+    --     let tInWalletId  = entityKey tInWallet
+    --         tOutWalletId = entityKey tOutWallet
+    --         mInWalletId  = entityKey mInWallet
+    --         mOutWalletId = entityKey mOutWallet
+    --     let ( tFinalOut, mFinalOut) =
+    --             if tOutAmtLeft == mInAmtExpect
+    --                 then ( tOutAmtLeft, mOutAmtLeft )
+    --                 else if tOutAmtLeft < mInAmtExpect
+    --                     -- target gives less than match: match will take
+    --                     -- everything target gives, Z' = X
+    --                     -- W' * direct Ratio (mdr) = Z'
+    --                     -- => W' = Z' * (1/mdr)
+    --                     -- => W' = X * (1/mdr)
+    --                     then ( tOutAmtLeft, convertCents (1 / mDirRatio) tOutAmtLeft )
+    --                     -- target gives more than match takes
+    --                     -- X > Z => X' = Z * (1/tdr)
+    --                     else ( convertCents (1 / tDirRatio) mOutAmtLeft, mOutAmtLeft )
+    --     let tIn = convertCents tDirRatio tFinalOut
+    --         mIn = convertCents mDirRatio mFinalOut
+    --         tFee = calcFeeCents defaultExchangeFee tIn
+    --         mFee = calcFeeCents defaultExchangeFee mIn
+    --         tFinalIn = tIn - tFee
+    --         mFinalIn = mIn - mFee
+    --     error "wip"
 
 freezeUserCoins
     :: UserId
