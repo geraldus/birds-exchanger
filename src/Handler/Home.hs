@@ -72,7 +72,6 @@ maybeClientUser = (entityKey . fst <$>) <$> maybeClient
 
 getActiveOrders :: Maybe UserId -> Handler ([Entity ExchangeOrder], [Entity ExchangeOrder])
 getActiveOrders mu = do
-    $(logInfo) $ pack $ show mu
     let userConstraint = case mu of
             Nothing -> []
             Just _  -> [] -- [ExchangeOrderUserId !=. uid]

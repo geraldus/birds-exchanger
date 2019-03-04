@@ -29,8 +29,8 @@ postExchangeOrderCreateR = do
             redirect HomeR
         FormMissing -> redirect HomeR
         FormSuccess orderData -> do
-            $(logInfo) "\n"
-            $(logInfo) (pack . show $ orderData)
+            -- $(logInfo) "\n"
+            -- $(logInfo) (pack . show $ orderData)
             let oact = action orderData
                 oamt = amount orderData
                 opair = pair orderData
@@ -46,10 +46,7 @@ postExchangeOrderCreateR = do
             let (currency, _) = unPairCurrency $ if oact == EAGive
                     then opair
                     else flipPair opair
-            let exchangeDirection = if oact == EAGive
-                    then opair else flipPair opair
             wout <- getOrCreateWallet clientId currency
-            -- win  <- getOrCreateWallet clientId inCurrency
             now <- liftIO getCurrentTime
             let excDirRatio = fromNormalizedRatio opair oratio
                 mamt = multAmt excDirRatio oamt
@@ -57,11 +54,11 @@ postExchangeOrderCreateR = do
                     then (oamt, mamt)
                     else (mamt, oamt)
                 wamt = userWalletAmountCents . entityVal $ wout
-            $(logInfo) (pack . show $ excDirRatio)
-            $(logInfo) (pack . show $ exchangeDirection)
-            $(logInfo) (pack . show $ outAmt)
-            $(logInfo) (pack . show $ inAmt)
-            $(logInfo) "\n"
+            -- $(logInfo) (pack . show $ excDirRatio)
+            -- $(logInfo) (pack . show $ exchangeDirection)
+            -- $(logInfo) (pack . show $ outAmt)
+            -- $(logInfo) (pack . show $ inAmt)
+            -- $(logInfo) "\n"
             let fee = calcFeeCents defaultExchangeFee inAmt
             if wamt < outAmt || outAmt <= 0
                 then do
@@ -151,8 +148,8 @@ postExchangeOrderCreateR = do
         -- let's calculate what order will be fully executed
         let tInAmtExpects = multAmt tDirRatio tOutAmtLeft
         let mInAmtExpects = multAmt mDirRatio mOutAmtLeft
-        $(logInfo) $ "M | Rd: " <> (pack . show) mDirRatio <> " In exp:" <> (pack . show) mInAmtExpects <> "; Out: " <> (pack . show) mOutAmtLeft
-        $(logInfo) $ "U | Rd: " <> (pack . show) tDirRatio <> " In exp: " <> (pack . show) tInAmtExpects <> "; Out: " <> (pack . show) tOutAmtLeft
+        -- $(logInfo) $ "M | Rd: " <> (pack . show) mDirRatio <> " In exp:" <> (pack . show) mInAmtExpects <> "; Out: " <> (pack . show) mOutAmtLeft
+        -- $(logInfo) $ "U | Rd: " <> (pack . show) tDirRatio <> " In exp: " <> (pack . show) tInAmtExpects <> "; Out: " <> (pack . show) tOutAmtLeft
         -- tWalletOut <- getOrCreateWallet tUserId currencyA
         tWalletIn@(Entity tWalletInId _)  <- getOrCreateWallet tUserId currencyB
         -- mWalletOut <- getOrCreateWallet mUserId currencyB
@@ -190,12 +187,12 @@ postExchangeOrderCreateR = do
                             , mInAmtExpects - finalMInFee
                             , mOutAmtLeft - tInAmtExpects )
                 -- Exchange orders having equal ratio and in/out amount
-                $(logInfo) $ "USER >>>" <> (pack . show) tOutAmtLeft <> " <<< " <> (pack . show) finalUInAmt <> " - " <> (pack . show) finalUInFee
-                $(logInfo) $ "MATCH >>>" <> (pack . show) mOutAmtLeft <> " <<< " <> (pack . show) finalMInAmt <> " - " <> (pack . show) finalMInFee
+                -- $(logInfo) $ "USER >>>" <> (pack . show) tOutAmtLeft <> " <<< " <> (pack . show) finalUInAmt <> " - " <> (pack . show) finalUInFee
+                -- $(logInfo) $ "MATCH >>>" <> (pack . show) mOutAmtLeft <> " <<< " <> (pack . show) finalMInAmt <> " - " <> (pack . show) finalMInFee
                 -- Exchange orders having equal in/out amount
                 -- Both orders will be closed
-                $(logInfo) $ "USER >>>" <> (pack . show) tOutAmtLeft <> " <<< " <> (pack . show) finalUInAmt <> " - " <> (pack . show) finalUInFee
-                $(logInfo) $ "MATCH >>>" <> (pack . show) mOutAmtLeft <> " <<< " <> (pack . show) finalMInAmt <> " - " <> (pack . show) finalMInFee
+                -- $(logInfo) $ "USER >>>" <> (pack . show) tOutAmtLeft <> " <<< " <> (pack . show) finalUInAmt <> " - " <> (pack . show) finalUInFee
+                -- $(logInfo) $ "MATCH >>>" <> (pack . show) mOutAmtLeft <> " <<< " <> (pack . show) finalMInAmt <> " - " <> (pack . show) finalMInFee
                 runDB $ do
                     -- Update order statuses and data
                     update mOrderId setFullyExecuted
@@ -253,14 +250,14 @@ postExchangeOrderCreateR = do
                                 in ( tout, tin, tin - tfee, tfee,
                                      mout, mIn, mIn - mfee, mfee,
                                      tout - mIn, currencyB, setFullyExecuted, setPartiallyExecuted mout timeNow st )
-                $(logInfo) $ if tOutAmtLeft > mInAmtExpects
-                    then "T OUT > M IN"
-                    else "T OUT < M IN"
-                $(logInfo) $ "Target Out/ExpIn " <> (pack . show) tOutAmtLeft <> " | " <> (pack . show) tInAmtExpects
-                $(logInfo) $ "Match  Out/ExpIn " <> (pack . show) mOutAmtLeft <> " | " <> (pack . show) mInAmtExpects
-                $(logInfo) $ "T out: " <> (pack . show) userFinalOut <> "; in: " <> (pack . show) userFinalIn <> " ; fee: " <> (pack . show) userFinalFee
-                $(logInfo) $ "M out: " <> (pack . show) matchFinalOut <> " ; in: " <> (pack . show) matchFinalIn <> " ; fee: " <> (pack . show) matchFinalFee
-                $(logInfo) $ "Diff: " <> (pack . show) diffProfit
+                -- $(logInfo) $ if tOutAmtLeft > mInAmtExpects
+                --     then "T OUT > M IN"
+                --     else "T OUT < M IN"
+                -- $(logInfo) $ "Target Out/ExpIn " <> (pack . show) tOutAmtLeft <> " | " <> (pack . show) tInAmtExpects
+                -- $(logInfo) $ "Match  Out/ExpIn " <> (pack . show) mOutAmtLeft <> " | " <> (pack . show) mInAmtExpects
+                -- $(logInfo) $ "T out: " <> (pack . show) userFinalOut <> "; in: " <> (pack . show) userFinalIn <> " ; fee: " <> (pack . show) userFinalFee
+                -- $(logInfo) $ "M out: " <> (pack . show) matchFinalOut <> " ; in: " <> (pack . show) matchFinalIn <> " ; fee: " <> (pack . show) matchFinalFee
+                -- $(logInfo) $ "Diff: " <> (pack . show) diffProfit
                 res <- runDB $ do
                     -- Update order statuses and data
                     update tOrderId userOrderUpdates
@@ -296,67 +293,6 @@ postExchangeOrderCreateR = do
                     else do
                         target' <- fromJust <$> (runDB . get) tOrderId
                         exchangeOrders (Entity tOrderId target') mRest (res : acc)
-    -- instantExchange order match = do
-    --     -- take first order
-    --     let Entity orderId tOrder = order
-    --         Entity matchId mOrder = match
-    --     let tRatio      = exchangeOrderNormalizedRatio tOrder
-    --         tNormD      = exchangeOrderRatioNormalization tOrder
-    --         tPair       = exchangeOrderPair tOrder
-    --         tOutAmtLeft = exchangeOrderAmountLeft tOrder
-    --         tDirRatio   = normalizeRatio tNormD tPair tRatio
-    --     let mRatio      = exchangeOrderNormalizedRatio mOrder
-    --         mNormD      = exchangeOrderRatioNormalization mOrder
-    --         mPair       = exchangeOrderPair mOrder
-    --         mOutAmtLeft = exchangeOrderAmountLeft mOrder
-    --         mDirRatio   = normalizeRatio mNormD mPair mRatio
-    --     -- let's calculate what order will be
-    --     -- fully executed
-    --     -- x = outAmt cur.A is currency
-    --     -- z = calculate pair amount ratio
-    --     let tInAmtExpect = convertCents tDirRatio tOutAmtLeft
-    --     let mInAmtExpect = convertCents mDirRatio mOutAmtLeft
-    --     -- $(logInfo) $ "M | Ratio direct: " <> (pack . show) mDirRatio <> "; amount = " <> (pack . show) mInAmt <> " | Out: " <> (pack . show) mOutAmt
-    --     -- $(logInfo) $ "U | In: " <> (pack . show) mInAmt <> "; Out: " <> (pack . show) mOutAmt
-    --     let tUserId = exchangeOrderUserId tOrder
-    --         mUserId = exchangeOrderUserId mOrder
-    --     let ( currencyA, currencyB ) = unPairCurrency tPair
-    --     -- get both in and out wallets for exchanging users
-    --     tOutWallet <- getOrCreateWallet tUserId currencyA
-    --     tInWallet  <- getOrCreateWallet tUserId currencyB
-    --     mOutWallet <- getOrCreateWallet mUserId currencyB
-    --     mInWallet  <- getOrCreateWallet mUserId currencyA
-    --     timeNow <- liftIO getCurrentTime
-    --     let setFullyExecuted =
-    --             [ ExchangeOrderStatus =. Executed timeNow
-    --             , ExchangeOrderAmountLeft =. 0
-    --             , ExchangeOrderIsActive =. False ]
-    --     let tInWalletAmt = userWalletAmountCents (entityVal tInWallet)
-    --         mInWalletAmt = userWalletAmountCents (entityVal mInWallet)
-    --     let tInWalletId  = entityKey tInWallet
-    --         tOutWalletId = entityKey tOutWallet
-    --         mInWalletId  = entityKey mInWallet
-    --         mOutWalletId = entityKey mOutWallet
-    --     let ( tFinalOut, mFinalOut) =
-    --             if tOutAmtLeft == mInAmtExpect
-    --                 then ( tOutAmtLeft, mOutAmtLeft )
-    --                 else if tOutAmtLeft < mInAmtExpect
-    --                     -- target gives less than match: match will take
-    --                     -- everything target gives, Z' = X
-    --                     -- W' * direct Ratio (mdr) = Z'
-    --                     -- => W' = Z' * (1/mdr)
-    --                     -- => W' = X * (1/mdr)
-    --                     then ( tOutAmtLeft, convertCents (1 / mDirRatio) tOutAmtLeft )
-    --                     -- target gives more than match takes
-    --                     -- X > Z => X' = Z * (1/tdr)
-    --                     else ( convertCents (1 / tDirRatio) mOutAmtLeft, mOutAmtLeft )
-    --     let tIn = convertCents tDirRatio tFinalOut
-    --         mIn = convertCents mDirRatio mFinalOut
-    --         tFee = calcFeeCents defaultExchangeFee tIn
-    --         mFee = calcFeeCents defaultExchangeFee mIn
-    --         tFinalIn = tIn - tFee
-    --         mFinalIn = mIn - mFee
-    --     error "wip"
 
 freezeUserCoins
     :: UserId
