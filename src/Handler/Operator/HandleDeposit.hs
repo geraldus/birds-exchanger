@@ -5,7 +5,6 @@ module Handler.Operator.HandleDeposit where
 import           Import
 import           Local.Persist.Exchange ( ProfitType (..) )
 import           Local.Persist.Wallet
-import           Type.Fee
 import           Type.Money             ( oneCoinCents )
 import           Utils.Deposit
 import           Utils.Money

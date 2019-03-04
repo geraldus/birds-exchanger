@@ -7,11 +7,10 @@ import           Local.Persist.Currency
 import           Local.Persist.Exchange
 import           Type.Fee
 import           Type.Money
-import           Utils.Form             ( currencyOptionListRaw,
-                                          transferOptionsRaw )
 
 import           Formatting             ( sformat )
 import qualified Formatting.Formatters  as F
+
 
 truncCoins2Cents :: Double -> Int
 truncCoins2Cents x = truncate $ x * fromIntegral oneCoinCents

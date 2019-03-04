@@ -371,7 +371,7 @@ instance YesodBreadcrumbs App where
         breadcrumb' _ BlackListR = return ("Чёрный список", Just HomeR)
         breadcrumb' mr TermsOfUseR = return (mr MsgTermsOfUse, Just HomeR)
         breadcrumb' mr InfoListR = return (mr MsgInfoListTitle, Just HomeR)
-        breadcrumb' mr (InfoViewR alias) = do
+        breadcrumb' _ (InfoViewR alias) = do
             i <- runDB $ getBy404 (UniqueInfoAlias alias)
             return ((infoTitle . entityVal) i, Just InfoListR)
         breadcrumb' mr ManageInfoIndexR =
@@ -436,7 +436,6 @@ instance YesodAuth App where
         ma <- maybeAuthId
         tp <- getRouteToParent
         when (isJust ma) (redirect HomeR)
-        mr <- getMessageRender :: AuthHandler App (AppMessage -> Text)
         authLayout $ do
             setAppPageTitle MsgSignInPageTitle
             [whamlet|
