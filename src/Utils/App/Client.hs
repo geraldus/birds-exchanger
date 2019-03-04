@@ -1,3 +1,4 @@
+{-# LANGUAGE QuasiQuotes #-}
 module Utils.App.Client where
 
 import           Import
