@@ -1,6 +1,8 @@
 ProjectName: OutBirds
 
+# ACCESS
 WrongRequest: Неверный запрос
+PleaseLogInText: Пожалуйста, войдите в систему для просмотра этой страницы
 
 # PAGE TITLES
 ## COMMON
