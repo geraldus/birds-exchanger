@@ -17,7 +17,7 @@
         $maybe userName <- muserName
             <span .navbar-text .d-flex .d-lg-none>
                 <i .fas .fa-wallet .align-self-center>
-                <span .d-block .ml-2> Баланс
+                <span .d-block .ml-2> _{MsgBalance}
             $forall (cents, cur) <- wallets
                 <span .navbar-text .font-weight-bold .d-flex .d-lg-none .wallet-balance-val>
                     #{cents2dblT cents}&nbsp;<span class="font-weight-normal">#{currSign cur}</span>
