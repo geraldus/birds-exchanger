@@ -22,10 +22,12 @@ getOperatorDepositRequestsListR = do
     loc <- selectLocale
     tzo <- timezoneOffsetFromCookie
     let reqDateT = renderTimeDateCol loc tzo . depositRequestCreated
+    renderUrl <- getUrlRender
     list <-
         runDB $ rawSql s [toPersistValue ClientConfirmed] :: Handler
             [(Entity DepositRequest, Entity UserWallet, Entity User)]
     defaultLayout $ do
+        $(widgetFile "operator/common")
         $(widgetFile "operator/request-list-common")
         $(widgetFile "operator/deposit-requests-list")
   where

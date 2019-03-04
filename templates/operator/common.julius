@@ -1,0 +1,8 @@
+
+const socketRoute_ = #{renderUrl OperatorWebSocketR}
+const socketRoute = socketRoute_.replace(/^http(s?:\/\/)/, 'ws$1')
+
+$(document).ready(() => {
+    console.log('operator', socketRoute)
+    var socket = new WebSocket(socketRoute);
+})

@@ -36,6 +36,7 @@
 /info/manage/add                     ManageInfoAddR                    GET POST
 /info/manage/update                  ManageInfoUpdateR                 POST
 -- /info/manage/archive                 ManageInfoArchiveR                POST
+/operator/websocket                  OperatorWebSocketR                GET
 
 /blacklist                           BlackListR                        GET
 /info                                InfoListR                         GET
