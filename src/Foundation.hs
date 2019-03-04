@@ -629,7 +629,9 @@ getUserWallets = do
     mAuthPair <- maybeAuthPair
     case mAuthPair of
         Just (Left uid, Left _) -> do
-            wallets <- runDB $ selectList [UserWalletUserId ==. uid] []
+            wallets <- runDB $ selectList
+                [UserWalletUserId ==. uid]
+                [Desc UserWalletCurrency]
             return $
                 map (\(Entity _ w) -> (userWalletAmountCents w, userWalletCurrency w)) wallets
         _ -> return []
