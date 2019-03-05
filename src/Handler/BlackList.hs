@@ -323,19 +323,6 @@ getBlackListR = defaultLayout $ do
                             ignatov_konstantin_e
                 <tr>
                     <td>
-                        PRIZM-J9TE-5Y2H-3XNT-BBUYX
-                    <td>
-                    <td>
-                    <td>
-                    <td>
-                    <td>
-                    <td>
-                        <a
-                            href="https://vk.com/id488698065"
-                            target="_blank">
-                            id488698065
-                <tr>
-                    <td>
                         PRIZM-D7Q3-8M2Z-NMVR-95JX4
                     <td>
                     <td>
