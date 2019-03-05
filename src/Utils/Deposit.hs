@@ -2,9 +2,9 @@ module Utils.Deposit where
 
 import           Prelude
 
-import           Type.Money
-import           Type.Fee
 import           Local.Persist.Currency
+import           Type.Fee
+import           Type.Money
 
 
 -- TODO: FIXME: Make deposit and withdrawal fees configurable via admin's UI
@@ -13,7 +13,7 @@ import           Local.Persist.Currency
 selectDepositFee :: Currency -> Fee
 selectDepositFee (FiatC   RUR) = depositFeeRur
 selectDepositFee (CryptoC PZM) = depositFeePzm
-selectDepositFee c = error $ "No deposit fee rules for " <> show c
+selectDepositFee c             = error $ "No deposit fee rules for " <> show c
 
 selectRatio :: Currency -> Currency -> Double
 selectRatio (CryptoC PZM) (FiatC   RUR) = depositPzmRurRatio
