@@ -4,6 +4,6 @@ document.cookie = "timezoneOffset=" + _date.getTimezoneOffset()
 
 $(document).ready(() => {
     setTimeout(() => {
-        $('#message').hide()
+        $('#message').slideUp()
     }, 10*1000)
 })
