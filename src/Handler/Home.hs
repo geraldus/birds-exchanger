@@ -85,16 +85,18 @@ getActiveOrders mu = do
     where isPzmRurOrder = (== ExchangePzmRur) . exchangeOrderPair
 
 
-renderOrderCol :: Text -> Text -> [ExchangeOrder] -> Widget
-renderOrderCol pair title orders =
+renderOrderCol :: Text -> Text -> ExchangePair -> [ExchangeOrder] -> Widget
+renderOrderCol pair title exchange orders =
     [whamlet|
         <h5 .text-center>#{title}
         <table .table .table-hover data-pair="#{pair}">
             <thead .thead-dark>
                 <tr>
                     <th>_{MsgRatio}
-                    <th>_{MsgQuantityShort}
-                    <th>_{MsgAmount}
+                    <th>_{MsgQuantityShort} #
+                        <span .text-muted>(#{currSign c2})
+                    <th>_{MsgAmount} #
+                        <span .text-muted>(#{currSign c1})
             <tbody>
                 $forall order <- orders
                     <tr .clickable-order>
@@ -105,6 +107,33 @@ renderOrderCol pair title orders =
                         <td .expected>
                             #{cents2dblT (convertCents (normalizeRatio (exchangeOrderPair order) (exchangeOrderRatioNormalization order) (exchangeOrderNormalizedRatio order)) (exchangeOrderAmountLeft order))}
         |]
+  where
+    (c1, c2) = unPairCurrency exchange
+
+renderOrderLeftCol :: Text -> Text -> ExchangePair -> [ExchangeOrder] -> Widget
+renderOrderLeftCol pair title exchange orders =
+    [whamlet|
+        <h5 .text-center>#{title}
+        <table .table .table-hover data-pair="#{pair}">
+            <thead .thead-dark>
+                <tr>
+                    <th>_{MsgRatio}
+                    <th>_{MsgQuantityShort} #
+                        <span .text-muted>(#{currSign c1})
+                    <th>_{MsgAmount} #
+                        <span .text-muted>(#{currSign c2})
+            <tbody>
+                $forall order <- orders
+                    <tr .clickable-order>
+                        <td .ratio>
+                            #{show (exchangeOrderNormalizedRatio order)}
+                        <td .expected>
+                            #{cents2dblT (convertCents (normalizeRatio (exchangeOrderPair order) (exchangeOrderRatioNormalization order) (exchangeOrderNormalizedRatio order)) (exchangeOrderAmountLeft order))}
+                        <td .amount-left>
+                            #{cents2dblT (exchangeOrderAmountLeft order)}
+        |]
+  where
+    (c1, c2) = unPairCurrency exchange
 
 
 clickableOrderW :: Text -> Widget

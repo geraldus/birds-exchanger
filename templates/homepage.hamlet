@@ -40,9 +40,9 @@
     <div .row>
         ^{clickableOrderW modalWrapId}
         <div .col-12 .col-lg-6>
-            ^{renderOrderCol "rur_pzm" "₽ ⇢ PZM" (map entityVal rurPzmOrders)}
+            ^{renderOrderLeftCol "rur_pzm" "₽ ⇢ PZM" ExchangePzmRur (map entityVal rurPzmOrders)}
         <div .col-12 .col-lg-6>
-            ^{renderOrderCol "pzm_rur" "PZM ⇢ ₽" (map entityVal pzmRurOrders)}
+            ^{renderOrderCol "pzm_rur" "PZM ⇢ ₽" ExchangeRurPzm (map entityVal pzmRurOrders)}
 
 <div #clickable-order-modal .modal .fade tabindex="-1" role=dialog>
     <div .modal-dialog .modal-lg .modal-dialog-centered role=document>
