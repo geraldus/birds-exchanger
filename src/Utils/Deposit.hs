@@ -37,7 +37,7 @@ defRurDepositFee :: Fee
 defRurDepositFee = Percent 0
 
 defPzmDepositFee :: Fee
-defPzmDepositFee = Percent 3
+defPzmDepositFee = Percent 2
 
 depositPzmRurRatio :: Double
 depositPzmRurRatio = 25
