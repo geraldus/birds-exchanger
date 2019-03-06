@@ -38,6 +38,8 @@
 -- /info/manage/archive                 ManageInfoArchiveR                POST
 /operator/websocket                  OperatorWebSocketR                GET
 
+/su/financial-report                 SuperUserFinancialReportViewR     GET
+
 /blacklist                           BlackListR                        GET
 /info                                InfoListR                         GET
 /info/view/#Text                     InfoViewR                         GET

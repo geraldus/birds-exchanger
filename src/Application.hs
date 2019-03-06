@@ -70,6 +70,7 @@ import           Handler.Operator.WithdrawalRequest
 import           Handler.Profile
 import           Handler.SignUp
 import           Handler.SignUpVerification
+import           Handler.SuperUser.FinancialReport
 import           Handler.TermsOfUse
 
 

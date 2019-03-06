@@ -293,6 +293,8 @@ instance Yesod App where
     isAuthorized ManageInfoIndexR _                  = isEditorAuthenticated
     isAuthorized ManageInfoAddR _                    = isEditorAuthenticated
     isAuthorized ManageInfoUpdateR _                 = isEditorAuthenticated
+    -- SUPER USERS
+    isAuthorized SuperUserFinancialReportViewR _     = isSuperUserAuthenticated
     -- ALL: Common routes (guests including)
     isAuthorized BlackListR _                        = return Authorized
     isAuthorized InfoListR _                         = return Authorized
@@ -485,6 +487,9 @@ isEditorAuthenticated = authorizeStaffRoles [ Admin, Editor ]
 isOperatorAuthenticated :: Handler AuthResult
 isOperatorAuthenticated = authorizeStaffRoles [ Operator ]
 
+isSuperUserAuthenticated :: Handler AuthResult
+isSuperUserAuthenticated = authorizeStaffRoles []
+
 authorizeRoles :: [ UserRole ] -> Handler AuthResult
 authorizeRoles rs = authorizeRolesRedirect rs Nothing Nothing
 
@@ -615,6 +620,13 @@ requireStaffId = do
             Operator -> return uid
             Admin    -> return uid
         _ -> notFound
+
+requireSu :: Handler (Either UserId Text)
+requireSu = do
+    mayAuth <- maybeAuthPair
+    case mayAuth of
+        Just (uid, Right _  ) -> return uid
+        _                     -> notFound
 
 
 userNameF :: Either User SuperUser -> Text
