@@ -566,15 +566,14 @@ instance PathPiece (Either UserId Text) where
     toPathPiece = pack . show
 
 
-lookupUser :: Text -> Maybe SuperUser
-lookupUser username = find (\m -> suName m == username) superUsers
-
-
 appNonce128urlT :: Handler Text
 appNonce128urlT = do
     g <- appNonceGen <$> getYesod
     liftIO $ CN.nonce128urlT g
 
+
+lookupUser :: Text -> Maybe SuperUser
+lookupUser username = find (\m -> suName m == username) superUsers
 
 requireClientId :: Handler UserId
 requireClientId = do
