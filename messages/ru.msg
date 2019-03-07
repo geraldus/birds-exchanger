@@ -146,6 +146,12 @@ Title: Заголовок
 ArticeContent: Текст статьи
 NewArticle: Новая статья
 
+
+# SUPER USERS
+
+FinancialReport: Финансовый отчёт
+
+
 # MISC COMMON PHRASES
 
 InFact: по факту
