@@ -1,14 +1,25 @@
 ProjectName: OutBirds
+Info: Инфо
+TermsOfUse: Правила
+TermsOfUseTitle: Правила пользования сервисом
+BlackList: Чёрный список
+PrizmBlackListTitle: Список Prizm-кошельков, уличённых в мошенничестве
+
 
 # ACCESS
+
 WrongRequest: Неверный запрос
 PleaseLogInText: Пожалуйста, войдите в систему для просмотра этой страницы
 
+
 # PAGE TITLES
+
 ## COMMON
+
 HomePageTitle: Главная страница
 SignInPageTitle: Вход
 SignUpPageTitle: Регистрация
+
 
 ## CLIENT
 ClientProfilePageTitle: Мой портфель
@@ -119,13 +130,25 @@ TransferMethod: Способ перевода
 ExpectedCalculation: Ожидаемый расчёт
 ActualCalculation: Расчёт по факту
 
+
 # OPERATORS
+
 DepositRequestAcceptFormStatsTitle: Расчёт заявки
 DeclineRequestTitle: Отмена заявки
 DeclineRequest: Отклонить заявку
 DeclineReason: Причина отмены
 
 WithdrawalExecuted: Перевод выполнен
+
+InfoListTitle: Информация
+Alias: Ссылка
+Title: Заголовок
+ArticeContent: Текст статьи
+NewArticle: Новая статья
+
+# MISC COMMON PHRASES
+
+InFact: по факту
 
 TMSberBankCard2Card: СберБанк
 TMTinkoffBankCard2Card: Тинькофф Банк
@@ -134,20 +157,6 @@ TMPayPalTransfer: PayPal
 TMQiwi: Qiwi кошелёк
 TMCryptoTransfer: Перевод
 
-BlackList: Чёрный список
-PrizmBlackListTitle: Список Prizm-кошельков, уличённых в мощеничестве
-
-Info: Инфо
-InfoListTitle: Информация
-Alias: Ссылка
-Title: Заголовок
-ArticeContent: Текст статьи
-NewArticle: Новая статья
-
-TermsOfUse: Правила
-TermsOfUseTitle: Правила пользования сервисом
-
-
 WalletAddress: Адрес кошелька
 Card: Карта
 Phone: Телефон
@@ -155,7 +164,3 @@ Skype: Skype
 TelegramTitle: Telegram
 WebSite: Веб.сайт
 VkComTitle: ВКонтакте
-
-
-# MISC COMMON PHRASES
-InFact: по факту
