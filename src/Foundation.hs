@@ -132,6 +132,7 @@ instance Yesod App where
         let muserName = userNameF . snd <$> muser
         let isClient = isClientUser muser
         let isStaffLoggedIn = isStaffUser muser
+        let isSuLoggedIn = isSU muser
         wallets <- if isClient then getUserWallets else pure []
         mcurrentRoute <- getCurrentRoute
 
@@ -211,6 +212,12 @@ instance Yesod App where
                     { menuItemLabel = mr MsgInfo
                     , menuItemRoute = ManageInfoIndexR
                     , menuItemAccessCallback = isEditorUser muser } ]
+
+        let suMenuItems =
+                [ MenuItem
+                    { menuItemLabel = mr MsgFinancialReport
+                    , menuItemRoute = SuperUserFinancialReportViewR
+                    , menuItemAccessCallback = isSU muser } ]
 
         let navbarLeftMenuItems = [x | NavbarLeft x <- menuItems]
         let navbarRightMenuItems = [x | NavbarRight x <- menuItems]
@@ -370,6 +377,8 @@ instance YesodBreadcrumbs App where
             return ("Заявки на пополнение", Just HomeR)
         breadcrumb' _ OperatorWithdrawalRequestsListR =
             return ("Заявки на вывод", Just HomeR)
+        breadcrumb' _ SuperUserFinancialReportViewR =
+            return ("Финансовая отчётность", Just HomeR)
         breadcrumb' _ AdminLogInR = return ("Вход для супер-пользователя", Just HomeR)
         breadcrumb' _ BlackListR = return ("Чёрный список", Just HomeR)
         breadcrumb' mr TermsOfUseR = return (mr MsgTermsOfUse, Just HomeR)

@@ -67,6 +67,13 @@
                                     :Just route == mcurrentRoute:.active
                                     href="@{route}">
                                         #{label}
+                            $if isSuLoggedIn
+                                $forall MenuItem label route _ <- suMenuItems
+                                    <a
+                                        .dropdown-item
+                                        :Just route == mcurrentRoute:.active
+                                        href="@{route}">
+                                            #{label}
                 <li ##{navUserDropdownId} .nav-item .dropdown .mr-5>
                     <a
                         ##{navUserDropdownId}-toggle
