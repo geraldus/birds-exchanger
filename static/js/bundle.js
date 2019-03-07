@@ -91,7 +91,7 @@
 	    return store[key] || (store[key] = value !== undefined ? value : {});
 	  })('versions', []).push({
 	    version: _core.version,
-	    mode: _library ? 'pure' : 'global',
+	    mode: 'global',
 	    copyright: '© 2019 Denis Pushkarev (zloirock.ru)'
 	  });
 	});
@@ -1313,7 +1313,7 @@
 	var defineProperty = _objectDp.f;
 
 	var _wksDefine = function _wksDefine(name) {
-	  var $Symbol = _core.Symbol || (_core.Symbol = _library ? {} : _global.Symbol || {});
+	  var $Symbol = _core.Symbol || (_core.Symbol = _global.Symbol || {});
 	  if (name.charAt(0) != '_' && !(name in $Symbol)) defineProperty($Symbol, name, {
 	    value: _wksExt.f(name)
 	  });
@@ -2302,27 +2302,132 @@
 	function (_React$Component) {
 	  _inherits(FinancialReportView, _React$Component);
 
-	  function FinancialReportView() {
+	  function FinancialReportView(props) {
+	    var _this;
+
 	    _classCallCheck(this, FinancialReportView);
 
-	    return _possibleConstructorReturn(this, _getPrototypeOf(FinancialReportView).apply(this, arguments));
+	    var defLabels = {
+	      userCount: "User count",
+	      innerProfit: "Inner Profit",
+	      activeDeposits: "Active Deposits",
+	      acceptedDeposits: "Accepted Deposits"
+	    };
+	    _this = _possibleConstructorReturn(this, _getPrototypeOf(FinancialReportView).call(this, props)); // Don't call this.setState() here!
+
+	    _this.state = {
+	      userCount: 0,
+	      innerProfit: {},
+	      activeDeposit: {
+	        count: 0,
+	        items: []
+	      },
+	      acceptedDeposit: {
+	        count: 0,
+	        items: []
+	      }
+	    };
+	    _this.webSocket = new WebSocket(props.socket);
+	    _this.webSocket.onopen = _this.webScoketOnOpen.bind(_assertThisInitialized(_this));
+	    _this.webSocket.onmessage = _this.webScoketOnMessage.bind(_assertThisInitialized(_this));
+	    _this.handleJsonMessage = _this.handleJsonMessage.bind(_assertThisInitialized(_this));
+	    _this.handleCountEvent = _this.handleCountEvent.bind(_assertThisInitialized(_this)); // TODO: Merge incoming labels with defaults
+
+	    _this.props.labels = props.labels || defLabels;
+	    return _this;
 	  }
 
 	  _createClass(FinancialReportView, [{
+	    key: "webScoketOnOpen",
+	    value: function webScoketOnOpen() {
+	      this.webSocket.send('user count');
+	      this.webSocket.send('inner profit stats');
+	      this.webSocket.send('active deposit count');
+	      this.webSocket.send('accepted deposit count');
+	    }
+	  }, {
+	    key: "webScoketOnMessage",
+	    value: function webScoketOnMessage(e) {
+	      try {
+	        var j = JSON.parse(e.data);
+	        this.handleJsonMessage(j);
+	      } catch (error) {
+	        console.log('Socket message', e.data);
+	      }
+	    }
+	  }, {
+	    key: "handleJsonMessage",
+	    value: function handleJsonMessage(json) {
+	      switch (json.type) {
+	        case 'count-event':
+	          this.handleCountEvent(json.object, json.value);
+	          break;
+
+	        default:
+	          console.log(json);
+	      }
+	    }
+	  }, {
+	    key: "handleCountEvent",
+	    value: function handleCountEvent(obj, val) {
+	      switch (obj) {
+	        case 'User Count':
+	          this.setState({
+	            userCount: val
+	          });
+	          break;
+
+	        case 'Active Deposit Count':
+	          this.setState({
+	            activeDeposit: {
+	              count: val
+	            }
+	          });
+	          break;
+
+	        case 'Accepted Deposit Count':
+	          this.setState({
+	            acceptedDeposit: {
+	              count: val
+	            }
+	          });
+	          break;
+
+	        case 'Inner Profit':
+	          this.setState({
+	            innerProfit: val
+	          });
+	          break;
+
+	        default:
+	          console.log(obj, val);
+	      }
+	    }
+	  }, {
 	    key: "render",
 	    value: function render() {
-	      console.log('READY');
-	      return react.createElement("div", null, "Hello!");
+	      var ipState = this.state.innerProfit;
+	      var innerProfit = Object.keys(ipState).map(function (k) {
+	        var v = ipState[k] / 100;
+	        return react.createElement("div", null, "+", v.toFixed(2), "\xA0", k);
+	      });
+	      return react.createElement(react.Fragment, null, react.createElement("div", {
+	        className: "mb-2"
+	      }, react.createElement("span", null, "".concat(this.props.labels.userCount), ": "), react.createElement("span", null, "".concat(this.state.userCount))), react.createElement("div", {
+	        className: "mb-2"
+	      }, react.createElement("div", null, "".concat(this.props.labels.innerProfit), ": "), innerProfit), react.createElement("div", null, react.createElement("span", null, "".concat(this.props.labels.activeDeposits), ": "), react.createElement("span", null, this.state.activeDeposit.count)), react.createElement("div", null, react.createElement("span", null, "".concat(this.props.labels.acceptedDeposits), ": "), react.createElement("span", null, this.state.acceptedDeposit.count)));
 	    }
 	  }]);
 
 	  return FinancialReportView;
 	}(react.Component);
 
-	var root = document.querySelector('#react-host');
 	$(document).ready(function () {
-	  console.log('ready');
-	  ReactDOM.render(react.createElement(FinancialReportView, null), root);
+	  var root = document.querySelector('#react-host');
+	  var wsAddr = window.app.config.su.socket;
+	  ReactDOM.render(react.createElement(FinancialReportView, {
+	    socket: wsAddr
+	  }), root);
 	});
 
 }());
