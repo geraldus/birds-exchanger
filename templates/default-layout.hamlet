@@ -62,7 +62,11 @@
                             _{MsgManage}
                         <div .dropdown-menu aria-labelledby="#{navManageDropdownId}-toggle">
                             $forall MenuItem label route _ <- manageMenuItems
-                                <a .dropdown-item :Just route == mcurrentRoute:.active href="@{route}">#{label}
+                                <a
+                                    .dropdown-item
+                                    :Just route == mcurrentRoute:.active
+                                    href="@{route}">
+                                        #{label}
                 <li ##{navUserDropdownId} .nav-item .dropdown .mr-5>
                     <a
                         ##{navUserDropdownId}-toggle
