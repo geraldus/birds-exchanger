@@ -71,6 +71,7 @@ import           Handler.Profile
 import           Handler.SignUp
 import           Handler.SignUpVerification
 import           Handler.SuperUser.FinancialReport
+import           Handler.SuperUser.WebSocket
 import           Handler.TermsOfUse
 
 

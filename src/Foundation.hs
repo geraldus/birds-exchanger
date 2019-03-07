@@ -294,6 +294,7 @@ instance Yesod App where
     isAuthorized ManageInfoUpdateR _                 = isEditorAuthenticated
     -- SUPER USERS
     isAuthorized SuperUserFinancialReportViewR _     = isSuperUserAuthenticated
+    isAuthorized SuperUserWebSocketR _               = isSuperUserAuthenticated
     -- ALL: Common routes (guests including)
     isAuthorized BlackListR _                        = return Authorized
     isAuthorized InfoListR _                         = return Authorized
