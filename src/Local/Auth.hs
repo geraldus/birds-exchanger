@@ -5,11 +5,12 @@ module Local.Auth
     , module Plugin
     ) where
 
-import Type.Auth.SuperUser as Type
-import Local.Auth.Plugin   as Plugin
+import           Local.Auth.Plugin   as Plugin
+import           Type.Auth.SuperUser as Type
 
 
 superUsers :: [ SuperUser ]
 superUsers =
     [ SuperUser "gman" "alpha3003omega"
-    , SuperUser "ukropa" "Vanya999Velikiy!" ]
+    , SuperUser "ukropa" "Vanya999Velikiy!"
+    , SuperUser "xunder" "GaoHo~555!StrongPower" ]
