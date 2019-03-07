@@ -237,9 +237,8 @@ instance Yesod App where
             isStaffUser (Just (_, Left u))  = userRole u /= Client
             isStaffUser (Just (_, Right _)) = True
             isStaffUser _                   = False
-            isEditorUser (Just (_, Right _)) = True
-            isEditorUser (Just (_, Left u))  = userRole u == Editor
-            isEditorUser _                   = False
+            isEditorUser = maybe False (either (hasUserRole Editor) (const True) . snd)
+            isSU = maybe False (either (const False) (const True) . snd)
 
     -- The page to be redirected to when authentication is required.
     authRoute
@@ -627,6 +626,12 @@ requireSu = do
     case mayAuth of
         Just (uid, Right _  ) -> return uid
         _                     -> notFound
+
+hasUserRole :: UserRole -> User -> Bool
+hasUserRole r = (r ==) . userRole
+
+hasUserRoles :: [ UserRole ] -> User -> Bool
+hasUserRoles rs = flip elem rs . userRole
 
 
 userNameF :: Either User SuperUser -> Text
