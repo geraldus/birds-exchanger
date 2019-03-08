@@ -82,13 +82,13 @@ getInnerProfit = fmap (map (\(a, b) -> (unValue a, unValue b)))
 getActiveDepositList :: Handler [ Entity DepositRequest ]
 getActiveDepositList = runDB $ select $ from $ \d -> do
     let s = d ^. DepositRequestStatus
-    where_ (s ==. val New ||. s ==. val ClientConfirmed)
+    where_ ({-s ==. val New ||. -}s ==. val ClientConfirmed)
     return d
 
 getActiveDepositCount :: Handler Int
 getActiveDepositCount = fmap take1st <$> (runDB . select . from) $ \d -> do
     let s = d ^. DepositRequestStatus
-    where_ (s ==. val New ||. s ==. val ClientConfirmed)
+    where_ ({-s ==. val New ||. -}s ==. val ClientConfirmed)
     return (count $ d ^. DepositRequestId)
 
 getAcceptedDepositCount :: Handler Int
