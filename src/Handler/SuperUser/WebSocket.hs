@@ -95,7 +95,6 @@ getAcceptedDepositCount :: Handler Int
 getAcceptedDepositCount = fmap take1st <$> (runDB . select . from) $
     \(d `InnerJoin` a) -> do
         on (d ^. DepositRequestId ==. a ^. AcceptedDepositDepositRequestId)
-        -- on (d ^. ((DepositRequestId ==. a) . AcceptedDepositDepositRequestId))
         return (count $ d ^. DepositRequestId)
 
 getActiveWithdrawalCount :: Handler Int
