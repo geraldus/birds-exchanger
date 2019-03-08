@@ -150,7 +150,11 @@ NewArticle: Новая статья
 # SUPER USERS
 
 FinancialReport: Финансовый отчёт
-
+ClientUsersCount: Пользоватлей (Клиентов)
+FeeStats: Комиссионные сборы
+ActiveDepositsCount: Активные заявки на пополнение
+AcceptedDepositsCount: Принятые заявки на пополнение
+DepositIncomeRealTotal: Получено средств всего
 
 # MISC COMMON PHRASES
 
