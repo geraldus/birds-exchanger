@@ -2250,6 +2250,40 @@
 	  return Constructor;
 	}
 
+	function _defineProperty(obj, key, value) {
+	  if (key in obj) {
+	    Object.defineProperty(obj, key, {
+	      value: value,
+	      enumerable: true,
+	      configurable: true,
+	      writable: true
+	    });
+	  } else {
+	    obj[key] = value;
+	  }
+
+	  return obj;
+	}
+
+	function _objectSpread(target) {
+	  for (var i = 1; i < arguments.length; i++) {
+	    var source = arguments[i] != null ? arguments[i] : {};
+	    var ownKeys = Object.keys(source);
+
+	    if (typeof Object.getOwnPropertySymbols === 'function') {
+	      ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {
+	        return Object.getOwnPropertyDescriptor(source, sym).enumerable;
+	      }));
+	    }
+
+	    ownKeys.forEach(function (key) {
+	      _defineProperty(target, key, source[key]);
+	    });
+	  }
+
+	  return target;
+	}
+
 	function _inherits(subClass, superClass) {
 	  if (typeof superClass !== "function" && superClass !== null) {
 	    throw new TypeError("Super expression must either be null or a function");
@@ -2311,9 +2345,16 @@
 	      userCount: "User count",
 	      innerProfit: "Inner Profit",
 	      activeDeposits: "Active Deposits",
-	      acceptedDeposits: "Accepted Deposits"
+	      acceptedDeposits: "Accepted Deposits",
+	      deposit: {
+	        income: {
+	          realTotal: "Deposited Money",
+	          feeTotal: "Fee Collected"
+	        }
+	      }
 	    };
-	    _this = _possibleConstructorReturn(this, _getPrototypeOf(FinancialReportView).call(this, props)); // Don't call this.setState() here!
+	    _this = _possibleConstructorReturn(this, _getPrototypeOf(FinancialReportView).call(this, props));
+	    _this.props.labels = _objectSpread({}, defLabels, props.labels); // Don't call this.setState() here!
 
 	    _this.state = {
 	      userCount: 0,
@@ -2325,15 +2366,19 @@
 	      acceptedDeposit: {
 	        count: 0,
 	        items: []
+	      },
+	      deposit: {
+	        income: {
+	          real: {},
+	          fee: {}
+	        }
 	      }
 	    };
 	    _this.webSocket = new WebSocket(props.socket);
 	    _this.webSocket.onopen = _this.webScoketOnOpen.bind(_assertThisInitialized(_this));
 	    _this.webSocket.onmessage = _this.webScoketOnMessage.bind(_assertThisInitialized(_this));
 	    _this.handleJsonMessage = _this.handleJsonMessage.bind(_assertThisInitialized(_this));
-	    _this.handleCountEvent = _this.handleCountEvent.bind(_assertThisInitialized(_this)); // TODO: Merge incoming labels with defaults
-
-	    _this.props.labels = props.labels || defLabels;
+	    _this.handleCountEvent = _this.handleCountEvent.bind(_assertThisInitialized(_this));
 	    return _this;
 	  }
 
@@ -2344,6 +2389,7 @@
 	      this.webSocket.send('inner profit stats');
 	      this.webSocket.send('active deposit count');
 	      this.webSocket.send('accepted deposit count');
+	      this.webSocket.send('deposited money');
 	    }
 	  }, {
 	    key: "webScoketOnMessage",
@@ -2399,6 +2445,28 @@
 	          });
 	          break;
 
+	        case 'Deposited Money':
+	          this.setState({
+	            deposit: {
+	              income: {
+	                real: val,
+	                fee: this.state.deposit.income.fee
+	              }
+	            }
+	          });
+	          break;
+
+	        case 'Deposit Fee':
+	          this.setState({
+	            deposit: {
+	              income: {
+	                fee: val,
+	                real: this.state.deposit.income.real
+	              }
+	            }
+	          });
+	          break;
+
 	        default:
 	          console.log(obj, val);
 	      }
@@ -2406,16 +2474,29 @@
 	  }, {
 	    key: "render",
 	    value: function render() {
+	      var _this2 = this;
+
+	      console.log(this.state);
 	      var ipState = this.state.innerProfit;
 	      var innerProfit = Object.keys(ipState).map(function (k) {
 	        var v = ipState[k] / 100;
 	        return react.createElement("div", null, "+", v.toFixed(2), "\xA0", k);
 	      });
 	      return react.createElement(react.Fragment, null, react.createElement("div", {
-	        className: "mb-2"
+	        className: "mb-3"
 	      }, react.createElement("span", null, "".concat(this.props.labels.userCount), ": "), react.createElement("span", null, "".concat(this.state.userCount))), react.createElement("div", {
+	        className: "mb-3"
+	      }, react.createElement("div", null, "".concat(this.props.labels.innerProfit), ": "), innerProfit), react.createElement("div", null, react.createElement("span", null, "".concat(this.props.labels.activeDeposits), ": "), react.createElement("span", null, this.state.activeDeposit.count)), react.createElement("div", {
 	        className: "mb-2"
-	      }, react.createElement("div", null, "".concat(this.props.labels.innerProfit), ": "), innerProfit), react.createElement("div", null, react.createElement("span", null, "".concat(this.props.labels.activeDeposits), ": "), react.createElement("span", null, this.state.activeDeposit.count)), react.createElement("div", null, react.createElement("span", null, "".concat(this.props.labels.acceptedDeposits), ": "), react.createElement("span", null, this.state.acceptedDeposit.count)));
+	      }, react.createElement("span", null, "".concat(this.props.labels.acceptedDeposits), ": "), react.createElement("span", null, this.state.acceptedDeposit.count)), react.createElement("div", null, react.createElement("div", null, react.createElement("span", null, "".concat(this.props.labels.deposit.income.realTotal)), react.createElement("span", null, " / "), react.createElement("span", null, "".concat(this.props.labels.deposit.income.feeTotal)), react.createElement("span", null, ":")), Object.keys(this.state.deposit.income.real).map(function (k) {
+	        var i = 0,
+	            f = 0;
+	        if (_this2.state.deposit.income.real.hasOwnProperty(k)) i = _this2.state.deposit.income.real[k] / 100;
+	        if (_this2.state.deposit.income.fee.hasOwnProperty(k)) f = _this2.state.deposit.income.fee[k] / 100;
+	        return react.createElement("div", {
+	          className: "".concat(k.toLowerCase())
+	        }, react.createElement("span", null, k), react.createElement("span", null, ": "), react.createElement("span", null, "+", i.toFixed(2)), react.createElement("span", null, " / "), react.createElement("span", null, "+", f.toFixed(2)));
+	      })));
 	    }
 	  }]);
 
@@ -2425,8 +2506,10 @@
 	$(document).ready(function () {
 	  var root = document.querySelector('#react-host');
 	  var wsAddr = window.app.config.su.socket;
+	  var lbls = window.app.config.su.labels;
 	  ReactDOM.render(react.createElement(FinancialReportView, {
-	    socket: wsAddr
+	    socket: wsAddr,
+	    labels: lbls
 	  }), root);
 	});
 
