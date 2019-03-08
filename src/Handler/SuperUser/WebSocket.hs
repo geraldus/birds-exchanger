@@ -11,6 +11,7 @@ import           Local.Persist.Wallet
 import           Yesod.WebSockets
 
 import qualified Data.Aeson             as A
+import           Data.Ratio
 import           Database.Esqueleto
 
 default (Text, String)
@@ -36,6 +37,11 @@ superUserWebSocket = do
                 send' . countEventToJson "Active Deposit Count"
             "accepted deposit count" -> liftHandler getAcceptedDepositCount >>=
                 send' . countEventToJson "Accepted Deposit Count"
+            "deposited money" -> do
+                (c, inc, fee) <- (unzip3 . tripleMaybeSum . tripleMapCurrencyCode)
+                        <$> liftHandler getDepositedMoney
+                send' (countsEventToJson "Deposited Money" (zip c inc))
+                send' (countsEventToJson "Deposit Fee" (zip c fee))
             _            -> sendTextData t
   where send' = sendTextData . decodeUtf8 . A.encode
 
@@ -97,11 +103,23 @@ getAcceptedDepositCount = fmap take1st <$> (runDB . select . from) $
         on (d ^. DepositRequestId ==. a ^. AcceptedDepositDepositRequestId)
         return (count $ d ^. DepositRequestId)
 
+getDepositedMoney :: Handler [(Currency, Maybe Rational, Maybe Rational)]
+getDepositedMoney = fmapUnValueTriple <$> (runDB . select . from) $
+    \(d `InnerJoin` a) -> do
+        on (d ^. DepositRequestId ==. a ^. AcceptedDepositDepositRequestId)
+        let c = d ^. DepositRequestCurrency
+        groupBy c
+        let income = sum_ $ a ^. AcceptedDepositCentsRealIncome
+        let fee = sum_ $ a ^. AcceptedDepositCentsActualFee
+        return (c, income, fee)
+
+
 getActiveWithdrawalCount :: Handler Int
 getActiveWithdrawalCount = error " 123"
 
 getAcceptedWithdrawalCount :: Handler Int
 getAcceptedWithdrawalCount = error "123"
+
 
 take1st :: Num p => [Database.Esqueleto.Value p] -> p
 take1st []    = 0
