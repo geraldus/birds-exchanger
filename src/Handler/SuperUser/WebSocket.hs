@@ -29,8 +29,8 @@ superUserWebSocket = do
         case t of
             "user count" -> liftHandler getUsersCount >>=
                 send' . countEventToJson "User Count"
-            "inner profit stats" -> liftHandler getInnerProfit
-                    >>= pure . (map (\(x,y) -> (currencyCodeT x, y)))
+            "inner profit stats" -> (pairMaybeSum . pairMapCurrencyCode)
+                    <$> liftHandler getInnerProfit
                     >>= send' . countsEventToJson "Inner Profit"
             "active deposit count" -> liftHandler getActiveDepositCount >>=
                 send' . countEventToJson "Active Deposit Count"
@@ -71,12 +71,12 @@ getOrderExecutionsCount :: Handler Int
 getOrderExecutionsCount = error "123"
 
 
-getInnerProfit :: Handler [(Currency, Int)]
-getInnerProfit = fmap (map (\(a, b) -> (unValue a, unValue b)))
+getInnerProfit :: Handler [(Currency, Maybe Rational)]
+getInnerProfit = fmapUnValuePair
     <$> runDB $ select $ from (\ip -> do
             let c = ip ^. InnerProfitRecordCurrency
             groupBy c
-            return $ (c, countRows))
+            return $ (c, sum_ (ip ^. InnerProfitRecordAmountCents)))
 
 
 getActiveDepositList :: Handler [ Entity DepositRequest ]
