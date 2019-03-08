@@ -107,3 +107,29 @@ getAcceptedWithdrawalCount = error "123"
 take1st :: Num p => [Database.Esqueleto.Value p] -> p
 take1st []    = 0
 take1st (x:_) = unValue x
+
+fmapUnValuePair
+    :: Handler [(Database.Esqueleto.Value a, Database.Esqueleto.Value b)]
+    -> Handler [(a, b)]
+fmapUnValuePair = fmap (map (\(a, b) -> (unValue a, unValue b)))
+
+fmapUnValueTriple
+    :: Handler [(Database.Esqueleto.Value a, Database.Esqueleto.Value b, Database.Esqueleto.Value c)]
+    -> Handler [(a, b, c)]
+fmapUnValueTriple = fmap (map (\(a, b, c) -> (unValue a, unValue b, unValue c)))
+
+
+pairMapCurrencyCode :: [(Currency, b)] -> [(Text, b)]
+pairMapCurrencyCode = map $ \(x,y) -> (currencyCodeT x, y)
+
+tripleMapCurrencyCode :: [(Currency, b, b)] -> [(Text, b, b)]
+tripleMapCurrencyCode = map $ \(x,y, z) -> (currencyCodeT x, y, z)
+
+pairMaybeSum :: (Num n, RealFrac n) => [(a, Maybe n)] -> [(a, Int)]
+pairMaybeSum = map $ \(x, y) -> (x, may0 y)
+
+tripleMaybeSum :: (Num n, RealFrac n) => [(a, Maybe n, Maybe n)] -> [(a, Int, Int)]
+tripleMaybeSum = map $ \(x, y, z) -> (x, may0 y, may0 z)
+
+may0 :: (Num n, RealFrac n) => Maybe n -> Int
+may0 = maybe 0 round
