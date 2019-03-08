@@ -6,9 +6,16 @@ export class FinancialReportView extends React.Component {
             userCount: "User count",
             innerProfit: "Inner Profit",
             activeDeposits: "Active Deposits",
-            acceptedDeposits: "Accepted Deposits"
+            acceptedDeposits: "Accepted Deposits",
+            deposit: {
+                income: {
+                    realTotal: "Deposited Money",
+                    feeTotal: "Fee Collected"
+                }
+            }
         }
         super(props)
+        this.props.labels = { ...defLabels, ...props.labels }
         // Don't call this.setState() here!
         this.state = {
             userCount: 0,
@@ -20,6 +27,12 @@ export class FinancialReportView extends React.Component {
             acceptedDeposit: {
                 count: 0,
                 items: []
+            },
+            deposit: {
+                income: {
+                    real: {},
+                    fee: {}
+                }
             }
         }
         this.webSocket = new WebSocket(props.socket)
@@ -27,8 +40,6 @@ export class FinancialReportView extends React.Component {
         this.webSocket.onmessage = this.webScoketOnMessage.bind(this)
         this.handleJsonMessage = this.handleJsonMessage.bind(this)
         this.handleCountEvent = this.handleCountEvent.bind(this)
-        // TODO: Merge incoming labels with defaults
-        this.props.labels = props.labels || defLabels
     }
 
     webScoketOnOpen () {
@@ -36,6 +47,7 @@ export class FinancialReportView extends React.Component {
         this.webSocket.send('inner profit stats')
         this.webSocket.send('active deposit count')
         this.webSocket.send('accepted deposit count')
+        this.webSocket.send('deposited money')
     }
 
     webScoketOnMessage (e) {
@@ -79,6 +91,26 @@ export class FinancialReportView extends React.Component {
                     innerProfit: val
                 })
                 break
+            case 'Deposited Money':
+                this.setState({
+                    deposit: {
+                        income: {
+                            real: val,
+                            fee: this.state.deposit.income.fee
+                        }
+                    }
+                })
+                break
+            case 'Deposit Fee':
+                this.setState({
+                    deposit: {
+                        income: {
+                            fee: val,
+                            real: this.state.deposit.income.real
+                        }
+                    }
+                })
+                break
             default:
                 console.log(obj, val)
         }
@@ -86,6 +118,7 @@ export class FinancialReportView extends React.Component {
     }
 
     render () {
+        console.log(this.state)
         let ipState = this.state.innerProfit
         const innerProfit = Object
                 .keys(ipState)
@@ -94,11 +127,11 @@ export class FinancialReportView extends React.Component {
                     return (<div>+{v.toFixed(2)}&nbsp;{k}</div>)
                 })
         return(<React.Fragment>
-        <div className="mb-2">
+        <div className="mb-3">
             <span>{`${this.props.labels.userCount}`}: </span>
             <span>{`${this.state.userCount}`}</span>
         </div>
-        <div className="mb-2">
+        <div className="mb-3">
             <div>{`${this.props.labels.innerProfit}`}: </div>
             {innerProfit}
         </div>
@@ -106,9 +139,31 @@ export class FinancialReportView extends React.Component {
             <span>{`${this.props.labels.activeDeposits}`}: </span>
             <span>{this.state.activeDeposit.count}</span>
         </div>
-        <div>
+        <div className="mb-2">
             <span>{`${this.props.labels.acceptedDeposits}`}: </span>
             <span>{this.state.acceptedDeposit.count}</span>
+        </div>
+        <div>
+            <div>
+                <span>{`${this.props.labels.deposit.income.realTotal}`}</span>
+                <span> / </span>
+                <span>{`${this.props.labels.deposit.income.feeTotal}`}</span>
+                <span>:</span>
+            </div>
+            {Object.keys(this.state.deposit.income.real).map(k => {
+                let i = 0, f = 0
+                if(this.state.deposit.income.real.hasOwnProperty(k))
+                    i = this.state.deposit.income.real[k] / 100
+                if(this.state.deposit.income.fee.hasOwnProperty(k))
+                    f = this.state.deposit.income.fee[k] / 100
+                return(<div className={`${k.toLowerCase()}`}>
+                    <span>{k}</span>
+                    <span>: </span>
+                    <span>+{i.toFixed(2)}</span>
+                    <span> / </span>
+                    <span>+{f.toFixed(2)}</span>
+                </div>)})
+            }
         </div>
         </React.Fragment>)
     }
