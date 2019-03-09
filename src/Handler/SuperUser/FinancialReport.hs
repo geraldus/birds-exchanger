@@ -15,7 +15,7 @@ getSuperUserFinancialReportViewR = do
 #ifdef DEVELOPMENT
             "development"
 #else
-            "production"
+            "production.min"
 #endif
     defaultLayout $ do
         addScriptRemote $ "https://unpkg.com/react@16/umd/react." <> reactBuild <> ".js"
