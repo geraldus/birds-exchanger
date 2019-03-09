@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes       #-}
 module Handler.SuperUser.FinancialReport where
 
 import           Import
@@ -31,6 +32,19 @@ getSuperUserFinancialReportViewR = do
                         },
                         wallets: {
                             balanceTotals: #{rm MsgUserWalletBalancesTotal}
+                        },
+                        withdrawal: {
+                            stats: #{rm MsgWithdrawalStatsTitle},
+                            new: {
+                                count: #{rm MsgWithdrawalAwaitingExecution},
+                                amount: #{rm MsgWithdrawalAmountTotal},
+                                frozen: #{rm MsgWithdrawalFrozenTotal}
+                            },
+                            accepted: {
+                                count: #{rm MsgWithdrawalAcceptedCount},
+                                transfered: #{rm MsgWithdrawalTransferedTotal},
+                                fee: #{rm MsgWithdrawalFeeTotal}
+                            }
                         }
                     }
                 }
