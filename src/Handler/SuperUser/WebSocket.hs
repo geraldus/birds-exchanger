@@ -2,8 +2,8 @@
 {-# LANGUAGE OverloadedStrings    #-}
 module Handler.SuperUser.WebSocket where
 
-import           Import                 hiding ( count, groupBy, on, (==.),
-                                          (||.) )
+import           Import                 hiding ( Value (..), count, groupBy,
+                                          isNothing, on, (==.), (||.) )
 
 import           Local.Persist.Currency
 import           Local.Persist.UserRole
@@ -45,6 +45,19 @@ superUserWebSocket = do
             "wallet stats" -> (pairMaybeSum . pairMapCurrencyCode)
                 <$> liftHandler getWalletBalances
                 >>= send' . countsEventToJson "Wallet Stats"
+            "withdrawal stats" -> do
+                (ncnt, nstats) <- liftHandler getActiveWithdrawalStats
+                let ntstats = map (\(x, y, _) -> (currencyCodeT x, y)) nstats
+                let nfstats = map (\(x, _, z) -> (currencyCodeT x, z)) nstats
+                send' $ countEventToJson "Withdrawal New Count" ncnt
+                send' $ countsEventToJson "Withdrawal New Amount Stats" ntstats
+                send' $ countsEventToJson "Withdrawal New Frozen Stats" nfstats
+                (ecnt, estats) <- liftHandler getAcceptedWithdrawalStats
+                let etstats = map (\(x, y, _) -> (currencyCodeT x, y)) estats
+                let efstats = map (\(x, _, z) -> (currencyCodeT x, z)) estats
+                send' $ countEventToJson "Withdrawal Accepted Count" ecnt
+                send' $ countsEventToJson "Withdrawal Accepted Transfer Stats" etstats
+                send' $ countsEventToJson "Withdrawal Accepted Fee Stats" efstats
             _            -> sendTextData t
   where send' = sendTextData . decodeUtf8 . A.encode
 
@@ -85,7 +98,7 @@ getInnerProfit = fmapUnValuePair
     <$> runDB $ select $ from (\ip -> do
             let c = ip ^. InnerProfitRecordCurrency
             groupBy c
-            return $ (c, sum_ (ip ^. InnerProfitRecordAmountCents)))
+            return (c, sum_ (ip ^. InnerProfitRecordAmountCents)))
 
 
 
@@ -122,11 +135,50 @@ getDepositedMoney = fmapUnValueTriple <$> (runDB . select . from) $
 
 {- WITHDRAWAL -}
 
-getActiveWithdrawalCount :: Handler Int
-getActiveWithdrawalCount = error " 123"
+getActiveWithdrawalStats :: Handler (Int, [ (Currency, Int, Int)])
+getActiveWithdrawalStats = runDB $ do
+    cnt <- fmap take1st <$> (select . from) $ \d -> do
+        let s = d ^. WithdrawalRequestStatus
+        where_ (s ==. val WsNew)
+        return (count $ d ^. WithdrawalRequestId)
+    stats <- fmap unValues <$> select $ from $
+        \(r `InnerJoin` w) -> do
+            on (r ^. WithdrawalRequestWalletId ==. w ^. UserWalletId)
+            where_ (isNothing $ r ^. WithdrawalRequestAccepted)
+            let c = w ^. UserWalletCurrency
+            groupBy c
+            let sa = sum_ (r ^. WithdrawalRequestCentsAmount)
+            let sf = sum_ (r ^. WithdrawalRequestFrozenAmount)
+            return (c, sa, sf)
+    return (cnt, stats)
+  where
+    unValues
+        :: [(Value Currency, Value (Maybe Rational), Value (Maybe Rational))]
+        -> [(Currency, Int, Int)]
+    unValues = map
+        (\(x, y, z) -> (unValue x, (may0 . unValue) y, (may0 . unValue) z))
 
-getAcceptedWithdrawalCount :: Handler Int
-getAcceptedWithdrawalCount = error "123"
+getAcceptedWithdrawalStats :: Handler (Int, [ (Currency, Int, Int) ])
+getAcceptedWithdrawalStats = runDB $ do
+    cnt <- fmap take1st <$> (select . from) $ \(r `InnerJoin` e) -> do
+        on (r ^. WithdrawalRequestId ==. e ^. WithdrawalAcceptRequestId)
+        return (count $ r ^. WithdrawalRequestId)
+    stats <- fmap unValues <$> select $ from $
+        \(w `InnerJoin` r `InnerJoin` e) -> do
+            on (r ^. WithdrawalRequestId ==. e ^. WithdrawalAcceptRequestId)
+            on (r ^. WithdrawalRequestWalletId ==. w ^. UserWalletId)
+            let c = w ^. UserWalletCurrency
+            groupBy c
+            let st = sum_ (e ^. WithdrawalAcceptAmountTransfered)
+            let sf = sum_ (e ^. WithdrawalAcceptActualFee)
+            return (c, st, sf)
+    return (cnt, stats)
+  where
+    unValues
+        :: [(Value Currency, Value (Maybe Rational), Value (Maybe Rational))]
+        -> [(Currency, Int, Int)]
+    unValues = map
+        (\(x, y, z) -> (unValue x, (may0 . unValue) y, (may0 . unValue) z))
 
 
 {- WALLETS -}
@@ -145,6 +197,8 @@ getWalletBalances = fmapUnValuePair
 take1st :: Num p => [Database.Esqueleto.Value p] -> p
 take1st []    = 0
 take1st (x:_) = unValue x
+
+-- unValuePair = map (\(a, b) -> (unValue a, unValue b))
 
 fmapUnValuePair
     :: Handler [(Database.Esqueleto.Value a, Database.Esqueleto.Value b)]
