@@ -1,4 +1,5 @@
-import React from 'react';
+import React from 'react'
+import _ from 'lodash'
 
 export class FinancialReportView extends React.Component {
     constructor(props) {
@@ -7,15 +8,23 @@ export class FinancialReportView extends React.Component {
             innerProfit: "Inner Profit",
             activeDeposits: "Active Deposits",
             acceptedDeposits: "Accepted Deposits",
+            fee: {
+                stats: "Fee Stats"
+            },
             deposit: {
+                stats: "Deposit Stats",
                 income: {
                     realTotal: "Deposited Money",
                     feeTotal: "Fee Collected"
                 }
+            },
+            wallets: {
+                stats: "Wallet Stats",
+                balanceTotals: "Wallet Balances Total"
             }
         }
         super(props)
-        this.props.labels = { ...defLabels, ...props.labels }
+        this.props.labels = _.merge(defLabels, props.labels)
         // Don't call this.setState() here!
         this.state = {
             userCount: 0,
@@ -33,6 +42,9 @@ export class FinancialReportView extends React.Component {
                     real: {},
                     fee: {}
                 }
+            },
+            wallets: {
+                total: {}
             }
         }
         this.webSocket = new WebSocket(props.socket)
@@ -48,6 +60,7 @@ export class FinancialReportView extends React.Component {
         this.webSocket.send('active deposit count')
         this.webSocket.send('accepted deposit count')
         this.webSocket.send('deposited money')
+        this.webSocket.send('wallet stats')
     }
 
     webScoketOnMessage (e) {
@@ -65,11 +78,12 @@ export class FinancialReportView extends React.Component {
                 this.handleCountEvent(json.object, json.value)
                 break
             default:
-                console.log(json)
+                console.log('Unexpected type', json)
         }
     }
 
     handleCountEvent (obj, val) {
+        const s = this.state
         switch (obj) {
             case 'User Count':
                 this.setState({
@@ -92,33 +106,30 @@ export class FinancialReportView extends React.Component {
                 })
                 break
             case 'Deposited Money':
-                this.setState({
-                    deposit: {
-                        income: {
-                            real: val,
-                            fee: this.state.deposit.income.fee
-                        }
-                    }
-                })
+                this.setState(_.merge(
+                    {}, s, { deposit: { income: { real: val } } }
+                ))
                 break
             case 'Deposit Fee':
+                this.setState(_.merge(
+                    {}, s, { deposit: { income: { fee: val } } }
+                ))
+                break
+            case 'Wallet Stats':
                 this.setState({
-                    deposit: {
-                        income: {
-                            fee: val,
-                            real: this.state.deposit.income.real
-                        }
+                    wallets: {
+                        total: val
                     }
                 })
                 break
             default:
-                console.log(obj, val)
+                console.log('Unexpected Object', obj, val)
         }
 
     }
 
     render () {
-        console.log(this.state)
+        console.log(this.props)
         let ipState = this.state.innerProfit
         const innerProfit = Object
                 .keys(ipState)
@@ -132,18 +143,20 @@ export class FinancialReportView extends React.Component {
             <span>{`${this.state.userCount}`}</span>
         </div>
         <div className="mb-3">
+            <h2>{this.props.labels.fee.stats}</h2>
             <div>{`${this.props.labels.innerProfit}`}: </div>
             {innerProfit}
         </div>
-        <div>
-            <span>{`${this.props.labels.activeDeposits}`}: </span>
-            <span>{this.state.activeDeposit.count}</span>
-        </div>
-        <div className="mb-2">
-            <span>{`${this.props.labels.acceptedDeposits}`}: </span>
-            <span>{this.state.acceptedDeposit.count}</span>
-        </div>
-        <div>
+        <div className="mb-3">
+            <h2>{this.props.labels.deposit.stats}</h2>
+            <div>
+                <span>{`${this.props.labels.activeDeposits}`}: </span>
+                <span>{this.state.activeDeposit.count}</span>
+            </div>
+            <div className="mb-2">
+                <span>{`${this.props.labels.acceptedDeposits}`}: </span>
+                <span>{this.state.acceptedDeposit.count}</span>
+            </div>
             <div>
                 <span>{`${this.props.labels.deposit.income.realTotal}`}</span>
                 <span> / </span>
@@ -165,6 +178,21 @@ export class FinancialReportView extends React.Component {
                 </div>)})
             }
         </div>
+        <div className="mb-2">
+            <h2>
+                {`${this.props.labels.wallets.stats}`}
+            </h2>
+            <div>{this.props.labels.wallets.balanceTotals}:</div>
+            {Object.keys(this.state.wallets.total).map(k => {
+                let v = this.state.wallets.total[k] / 100
+                return(<div className={`${k.toLowerCase()}`}>
+                    <span>{k}</span>
+                    <span>: </span>
+                    <span>+{v.toFixed(2)}</span>
+                </div>)})
+            }
+        </div>
+
         </React.Fragment>)
     }
 }
