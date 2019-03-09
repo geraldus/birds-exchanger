@@ -232,7 +232,7 @@ genericRow (Entity ident r@WithdrawalRequest{..}) c strikeout expected status =
         |]
 
 genericRequestAmount :: (Int, Bool) -> Currency -> Widget -> Widget
-genericRequestAmount (a, rejected) c d =
+genericRequestAmount (a, _) c d =
     [whamlet|
         #{sign}#{ac}#
         <small .text-muted>
@@ -266,23 +266,23 @@ requestStatuses
     -> (UTCTime -> Html, UTCTime -> Html)
     -> Details
     -> (Widget, Widget)
-requestStatuses ur mr fs (NoDetails (Entity _ r@WithdrawalRequest{..}) _) =
+requestStatuses _ mr _ (NoDetails (Entity _ WithdrawalRequest{..}) _) =
     let status = [whamlet|#{mr MsgRequestProcessing}<br>|]
     in (status, mempty)
 requestStatuses
-    _ mr (fd, ft) (CancelD (Entity _ r) _ (Entity _ WithdrawalCancel{..})) =
+    _ mr (fd, ft) (CancelD _ _ (Entity _ WithdrawalCancel{..})) =
         let status = [whamlet|#{mr MsgUserCancelled}<br>|]
             description = [whamlet|<small .text-muted>
                 #{fd withdrawalCancelTime} #{ft withdrawalCancelTime} |]
         in (status, description)
 requestStatuses
-    _ mr (fd, ft) (AcceptD (Entity _ r) _ (Entity _ WithdrawalAccept{..})) =
+    _ mr (fd, ft) (AcceptD _ _ (Entity _ WithdrawalAccept{..})) =
         let status = [whamlet|#{mr MsgDepositExecuted}<br>|]
             description = [whamlet|<small .text-muted>
                 #{fd withdrawalAcceptTime} #{ft withdrawalAcceptTime}|]
         in (status, description)
 requestStatuses
-    _ mr (fd, ft) (RejectD (Entity _ r) _ (Entity _ WithdrawalReject{..})) =
+    _ mr (fd, ft) (RejectD _ _ (Entity _ WithdrawalReject{..})) =
         let status = [whamlet|#{mr MsgDepositRejected}<br>|]
             description = [whamlet|<small .text-muted>
                 #{fd withdrawalRejectTime} #{ft withdrawalRejectTime}
