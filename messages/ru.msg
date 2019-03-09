@@ -161,6 +161,7 @@ FeeStats: Комиссионные сборы
 ActiveDepositsCount: Активные заявки на пополнение
 AcceptedDepositsCount: Принятые заявки на пополнение
 DepositIncomeRealTotal: Получено средств всего
+UserWalletBalancesTotal: Всего на балансах пользователей
 
 # MISC COMMON PHRASES
 
