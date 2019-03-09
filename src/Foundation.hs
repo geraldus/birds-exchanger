@@ -130,10 +130,12 @@ instance Yesod App where
         mr    <- getMessageRender
         -- ^ @Handler (Maybe (Either UserId Text, Either User SuperUser))@
         let muserName = userNameF . snd <$> muser
-        let isClient = isClientUser muser
+        let isClientLoggedIn = isClientUser muser
         let isStaffLoggedIn = isStaffUser muser
+        let isEditorLoggedIn = isEditorUser muser
+        let isOperatorLoggedIn = isOperatorUser muser
         let isSuLoggedIn = isSU muser
-        wallets <- if isClient then getUserWallets else pure []
+        wallets <- if isClientLoggedIn then getUserWallets else pure []
         mcurrentRoute <- getCurrentRoute
 
         -- Get the breadcrumbs, as defined in the YesodBreadcrumbs instance.
@@ -149,29 +151,21 @@ instance Yesod App where
                 , NavbarLeft $ MenuItem
                     { menuItemLabel = "Портфель"
                     , menuItemRoute = ProfileR
-                    , menuItemAccessCallback = isClientUser muser
+                    , menuItemAccessCallback = isClientLoggedIn
                     }
                 , NavbarLeft $ MenuItem
                     { menuItemLabel = "Мои ордера"
                     , menuItemRoute = ClientOrdersR
-                    , menuItemAccessCallback = isClientUser muser
+                    , menuItemAccessCallback = isClientLoggedIn
                     }
                 , NavbarLeft $ MenuItem
                     { menuItemLabel = mr MsgDeposit
                     , menuItemRoute = DepositR
-                    , menuItemAccessCallback = isClientUser muser }
+                    , menuItemAccessCallback = isClientLoggedIn }
                 , NavbarLeft $ MenuItem
                     { menuItemLabel = mr MsgWithdraw
                     , menuItemRoute = WithdrawalR
-                    , menuItemAccessCallback = isClientUser muser }
-                , NavbarLeft $ MenuItem
-                    { menuItemLabel = "Заявки на пополнение"
-                    , menuItemRoute = OperatorDepositRequestsListR
-                    , menuItemAccessCallback = isStaffUser muser }
-                , NavbarLeft $ MenuItem
-                    { menuItemLabel = "Заявки на вывод"
-                    , menuItemRoute = OperatorWithdrawalRequestsListR
-                    , menuItemAccessCallback = isStaffUser muser }
+                    , menuItemAccessCallback = isClientLoggedIn }
                 , NavbarLeft $ MenuItem
                     { menuItemLabel = mr MsgInfo
                     , menuItemRoute = InfoListR
@@ -200,24 +194,35 @@ instance Yesod App where
                 [  MenuItem
                     { menuItemLabel = mr MsgTermsOfUse
                     , menuItemRoute = TermsOfUseR
-                    , menuItemAccessCallback = isClientUser muser }
+                    , menuItemAccessCallback = isClientLoggedIn }
                 , MenuItem
                     { menuItemLabel = "Выход"
                     , menuItemRoute = AuthR LogoutR
                     , menuItemAccessCallback = isJust muser
                     } ]
 
-        let manageMenuItems =
+        let operatorRequestsMenuItems =
+                [ MenuItem
+                    { menuItemLabel = mr MsgDeposit
+                    , menuItemRoute = OperatorDepositRequestsListR
+                    , menuItemAccessCallback = isOperatorLoggedIn }
+                , MenuItem
+                    { menuItemLabel = mr MsgWithdraw
+                    , menuItemRoute = OperatorWithdrawalRequestsListR
+                    , menuItemAccessCallback = isOperatorLoggedIn } ]
+
+
+        let editorMenuItems =
                 [ MenuItem
                     { menuItemLabel = mr MsgInfo
                     , menuItemRoute = ManageInfoIndexR
-                    , menuItemAccessCallback = isEditorUser muser } ]
+                    , menuItemAccessCallback = isEditorLoggedIn } ]
 
         let suMenuItems =
                 [ MenuItem
                     { menuItemLabel = mr MsgFinancialReport
                     , menuItemRoute = SuperUserFinancialReportViewR
-                    , menuItemAccessCallback = isSU muser } ]
+                    , menuItemAccessCallback = isSuLoggedIn } ]
 
         let navbarLeftMenuItems = [x | NavbarLeft x <- menuItems]
         let navbarRightMenuItems = [x | NavbarRight x <- menuItems]
@@ -239,12 +244,17 @@ instance Yesod App where
             $(widgetFile "default-layout")
         withUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
         where
-            isClientUser (Just (_, Left u)) = userRole u == Client
-            isClientUser _                  = False
             isStaffUser (Just (_, Left u))  = userRole u /= Client
             isStaffUser (Just (_, Right _)) = True
             isStaffUser _                   = False
-            isEditorUser = maybe False (either (hasUserRole Editor) (const True) . snd)
+            isClientUser = maybe
+                False (either (hasUserRole Client) (const False) . snd)
+            isAdminUser = maybe
+                False (either (hasUserRole Admin) (const True) . snd)
+            isEditorUser = maybe
+                False (either (hasUserRole Editor) (const True) . snd)
+            isOperatorUser = maybe
+                False (either ((Operator ==) . userRole) (const True) . snd)
             isSU = maybe False (either (const False) (const True) . snd)
 
     -- The page to be redirected to when authentication is required.
@@ -484,14 +494,20 @@ isClientAuthenticated :: Handler AuthResult
 isClientAuthenticated = authorizeRoles [ Client ]
 
 isStaffAuthenticated :: Handler AuthResult
-isStaffAuthenticated = authorizeStaffRoles [ Admin, Operator ]
+isStaffAuthenticated = do
+    ma <- maybeAuthPair
+    case ma of
+        Nothing -> notFound
+        Just (Right _, _) -> return Authorized
+        Just (_, Left u) -> if userRole u /= Client
+            then return Authorized
+            else notFound
 
-isManagerAuthenticated :: Handler AuthResult
-isManagerAuthenticated = authorizeStaffRoles [ Admin ]
+isAdminAuthenticated :: Handler AuthResult
+isAdminAuthenticated = authorizeStaffRoles [ Admin ]
 
 isEditorAuthenticated :: Handler AuthResult
--- TODO:  DOUBLE CHECK if ADMINS should be IN LIST for sure
-isEditorAuthenticated = authorizeStaffRoles [ Admin, Editor ]
+isEditorAuthenticated = authorizeStaffRoles [ Editor ]
 
 isOperatorAuthenticated :: Handler AuthResult
 isOperatorAuthenticated = authorizeStaffRoles [ Operator ]

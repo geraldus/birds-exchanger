@@ -34,7 +34,7 @@
                         <a .nav-link href="@{route}">#{label}
         $maybe userName <- muserName
             <ul .navbar-nav .d-none .d-lg-flex>
-                $if isClient
+                $if isClientLoggedIn
                     <li ##{navWalletDropdownId} .nav-item .dropdown>
                         <a
                                 ##{navWalletDropdownId}-toggle
@@ -61,12 +61,26 @@
                                 aria-haspopup="true">
                             _{MsgManage}
                         <div .dropdown-menu aria-labelledby="#{navManageDropdownId}-toggle">
-                            $forall MenuItem label route _ <- manageMenuItems
-                                <a
-                                    .dropdown-item
-                                    :Just route == mcurrentRoute:.active
-                                    href="@{route}">
-                                        #{label}
+                            $if isEditorLoggedIn
+                                <span .navbar-text .d-flex .px-3 .text-uppercase>
+                                    <i .fas .fa-pen-nib .align-self-center>
+                                    <span .d-block .ml-2> _{MsgEditMenuTitle}
+                                $forall MenuItem label route _ <- editorMenuItems
+                                    <a
+                                        .dropdown-item
+                                        :Just route == mcurrentRoute:.active
+                                        href="@{route}">
+                                            #{label}
+                            $if isOperatorLoggedIn
+                                <span .navbar-text .d-flex .px-3 .text-uppercase>
+                                    <i .fas .fa-donate .align-self-center>
+                                    <span .d-block .ml-2> _{MsgRequestsMenuTitle}
+                                $forall MenuItem label route _ <- operatorRequestsMenuItems
+                                    <a
+                                        .dropdown-item
+                                        :Just route == mcurrentRoute:.active
+                                        href="@{route}">
+                                            #{label}
                             $if isSuLoggedIn
                                 $forall MenuItem label route _ <- suMenuItems
                                     <a
