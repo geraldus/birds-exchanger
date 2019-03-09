@@ -42,6 +42,9 @@ superUserWebSocket = do
                         <$> liftHandler getDepositedMoney
                 send' (countsEventToJson "Deposited Money" (zip c inc))
                 send' (countsEventToJson "Deposit Fee" (zip c fee))
+            "wallet stats" -> (pairMaybeSum . pairMapCurrencyCode)
+                <$> liftHandler getWalletBalances
+                >>= send' . countsEventToJson "Wallet Stats"
             _            -> sendTextData t
   where send' = sendTextData . decodeUtf8 . A.encode
 
@@ -85,6 +88,9 @@ getInnerProfit = fmapUnValuePair
             return $ (c, sum_ (ip ^. InnerProfitRecordAmountCents)))
 
 
+
+{- DEPOSITS -}
+
 getActiveDepositList :: Handler [ Entity DepositRequest ]
 getActiveDepositList = runDB $ select $ from $ \d -> do
     let s = d ^. DepositRequestStatus
@@ -114,12 +120,27 @@ getDepositedMoney = fmapUnValueTriple <$> (runDB . select . from) $
         return (c, income, fee)
 
 
+{- WITHDRAWAL -}
+
 getActiveWithdrawalCount :: Handler Int
 getActiveWithdrawalCount = error " 123"
 
 getAcceptedWithdrawalCount :: Handler Int
 getAcceptedWithdrawalCount = error "123"
 
+
+{- WALLETS -}
+
+getWalletBalances :: Handler [ (Currency, Maybe Rational) ]
+getWalletBalances = fmapUnValuePair
+    <$> runDB $ select $ from (\w -> do
+            let c = w ^. UserWalletCurrency
+            groupBy c
+            return (c, sum_ (w ^. UserWalletAmountCents)))
+
+
+
+{- UTILS -}
 
 take1st :: Num p => [Database.Esqueleto.Value p] -> p
 take1st []    = 0
