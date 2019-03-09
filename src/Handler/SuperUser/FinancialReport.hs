@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP               #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes       #-}
 module Handler.SuperUser.FinancialReport where
@@ -7,12 +8,18 @@ import           Import
 
 getSuperUserFinancialReportViewR :: Handler Html
 getSuperUserFinancialReportViewR = do
-    su <- requireSu
+    requireSu
     renderUrl <- getUrlRender
     rm <- getMessageRender
+    let reactBuild =
+#ifdef DEVELOPMENT
+            "development"
+#else
+            "production"
+#endif
     defaultLayout $ do
-        addScriptRemote "https://unpkg.com/react@16/umd/react.development.js"
-        addScriptRemote "https://unpkg.com/react-dom@16/umd/react-dom.development.js"
+        addScriptRemote $ "https://unpkg.com/react@16/umd/react." <> reactBuild <> ".js"
+        addScriptRemote $ "https://unpkg.com/react-dom@16/umd/react-dom." <> reactBuild <> ".js"
         addScriptAttrs (StaticR js_bundle_js) [("defer","defer")]
         toWidget [julius|window.app = {
             config: {
