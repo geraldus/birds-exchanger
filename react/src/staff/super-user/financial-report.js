@@ -18,6 +18,19 @@ export class FinancialReportView extends React.Component {
                     feeTotal: "Fee Collected"
                 }
             },
+            withdrawal: {
+                stats: "Withdrawal Stats",
+                new: {
+                    count: "Awaiting Execution",
+                    amount: "Withdrawal Amount Total",
+                    frozen: "Amount Frozen"
+                },
+                accepted: {
+                    count: "Executed",
+                    transfered: "Amount Transfered",
+                    fee: "Fee Collected"
+                }
+            },
             wallets: {
                 stats: "Wallet Stats",
                 balanceTotals: "Wallet Balances Total"
@@ -43,6 +56,18 @@ export class FinancialReportView extends React.Component {
                     fee: {}
                 }
             },
+            withdrawal: {
+                new: {
+                    count: 0,
+                    amountStats: {},
+                    frozenStats: {}
+                },
+                accepted: {
+                    count: 0,
+                    feeStats: {},
+                    transferStats: {}
+                }
+            },
             wallets: {
                 total: {}
             }
@@ -61,6 +86,7 @@ export class FinancialReportView extends React.Component {
         this.webSocket.send('accepted deposit count')
         this.webSocket.send('deposited money')
         this.webSocket.send('wallet stats')
+        this.webSocket.send('withdrawal stats')
     }
 
     webScoketOnMessage (e) {
@@ -122,6 +148,24 @@ export class FinancialReportView extends React.Component {
                     }
                 })
                 break
+            case 'Withdrawal New Count':
+                this.setState(_.merge({}, s, { withdrawal: { new: { count: val } } }))
+                break
+            case 'Withdrawal Accepted Count':
+                this.setState(_.merge({}, s, { withdrawal: { accepted: { count: val } } }))
+                break
+            case 'Withdrawal New Amount Stats':
+                this.setState(_.merge({}, s, { withdrawal: { new: { amountStats: val } } }))
+                break
+            case 'Withdrawal New Frozen Stats':
+                this.setState(_.merge({}, s, { withdrawal: { new: { frozenStats: val } } }))
+                break
+            case 'Withdrawal Accepted Transfer Stats':
+                this.setState(_.merge({}, s, { withdrawal: { accepted: { transferStats: val } } }))
+                break
+            case 'Withdrawal Accepted Fee Stats':
+                this.setState(_.merge({}, s, { withdrawal: { accepted: { feeStats: val } } }))
+                break
             default:
                 console.log('Unexpected Object', obj, val)
         }
@@ -129,7 +173,7 @@ export class FinancialReportView extends React.Component {
     }
 
     render () {
-        console.log(this.props)
+        console.log(this.state.withdrawal)
         let ipState = this.state.innerProfit
         const innerProfit = Object
                 .keys(ipState)
@@ -137,6 +181,24 @@ export class FinancialReportView extends React.Component {
                     let v = ipState[k] / 100
                     return (<div>+{v.toFixed(2)}&nbsp;{k}</div>)
                 })
+        const pairedVals = (a, b) => {
+            return Object.keys(a).map(k => {
+                let i = 0, f = 0
+                if(a.hasOwnProperty(k))
+                    i = a[k] / 100
+                if(b.hasOwnProperty(k))
+                    f = b[k] / 100
+                return(<div className={`${k.toLowerCase()}`}>
+                    <span>{k}</span>
+                    <span>: </span>
+                    <span>+{i.toFixed(2)}</span>
+                    <span> / </span>
+                    <span>+{f.toFixed(2)}</span>
+                </div>)})
+        }
+        const lbl = this.props.labels
+        const wwl = this.state.withdrawal
+        const dpt = this.state.deposit
         return(<React.Fragment>
         <div className="mb-3">
             <span>{`${this.props.labels.userCount}`}: </span>
@@ -163,20 +225,23 @@ export class FinancialReportView extends React.Component {
                 <span>{`${this.props.labels.deposit.income.feeTotal}`}</span>
                 <span>:</span>
             </div>
-            {Object.keys(this.state.deposit.income.real).map(k => {
-                let i = 0, f = 0
-                if(this.state.deposit.income.real.hasOwnProperty(k))
-                    i = this.state.deposit.income.real[k] / 100
-                if(this.state.deposit.income.fee.hasOwnProperty(k))
-                    f = this.state.deposit.income.fee[k] / 100
-                return(<div className={`${k.toLowerCase()}`}>
-                    <span>{k}</span>
-                    <span>: </span>
-                    <span>+{i.toFixed(2)}</span>
-                    <span> / </span>
-                    <span>+{f.toFixed(2)}</span>
-                </div>)})
-            }
+            {pairedVals(dpt.income.real, dpt.income.fee)}
+        </div>
+        <div className="mb-3">
+            <h2>{this.props.labels.withdrawal.stats}</h2>
+            <div>
+                <span>{`${this.props.labels.withdrawal.new.count}`}: </span>
+                <span>{this.state.withdrawal.new.count}</span>
+            </div>
+            <div className="mb-2">
+                <div>{lbl.withdrawal.new.amount} / {lbl.withdrawal.new.frozen}</div>
+                {pairedVals(wwl.new.amountStats, wwl.new.frozenStats)}
+            </div>
+            <div>
+                <div>{lbl.withdrawal.accepted.count}: {wwl.accepted.count}</div>
+                <div>{lbl.withdrawal.accepted.transfered} / {lbl.withdrawal.accepted.fee}</div>
+                {pairedVals(wwl.accepted.transferStats, wwl.accepted.feeStats)}
+            </div>
         </div>
         <div className="mb-2">
             <h2>
