@@ -133,6 +133,7 @@ ActualCalculation: Расчёт по факту
 
 # OPERATORS
 
+RequestsMenuTitle: Заявки
 DepositRequestAcceptFormStatsTitle: Расчёт заявки
 DeclineRequestTitle: Отмена заявки
 DeclineRequest: Отклонить заявку
@@ -145,6 +146,11 @@ Alias: Ссылка
 Title: Заголовок
 ArticeContent: Текст статьи
 NewArticle: Новая статья
+
+
+# EDITORS
+
+EditMenuTitle: Редактирование
 
 
 # SUPER USERS
