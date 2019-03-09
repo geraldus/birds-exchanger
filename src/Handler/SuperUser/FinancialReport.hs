@@ -28,6 +28,9 @@ getSuperUserFinancialReportViewR = do
                                 realTotal: #{rm MsgDepositIncomeRealTotal},
                                 feeTotal: #{rm MsgFee}
                             }
+                        },
+                        wallets: {
+                            balanceTotals: #{rm MsgUserWalletBalancesTotal}
                         }
                     }
                 }
