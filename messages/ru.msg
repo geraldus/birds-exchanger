@@ -162,6 +162,13 @@ ActiveDepositsCount: Активные заявки на пополнение
 AcceptedDepositsCount: Принятые заявки на пополнение
 DepositIncomeRealTotal: Получено средств всего
 UserWalletBalancesTotal: Всего на балансах пользователей
+WithdrawalStatsTitle: Заявки на ВЫВОД средств
+WithdrawalAwaitingExecution: Ожидающие исполнения
+WithdrawalAmountTotal: Общая сумма заявок
+WithdrawalFrozenTotal: Удержано средств со счетов
+WithdrawalAcceptedCount: Выполнено операций вывода
+WithdrawalTransferedTotal: Всего переведено пользователям
+WithdrawalFeeTotal: Удержанная комиссия с вывода
 
 # MISC COMMON PHRASES
 
