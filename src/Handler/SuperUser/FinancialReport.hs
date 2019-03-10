@@ -32,6 +32,7 @@ getSuperUserFinancialReportViewR = do
                         activeDeposits: #{rm MsgActiveDepositsCount},
                         acceptedDeposits: #{rm MsgAcceptedDepositsCount},
                         deposit: {
+                            stats: #{rm MsgDepositStatsTitle},
                             income: {
                                 realTotal: #{rm MsgDepositIncomeRealTotal},
                                 feeTotal: #{rm MsgFee}

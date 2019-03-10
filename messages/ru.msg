@@ -160,6 +160,7 @@ ClientUsersCount: Пользоватлей (Клиентов)
 FeeStats: Комиссионные сборы
 ActiveDepositsCount: Активные заявки на пополнение
 AcceptedDepositsCount: Принятые заявки на пополнение
+DepositStatsTitle: Заявки на ВВОД средств
 DepositIncomeRealTotal: Получено средств всего
 UserWalletBalancesTotal: Всего на балансах пользователей
 WithdrawalStatsTitle: Заявки на ВЫВОД средств
