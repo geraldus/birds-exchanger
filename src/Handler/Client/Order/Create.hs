@@ -22,7 +22,8 @@ postExchangeOrderCreateR = do
     clientId <- requireClientId
     ratioIdent <- newIdent
     wrapIdent <- newIdent
-    ((res, _), _) <- runFormPost $ createOrderForm wrapIdent ratioIdent ExchangePzmRur
+    ((res, _), _) <- runFormPost
+            $ createOrderForm wrapIdent ratioIdent ExchangePzmRur
     case res of
         FormFailure es -> defaultLayout $ do
             setMessage $ renderFormErrors es
