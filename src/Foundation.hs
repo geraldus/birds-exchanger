@@ -249,8 +249,8 @@ instance Yesod App where
             isStaffUser _                   = False
             isClientUser = maybe
                 False (either (hasUserRole Client) (const False) . snd)
-            isAdminUser = maybe
-                False (either (hasUserRole Admin) (const True) . snd)
+            -- isAdminUser = maybe
+            --     False (either (hasUserRole Admin) (const True) . snd)
             isEditorUser = maybe
                 False (either (hasUserRole Editor) (const True) . snd)
             isOperatorUser = maybe
@@ -604,8 +604,8 @@ lookupUser username = find (\m -> suName m == username) superUsers
 
 requireClientId :: Handler UserId
 requireClientId = do
-    ap <- requireAuthPair
-    case ap of
+    apair <- requireAuthPair
+    case apair of
         (Right _  , _     ) -> redirect HomeR
         (Left  uid, Left u) -> case userRole u of
             Client -> return uid
