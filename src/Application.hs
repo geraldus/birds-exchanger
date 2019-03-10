@@ -65,6 +65,7 @@ import           Handler.Operator.DepositRequestsList
 import           Handler.Operator.HandleDeposit
 import           Handler.Operator.HandleWithdrawal
 import           Handler.Operator.LogIn
+import           Handler.Operator.User.History
 import           Handler.Operator.WebSocket
 import           Handler.Operator.WithdrawalRequest
 import           Handler.Profile
