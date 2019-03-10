@@ -86,10 +86,10 @@ getActiveOrders mu = do
 
 
 renderOrderCol :: Text -> Text -> ExchangePair -> [ExchangeOrder] -> Widget
-renderOrderCol pair title exchange orders =
+renderOrderCol epair title exchange orders =
     [whamlet|
         <h5 .text-center>#{title}
-        <table .table .table-hover data-pair="#{pair}">
+        <table .table .table-hover data-pair="#{epair}">
             <thead .thead-dark>
                 <tr>
                     <th>_{MsgRatio}
@@ -111,10 +111,10 @@ renderOrderCol pair title exchange orders =
     (c1, c2) = unPairCurrency exchange
 
 renderOrderLeftCol :: Text -> Text -> ExchangePair -> [ExchangeOrder] -> Widget
-renderOrderLeftCol pair title exchange orders =
+renderOrderLeftCol epair title exchange orders =
     [whamlet|
         <h5 .text-center>#{title}
-        <table .table .table-hover data-pair="#{pair}">
+        <table .table .table-hover data-pair="#{epair}">
             <thead .thead-dark>
                 <tr>
                     <th>_{MsgRatio}
