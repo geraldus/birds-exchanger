@@ -87,6 +87,7 @@ export class FinancialReportView extends React.Component {
         this.webSocket.send('deposited money')
         this.webSocket.send('wallet stats')
         this.webSocket.send('withdrawal stats')
+        this.webSocket.send('orders stats')
     }
 
     webScoketOnMessage (e) {
