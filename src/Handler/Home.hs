@@ -155,11 +155,13 @@ clickableOrderW wrapId = toWidget [julius|
         switch (action) {
             case 'rur_pzm':
                 $(actions[0]).attr('selected', 'selected')
+                form.removeClass('action-give').addClass('action-take')
                 amountInput.val(expected)
                 break
             case 'pzm_rur':
             default:
                 amountInput.val(amountLeft)
+                form.removeClass('action-take').addClass('action-give')
                 $(actions[1]).attr('selected', 'selected')
                 break
         }
