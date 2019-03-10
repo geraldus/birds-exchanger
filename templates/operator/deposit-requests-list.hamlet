@@ -32,7 +32,7 @@
                     <i .accept-icon .fas .fa-check>
 
 
-$forall ((Entity reqId req@DepositRequest{..}), _, Entity _ User{..}) <- list
+$forall ((Entity reqId req@DepositRequest{..}), _, Entity userId User{..}) <- list
     <div #req-modal-#{fromSqlKey reqId} .modal .request-modal tabindex="-1" role=dialog>
         <div .modal-dialog role=document>
             <div .modal-content>
@@ -69,7 +69,11 @@ $forall ((Entity reqId req@DepositRequest{..}), _, Entity _ User{..}) <- list
                                 #{tmTShort depositRequestTransferMethod}
                                 <br>
                                 <small>_{MsgUser} #
-                                <a href="#">#{userIdent}
+                                <a
+                                        .user-profile-link
+                                        target=_blank
+                                        href="/operator/user-history/#{fromSqlKey userId}">
+                                    #{userIdent}
                         <div .form-group>
                             <label for="#{fromSqlKey reqId}-deposit-amount">
                                 Полученная сумма (#{currSign depositRequestCurrency})

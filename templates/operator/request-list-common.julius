@@ -1,16 +1,10 @@
 
 $(document).ready(() => {
     const rows = $('.request-data-row')
-    const links = $('.user-profile-link')
 
     const cancelRequestBtns = $('.cancel-request-btn')
     const closeDeclineModalBtn = $('#close-decline-modal-btn')
     const declineModal = $('#decline-request-modal')
-
-    links.click((e) => {
-        e.preventDefault()
-        return false
-    })
 
     rows.click((e) => {
         const parentRow = $(e.target).parents('.request-data-row')

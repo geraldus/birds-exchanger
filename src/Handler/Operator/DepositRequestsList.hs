@@ -31,14 +31,14 @@ getOperatorDepositRequestsListR = do
         $(widgetFile "operator/request-list-common")
         $(widgetFile "operator/deposit-requests-list")
   where
-    s
-        = "SELECT ??, ??, ?? FROM deposit_request, user_wallet, \"user\" \
-        \ WHERE deposit_request.status = ? \
-        \ AND deposit_request.archived = FALSE \
-        \ AND deposit_request.user_id = \"user\".id \
-        \ AND user_wallet.currency = deposit_request.currency \
-        \ AND user_wallet.user_id = deposit_request.user_id \
-        \ ORDER BY deposit_request.created ASC"
+    s = concat
+        [ "SELECT ??, ??, ?? FROM deposit_request, user_wallet, \"user\""
+        , " WHERE deposit_request.status = ? "
+        , " AND deposit_request.archived = FALSE "
+        , " AND deposit_request.user_id = \"user\".id "
+        , " AND user_wallet.currency = deposit_request.currency "
+        , " AND user_wallet.user_id = deposit_request.user_id "
+        , " ORDER BY deposit_request.created ASC" ]
 
 
 renderSums :: DepositRequest -> Html
@@ -74,7 +74,10 @@ renderMethodUser req (Entity userId user) = [shamlet|
     #{tmTShort (depositRequestTransferMethod req)}
     <br>
     <small>
-        <a .user-profile-link href="management/user-view/#{fromSqlKey userId}">
+        <a
+                .user-profile-link
+                target=_blank
+                href="/operator/user-history/#{fromSqlKey userId}">
             #{userIdent user}|]
 
 renderRequestExpectedTotal :: DepositRequest -> Html

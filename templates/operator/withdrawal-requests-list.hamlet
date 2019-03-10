@@ -12,7 +12,7 @@
                 <small>Способ перевода
             <th .align-top>
     <tbody>
-        $forall (Entity reqId req@WithdrawalRequest{..}, Entity _ UserWallet{..}, Entity _ User{..}) <- list
+        $forall (Entity reqId req@WithdrawalRequest{..}, Entity _ UserWallet{..}, Entity userId User{..}) <- list
             <tr
                     .request-data-row
                     title="_{MsgProcessRequest}"
@@ -23,7 +23,12 @@
                     <b>#{cents2dblT withdrawalRequestCentsAmount}&nbsp;#{currSign userWalletCurrency}
                     <br>
                     <small>
-                        <a href="#" title="Информация о пользователе">#{userIdent}
+                        <a
+                                .user-profile-link
+                                target=_blank
+                                href="/operator/user-history/#{fromSqlKey userId}"
+                                title="Информация о пользователе">
+                            #{userIdent}
                 <td>
                     <small>#{tmTShort withdrawalRequestMethod}
                     <br>
@@ -32,7 +37,7 @@
                     <i .accept-icon .fas .fa-check>
 
 
-$forall (Entity reqId r@WithdrawalRequest{..}, Entity _ w@UserWallet{..}, Entity _ User{..}) <- list
+$forall (Entity reqId r@WithdrawalRequest{..}, Entity _ w@UserWallet{..}, Entity userId User{..}) <- list
     <div #req-modal-#{fromSqlKey reqId} .modal .request-modal .withdrawal-modal tabindex="-1" role=dialog>
         <div .modal-dialog .modal-lg role=document>
             <div .modal-content>
@@ -57,7 +62,11 @@ $forall (Entity reqId r@WithdrawalRequest{..}, Entity _ w@UserWallet{..}, Entity
 
                         <p>
                             <small>_{MsgUser} #
-                                <a href="#">#{userIdent}
+                                <a
+                                        .user-profile-link
+                                        target=_blank
+                                        href="/operator/user-history/#{fromSqlKey userId}">
+                                    #{userIdent}
                             <br>
                             <small>
                                 <span>Удержано средств: #
