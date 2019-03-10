@@ -18,6 +18,20 @@ export class FinancialReportView extends React.Component {
                     feeTotal: "Fee Collected"
                 }
             },
+            orders: {
+                stats: "Orders Stats",
+                active: {
+                    count: "Active Orders Count",
+                    amount: "Total Active Orders Amount",
+                    left: "Total Amount Left in Orders"
+                },
+                executions: {
+                    count: "Exchange Operations Executed",
+                    transfer: "Transfered Amount Total (outgoing)",
+                    amount: "Received Amount Total (ingoing)",
+                    fee: "Fee Collected (on incoming currency)"
+                }
+            },
             withdrawal: {
                 stats: "Withdrawal Stats",
                 new: {
@@ -54,6 +68,19 @@ export class FinancialReportView extends React.Component {
                 income: {
                     real: {},
                     fee: {}
+                }
+            },
+            orders: {
+                active: {
+                    count: 0,
+                    amountStats: {},
+                    leftStats: {}
+                },
+                executions: {
+                    count: 0,
+                    transferStats: {},
+                    amountStats: {},
+                    feeStats: {}
                 }
             },
             withdrawal: {
@@ -150,6 +177,27 @@ export class FinancialReportView extends React.Component {
                 break
             case 'Withdrawal Accepted Fee Stats':
                 this.setState(_.merge({}, s, { withdrawal: { accepted: { feeStats: val } } }))
+                break
+            case 'Orders Active Count':
+                this.setState(_.merge({}, s, { orders: { active: { count: val } } }))
+                break
+            case 'Orders Active Amount Stats':
+                this.setState(_.merge({}, s, { orders: { active: { amountStats: val } } }))
+                break
+            case 'Orders Active Left Stats':
+                this.setState(_.merge({}, s, { orders: { active: { leftStats: val } } }))
+                break
+            case 'Order Executions Count':
+                this.setState(_.merge({}, s, { orders: { executions: { count: val } } }))
+                break
+            case 'Order Executions Transfer Stats':
+                this.setState(_.merge({}, s, { orders: { executions: { transferStats: val } } }))
+                break
+            case 'Order Executions Amount Stats':
+                this.setState(_.merge({}, s, { orders: { executions: { amountStats: val } } }))
+                break
+            case 'Order Executions Fee Stats':
+                this.setState(_.merge({}, s, { orders: { executions: { feeStats: val } } }))
                 break
             default:
                 console.log('Unexpected Object', obj, val)
