@@ -113,41 +113,25 @@ export class FinancialReportView extends React.Component {
         const s = this.state
         switch (obj) {
             case 'User Count':
-                this.setState({
-                    userCount: val
-                })
+                this.setState(_.merge({}, s, { userCount: val }))
                 break
             case 'Active Deposit Count':
-                this.setState({
-                    activeDeposit: { count: val }
-                })
+                this.setState(_.merge({}, s, { activeDeposit: { count: val } }))
                 break
             case 'Accepted Deposit Count':
-                this.setState({
-                    acceptedDeposit: { count: val }
-                })
+                this.setState(_.merge({}, s, { acceptedDeposit: { count: val } }))
                 break
             case 'Inner Profit':
-                this.setState({
-                    innerProfit: val
-                })
+                this.setState(_.merge({}, s, { innerProfit: val }))
                 break
             case 'Deposited Money':
-                this.setState(_.merge(
-                    {}, s, { deposit: { income: { real: val } } }
-                ))
+                this.setState(_.merge({}, s, { deposit: { income: { real: val } } }))
                 break
             case 'Deposit Fee':
-                this.setState(_.merge(
-                    {}, s, { deposit: { income: { fee: val } } }
-                ))
+                this.setState(_.merge({}, s, { deposit: { income: { fee: val } } }))
                 break
             case 'Wallet Stats':
-                this.setState({
-                    wallets: {
-                        total: val
-                    }
-                })
+                this.setState(_.merge({}, s, { wallets: { total: val } }))
                 break
             case 'Withdrawal New Count':
                 this.setState(_.merge({}, s, { withdrawal: { new: { count: val } } }))
