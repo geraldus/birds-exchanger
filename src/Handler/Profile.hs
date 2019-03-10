@@ -7,9 +7,7 @@ import           Import
 import           Local.Persist.Currency ( Currency, currSign, currencyCodeT )
 import           Local.Persist.Wallet
 import           Utils.App.Client
-import           Utils.Common           ( selectLocale )
 import           Utils.Money
-import           Utils.Time
 
 import           Data.Maybe             ( fromJust )
 import           Database.Persist.Sql   ( Single (..), fromSqlKey, rawSql )
