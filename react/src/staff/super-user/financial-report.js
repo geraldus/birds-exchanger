@@ -233,64 +233,69 @@ export class FinancialReportView extends React.Component {
         const wwl = this.state.withdrawal
         const dpt = this.state.deposit
         return(<React.Fragment>
-        <div className="mb-3">
-            <span>{`${this.props.labels.userCount}`}: </span>
-            <span>{`${this.state.userCount}`}</span>
-        </div>
-        <div className="mb-3">
-            <h2>{this.props.labels.fee.stats}</h2>
-            <div>{`${this.props.labels.innerProfit}`}: </div>
-            {innerProfit}
-        </div>
-        <div className="mb-3">
-            <h2>{this.props.labels.deposit.stats}</h2>
-            <div>
-                <span>{`${this.props.labels.activeDeposits}`}: </span>
-                <span>{this.state.activeDeposit.count}</span>
+            <div className="container-fluid">
+                <div className="row">
+                    <div className="mb-3 col-12 col-sm-6">
+                        <span>{lbl.userCount}: </span>
+                        <span>{`${this.state.userCount}`}</span>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="mb-3 col-12 col-sm-6">
+                        <h2>{lbl.wallets.stats}</h2>
+                        <div>{this.props.labels.wallets.balanceTotals}:</div>
+                        {Object.keys(this.state.wallets.total).map(k => {
+                            let v = this.state.wallets.total[k] / 100
+                            return(<div className={`${k.toLowerCase()}`}>
+                                <span>{k}</span>
+                                <span>: </span>
+                                <span>+{v.toFixed(2)}</span>
+                            </div>)})
+                        }
+                    </div>
+                    <div className="mb-3 col-12 col-sm-6">
+                        <h2>{this.props.labels.fee.stats}</h2>
+                        <div>{`${this.props.labels.innerProfit}`}: </div>
+                        {innerProfit}
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="mb-3 col-12 col-lg-6">
+                        <h2>{this.props.labels.deposit.stats}</h2>
+                        <div>
+                            <span>{`${this.props.labels.activeDeposits}`}: </span>
+                            <span>{this.state.activeDeposit.count}</span>
+                        </div>
+                        <div className="mb-2">
+                            <span>{`${this.props.labels.acceptedDeposits}`}: </span>
+                            <span>{this.state.acceptedDeposit.count}</span>
+                        </div>
+                        <div>
+                            <span>{`${this.props.labels.deposit.income.realTotal}`}</span>
+                            <span> / </span>
+                            <span>{`${this.props.labels.deposit.income.feeTotal}`}</span>
+                            <span>:</span>
+                        </div>
+                        {pairedVals(dpt.income.real, dpt.income.fee)}
+                    </div>
+                    <div className="mb-3 col-12 col-lg-6">
+                        <h2>{this.props.labels.withdrawal.stats}</h2>
+                        <div>
+                            <span>{`${this.props.labels.withdrawal.new.count}`}: </span>
+                            <span>{this.state.withdrawal.new.count}</span>
+                        </div>
+                        <div className="mb-2">
+                            <div>{lbl.withdrawal.new.amount} / {lbl.withdrawal.new.frozen}</div>
+                            {pairedVals(wwl.new.amountStats, wwl.new.frozenStats)}
+                        </div>
+                        <div>
+                            <div>{lbl.withdrawal.accepted.count}: {wwl.accepted.count}</div>
+                            <div>{lbl.withdrawal.accepted.transfered} / {lbl.withdrawal.accepted.fee}</div>
+                            {pairedVals(wwl.accepted.transferStats, wwl.accepted.feeStats)}
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div className="mb-2">
-                <span>{`${this.props.labels.acceptedDeposits}`}: </span>
-                <span>{this.state.acceptedDeposit.count}</span>
-            </div>
-            <div>
-                <span>{`${this.props.labels.deposit.income.realTotal}`}</span>
-                <span> / </span>
-                <span>{`${this.props.labels.deposit.income.feeTotal}`}</span>
-                <span>:</span>
-            </div>
-            {pairedVals(dpt.income.real, dpt.income.fee)}
-        </div>
-        <div className="mb-3">
-            <h2>{this.props.labels.withdrawal.stats}</h2>
-            <div>
-                <span>{`${this.props.labels.withdrawal.new.count}`}: </span>
-                <span>{this.state.withdrawal.new.count}</span>
-            </div>
-            <div className="mb-2">
-                <div>{lbl.withdrawal.new.amount} / {lbl.withdrawal.new.frozen}</div>
-                {pairedVals(wwl.new.amountStats, wwl.new.frozenStats)}
-            </div>
-            <div>
-                <div>{lbl.withdrawal.accepted.count}: {wwl.accepted.count}</div>
-                <div>{lbl.withdrawal.accepted.transfered} / {lbl.withdrawal.accepted.fee}</div>
-                {pairedVals(wwl.accepted.transferStats, wwl.accepted.feeStats)}
-            </div>
-        </div>
-        <div className="mb-2">
-            <h2>
-                {`${this.props.labels.wallets.stats}`}
-            </h2>
-            <div>{this.props.labels.wallets.balanceTotals}:</div>
-            {Object.keys(this.state.wallets.total).map(k => {
-                let v = this.state.wallets.total[k] / 100
-                return(<div className={`${k.toLowerCase()}`}>
-                    <span>{k}</span>
-                    <span>: </span>
-                    <span>+{v.toFixed(2)}</span>
-                </div>)})
-            }
-        </div>
-
         </React.Fragment>)
     }
 }
