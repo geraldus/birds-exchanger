@@ -33,7 +33,7 @@
                     <li .nav-item.mx-2 :Just route == mcurrentRoute:.active>
                         <a .nav-link href="@{route}">#{label}
         $maybe userName <- muserName
-            <ul .navbar-nav .d-none .d-lg-flex>
+            <ul .navbar-nav .d-flex>
                 $if isClientLoggedIn
                     <li ##{navWalletDropdownId} .nav-item .dropdown>
                         <a
