@@ -20,7 +20,7 @@ getSuperUserFinancialReportViewR = do
     defaultLayout $ do
         addScriptRemote $ "https://unpkg.com/react@16/umd/react." <> reactBuild <> ".js"
         addScriptRemote $ "https://unpkg.com/react-dom@16/umd/react-dom." <> reactBuild <> ".js"
-        addScriptAttrs (StaticR js_bundle_js) [("defer","defer")]
+        addScriptAttrs (StaticR js_bundle_js) []
         toWidget [julius|window.app = {
             config: {
                 su: {
