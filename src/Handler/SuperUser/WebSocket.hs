@@ -6,8 +6,10 @@ import           Import                 hiding ( Value (..), count, groupBy,
                                           isNothing, on, (==.), (||.) )
 
 import           Local.Persist.Currency
+import           Local.Persist.Exchange
 import           Local.Persist.UserRole
 import           Local.Persist.Wallet
+import           Utils.Money
 import           Yesod.WebSockets
 
 import qualified Data.Aeson             as A
@@ -58,8 +60,26 @@ superUserWebSocket = do
                 send' $ countEventToJson "Withdrawal Accepted Count" ecnt
                 send' $ countsEventToJson "Withdrawal Accepted Transfer Stats" etstats
                 send' $ countsEventToJson "Withdrawal Accepted Fee Stats" efstats
+            "orders stats" -> do
+                (activeOrders, aoStats) <- liftHandler getActiveOrdersStats
+                let aoAmountStats = map (\(x, y, _) -> (pair2codes x, y)) aoStats
+                let aoLeftStats = map (\(x, _, z) -> (pair2codes x, z)) aoStats
+                (executions, exeStats, exeFeeStats) <- liftHandler getOrdersExecutionStats
+                let exeTransStats = map (\(x, y, _) -> (pair2codes x, y)) exeStats
+                let exeAmountStats = map (\(x, _, z) -> (pair2codes x, z)) exeStats
+                send' $ countEventToJson "Orders Active Count" activeOrders
+                send' $ countsEventToJson "Orders Active Amount Stats" aoAmountStats
+                send' $ countsEventToJson "Orders Active Left Stats" aoLeftStats
+                send' $ countEventToJson "Order Executions Count" executions
+                send' $ countsEventToJson "Order Executions Transfer Stats" exeTransStats
+                send' $ countsEventToJson "Order Executions Amount Stats" exeAmountStats
+                send' $ countsEventToJson "Order Executions Fee Stats" (pairMapCurrencyCode exeFeeStats)
             _            -> sendTextData t
-  where send' = sendTextData . decodeUtf8 . A.encode
+  where
+    send' = sendTextData . decodeUtf8 . A.encode
+    pair2codes p =
+        let (c1, c2) = unPairCurrency p
+        in currencyCodeT c1 <> " " <> currencyCodeT c2
 
 
 data CountEvent = CountEvent
@@ -86,20 +106,12 @@ getUsersCount =
         return $ count (u ^. UserId))
 
 
-getActiveOrdersCount :: Handler Int
-getActiveOrdersCount = error "!23"
-
-getOrderExecutionsCount :: Handler Int
-getOrderExecutionsCount = error "123"
-
-
 getInnerProfit :: Handler [(Currency, Maybe Rational)]
 getInnerProfit = fmapUnValuePair
     <$> runDB $ select $ from (\ip -> do
             let c = ip ^. InnerProfitRecordCurrency
             groupBy c
             return (c, sum_ (ip ^. InnerProfitRecordAmountCents)))
-
 
 
 {- DEPOSITS -}
@@ -141,7 +153,7 @@ getActiveWithdrawalStats = runDB $ do
         let s = d ^. WithdrawalRequestStatus
         where_ (s ==. val WsNew)
         return (count $ d ^. WithdrawalRequestId)
-    stats <- fmap unValues <$> select $ from $
+    stats <- fmap unValues3 <$> select $ from $
         \(r `InnerJoin` w) -> do
             on (r ^. WithdrawalRequestWalletId ==. w ^. UserWalletId)
             where_ (isNothing $ r ^. WithdrawalRequestAccepted)
@@ -151,19 +163,13 @@ getActiveWithdrawalStats = runDB $ do
             let sf = sum_ (r ^. WithdrawalRequestFrozenAmount)
             return (c, sa, sf)
     return (cnt, stats)
-  where
-    unValues
-        :: [(Value Currency, Value (Maybe Rational), Value (Maybe Rational))]
-        -> [(Currency, Int, Int)]
-    unValues = map
-        (\(x, y, z) -> (unValue x, (may0 . unValue) y, (may0 . unValue) z))
 
 getAcceptedWithdrawalStats :: Handler (Int, [ (Currency, Int, Int) ])
 getAcceptedWithdrawalStats = runDB $ do
     cnt <- fmap take1st <$> (select . from) $ \(r `InnerJoin` e) -> do
         on (r ^. WithdrawalRequestId ==. e ^. WithdrawalAcceptRequestId)
         return (count $ r ^. WithdrawalRequestId)
-    stats <- fmap unValues <$> select $ from $
+    stats <- fmap unValues3 <$> select $ from $
         \(w `InnerJoin` r `InnerJoin` e) -> do
             on (r ^. WithdrawalRequestId ==. e ^. WithdrawalAcceptRequestId)
             on (r ^. WithdrawalRequestWalletId ==. w ^. UserWalletId)
@@ -173,12 +179,6 @@ getAcceptedWithdrawalStats = runDB $ do
             let sf = sum_ (e ^. WithdrawalAcceptActualFee)
             return (c, st, sf)
     return (cnt, stats)
-  where
-    unValues
-        :: [(Value Currency, Value (Maybe Rational), Value (Maybe Rational))]
-        -> [(Currency, Int, Int)]
-    unValues = map
-        (\(x, y, z) -> (unValue x, (may0 . unValue) y, (may0 . unValue) z))
 
 
 {- WALLETS -}
@@ -191,6 +191,45 @@ getWalletBalances = fmapUnValuePair
             return (c, sum_ (w ^. UserWalletAmountCents)))
 
 
+{- ORDERS -}
+
+getActiveOrdersStats :: Handler (Int, [(ExchangePair, Int, Int)])
+getActiveOrdersStats = runDB $ do
+    cnt <- fmap take1st <$> select . from $ \o -> do
+        where_ $ o ^. ExchangeOrderIsActive ==. val True
+        return countRows
+    stats <- fmap unValues3 <$> (select . from) $ \ o -> do
+        where_ $ o ^. ExchangeOrderIsActive ==. val True
+        groupBy $ o ^. ExchangeOrderPair
+        let sa = sum_ $ o ^. ExchangeOrderAmountCents
+        let sl = sum_ $ o ^. ExchangeOrderAmountLeft
+        return (o ^. ExchangeOrderPair, sa, sl)
+    return (cnt, stats)
+
+getOrdersExecutionStats :: Handler (Int, [(ExchangePair, Int, Int)], [(Currency, Int)])
+getOrdersExecutionStats = runDB $ do
+    cnt <- fmap take1st <$> select . from $ \(e, o) -> do
+        where_ (e ^. ExchangeOrderExecutionOrderId ==. o ^. ExchangeOrderId)
+        groupBy $ o ^. ExchangeOrderPair
+        return countRows
+    trans <- fmap unValues3 <$> (select . from) $ \ (e, o) -> do
+        where_ (e ^. ExchangeOrderExecutionOrderId ==. o ^. ExchangeOrderId)
+        groupBy $ o ^. ExchangeOrderPair
+        let st = sum_ $ e ^. ExchangeOrderExecutionTransferAmountCents
+        let sa = sum_ $ e ^. ExchangeOrderExecutionIncomeAmountCents
+        return (o ^. ExchangeOrderPair, st, sa)
+    fee <- fmap (pair2currencyFst . unValues2) <$> (select . from) $ \ (e, o) -> do
+            where_ (e ^. ExchangeOrderExecutionOrderId ==. o ^. ExchangeOrderId)
+            groupBy $ o ^. ExchangeOrderPair
+            let s = sum_ $ e ^. ExchangeOrderExecutionFeeCents
+            return (o ^. ExchangeOrderPair, s)
+    return (cnt, trans, fee)
+  where
+    pair2currencyFst :: [(ExchangePair, a)] -> [(Currency, a)]
+    pair2currencyFst = map (\(p, i) -> ((fst . unPairCurrency) p, i))
+
+
+
 
 {- UTILS -}
 
@@ -198,18 +237,27 @@ take1st :: Num p => [Database.Esqueleto.Value p] -> p
 take1st []    = 0
 take1st (x:_) = unValue x
 
--- unValuePair = map (\(a, b) -> (unValue a, unValue b))
-
 fmapUnValuePair
-    :: Handler [(Database.Esqueleto.Value a, Database.Esqueleto.Value b)]
+    :: Handler [(Value a, Value b)]
     -> Handler [(a, b)]
 fmapUnValuePair = fmap (map (\(a, b) -> (unValue a, unValue b)))
 
 fmapUnValueTriple
-    :: Handler [(Database.Esqueleto.Value a, Database.Esqueleto.Value b, Database.Esqueleto.Value c)]
+    :: Handler [(Value a, Value b, Value c)]
     -> Handler [(a, b, c)]
 fmapUnValueTriple = fmap (map (\(a, b, c) -> (unValue a, unValue b, unValue c)))
 
+unValues2
+        :: [(Value a, Value (Maybe Rational))]
+        -> [(a, Int)]
+unValues2 = map
+    (\(x, y) -> (unValue x, (may0 . unValue) y))
+
+unValues3
+        :: [(Value a, Value (Maybe Rational), Value (Maybe Rational))]
+        -> [(a, Int, Int)]
+unValues3 = map
+    (\(x, y, z) -> (unValue x, (may0 . unValue) y, (may0 . unValue) z))
 
 pairMapCurrencyCode :: [(Currency, b)] -> [(Text, b)]
 pairMapCurrencyCode = map $ \(x,y) -> (currencyCodeT x, y)
