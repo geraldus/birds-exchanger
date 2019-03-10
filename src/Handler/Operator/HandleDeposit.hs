@@ -14,7 +14,7 @@ import           Database.Persist.Sql   ( toSqlKey )
 
 postOperatorAcceptDepositRequestR :: Handler Html
 postOperatorAcceptDepositRequestR = do
-    staffId            <- requireStaffId
+    staffId            <- requireOperatorId
     (drId, realAmount) <- (\(idt, amt) -> (toSqlKey idt, amt)) <$> runInputPost
         ((,) <$> ireq intField "deposit-id" <*> ireq doubleField
                                                      "deposit-real-income"
@@ -87,7 +87,7 @@ postOperatorAcceptDepositRequestR = do
 
 postOperatorDeclineDepositRequestR :: Handler Html
 postOperatorDeclineDepositRequestR = do
-    staffId   <- requireStaffId
+    staffId   <- requireOperatorId
     requestId <- fmap toSqlKey $ runInputPost $ ireq intField "request-id"
     reason    <- runInputPost $ ireq textareaField "reason"
     time      <- liftIO getCurrentTime

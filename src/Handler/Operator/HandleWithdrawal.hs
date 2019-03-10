@@ -10,7 +10,7 @@ import           Database.Persist.Sql   ( toSqlKey )
 
 postOperatorAcceptWithdrawalRequestR :: Handler Html
 postOperatorAcceptWithdrawalRequestR = do
-    staffId <- requireStaffId
+    staffId <- requireOperatorId
     let staff = pack $ show staffId
     let mStaffUserId = case staffId of
             Left uid -> Just uid
@@ -43,7 +43,7 @@ postOperatorAcceptWithdrawalRequestR = do
 
 postOperatorDeclineWithdrawalRequestR :: Handler Html
 postOperatorDeclineWithdrawalRequestR = do
-    staffId   <- requireStaffId
+    staffId   <- requireOperatorId
     requestId <- fmap toSqlKey $ runInputPost $ ireq intField "request-id"
     reason    <- runInputPost $ ireq textareaField "reason"
     time      <- liftIO getCurrentTime

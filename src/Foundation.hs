@@ -632,18 +632,36 @@ requireClientData = do
         Nothing         -> permissionDenied accessErrorClientOnly
         Just clientData -> return clientData
 
-requireStaffId :: Handler (Either UserId Text)
-requireStaffId = do
+-- requireStaffId :: Handler (Either UserId Text)
+-- requireStaffId = do
+--     mayAuth <- maybeAuthPair
+--     case mayAuth of
+--         -- SuperUsers authorized everywhere
+--         Just (uid, Right _  ) -> return uid
+--         -- For DB users: clients are rejected, operators and admins are allowed
+--         Just (uid, Left user) -> case userRole user of
+--             Client   -> notFound
+--             Operator -> return uid
+--             Admin    -> return uid
+--         _ -> notFound
+
+requireOperatorId :: Handler (Either UserId Text)
+requireOperatorId = requireRolesId True [ Operator ] notFound
+
+requireRolesId
+    :: Bool
+    -> [ UserRole ]
+    -> Handler (Either UserId Text)
+    -> Handler (Either UserId Text)
+requireRolesId suIncluding roles action = do
     mayAuth <- maybeAuthPair
     case mayAuth of
-        -- SuperUsers authorized everywhere
-        Just (uid, Right _  ) -> return uid
-        -- For DB users: clients are rejected, operators and admins are allowed
-        Just (uid, Left user) -> case userRole user of
-            Client   -> notFound
-            Operator -> return uid
-            Admin    -> return uid
-        _ -> notFound
+        Just (suid, Right _) -> if suIncluding
+            then return suid else action
+        Just (ident, Left u) -> if userRole u `elem` roles
+            then return ident else action
+        _ -> action
+
 
 requireSu :: Handler (Either UserId Text)
 requireSu = do

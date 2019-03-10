@@ -18,7 +18,7 @@ import           Database.Persist.Sql   ( fromSqlKey, rawSql )
 
 getOperatorDepositRequestsListR :: Handler Html
 getOperatorDepositRequestsListR = do
-    requireStaffId
+    requireOperatorId
     loc <- selectLocale
     tzo <- timezoneOffsetFromCookie
     let reqDateT = renderTimeDateCol loc tzo . depositRequestCreated
