@@ -48,7 +48,7 @@ postExchangeOrderCreateR = do
                     else flipPair opair
             wout <- getOrCreateWallet clientId currency
             now <- liftIO getCurrentTime
-            let excDirRatio = fromNormalizedRatio opair oratio
+            let excDirRatio = pairRatioByNormalizedRatio opair oratio
                 mamt = multAmt excDirRatio oamt
             let (outAmt, inAmt) = if oact == EAGive
                     then (oamt, mamt)
@@ -106,7 +106,7 @@ postExchangeOrderCreateR = do
                     redirect HomeR
     redirect HomeR
   where
-    multAmt = convertCents
+    multAmt = multiplyCents
     freezeCoins uid ewallet t = runDB . freezeUserCoins uid ewallet t
     saveOrder uid pair ratio fee amount trid = runDB $ do
         time <- liftIO getCurrentTime
@@ -231,7 +231,7 @@ postExchangeOrderCreateR = do
                       diffProfit, diffCurrency, userOrderUpdates, matchOrderUpdates ) =
                         if tOutAmtLeft > mInAmtExpects
                             then let tout = mInAmtExpects
-                                     tin  = convertCents tDirRatio tout
+                                     tin  = multiplyCents tDirRatio tout
                                      tfee = calcFeeCents defaultExchangeFee tin
                                      mout = mOutAmtLeft
                                      mIn  = mInAmtExpects

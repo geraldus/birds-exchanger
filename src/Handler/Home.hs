@@ -105,7 +105,7 @@ renderOrderCol pair title exchange orders =
                         <td .amount-left>
                             #{cents2dblT (exchangeOrderAmountLeft order)}
                         <td .expected>
-                            #{cents2dblT (convertCents (normalizeRatio (exchangeOrderPair order) (exchangeOrderRatioNormalization order) (exchangeOrderNormalizedRatio order)) (exchangeOrderAmountLeft order))}
+                            #{cents2dblT (multiplyCents (normalizeRatio (exchangeOrderPair order) (exchangeOrderRatioNormalization order) (exchangeOrderNormalizedRatio order)) (exchangeOrderAmountLeft order))}
         |]
   where
     (c1, c2) = unPairCurrency exchange
@@ -128,7 +128,7 @@ renderOrderLeftCol pair title exchange orders =
                         <td .ratio>
                             #{show (exchangeOrderNormalizedRatio order)}
                         <td .expected>
-                            #{cents2dblT (convertCents (normalizeRatio (exchangeOrderPair order) (exchangeOrderRatioNormalization order) (exchangeOrderNormalizedRatio order)) (exchangeOrderAmountLeft order))}
+                            #{cents2dblT (multiplyCents (normalizeRatio (exchangeOrderPair order) (exchangeOrderRatioNormalization order) (exchangeOrderNormalizedRatio order)) (exchangeOrderAmountLeft order))}
                         <td .amount-left>
                             #{cents2dblT (exchangeOrderAmountLeft order)}
         |]

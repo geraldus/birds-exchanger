@@ -37,17 +37,22 @@ unPairCurrency :: ExchangePair -> (Currency, Currency)
 unPairCurrency ExchangePzmRur = (pzmC, rurC)
 unPairCurrency ExchangeRurPzm = (rurC, pzmC)
 
+-- | Normalize ratio @r@ to preffered direction @d@ for given
+--   exchange pair @p@
 normalizeRatio :: ExchangePair -> ExchangePair -> Double -> Double
 normalizeRatio p d r
     | p == d = 1 / r
     | otherwise = r
 
--- | Convert ratio according to desired normalized pair exchange direction
-fromNormalizedRatio :: ExchangePair -> Double -> Double
-fromNormalizedRatio p = normalizeRatio (defPairDir p) p
+-- | Returns correct multiplicator (ratio) for convertion first
+--   pair's (outgoing) currency to target currency
+pairRatioByNormalizedRatio :: ExchangePair -> Double -> Double
+pairRatioByNormalizedRatio p = normalizeRatio (defPairDir p) p
 
-convertCents :: Double -> Int -> Int
-convertCents r a =
+-- | Multiply integral amount cents @a@ on ratio @r@ returning
+--   integral result.
+multiplyCents :: Double -> Int -> Int
+multiplyCents r a =
     let x = truncate $ fromIntegral a * r * fromIntegral oneCoinCents :: Int
     in truncate (fromIntegral x / fromIntegral oneCoinCents :: Double)
 

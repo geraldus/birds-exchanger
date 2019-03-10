@@ -48,7 +48,7 @@ getClientOrderViewR orderId = do
             tzo <- timezoneOffsetFromCookie
             let ExchangeOrder _  pair amount _alft ratioN ratio expectedFee created status isActivel _wtr = order
                 r = normalizeRatio ratioN pair ratio
-                expectedIn = convertCents r amount
+                expectedIn = multiplyCents r amount
             operations <- runDB $
                 selectList
                     [ ExchangeOrderExecutionOrderId ==. orderId ]

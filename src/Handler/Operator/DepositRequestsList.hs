@@ -51,7 +51,7 @@ renderSums req@DepositRequest{..} =
         reqAmtT = cents2dblT reqAmt
         feeAmt = calcFeeCents (selectDepositFee depositRequestCurrency) reqAmt
         feeAmtT = cents2dblT feeAmt
-        depAmt = convertCents ratio (reqAmt - feeAmt)
+        depAmt = multiplyCents ratio (reqAmt - feeAmt)
         depAmtT = cents2dblT depAmt
     in [shamlet|
             <b>#{reqAmtT}&nbsp;#{iC} #
@@ -83,7 +83,7 @@ renderMethodUser req (Entity userId user) = [shamlet|
 renderRequestExpectedTotal :: DepositRequest -> Html
 renderRequestExpectedTotal DepositRequest{..} = [shamlet|#{cents2dblT total}|]
   where
-    total = convertCents depositRequestExpectedConversionRatio (depositRequestCentsAmount - depositRequestExpectedFeeCents)
+    total = multiplyCents depositRequestExpectedConversionRatio (depositRequestCentsAmount - depositRequestExpectedFeeCents)
 
 renderReqFeeAsPct :: DepositRequest -> Html
 renderReqFeeAsPct DepositRequest{..} = renderFeeAsPct fee
