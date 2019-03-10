@@ -22,11 +22,15 @@ SignUpPageTitle: Регистрация
 
 
 ## CLIENT
+
 ClientProfilePageTitle: Мой портфель
 ClientOrdersPageTitle: Мои ордера
 ClientDepositPageTitle: Пополнение счёта
 ClientWithdrawalPageTitle: Вывод средств
 
+# FORM ERROS
+PositiveValueRequired: должно быть положительным числом
+NotEnoughFunds: Недостаточно средств
 
 User: Пользователь
 EmailAddress: Адрес эл.почты
