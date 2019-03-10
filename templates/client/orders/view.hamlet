@@ -9,7 +9,7 @@
         <small>_{MsgRatio} #
         <span .normalized-ratio>#{dbl2MoneyT ratio}
             <small .text-muted>
-                #{renderPairOut pair}/#{renderPairIn pair}
+                #{renderPairOut ratioN}/#{renderPairIn ratioN}
     <div .col-6 .justify-content-center>
         <big>
             <big>
