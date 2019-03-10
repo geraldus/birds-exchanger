@@ -21,6 +21,26 @@ type FeeCents = Int
 
 type PositiveAmount = Int
 
+findMatchingOrders
+    ::  ( MonadIO m
+        , PersistStoreWrite backend
+        , PersistQueryRead backend
+        , BaseBackend backend ~ SqlBackend )
+    => Entity ExchangeOrder
+    -> ReaderT backend m [ Entity ExchangeOrder ]
+findMatchingOrders o = do
+    let (Entity _ order) = o
+    let opair = exchangeOrderPair order
+    let ratio = exchangeOrderNormalizedRatio order
+    let user  = exchangeOrderUserId order
+    let (cond, ord) = if defPairDir opair == opair
+            then ((<=.), Asc)
+            else ((>=.), Desc)
+    selectList
+        [ ExchangeOrderPair ==. flipPair opair
+        , ExchangeOrderUserId !=. user
+        , ExchangeOrderNormalizedRatio `cond` ratio ]
+        [ ord ExchangeOrderNormalizedRatio, Asc ExchangeOrderCreated ]
 
 newWalletReason
     :: ( MonadIO m
