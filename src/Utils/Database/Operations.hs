@@ -157,6 +157,10 @@ mkNewOrderData
 mkNewOrderData u a r p t f time =
     ExchangeOrder u p a a (defPairDir p) r f time (Created time) True
 
+-- | Select first option if default exchnage direction matches pair @p@.
+dirPairMatch :: a -> a -> ExchangePair -> a
+dirPairMatch equals notEquals p =
+    if defPairDir p == p then equals else notEquals
 
 
 -- ## Helper Types
