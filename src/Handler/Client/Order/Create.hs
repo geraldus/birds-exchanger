@@ -16,7 +16,6 @@ import           Local.Persist.Wallet
 import           Utils.Database.Operations
 import           Utils.Money
 
-import           Control.Monad             ( void )
 import           Data.Maybe                ( fromJust )
 
 
