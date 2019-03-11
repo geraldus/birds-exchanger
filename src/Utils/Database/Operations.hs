@@ -41,6 +41,24 @@ saveAndExecuteOrder client a c t withWalletCheck = do
             executionData <- executeSavedOrder o wallet
             error "123"
 
+saveOrder
+    ::  ( MonadIO m
+        , PersistStoreWrite backend
+        , PersistQueryRead backend
+        , PersistUniqueRead backend
+        , BaseBackend backend ~ SqlBackend )
+    => Entity UserWallet
+    -> AmountCents
+    -> UTCTime
+    -> (WalletTransactionReasonId -> ExchangeOrder)
+    -> ReaderT backend m (TransactionD, Entity ExchangeOrder)
+saveOrder w a time withReasonOrder = do
+    r <- newWalletReason (entityKey w)
+    t <- decreaseUserWalletBalance w r a ExchangeFreeze time
+    let o = withReasonOrder r
+    oid <- insert o
+    return (TransactionD t r, Entity oid o)
+
 executeSavedOrder
     ::  ( MonadIO m
         , PersistStoreWrite backend
