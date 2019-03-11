@@ -104,6 +104,37 @@ findMatchingOrders o = do
         , ExchangeOrderNormalizedRatio `cond` ratio ]
         [ ord ExchangeOrderNormalizedRatio, Asc ExchangeOrderCreated ]
 
+decreaseUserWalletBalance
+    :: ( MonadIO m
+    , PersistStoreWrite backend
+    , BaseBackend backend ~ SqlBackend)
+    => Entity UserWallet
+    -> WalletTransactionReasonId
+    -> PositiveAmount
+    -> (Int -> WalletTransactionType)
+    -> UTCTime
+    -> ReaderT backend m (Entity WalletBalanceTransaction)
+decreaseUserWalletBalance = addUserWalletBalance
+
+addUserWalletBalance
+    :: ( MonadIO m
+    , PersistStoreWrite backend
+    , BaseBackend backend ~ SqlBackend)
+    => Entity UserWallet
+    -> WalletTransactionReasonId
+    -> Int
+    -> (Int -> WalletTransactionType)
+    -> UTCTime
+    -> ReaderT backend m (Entity WalletBalanceTransaction)
+addUserWalletBalance wallet reason amount mkType time = do
+    let (Entity wid w) = wallet
+        before = userWalletAmountCents w
+        t = WalletBalanceTransaction
+                wid (mkType amount) reason before time
+    update wid [ UserWalletAmountCents +=. amount ]
+    tid <- insert t
+    return (Entity tid t)
+
 newWalletReason
     :: ( MonadIO m
        , PersistStoreWrite backend
@@ -126,25 +157,6 @@ mkNewOrderData
 mkNewOrderData u a r p t f time =
     ExchangeOrder u p a a (defPairDir p) r f time (Created time) True
 
-
-decreaseUserWalletBalance
-    :: ( MonadIO m
-    , PersistStoreWrite backend
-    , BaseBackend backend ~ SqlBackend)
-    => Entity UserWallet
-    -> WalletTransactionReasonId
-    -> PositiveAmount
-    -> (Int -> WalletTransactionType)
-    -> UTCTime
-    -> ReaderT backend m (Entity WalletBalanceTransaction)
-decreaseUserWalletBalance wallet reason amount mkType time = do
-    let (Entity wid w) = wallet
-        before = userWalletAmountCents w
-        t = WalletBalanceTransaction
-                wid (mkType $ negate amount) reason before time
-    update wid [ UserWalletAmountCents -=. amount ]
-    tid <- insert t
-    return (Entity tid t)
 
 
 -- ## Helper Types
