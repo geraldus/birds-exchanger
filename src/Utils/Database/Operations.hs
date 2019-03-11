@@ -114,7 +114,7 @@ decreaseUserWalletBalance
     -> (Int -> WalletTransactionType)
     -> UTCTime
     -> ReaderT backend m (Entity WalletBalanceTransaction)
-decreaseUserWalletBalance = addUserWalletBalance
+decreaseUserWalletBalance w t a = addUserWalletBalance w t (negate a)
 
 addUserWalletBalance
     :: ( MonadIO m
@@ -144,6 +144,27 @@ newWalletReason
 newWalletReason w = insert $ WalletTransactionReason w
 
 
+exchangeParams
+    :: ExchangeOrder
+    -> ExchangeOrder
+    -> (TargetParams, MatchParams, DiffProfit)
+exchangeParams target match =
+    let (_, tP, _, tRatio, tExpected) = orderParams target
+        (mLeft, _, _, mRatio, _) = orderParams match
+        (tIn, mOut) =  if tExpected < mLeft
+            then (tExpected, tExpected)
+            else (mLeft, mLeft)
+        (tR, mR) = dirPairMatch (tRatio, 1/mRatio) (1/tRatio, mRatio) tP
+        tOut = multiplyCents tR tIn
+        mIn  = multiplyCents mR mOut
+        tFee = calcFeeCents defaultExchangeFee tIn
+        mFee = calcFeeCents defaultExchangeFee mIn
+        profit = tOut - mIn
+        (tClosed, mClosed)
+            | tExpected < mLeft = (True, False)
+            | tExpected == mLeft = (True, True)
+            | otherwise = (False, True) -- tExpected > mLeft
+    in ((tIn, tOut, tFee, tClosed), (mIn, mOut, mFee, mClosed), profit)
 
 orderParams
     :: ExchangeOrder
