@@ -30,16 +30,10 @@ saveAndExecuteOrder client a c t withWalletCheck = do
     case orderCheck of
         OrderCheckErrors es -> return $ NoInsertion es
         OrderCheckSuccess withReasonOrder -> do
-            reason <- newWalletReason (entityKey wallet)
-            freeze <- decreaseUserWalletBalance
-                    wallet reason a ExchangeFreeze t
-            let orderSaveTransactionD = (freeze, reason)
-            let order = withReasonOrder reason
-            orderId <- insert order
-            let o = Entity orderId order
-            let orderSaveData = (o, orderSaveTransactionD)
-            executionData <- executeSavedOrder o wallet
-            error "123"
+            (orderSaveTransactionD, o) <- saveOrder wallet a t withReasonOrder
+            let saveData = (o, orderSaveTransactionD)
+            exeData <- executeSavedOrder o wallet t
+            return $ Insertion saveData exeData
 
 saveOrder
     ::  ( MonadIO m
