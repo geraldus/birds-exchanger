@@ -149,12 +149,11 @@ mkNewOrderData
     -> AmountCents
     -> NormalizedRatio
     -> ExchangePair
-    -> TargetAmountCents
     -> FeeCents
     -> UTCTime
     -> WalletTransactionReasonId
     -> ExchangeOrder
-mkNewOrderData u a r p t f time =
+mkNewOrderData u a r p f time =
     ExchangeOrder u p a a (defPairDir p) r f time (Created time) True
 
 -- | Select first option if default exchnage direction matches pair @p@.
