@@ -1,9 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Handler.Admin.LogIn where
 
-
 import           Import
-import           Local.Auth
 
 
 getAdminLogInR :: Handler Html

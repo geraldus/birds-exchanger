@@ -9,7 +9,6 @@ import           Type.Fee
 
 -- TODO: FIXME: Make deposit and withdrawal fees configurable via admin's UI
 
-
 selectDepositFee :: Currency -> Fee
 selectDepositFee (FiatC   RUR) = defRurDepositFee
 selectDepositFee (CryptoC PZM) = defPzmDepositFee
