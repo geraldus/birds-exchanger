@@ -6,8 +6,8 @@ import           Import.NoFoundation
 
 import           Local.Params           ( defaultExchangeFee )
 import           Local.Persist.Currency ( Currency (..) )
-import           Local.Persist.Exchange ( ExchangeOrderStatus (Created),
-                                          ExchangePair (..) )
+import           Local.Persist.Exchange ( ExchangeOrderStatus (..),
+                                          ExchangePair (..), ProfitType (..) )
 import           Local.Persist.Wallet   ( WalletTransactionType (..) )
 import           Utils.Money
 
