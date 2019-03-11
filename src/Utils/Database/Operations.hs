@@ -109,6 +109,9 @@ findMatchingOrders order = do
         , ExchangeOrderNormalizedRatio `cond` ratio ]
         [ ord ExchangeOrderNormalizedRatio, Asc ExchangeOrderCreated ]
 
+-- | Same as 'addUserWalletBalance' but expected to be used when
+-- it is required to extract from wallet POSITIVE values.  Negates amount @a@
+-- under the hood
 decreaseUserWalletBalance
     :: ( MonadIO m
     , PersistStoreWrite backend
@@ -121,6 +124,7 @@ decreaseUserWalletBalance
     -> ReaderT backend m (Entity WalletBalanceTransaction)
 decreaseUserWalletBalance w t a = addUserWalletBalance w t (negate a)
 
+-- | Add @amount@ to @wallet@, saving 'WalletBalanceTransaction'
 addUserWalletBalance
     :: ( MonadIO m
     , PersistStoreWrite backend
@@ -149,6 +153,7 @@ newWalletReason
 newWalletReason w = insert $ WalletTransactionReason w
 
 
+-- | Calculate exchange results for given orders
 exchangeParams
     :: ExchangeOrder
     -> ExchangeOrder
@@ -171,6 +176,8 @@ exchangeParams target match =
             | otherwise = (False, True) -- tExpected > mLeft
     in ((tIn, tOut, tFee, tClosed), (mIn, mOut, mFee, mClosed), profit)
 
+
+-- | Extract order parameters meaningful for exchange calculation
 orderParams
     :: ExchangeOrder
     -> (AmountLeft, ExchangePair, NormalizedRatio, DirectRatio, AmountExpected)
