@@ -90,17 +90,22 @@ findMatchingOrders
         , BaseBackend backend ~ SqlBackend )
     => Entity ExchangeOrder
     -> ReaderT backend m [ Entity ExchangeOrder ]
-findMatchingOrders o = do
-    let (Entity _ order) = o
-    let opair = exchangeOrderPair order
-    let ratio = exchangeOrderNormalizedRatio order
-    let user  = exchangeOrderUserId order
+findMatchingOrders order = do
+    let (Entity orderId o) = order
+    let opair = exchangeOrderPair o
+    let ratio = exchangeOrderNormalizedRatio o
+    let user  = exchangeOrderUserId o
+    let rnorm = exchangeOrderRatioNormalization o
     let (cond, ord) = if defPairDir opair == opair
             then ((<=.), Asc)
             else ((>=.), Desc)
     selectList
         [ ExchangeOrderPair ==. flipPair opair
         , ExchangeOrderUserId !=. user
+        , ExchangeOrderIsActive ==. True
+        , ExchangeOrderAmountLeft >. 0
+        , ExchangeOrderId !=. orderId
+        , ExchangeOrderRatioNormalization ==. rnorm
         , ExchangeOrderNormalizedRatio `cond` ratio ]
         [ ord ExchangeOrderNormalizedRatio, Asc ExchangeOrderCreated ]
 
