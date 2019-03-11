@@ -131,11 +131,16 @@ ExchangeOrderExecution
     orderId ExchangeOrderId
     time UTCTime
     outWalletTransactionReasonId WalletTransactionReasonId
+    -- ^ Out-wallet is match wallet
     inWalletTransactionReasonId WalletTransactionReasonId
+    -- ^ In-wallet is order's creator wallet
     fullyExecuted Bool default=FALSE
     transferAmountCents Int
+    -- ^ Pure amount, fee included.  Match receives with fee excluded
     incomeAmountCents Int
+    -- ^ Pure amount, fee included.  Creator receives with fee excluded
     feeCents Int
+    -- ^ Incoming funds fee paid by creator
     deriving Show
 
 ExchangeOrderCancellation
