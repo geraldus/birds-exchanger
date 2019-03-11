@@ -77,7 +77,7 @@ checkOrderData
                 -- direction, it must be interpreted depending on 'action', e.g.
                 -- give action -- same direction, take action -- flipped.
             in OrderCheckSuccess $
-                    mkNewOrderData client amount ratio d t f time
+                    mkNewOrderData client amount ratio d f time
 
 orderCreateRenderFormErrors
     :: AmountCents
