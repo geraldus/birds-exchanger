@@ -9,9 +9,11 @@ module Handler.Home where
 import           Import                       hiding ( decodeUtf8, httpLbs )
 
 import           Form.Exchanger.Order
+import           Local.Params                 ( defPzmDepositFee,
+                                                defRurDepositFee,
+                                                defaultExchangeFee )
 import           Local.Persist.Currency
 import           Local.Persist.Exchange       ( ExchangePair (..) )
-import           Utils.Deposit
 import           Utils.Money
 import           Utils.Render
 import           Utils.Withdrawal

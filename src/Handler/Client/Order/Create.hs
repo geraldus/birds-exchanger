@@ -9,6 +9,7 @@ module Handler.Client.Order.Create where
 import           Import
 
 import           Form.Exchanger.Order
+import           Local.Params              ( defaultExchangeFee )
 import           Local.Persist.Currency
 import           Local.Persist.Exchange
 import           Local.Persist.Wallet

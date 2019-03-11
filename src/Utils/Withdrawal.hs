@@ -5,23 +5,16 @@ module Utils.Withdrawal
     )
 where
 
-import ClassyPrelude.Yesod
+import           ClassyPrelude.Yesod
 
-import           Type.Fee                       ( Fee(..) )
-import           Local.Persist.Currency         ( Currency(..)
-                                                , FiatCurrency(..)
-                                                , CryptoCurrency(..)
-                                                )
+import           Local.Params           ( defPzmWithdrawalFee,
+                                          defRurWithdrawalFee )
+import           Local.Persist.Currency ( CryptoCurrency (..), Currency (..),
+                                          FiatCurrency (..) )
+import           Type.Fee               ( Fee (..) )
 
 
 selectWithdrawalFee :: Currency -> Fee
 selectWithdrawalFee (FiatC   RUR) = defRurWithdrawalFee
 selectWithdrawalFee (CryptoC PZM) = defPzmWithdrawalFee
 selectWithdrawalFee c             = error $ "no default fee for " <> show c
-
-
-defRurWithdrawalFee :: Fee
-defRurWithdrawalFee = Percent 2.0
-
-defPzmWithdrawalFee :: Fee
-defPzmWithdrawalFee = Percent 0.0

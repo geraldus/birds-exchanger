@@ -4,6 +4,8 @@ module Form.Profile.Deposit where
 
 
 import           Import
+import           Local.Params                  ( depositPzmMinCentsAmount,
+                                                 depositRurMinCentsAmount )
 import           Local.Persist.Currency
 import           Utils.Deposit
 import           Utils.Form

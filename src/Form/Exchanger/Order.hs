@@ -4,6 +4,7 @@ module Form.Exchanger.Order where
 
 import           Import
 
+import           Local.Params           ( defaultExchangeFee )
 import           Local.Persist.Exchange ( ExchangePair (..) )
 import           Type.Fee               ( Fee (..) )
 import           Utils.Money            ( truncCoins2Cents )

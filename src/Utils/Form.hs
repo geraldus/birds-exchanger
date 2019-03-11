@@ -1,12 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Utils.Form where
 
-import           Local.Persist.Currency
 import           Import.NoFoundation
-import           Utils.Deposit                  ( depositRurMinCentsAmount
-                                                , depositPzmMinCentsAmount
-                                                )
-import           Type.Money                     ( oneCoinCents )
+import           Local.Params           ( depositPzmMinCentsAmount,
+                                          depositRurMinCentsAmount )
+import           Local.Persist.Currency
+import           Type.Money             ( oneCoinCents )
 
 
 amountIsValidC :: Currency -> Double -> Bool

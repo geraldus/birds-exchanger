@@ -2,15 +2,13 @@
 {-# LANGUAGE QuasiQuotes       #-}
 module Form.Profile.Withdrawal where
 
+import           Form.Money      ( moneyInput )
 import           Import
+import           Local.Params    ( defPzmWithdrawalFee, defRurWithdrawalFee )
 import           Type.Withdrawal
-import           Form.Money                     ( moneyInput )
-import           Utils.Render                   ( renderFeeAsPct )
-import           Utils.Withdrawal               ( defRurWithdrawalFee
-                                                , defPzmWithdrawalFee
-                                                )
+import           Utils.Render    ( renderFeeAsPct )
 
-import           Text.Julius                    ( RawJS(..) )
+import           Text.Julius     ( RawJS (..) )
 
 
 -- TODO: FIXME: Make deposit and withdrawal fees configurable via admin's UI

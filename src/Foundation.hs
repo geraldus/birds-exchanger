@@ -719,12 +719,6 @@ getOrCreateWallet :: UserId -> Currency -> Handler (Entity UserWallet)
 getOrCreateWallet uid = runDB . getOrCreateWalletDB uid
 
 
--- TODO: FIXME: Make an MVar or something and expand as app property.
--- Allow possibility to change this value on the fly
-defaultExchangeFee :: Fee
-defaultExchangeFee = Percent 1
-
-
 fsAddPlaceholder :: FieldSettings App -> Text -> FieldSettings App
 fsAddPlaceholder settings p = let
         attrs = fsAttrs settings ++ [("placeholder", p)]

@@ -4,6 +4,7 @@ module Utils.Database.Operations where
 
 import           Import.NoFoundation
 
+import           Local.Params           ( defaultExchangeFee )
 import           Local.Persist.Currency ( Currency (..) )
 import           Local.Persist.Exchange ( ExchangeOrderStatus (Created),
                                           ExchangePair (..) )
