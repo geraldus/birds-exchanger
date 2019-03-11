@@ -144,6 +144,18 @@ newWalletReason
 newWalletReason w = insert $ WalletTransactionReason w
 
 
+
+orderParams
+    :: ExchangeOrder
+    -> (AmountLeft, ExchangePair, NormalizedRatio, DirectRatio, AmountExpected)
+orderParams ExchangeOrder{..} =
+    let l = exchangeOrderAmountLeft
+        p = exchangeOrderPair
+        k = exchangeOrderNormalizedRatio
+        r = pairRatioByNormalizedRatio p k
+        e = multiplyCents r l
+    in (l, p, k, r, e)
+
 mkNewOrderData
     :: UserId
     -> AmountCents
