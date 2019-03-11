@@ -12,39 +12,6 @@ import           Local.Persist.Wallet   ( WalletTransactionType (..) )
 import           Utils.Money
 
 
-type AmountCents = Int
-
-type NormalizedRatio = Double
-
-type TargetAmountCents = Int
-
-type FeeCents = Int
-
-type PositiveAmount = Int
-
-type LabeledError = (Text, Text)
-
-
-data OrderCheck
-    = OrderCheckErrors [ LabeledError ]
-    | OrderCheckSuccess (WalletTransactionReasonId -> ExchangeOrder)
-
-
-    -- | Transaction and its reason
-data TransactionD = TransactionD
-        (Entity WalletBalanceTransaction) (Entity WalletTransactionReason)
-
--- | Details of income operation during order execution
-data ExecutionD = ExecutionD
-        (Entity ExchangeOrderExecution) TransactionD (Entity InnerProfitRecord)
-
-type OrderSaveData = (Entity ExchangeOrder, TransactionD)
-type OrderExecutionData = [ (ExecutionD, ExecutionD) ]
-
-data OrderInsertionDbData
-    = NoInsertion [ LabeledError ]
-    | Insertion OrderSaveData OrderExecutionData
-
 saveAndExecuteOrder
     ::  ( MonadIO m
         , PersistStoreWrite backend
@@ -178,3 +145,73 @@ decreaseUserWalletBalance wallet reason amount mkType time = do
     update wid [ UserWalletAmountCents -=. amount ]
     tid <- insert t
     return (Entity tid t)
+
+
+-- ## Helper Types
+
+data OrderCheck
+    = OrderCheckErrors [ LabeledError ]
+    | OrderCheckSuccess (WalletTransactionReasonId -> ExchangeOrder)
+
+-- | Transaction and its reason
+data TransactionD = TransactionD
+        (Entity WalletBalanceTransaction) WalletTransactionReasonId
+
+-- | Details of income operation during order execution
+data ExecutionD = ExecutionD
+        (Entity ExchangeOrderExecution)
+        -- ^ Execution record
+        TransactionD
+        -- ^ Transaction and its Reason for order's creator IN-wallet
+        (Entity InnerProfitRecord)
+        -- ^ Exchange fee record
+        (Maybe (Entity InnerProfitRecord))
+        -- ^ Possible exchange outcome when ratios are different
+
+data OrderInsertionDbData
+    = NoInsertion [ LabeledError ]
+    | Insertion OrderSaveData [ OrderExecutionData ]
+
+type OrderSaveData = (Entity ExchangeOrder, TransactionD)
+
+type OrderExecutionData = (ExecutionD, ExecutionD)
+
+type AmountCents = Int
+
+type AmountLeft = Int
+
+type AmountExpected = Int
+
+type NormalizedRatio = Double
+
+type DirectRatio = Double
+
+type TargetAmountCents = Int
+
+type FeeCents = Int
+
+type PositiveAmount = Int
+
+type LabeledError = (Text, Text)
+
+type TargetIn = Int
+
+type TargetOut = Int
+
+type TargetInFee = Int
+
+type TargetClosed = Bool
+
+type MatchIn = Int
+
+type MatchOut = Int
+
+type MatchInFee = Int
+
+type MatchClosed = Bool
+
+type TargetParams = (TargetIn, TargetOut, TargetInFee, TargetClosed)
+
+type MatchParams = (MatchIn, MatchOut, MatchInFee, MatchClosed)
+
+type DiffProfit = Int
