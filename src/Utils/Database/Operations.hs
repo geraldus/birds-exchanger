@@ -45,33 +45,42 @@ executeSavedOrder
     ::  ( MonadIO m
         , PersistStoreWrite backend
         , PersistQueryRead backend
+        , PersistUniqueRead backend
         , BaseBackend backend ~ SqlBackend )
     => Entity ExchangeOrder
     -> Entity UserWallet
-    -> ReaderT backend m OrderExecutionData
-executeSavedOrder o w = do
+    -> UTCTime
+    -> ReaderT backend m [ OrderExecutionData ]
+executeSavedOrder o w t = do
     ms <- findMatchingOrders o
-    error "!23"
+    executeExchange o ms t []
 
 executeExchange
     ::  ( MonadIO m
-    , PersistStoreWrite backend
-    , PersistQueryRead backend
-    , BaseBackend backend ~ SqlBackend )
+        , PersistStoreWrite backend
+        , PersistQueryRead backend
+        , PersistUniqueRead backend
+        , BaseBackend backend ~ SqlBackend )
     => Entity ExchangeOrder
-    -> Entity ExchangeOrder
-    -> ( Entity ExchangeOrder, [ OrderExecutionData ] )
-    -> ReaderT backend m ( Entity ExchangeOrder, [ OrderExecutionData ] )
-executeExchange target match acc = do
-    let (Entity _ t) = target
+    -> [ Entity ExchangeOrder ]
+    -> UTCTime
+    -> [ OrderExecutionData ]
+    -> ReaderT backend m [ OrderExecutionData ]
+executeExchange _ [] _ a = pure a
+executeExchange target (match:rest) time acc' = do
+    let (Entity tId t) = target
     let (Entity _ m) = match
-    let (tLeft, tPair, tK, tRatio, tExpected) = orderParams t
-    let (mLeft, mPair, mK, mRatio, mExpected) = orderParams m
+    let (_, tPair, tK, _, _) = orderParams t
+    let (_, mPair, mK, _, _) = orderParams m
     when (mPair /= flipPair tPair) $
         error "Impossible happened!  Order pairs not match"
-    when (wrongRatio tPair tK mK) $
+    when (wrongRatioCase tK mK tPair) $
         error "Impossible happened!  Wrong ratio condition"
-    error "execution step"
+    (targetClosed, ed, tUpdated) <- execute
+    let acc = ed : acc'
+    if targetClosed
+        then return acc
+        else executeExchange (Entity tId tUpdated) rest time acc
   where
 
     execute = do
