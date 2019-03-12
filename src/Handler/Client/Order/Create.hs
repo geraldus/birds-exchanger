@@ -107,12 +107,15 @@ postExchangeOrderCreateR' epair = do
         FormFailure es -> return $
                 ProcessFormErrors $ zip es (repeat "form")
         FormSuccess od -> do
-            let a = amount od
+            let act = action od
                 r = ratio od
-                act = action od
                 formPair = pair od
                 d = giveTake act formPair (flipPair formPair)
-                outCurrency = fst . unPairCurrency $ d
+            let a = case act of
+                        EAGive -> amount od
+                        EAReceive ->
+                            let k = pairRatioByNormalizedRatio formPair r
+                            in multiplyCents k (amount od)
             mr <- getMessageRender
             t <- liftIO getCurrentTime
             return $ processNewOrder client d a r t mr
