@@ -1,0 +1,42 @@
+window.app = {
+    config: {
+        su: {
+            rootId: #{rootId},
+            socket: #{renderUrl SuperUserWebSocketR}
+                .replace(/^http(s?:\/\/)/, 'ws$1'),
+            labels: {
+                userCount: #{rm MsgClientUsersCount},
+                innerProfit: #{rm MsgFeeStats},
+                activeDeposits: #{rm MsgActiveDepositsCount},
+                acceptedDeposits: #{rm MsgAcceptedDepositsCount},
+                deposit: {
+                    stats: #{rm MsgDepositStatsTitle},
+                    income: {
+                        realTotal: #{rm MsgDepositIncomeRealTotal},
+                        feeTotal: #{rm MsgFee}
+                    }
+                },
+                wallets: {
+                    balanceTotals: #{rm MsgUserWalletBalancesTotal}
+                },
+                withdrawal: {
+                    stats: #{rm MsgWithdrawalStatsTitle},
+                    new: {
+                        count: #{rm MsgWithdrawalAwaitingExecution},
+                        amount: #{rm MsgWithdrawalAmountTotal},
+                        frozen: #{rm MsgWithdrawalFrozenTotal}
+                    },
+                    accepted: {
+                        count: #{rm MsgWithdrawalAcceptedCount},
+                        transfered: #{rm MsgWithdrawalTransferedTotal},
+                        fee: #{rm MsgWithdrawalFeeTotal}
+                    }
+                }
+            }
+        }
+    }
+}
+
+$(document).ready(() => {
+    outbirds_react.financialReportRunner()
+})
