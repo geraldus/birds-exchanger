@@ -12,11 +12,8 @@ import           Form.Exchanger.Order
 import           Local.Params              ( defaultExchangeFee )
 import           Local.Persist.Currency
 import           Local.Persist.Exchange
-import           Local.Persist.Wallet
 import           Utils.Database.Operations
 import           Utils.Money
-
-import           Data.Maybe                ( fromJust )
 
 
 
