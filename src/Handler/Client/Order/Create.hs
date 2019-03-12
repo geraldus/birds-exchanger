@@ -34,9 +34,9 @@ processNewOrder
     -> ProcessForm
 processNewOrder client epair a r t mr =
     let er a' r' w' = orderCreateRenderFormErrors a' r' w' mr
-        check w = checkOrderData epair a r client w t er
+        chk w = checkOrderData epair a r client w t er
         c = fst . unPairCurrency $ epair
-    in ProcessFormSuccess a c t check
+    in ProcessFormSuccess a c t chk
 
 checkOrderData
     :: ExchangePair
