@@ -14,6 +14,7 @@ import           Utils.Money
 
 saveAndExecuteOrder
     ::  ( MonadIO m
+        , MonadLogger m
         , PersistStoreWrite backend
         , PersistQueryRead backend
         , PersistUniqueRead backend
@@ -32,11 +33,12 @@ saveAndExecuteOrder client a c t withWalletCheck = do
         OrderCheckSuccess withReasonOrder -> do
             (orderSaveTransactionD, o) <- saveOrder wallet a t withReasonOrder
             let saveData = (o, orderSaveTransactionD)
-            exeData <- executeSavedOrder o wallet t
+            exeData <- executeSavedOrder o t
             return $ Insertion saveData exeData
 
 saveOrder
     ::  ( MonadIO m
+        , MonadLogger m
         , PersistStoreWrite backend
         , PersistQueryRead backend
         , PersistUniqueRead backend
@@ -55,20 +57,21 @@ saveOrder w a time withReasonOrder = do
 
 executeSavedOrder
     ::  ( MonadIO m
+        , MonadLogger m
         , PersistStoreWrite backend
         , PersistQueryRead backend
         , PersistUniqueRead backend
         , BaseBackend backend ~ SqlBackend )
     => Entity ExchangeOrder
-    -> Entity UserWallet
     -> UTCTime
     -> ReaderT backend m [ OrderExecutionData ]
-executeSavedOrder o w t = do
+executeSavedOrder o t = do
     ms <- findMatchingOrders o
     executeExchange o ms t []
 
 executeExchange
     ::  ( MonadIO m
+        , MonadLogger m
         , PersistStoreWrite backend
         , PersistQueryRead backend
         , PersistUniqueRead backend
@@ -115,7 +118,7 @@ executeExchange target (match:rest) time acc' = do
         (tProfit, mProfit) <- saveFee
                 (tReason, tCurrencyIn, tP) (mReason, mCurrencyIn, mP)
         let (tIn, tOut, tFee, tClosed) = tP
-        let (mIn, mOut, mFee, _) = mP
+        let (mIn, _, mFee, _) = mP
         let tInc = (tWalletReason, tIn - tFee)
         let mInc = (mWalletReason, mIn - mFee)
         (tBalance, mBalance) <- increaseBalances tInc mInc
