@@ -188,7 +188,8 @@ executeExchange target (match:rest) time acc' = do
             return (t1, t2)
 
     saveDiffProfit r c dp
-        | dp < 0 = error "Impossible happened: Diff profit is negative"
+        | dp < 0 =
+            error "Impossible happened: Diff profit is negative"
         | dp > 0 = do
             let tr = InnerProfitRecord r c dp ExchangeDiff
             insert tr >>= \x -> pure . Just . Entity x  $ tr
