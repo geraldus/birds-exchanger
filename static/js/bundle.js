@@ -93,7 +93,7 @@
 	    return store[key] || (store[key] = value !== undefined ? value : {});
 	  })('versions', []).push({
 	    version: _core.version,
-	    mode: 'global',
+	    mode: _library ? 'pure' : 'global',
 	    copyright: '© 2019 Denis Pushkarev (zloirock.ru)'
 	  });
 	});
@@ -1315,7 +1315,7 @@
 	var defineProperty = _objectDp.f;
 
 	var _wksDefine = function _wksDefine(name) {
-	  var $Symbol = _core.Symbol || (_core.Symbol = _global.Symbol || {});
+	  var $Symbol = _core.Symbol || (_core.Symbol = _library ? {} : _global.Symbol || {});
 	  if (name.charAt(0) != '_' && !(name in $Symbol)) defineProperty($Symbol, name, {
 	    value: _wksExt.f(name)
 	  });
@@ -4661,6 +4661,20 @@
 	          feeTotal: "Fee Collected"
 	        }
 	      },
+	      orders: {
+	        stats: "Orders Stats",
+	        active: {
+	          count: "Active Orders Count",
+	          amount: "Total Active Orders Amount",
+	          left: "Total Amount Left in Orders"
+	        },
+	        executions: {
+	          count: "Exchange Operations Executed",
+	          transfer: "Transfered Amount Total (outgoing)",
+	          amount: "Received Amount Total (ingoing)",
+	          fee: "Fee Collected (on incoming currency)"
+	        }
+	      },
 	      withdrawal: {
 	        stats: "Withdrawal Stats",
 	        new: {
@@ -4697,6 +4711,19 @@
 	        income: {
 	          real: {},
 	          fee: {}
+	        }
+	      },
+	      orders: {
+	        active: {
+	          count: 0,
+	          amountStats: {},
+	          leftStats: {}
+	        },
+	        executions: {
+	          count: 0,
+	          transferStats: {},
+	          amountStats: {},
+	          feeStats: {}
 	        }
 	      },
 	      withdrawal: {
@@ -4764,31 +4791,31 @@
 
 	      switch (obj) {
 	        case 'User Count':
-	          this.setState({
+	          this.setState(merge_1({}, s, {
 	            userCount: val
-	          });
+	          }));
 	          break;
 
 	        case 'Active Deposit Count':
-	          this.setState({
+	          this.setState(merge_1({}, s, {
 	            activeDeposit: {
 	              count: val
 	            }
-	          });
+	          }));
 	          break;
 
 	        case 'Accepted Deposit Count':
-	          this.setState({
+	          this.setState(merge_1({}, s, {
 	            acceptedDeposit: {
 	              count: val
 	            }
-	          });
+	          }));
 	          break;
 
 	        case 'Inner Profit':
-	          this.setState({
+	          this.setState(merge_1({}, s, {
 	            innerProfit: val
-	          });
+	          }));
 	          break;
 
 	        case 'Deposited Money':
@@ -4812,11 +4839,11 @@
 	          break;
 
 	        case 'Wallet Stats':
-	          this.setState({
+	          this.setState(merge_1({}, s, {
 	            wallets: {
 	              total: val
 	            }
-	          });
+	          }));
 	          break;
 
 	        case 'Withdrawal New Count':
@@ -4879,6 +4906,76 @@
 	          }));
 	          break;
 
+	        case 'Orders Active Count':
+	          this.setState(merge_1({}, s, {
+	            orders: {
+	              active: {
+	                count: val
+	              }
+	            }
+	          }));
+	          break;
+
+	        case 'Orders Active Amount Stats':
+	          this.setState(merge_1({}, s, {
+	            orders: {
+	              active: {
+	                amountStats: val
+	              }
+	            }
+	          }));
+	          break;
+
+	        case 'Orders Active Left Stats':
+	          this.setState(merge_1({}, s, {
+	            orders: {
+	              active: {
+	                leftStats: val
+	              }
+	            }
+	          }));
+	          break;
+
+	        case 'Order Executions Count':
+	          this.setState(merge_1({}, s, {
+	            orders: {
+	              executions: {
+	                count: val
+	              }
+	            }
+	          }));
+	          break;
+
+	        case 'Order Executions Transfer Stats':
+	          this.setState(merge_1({}, s, {
+	            orders: {
+	              executions: {
+	                transferStats: val
+	              }
+	            }
+	          }));
+	          break;
+
+	        case 'Order Executions Amount Stats':
+	          this.setState(merge_1({}, s, {
+	            orders: {
+	              executions: {
+	                amountStats: val
+	              }
+	            }
+	          }));
+	          break;
+
+	        case 'Order Executions Fee Stats':
+	          this.setState(merge_1({}, s, {
+	            orders: {
+	              executions: {
+	                feeStats: val
+	              }
+	            }
+	          }));
+	          break;
+
 	        default:
 	          console.log('Unexpected Object', obj, val);
 	      }
@@ -4911,25 +5008,33 @@
 	      var wwl = this.state.withdrawal;
 	      var dpt = this.state.deposit;
 	      return react.createElement(react.Fragment, null, react.createElement("div", {
-	        className: "mb-3"
-	      }, react.createElement("span", null, "".concat(this.props.labels.userCount), ": "), react.createElement("span", null, "".concat(this.state.userCount))), react.createElement("div", {
-	        className: "mb-3"
-	      }, react.createElement("h2", null, this.props.labels.fee.stats), react.createElement("div", null, "".concat(this.props.labels.innerProfit), ": "), innerProfit), react.createElement("div", {
-	        className: "mb-3"
-	      }, react.createElement("h2", null, this.props.labels.deposit.stats), react.createElement("div", null, react.createElement("span", null, "".concat(this.props.labels.activeDeposits), ": "), react.createElement("span", null, this.state.activeDeposit.count)), react.createElement("div", {
-	        className: "mb-2"
-	      }, react.createElement("span", null, "".concat(this.props.labels.acceptedDeposits), ": "), react.createElement("span", null, this.state.acceptedDeposit.count)), react.createElement("div", null, react.createElement("span", null, "".concat(this.props.labels.deposit.income.realTotal)), react.createElement("span", null, " / "), react.createElement("span", null, "".concat(this.props.labels.deposit.income.feeTotal)), react.createElement("span", null, ":")), pairedVals(dpt.income.real, dpt.income.fee)), react.createElement("div", {
-	        className: "mb-3"
-	      }, react.createElement("h2", null, this.props.labels.withdrawal.stats), react.createElement("div", null, react.createElement("span", null, "".concat(this.props.labels.withdrawal.new.count), ": "), react.createElement("span", null, this.state.withdrawal.new.count)), react.createElement("div", {
-	        className: "mb-2"
-	      }, react.createElement("div", null, lbl.withdrawal.new.amount, " / ", lbl.withdrawal.new.frozen), pairedVals(wwl.new.amountStats, wwl.new.frozenStats)), react.createElement("div", null, react.createElement("div", null, lbl.withdrawal.accepted.count, ": ", wwl.accepted.count), react.createElement("div", null, lbl.withdrawal.accepted.transfered, " / ", lbl.withdrawal.accepted.fee), pairedVals(wwl.accepted.transferStats, wwl.accepted.feeStats))), react.createElement("div", {
-	        className: "mb-2"
-	      }, react.createElement("h2", null, "".concat(this.props.labels.wallets.stats)), react.createElement("div", null, this.props.labels.wallets.balanceTotals, ":"), Object.keys(this.state.wallets.total).map(function (k) {
+	        className: "container-fluid"
+	      }, react.createElement("div", {
+	        className: "row"
+	      }, react.createElement("div", {
+	        className: "mb-3 col-12 col-sm-6"
+	      }, react.createElement("span", null, lbl.userCount, ": "), react.createElement("span", null, "".concat(this.state.userCount)))), react.createElement("div", {
+	        className: "row"
+	      }, react.createElement("div", {
+	        className: "mb-3 col-12 col-sm-6"
+	      }, react.createElement("h2", null, lbl.wallets.stats), react.createElement("div", null, this.props.labels.wallets.balanceTotals, ":"), Object.keys(this.state.wallets.total).map(function (k) {
 	        var v = _this2.state.wallets.total[k] / 100;
 	        return react.createElement("div", {
 	          className: "".concat(k.toLowerCase())
 	        }, react.createElement("span", null, k), react.createElement("span", null, ": "), react.createElement("span", null, "+", v.toFixed(2)));
-	      })));
+	      })), react.createElement("div", {
+	        className: "mb-3 col-12 col-sm-6"
+	      }, react.createElement("h2", null, this.props.labels.fee.stats), react.createElement("div", null, "".concat(this.props.labels.innerProfit), ": "), innerProfit)), react.createElement("div", {
+	        className: "row"
+	      }, react.createElement("div", {
+	        className: "mb-3 col-12 col-lg-6"
+	      }, react.createElement("h2", null, this.props.labels.deposit.stats), react.createElement("div", null, react.createElement("span", null, "".concat(this.props.labels.activeDeposits), ": "), react.createElement("span", null, this.state.activeDeposit.count)), react.createElement("div", {
+	        className: "mb-2"
+	      }, react.createElement("span", null, "".concat(this.props.labels.acceptedDeposits), ": "), react.createElement("span", null, this.state.acceptedDeposit.count)), react.createElement("div", null, react.createElement("span", null, "".concat(this.props.labels.deposit.income.realTotal)), react.createElement("span", null, " / "), react.createElement("span", null, "".concat(this.props.labels.deposit.income.feeTotal)), react.createElement("span", null, ":")), pairedVals(dpt.income.real, dpt.income.fee)), react.createElement("div", {
+	        className: "mb-3 col-12 col-lg-6"
+	      }, react.createElement("h2", null, this.props.labels.withdrawal.stats), react.createElement("div", null, react.createElement("span", null, "".concat(this.props.labels.withdrawal.new.count), ": "), react.createElement("span", null, this.state.withdrawal.new.count)), react.createElement("div", {
+	        className: "mb-2"
+	      }, react.createElement("div", null, lbl.withdrawal.new.amount, " / ", lbl.withdrawal.new.frozen), pairedVals(wwl.new.amountStats, wwl.new.frozenStats)), react.createElement("div", null, react.createElement("div", null, lbl.withdrawal.accepted.count, ": ", wwl.accepted.count), react.createElement("div", null, lbl.withdrawal.accepted.transfered, " / ", lbl.withdrawal.accepted.fee), pairedVals(wwl.accepted.transferStats, wwl.accepted.feeStats))))));
 	    }
 	  }]);
 
