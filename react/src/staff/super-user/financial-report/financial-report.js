@@ -1,7 +1,7 @@
 import React from 'react'
 import _ from 'lodash'
 
-export class FinancialReportView extends React.Component {
+export default class FinancialReportView extends React.Component {
     constructor(props) {
         const defLabels = {
             userCount: "User count",
