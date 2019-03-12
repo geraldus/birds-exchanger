@@ -273,12 +273,13 @@ exchangeParams
     -> ExchangeOrder
     -> (TargetParams, MatchParams, DiffProfit)
 exchangeParams target match =
-    let (_, tP, _, tRatio, tExpected) = orderParams target
+    let (_, _, _, tRatio, tExpected) = orderParams target
         (mLeft, _, _, mRatio, _) = orderParams match
         (tIn, mOut) =  if tExpected < mLeft
             then (tExpected, tExpected)
             else (mLeft, mLeft)
-        (tR, mR) = dirPairMatch (tRatio, 1/mRatio) (1/tRatio, mRatio) tP
+        tR = 1 / tRatio
+        mR = mRatio
         tOut = multiplyCents tR tIn
         mIn  = multiplyCents mR mOut
         tFee = calcFeeCents defaultExchangeFee tIn
