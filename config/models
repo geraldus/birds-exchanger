@@ -159,7 +159,7 @@ InnerProfitRecord
     currency Currency
     amountCents Int
     profitType ProfitType
-
+    deriving Show
 
 Info
     title Text
