@@ -100,22 +100,26 @@ export default class FinancialReportView extends React.Component {
                 total: {}
             }
         }
-        this.webSocket = new WebSocket(props.socket)
-        this.webSocket.onopen = this.webScoketOnOpen.bind(this)
-        this.webSocket.onmessage = this.webScoketOnMessage.bind(this)
+        this.webSocket = { }
+        this.webSocket.su = new WebSocket(props.suSocket)
+        this.webSocket.operator = new WebSocket(props.operatorSocket)
+        this.webSocket.su.onopen = this.webScoketOnOpen.bind(this)
+        this.webSocket.su.addEventListener('message', this.webScoketOnMessage.bind(this))
+        this.webSocket.operator.addEventListener('message', this.webScoketOnMessage.bind(this))
         this.handleJsonMessage = this.handleJsonMessage.bind(this)
         this.handleCountEvent = this.handleCountEvent.bind(this)
+        this.handleUpdateEvent = this.handleUpdateEvent.bind(this)
     }
 
     webScoketOnOpen () {
-        this.webSocket.send('user count')
-        this.webSocket.send('inner profit stats')
-        this.webSocket.send('active deposit count')
-        this.webSocket.send('accepted deposit count')
-        this.webSocket.send('deposited money')
-        this.webSocket.send('wallet stats')
-        this.webSocket.send('withdrawal stats')
-        this.webSocket.send('orders stats')
+        this.webSocket.su.send('user count')
+        this.webSocket.su.send('inner profit stats')
+        this.webSocket.su.send('active deposit count')
+        this.webSocket.su.send('accepted deposit count')
+        this.webSocket.su.send('deposited money')
+        this.webSocket.su.send('wallet stats')
+        this.webSocket.su.send('withdrawal stats')
+        this.webSocket.su.send('orders stats')
     }
 
     webScoketOnMessage (e) {
@@ -148,9 +152,63 @@ export default class FinancialReportView extends React.Component {
             case 'count-event':
                 this.handleCountEvent(json.object, json.value)
                 break
+            case 'update':
+                this.handleUpdateEvent(json.object, json.value)
+                break
             default:
                 console.log('Unexpected type', json)
         }
+    }
+
+    handleUpdateEvent (obj, val) {
+        this.setState(state => {
+            const s_ = Object.assign({}, state)
+            let newState = Object.assign({}, s_)
+            let c
+            switch (obj) {
+                case 'Deposit User Confirmation':
+                    c = s.deposit.active.counter
+                    newState = _.merge({}, s, { deposit: { active: { counter: c + 1 } } })
+                    break
+                case 'Withdrawal User Request':
+                    let ws_ = s_.withdrawal.new
+                    let wt_ = s_.wallets.total
+                    c = ws_.counter
+                    let stats = Object.assign({}, ws_)
+                    let wallets = Object.assign({}, wt_)
+                    let currency
+                    switch (val.method.contents.constructor) {
+                        case String:
+                            currency = val.method.contents
+                            if (currency == 'PZM') {
+                                stats.amountStats[currency] -= val.centsAmount
+                                stats.frozenStats[currency] -= val.frozenAmount
+                                wallets[currency] -= val.frozenAmount
+                            } else {
+                                console.warn('Unexpected request data', val.method.contents)
+                            }
+                            break
+                        case Array:
+                            currency = val.method.contents[1]
+                            if (currency == 'RUR') {
+                                stats.amountStats[currency] -= val.centsAmount
+                                stats.frozenStats[currency] -= val.frozenAmount
+                                wallets[currency] -= val.frozenAmount
+                                } else {
+                                    console.warn('Unexpected request data', val.method.contents)
+                                }
+                        break
+                        default:
+                            console.warn('Unexpected request data', val.method.contents)
+                    }
+                    stats.counter = c + 1
+                    newState = _.merge({}, state, { withdrawal: { new: stats }, wallets: { total: wallets } })
+                    break
+                default:
+                    console.log('Unexpected Object', obj, val)
+            }
+            return newState
+        })
     }
 
     handleCountEvent (obj, val) {

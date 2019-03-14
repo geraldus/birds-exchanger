@@ -1,5 +1,10 @@
 window.app = {
     config: {
+        beep: #{renderUrl (StaticR audio_bb2_mp3)},
+        operator: {
+            socket: #{renderUrl OperatorWebSocketR}
+                .replace(/^http(s?:\/\/)/, 'ws$1')
+        },
         su: {
             rootId: #{rootId},
             socket: #{renderUrl SuperUserWebSocketR}
@@ -37,6 +42,19 @@ window.app = {
     }
 }
 
-$(document).ready(() => {
-    outbirds_react.financialReportRunner()
-})
+const root = document.querySelector('#' + window.app.config.su.rootId)
+const wsSuAddr = window.app.config.su.socket
+const wsOperatorAddr = window.app.config.operator.socket
+const lbls = window.app.config.su.labels
+ReactDOM.render(
+    React.createElement(
+        outbirds_react.financialReportView,
+        {
+            suSocket: wsSuAddr,
+            operatorSocket: wsOperatorAddr,
+            labels: lbls
+        },
+        null
+    ),
+    root
+)
