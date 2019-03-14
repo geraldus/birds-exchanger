@@ -467,12 +467,12 @@
     }).a != 7;
   });
 
-  var document$1 = _global.document; // typeof document.createElement is 'object' in old IE
+  var document = _global.document; // typeof document.createElement is 'object' in old IE
 
-  var is = _isObject(document$1) && _isObject(document$1.createElement);
+  var is = _isObject(document) && _isObject(document.createElement);
 
   var _domCreate = function _domCreate(it) {
-    return is ? document$1.createElement(it) : {};
+    return is ? document.createElement(it) : {};
   };
 
   var _ie8DomDefine = !_descriptors && !_fails(function () {
@@ -566,7 +566,7 @@
       return store[key] || (store[key] = value !== undefined ? value : {});
     })('versions', []).push({
       version: _core.version,
-      mode: _library ? 'pure' : 'global',
+      mode: 'global',
       copyright: '© 2019 Denis Pushkarev (zloirock.ru)'
     });
   });
@@ -1565,9 +1565,9 @@
     return O;
   };
 
-  var document$2 = _global.document;
+  var document$1 = _global.document;
 
-  var _html = document$2 && document$2.documentElement;
+  var _html = document$1 && document$1.documentElement;
 
   var IE_PROTO$1 = _sharedKey('IE_PROTO');
 
@@ -3724,7 +3724,7 @@
   var defineProperty$1 = _objectDp.f;
 
   var _wksDefine = function _wksDefine(name) {
-    var $Symbol = _core.Symbol || (_core.Symbol = _library ? {} : _global.Symbol || {});
+    var $Symbol = _core.Symbol || (_core.Symbol = _global.Symbol || {});
     if (name.charAt(0) != '_' && !(name in $Symbol)) defineProperty$1($Symbol, name, {
       value: _wksExt.f(name)
     });
@@ -4697,33 +4697,33 @@
         }
       };
       _this = _possibleConstructorReturn(this, _getPrototypeOf(FinancialReportView).call(this, props));
-      _this.props.labels = merge_1(defLabels, props.labels); // Don't call this.setState() here!
+      _this.labels = merge_1({}, defLabels, props.labels); // Don't call this.setState() here!
 
       _this.state = {
         userCount: 0,
         innerProfit: {},
-        activeDeposit: {
-          count: 0,
-          items: []
-        },
-        acceptedDeposit: {
-          count: 0,
-          items: []
-        },
         deposit: {
           income: {
             real: {},
             fee: {}
+          },
+          active: {
+            counter: 0,
+            items: []
+          },
+          accepted: {
+            counter: 0,
+            items: []
           }
         },
         orders: {
           active: {
-            count: 0,
+            counter: 0,
             amountStats: {},
             leftStats: {}
           },
           executions: {
-            count: 0,
+            counter: 0,
             transferStats: {},
             amountStats: {},
             feeStats: {}
@@ -4731,12 +4731,12 @@
         },
         withdrawal: {
           new: {
-            count: 0,
+            counter: 0,
             amountStats: {},
             frozenStats: {}
           },
           accepted: {
-            count: 0,
+            counter: 0,
             feeStats: {},
             transferStats: {}
           }
@@ -4745,35 +4745,51 @@
           total: {}
         }
       };
-      _this.webSocket = new WebSocket(props.socket);
-      _this.webSocket.onopen = _this.webScoketOnOpen.bind(_assertThisInitialized(_this));
-      _this.webSocket.onmessage = _this.webScoketOnMessage.bind(_assertThisInitialized(_this));
+      _this.webSocket = {};
+      _this.webSocket.su = new WebSocket(props.suSocket);
+      _this.webSocket.operator = new WebSocket(props.operatorSocket);
+      _this.webSocket.su.onopen = _this.webScoketOnOpen.bind(_assertThisInitialized(_this));
+
+      _this.webSocket.su.addEventListener('message', _this.webScoketOnMessage.bind(_assertThisInitialized(_this)));
+
+      _this.webSocket.operator.addEventListener('message', _this.webScoketOnMessage.bind(_assertThisInitialized(_this)));
+
       _this.handleJsonMessage = _this.handleJsonMessage.bind(_assertThisInitialized(_this));
       _this.handleCountEvent = _this.handleCountEvent.bind(_assertThisInitialized(_this));
+      _this.handleUpdateEvent = _this.handleUpdateEvent.bind(_assertThisInitialized(_this));
       return _this;
     }
 
     _createClass(FinancialReportView, [{
       key: "webScoketOnOpen",
       value: function webScoketOnOpen() {
-        this.webSocket.send('user count');
-        this.webSocket.send('inner profit stats');
-        this.webSocket.send('active deposit count');
-        this.webSocket.send('accepted deposit count');
-        this.webSocket.send('deposited money');
-        this.webSocket.send('wallet stats');
-        this.webSocket.send('withdrawal stats');
-        this.webSocket.send('orders stats');
+        this.webSocket.su.send('user count');
+        this.webSocket.su.send('inner profit stats');
+        this.webSocket.su.send('active deposit count');
+        this.webSocket.su.send('accepted deposit count');
+        this.webSocket.su.send('deposited money');
+        this.webSocket.su.send('wallet stats');
+        this.webSocket.su.send('withdrawal stats');
+        this.webSocket.su.send('orders stats');
       }
     }, {
       key: "webScoketOnMessage",
       value: function webScoketOnMessage(e) {
         try {
-          var j = JSON.parse(e.data);
+          var j = JSON.parse(this.cleanJsonData(e.data));
           this.handleJsonMessage(j);
         } catch (error) {
-          console.log('Socket message', e.data);
+          console.groupCollapsed('Non-JSON message');
+          console.log('Event', e);
+          console.log('Socket message', this.cleanJsonData(e.data));
+          console.log('Error', error);
+          console.groupEnd();
         }
+      }
+    }, {
+      key: "cleanJsonData",
+      value: function cleanJsonData(d) {
+        return d.replace(/\\n/g, "\\n").replace(/\\'/g, "\\'").replace(/\\"/g, '\\"').replace(/\\&/g, "\\&").replace(/\\r/g, "\\r").replace(/\\t/g, "\\t").replace(/\\b/g, "\\b").replace(/\\f/g, "\\f");
       }
     }, {
       key: "handleJsonMessage",
@@ -4783,200 +4799,323 @@
             this.handleCountEvent(json.object, json.value);
             break;
 
+          case 'update':
+            this.handleUpdateEvent(json.object, json.value);
+            break;
+
           default:
             console.log('Unexpected type', json);
         }
       }
     }, {
+      key: "handleUpdateEvent",
+      value: function handleUpdateEvent(obj, val) {
+        this.setState(function (state) {
+          var s_ = Object.assign({}, state);
+          var newState = Object.assign({}, s_);
+          var c;
+
+          switch (obj) {
+            case 'Deposit User Confirmation':
+              c = s.deposit.active.counter;
+              newState = merge_1({}, s, {
+                deposit: {
+                  active: {
+                    counter: c + 1
+                  }
+                }
+              });
+              break;
+
+            case 'Withdrawal User Request':
+              var ws_ = s_.withdrawal.new;
+              var wt_ = s_.wallets.total;
+              c = ws_.counter;
+              var stats = Object.assign({}, ws_);
+              var wallets = Object.assign({}, wt_);
+              var currency;
+
+              switch (val.method.contents.constructor) {
+                case String:
+                  currency = val.method.contents;
+
+                  if (currency == 'PZM') {
+                    stats.amountStats[currency] -= val.centsAmount;
+                    stats.frozenStats[currency] -= val.frozenAmount;
+                    wallets[currency] -= val.frozenAmount;
+                  } else {
+                    console.warn('Unexpected request data', val.method.contents);
+                  }
+
+                  break;
+
+                case Array:
+                  currency = val.method.contents[1];
+
+                  if (currency == 'RUR') {
+                    stats.amountStats[currency] -= val.centsAmount;
+                    stats.frozenStats[currency] -= val.frozenAmount;
+                    wallets[currency] -= val.frozenAmount;
+                  } else {
+                    console.warn('Unexpected request data', val.method.contents);
+                  }
+
+                  break;
+
+                default:
+                  console.warn('Unexpected request data', val.method.contents);
+              }
+
+              stats.counter = c + 1;
+              newState = merge_1({}, state, {
+                withdrawal: {
+                  new: stats
+                },
+                wallets: {
+                  total: wallets
+                }
+              });
+              break;
+
+            default:
+              console.log('Unexpected Object', obj, val);
+          }
+
+          return newState;
+        });
+      }
+    }, {
       key: "handleCountEvent",
       value: function handleCountEvent(obj, val) {
-        var s = this.state;
-
         switch (obj) {
           case 'User Count':
-            this.setState(merge_1({}, s, {
-              userCount: val
-            }));
+            this.setState(function (s) {
+              return merge_1({}, s, {
+                userCount: val
+              });
+            });
             break;
 
           case 'Active Deposit Count':
-            this.setState(merge_1({}, s, {
-              activeDeposit: {
-                count: val
-              }
-            }));
+            this.setState(function (s) {
+              return merge_1({}, s, {
+                deposit: {
+                  active: {
+                    counter: val
+                  }
+                }
+              });
+            });
             break;
 
           case 'Accepted Deposit Count':
-            this.setState(merge_1({}, s, {
-              acceptedDeposit: {
-                count: val
-              }
-            }));
+            this.setState(function (s) {
+              return merge_1({}, s, {
+                deposit: {
+                  accepted: {
+                    counter: val
+                  }
+                }
+              });
+            });
             break;
 
           case 'Inner Profit':
-            this.setState(merge_1({}, s, {
-              innerProfit: val
-            }));
+            this.setState(function (s) {
+              return merge_1({}, s, {
+                innerProfit: val
+              });
+            });
             break;
 
           case 'Deposited Money':
-            this.setState(merge_1({}, s, {
-              deposit: {
-                income: {
-                  real: val
+            this.setState(function (s) {
+              return merge_1({}, s, {
+                deposit: {
+                  income: {
+                    real: val
+                  }
                 }
-              }
-            }));
+              });
+            });
             break;
 
           case 'Deposit Fee':
-            this.setState(merge_1({}, s, {
-              deposit: {
-                income: {
-                  fee: val
+            this.setState(function (s) {
+              return merge_1({}, s, {
+                deposit: {
+                  income: {
+                    fee: val
+                  }
                 }
-              }
-            }));
+              });
+            });
             break;
 
           case 'Wallet Stats':
-            this.setState(merge_1({}, s, {
-              wallets: {
-                total: val
-              }
-            }));
+            this.setState(function (s) {
+              return merge_1({}, s, {
+                wallets: {
+                  total: val
+                }
+              });
+            });
             break;
 
           case 'Withdrawal New Count':
-            this.setState(merge_1({}, s, {
-              withdrawal: {
-                new: {
-                  count: val
+            this.setState(function (s) {
+              return merge_1({}, s, {
+                withdrawal: {
+                  new: {
+                    counter: val
+                  }
                 }
-              }
-            }));
+              });
+            });
             break;
 
           case 'Withdrawal Accepted Count':
-            this.setState(merge_1({}, s, {
-              withdrawal: {
-                accepted: {
-                  count: val
+            this.setState(function (s) {
+              return merge_1({}, s, {
+                withdrawal: {
+                  accepted: {
+                    counter: val
+                  }
                 }
-              }
-            }));
+              });
+            });
             break;
 
           case 'Withdrawal New Amount Stats':
-            this.setState(merge_1({}, s, {
-              withdrawal: {
-                new: {
-                  amountStats: val
+            this.setState(function (s) {
+              return merge_1({}, s, {
+                withdrawal: {
+                  new: {
+                    amountStats: val
+                  }
                 }
-              }
-            }));
+              });
+            });
             break;
 
           case 'Withdrawal New Frozen Stats':
-            this.setState(merge_1({}, s, {
-              withdrawal: {
-                new: {
-                  frozenStats: val
+            this.setState(function (s) {
+              return merge_1({}, s, {
+                withdrawal: {
+                  new: {
+                    frozenStats: val
+                  }
                 }
-              }
-            }));
+              });
+            });
             break;
 
           case 'Withdrawal Accepted Transfer Stats':
-            this.setState(merge_1({}, s, {
-              withdrawal: {
-                accepted: {
-                  transferStats: val
+            this.setState(function (s) {
+              return merge_1({}, s, {
+                withdrawal: {
+                  accepted: {
+                    transferStats: val
+                  }
                 }
-              }
-            }));
+              });
+            });
             break;
 
           case 'Withdrawal Accepted Fee Stats':
-            this.setState(merge_1({}, s, {
-              withdrawal: {
-                accepted: {
-                  feeStats: val
+            this.setState(function (s) {
+              return merge_1({}, s, {
+                withdrawal: {
+                  accepted: {
+                    feeStats: val
+                  }
                 }
-              }
-            }));
+              });
+            });
             break;
 
           case 'Orders Active Count':
-            this.setState(merge_1({}, s, {
-              orders: {
-                active: {
-                  count: val
+            this.setState(function (s) {
+              return merge_1({}, s, {
+                orders: {
+                  active: {
+                    counter: val
+                  }
                 }
-              }
-            }));
+              });
+            });
             break;
 
           case 'Orders Active Amount Stats':
-            this.setState(merge_1({}, s, {
-              orders: {
-                active: {
-                  amountStats: val
+            this.setState(function (s) {
+              return merge_1({}, s, {
+                orders: {
+                  active: {
+                    amountStats: val
+                  }
                 }
-              }
-            }));
+              });
+            });
             break;
 
           case 'Orders Active Left Stats':
-            this.setState(merge_1({}, s, {
-              orders: {
-                active: {
-                  leftStats: val
+            this.setState(function (s) {
+              return merge_1({}, s, {
+                orders: {
+                  active: {
+                    leftStats: val
+                  }
                 }
-              }
-            }));
+              });
+            });
             break;
 
           case 'Order Executions Count':
-            this.setState(merge_1({}, s, {
-              orders: {
-                executions: {
-                  count: val
+            this.setState(function (s) {
+              return merge_1({}, s, {
+                orders: {
+                  executions: {
+                    counter: val
+                  }
                 }
-              }
-            }));
+              });
+            });
             break;
 
           case 'Order Executions Transfer Stats':
-            this.setState(merge_1({}, s, {
-              orders: {
-                executions: {
-                  transferStats: val
+            this.setState(function (s) {
+              return merge_1({}, s, {
+                orders: {
+                  executions: {
+                    transferStats: val
+                  }
                 }
-              }
-            }));
+              });
+            });
             break;
 
           case 'Order Executions Amount Stats':
-            this.setState(merge_1({}, s, {
-              orders: {
-                executions: {
-                  amountStats: val
+            this.setState(function (s) {
+              return merge_1({}, s, {
+                orders: {
+                  executions: {
+                    amountStats: val
+                  }
                 }
-              }
-            }));
+              });
+            });
             break;
 
           case 'Order Executions Fee Stats':
-            this.setState(merge_1({}, s, {
-              orders: {
-                executions: {
-                  feeStats: val
+            this.setState(function (s) {
+              return merge_1({}, s, {
+                orders: {
+                  executions: {
+                    feeStats: val
+                  }
                 }
-              }
-            }));
+              });
+            });
             break;
 
           default:
@@ -4988,7 +5127,6 @@
       value: function render() {
         var _this2 = this;
 
-        console.log(this.state.withdrawal);
         var ipState = this.state.innerProfit;
         var innerProfit = Object.keys(ipState).map(function (k) {
           var v = ipState[k] / 100;
@@ -5007,7 +5145,7 @@
           });
         };
 
-        var lbl = this.props.labels;
+        var lbl = this.labels;
         var wwl = this.state.withdrawal;
         var dpt = this.state.deposit;
         return react.createElement(react.Fragment, null, react.createElement("div", {
@@ -5020,45 +5158,215 @@
           className: "row"
         }, react.createElement("div", {
           className: "mb-3 col-12 col-sm-6"
-        }, react.createElement("h2", null, lbl.wallets.stats), react.createElement("div", null, this.props.labels.wallets.balanceTotals, ":"), Object.keys(this.state.wallets.total).map(function (k) {
+        }, react.createElement("h2", null, lbl.wallets.stats), react.createElement("div", null, lbl.wallets.balanceTotals, ":"), Object.keys(this.state.wallets.total).map(function (k) {
           var v = _this2.state.wallets.total[k] / 100;
           return react.createElement("div", {
             className: "".concat(k.toLowerCase())
           }, react.createElement("span", null, k), react.createElement("span", null, ": "), react.createElement("span", null, "+", v.toFixed(2)));
         })), react.createElement("div", {
           className: "mb-3 col-12 col-sm-6"
-        }, react.createElement("h2", null, this.props.labels.fee.stats), react.createElement("div", null, "".concat(this.props.labels.innerProfit), ": "), innerProfit)), react.createElement("div", {
+        }, react.createElement("h2", null, lbl.fee.stats), react.createElement("div", null, lbl.innerProfit, ": "), innerProfit)), react.createElement("div", {
           className: "row"
         }, react.createElement("div", {
           className: "mb-3 col-12 col-lg-6"
-        }, react.createElement("h2", null, this.props.labels.deposit.stats), react.createElement("div", null, react.createElement("span", null, "".concat(this.props.labels.activeDeposits), ": "), react.createElement("span", null, this.state.activeDeposit.count)), react.createElement("div", {
+        }, react.createElement("h2", null, lbl.deposit.stats), react.createElement("div", null, react.createElement("span", null, lbl.activeDeposits, ": "), react.createElement("span", null, this.state.deposit.active.counter)), react.createElement("div", {
           className: "mb-2"
-        }, react.createElement("span", null, "".concat(this.props.labels.acceptedDeposits), ": "), react.createElement("span", null, this.state.acceptedDeposit.count)), react.createElement("div", null, react.createElement("span", null, "".concat(this.props.labels.deposit.income.realTotal)), react.createElement("span", null, " / "), react.createElement("span", null, "".concat(this.props.labels.deposit.income.feeTotal)), react.createElement("span", null, ":")), pairedVals(dpt.income.real, dpt.income.fee)), react.createElement("div", {
+        }, react.createElement("span", null, lbl.acceptedDeposits, ": "), react.createElement("span", null, this.state.deposit.accepted.counter)), react.createElement("div", null, react.createElement("span", null, lbl.deposit.income.realTotal), react.createElement("span", null, " / "), react.createElement("span", null, lbl.deposit.income.feeTotal), react.createElement("span", null, ":")), pairedVals(dpt.income.real, dpt.income.fee)), react.createElement("div", {
           className: "mb-3 col-12 col-lg-6"
-        }, react.createElement("h2", null, this.props.labels.withdrawal.stats), react.createElement("div", null, react.createElement("span", null, "".concat(this.props.labels.withdrawal.new.count), ": "), react.createElement("span", null, this.state.withdrawal.new.count)), react.createElement("div", {
+        }, react.createElement("h2", null, lbl.withdrawal.stats), react.createElement("div", null, react.createElement("span", null, lbl.withdrawal.new.count, ": "), react.createElement("span", null, this.state.withdrawal.new.counter)), react.createElement("div", {
           className: "mb-2"
-        }, react.createElement("div", null, lbl.withdrawal.new.amount, " / ", lbl.withdrawal.new.frozen), pairedVals(wwl.new.amountStats, wwl.new.frozenStats)), react.createElement("div", null, react.createElement("div", null, lbl.withdrawal.accepted.count, ": ", wwl.accepted.count), react.createElement("div", null, lbl.withdrawal.accepted.transfered, " / ", lbl.withdrawal.accepted.fee), pairedVals(wwl.accepted.transferStats, wwl.accepted.feeStats))))));
+        }, react.createElement("div", null, lbl.withdrawal.new.amount, " / ", lbl.withdrawal.new.frozen), pairedVals(wwl.new.amountStats, wwl.new.frozenStats)), react.createElement("div", null, react.createElement("div", null, lbl.withdrawal.accepted.count, ": ", wwl.accepted.counter), react.createElement("div", null, lbl.withdrawal.accepted.transfered, " / ", lbl.withdrawal.accepted.fee), pairedVals(wwl.accepted.transferStats, wwl.accepted.feeStats))))));
       }
     }]);
 
     return FinancialReportView;
   }(react.Component);
 
-  var runFinancialReport = (function () {
-    var root = document.querySelector('#' + window.app.config.su.rootId);
-    var wsAddr = window.app.config.su.socket;
-    var lbls = window.app.config.su.labels;
-    ReactDOM.render(react.createElement(FinancialReportView, {
-      socket: wsAddr,
-      labels: lbls
-    }), root);
-  });
+  var Beep =
+  /*#__PURE__*/
+  function (_React$Component) {
+    _inherits(Beep, _React$Component);
 
-  var FinancialReportView$1 = FinancialReportView$1;
-  var financialReportRunner = runFinancialReport;
+    function Beep(props) {
+      var _this;
 
-  exports.FinancialReportView = FinancialReportView$1;
-  exports.financialReportRunner = financialReportRunner;
+      _classCallCheck(this, Beep);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(Beep).call(this, props));
+      _this.audio = new Audio(props.src);
+      _this.beep = _this.beep.bind(_assertThisInitialized(_this));
+      return _this;
+    }
+
+    _createClass(Beep, [{
+      key: "beep",
+      value: function beep() {
+        var playPromise = this.audio.play();
+
+        if (playPromise !== undefined) {
+          playPromise.then(function (_) {// Automatic playback started!
+            // Show playing UI
+          }).catch(function (error) {
+            // Auto-play was prevented
+            // Show paused UI.
+            console.warn(error);
+            alert('Чтобы слышать звуковые уведомления перейдите на главную страницу, а потом вернитесь');
+          });
+        }
+      }
+    }, {
+      key: "render",
+      value: function render() {
+        return null;
+      }
+    }]);
+
+    return Beep;
+  }(react.Component);
+
+  var OperatorNotifier =
+  /*#__PURE__*/
+  function (_React$Component) {
+    _inherits(OperatorNotifier, _React$Component);
+
+    function OperatorNotifier(props) {
+      var _this;
+
+      _classCallCheck(this, OperatorNotifier);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(OperatorNotifier).call(this, props));
+      _this.listenSocket = _this.listenSocket.bind(_assertThisInitialized(_this));
+      _this.webScoketOnMessage = _this.webScoketOnMessage.bind(_assertThisInitialized(_this));
+      _this.handleJsonMessage = _this.handleJsonMessage.bind(_assertThisInitialized(_this));
+      _this.handleUpdateEvent = _this.handleUpdateEvent.bind(_assertThisInitialized(_this));
+      _this.beepComponent = react.createElement(Beep, {
+        ref: function ref(beepC) {
+          console.log(beepC);
+          _this.beep = beepC;
+        },
+        src: window.app.config.beep
+      });
+      _this.state = {
+        deposit: {
+          confirmation: {
+            counter: 0
+          }
+        },
+        withdrawal: {
+          request: {
+            counter: 0
+          }
+        }
+      };
+
+      if (props.socket) {
+        switch (props.socket.constructor) {
+          case WebSocket:
+            _this.listenSocket(props.socket);
+
+            break;
+
+          default:
+            console.error('Warning!  Implement cases when props.socket is string containing socket address');
+            break;
+        }
+      }
+
+      return _this;
+    }
+
+    _createClass(OperatorNotifier, [{
+      key: "listenSocket",
+      value: function listenSocket(socket) {
+        var _this2 = this;
+
+        this.socket = socket;
+        this.socket.addEventListener('message', function (e) {
+          _this2.webScoketOnMessage(e);
+        });
+      }
+    }, {
+      key: "webScoketOnMessage",
+      value: function webScoketOnMessage(e) {
+        try {
+          var j = JSON.parse(e.data);
+          this.handleJsonMessage(j);
+        } catch (error) {
+          console.groupCollapsed('Non JSON socket messages');
+          console.warn(error);
+          console.groupEnd();
+          console.log('Socket message', e);
+        }
+      }
+    }, {
+      key: "handleJsonMessage",
+      value: function handleJsonMessage(json) {
+        switch (json.type) {
+          case 'update':
+            this.handleUpdateEvent(json.object, json.value);
+            break;
+
+          default:
+            console.log('Unexpected type', json);
+        }
+      }
+    }, {
+      key: "handleUpdateEvent",
+      value: function handleUpdateEvent(obj, val) {
+        switch (obj) {
+          case 'Deposit User Confirmation':
+            this.setState(function (s) {
+              var x = s.deposit.confirmation.counter;
+              return {
+                deposit: {
+                  confirmation: {
+                    counter: x + 1
+                  }
+                }
+              };
+            });
+            if (this.beep) this.beep.beep();
+            break;
+
+          case 'Withdrawal User Request':
+            this.setState(function (s) {
+              var x = s.withdrawal.request.counter;
+              return {
+                withdrawal: {
+                  request: {
+                    counter: x + 1
+                  }
+                }
+              };
+            });
+            if (this.beep) this.beep.beep();
+            break;
+        }
+      }
+    }, {
+      key: "render",
+      value: function render() {
+        console.log(this.state);
+        var confirmations = this.state.deposit.confirmation.counter;
+        var requests = this.state.withdrawal.request.counter;
+        var loc = window.location;
+        var anyNotifications = confirmations > 0 || requests > 0;
+        return react.createElement(react.Fragment, null, anyNotifications && react.createElement("div", {
+          className: "notify alert"
+        }, confirmations > 0 && react.createElement("span", null, "\u041D\u043E\u0432\u044B\u0445 \u0437\u0430\u044F\u0432\u043E\u043A \u043D\u0430 \u043F\u043E\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u0435: ", confirmations, ". "), requests > 0 && react.createElement("span", null, "\u041D\u043E\u0432\u044B\u0445 \u0437\u0430\u044F\u0432\u043E\u043A \u043D\u0430 \u0432\u044B\u0432\u043E\u0434: ", requests, ". "), react.createElement("span", null, "\u041F\u043E\u0436\u0430\u043B\u0443\u0439\u0441\u0442\u0430, "), react.createElement("a", {
+          href: loc
+        }, "\u043E\u0431\u043D\u043E\u0432\u0438\u0442\u0435 \u21BB"), react.createElement("span", null, " \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u0443")), this.beepComponent);
+      }
+    }]);
+
+    return OperatorNotifier;
+  }(react.Component);
+
+  var financialReportView = FinancialReportView;
+  var notifier = OperatorNotifier;
+
+  exports.financialReportView = financialReportView;
+  exports.notifier = notifier;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
