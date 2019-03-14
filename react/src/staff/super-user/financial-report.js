@@ -120,14 +120,27 @@ export default class FinancialReportView extends React.Component {
 
     webScoketOnMessage (e) {
         try {
-            const j = JSON.parse(e.data)
+            const j = JSON.parse(this.cleanJsonData(e.data))
             this.handleJsonMessage(j)
         } catch (error) {
             console.groupCollapsed('Non-JSON message')
             console.log('Event', e)
+            console.log('Socket message', this.cleanJsonData(e.data))
             console.log('Error', error)
             console.groupEnd()
         }
+    }
+
+    cleanJsonData (d) {
+        return (d
+            .replace(/\\n/g, "\\n")
+            .replace(/\\'/g, "\\'")
+            .replace(/\\"/g, '\\"')
+            .replace(/\\&/g, "\\&")
+            .replace(/\\r/g, "\\r")
+            .replace(/\\t/g, "\\t")
+            .replace(/\\b/g, "\\b")
+            .replace(/\\f/g, "\\f"))
     }
 
     handleJsonMessage (json) {
