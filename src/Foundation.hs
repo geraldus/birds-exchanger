@@ -67,16 +67,6 @@ data App = App
     , appChannels    :: AppChannels
     }
 
-data MenuItem = MenuItem
-    { menuItemLabel          :: Text
-    , menuItemRoute          :: Route App
-    , menuItemAccessCallback :: Bool
-    }
-
-data MenuTypes
-    = NavbarLeft MenuItem
-    | NavbarRight MenuItem
-
 -- This is where we define all of the routes in our application. For a full
 -- explanation of the syntax, please see:
 -- http://www.yesodweb.com/book/routing-and-handlers
