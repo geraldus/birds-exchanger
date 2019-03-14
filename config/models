@@ -37,7 +37,7 @@ WalletBalanceTransaction
     deriving Show
 
 
-DepositRequest
+DepositRequest json
     currency Currency
     transferMethod TransferMethod
     centsAmount Int

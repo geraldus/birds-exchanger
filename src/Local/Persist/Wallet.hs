@@ -1,6 +1,8 @@
+{-# LANGUAGE DeriveGeneric #-}
 module Local.Persist.Wallet where
 
 import           ClassyPrelude.Yesod
+import           Data.Aeson
 
 
 data WalletTransactionType
@@ -15,8 +17,12 @@ data WalletTransactionType
     | ExchangeExchange Int        -- ^ + positive
     | Penality Int                -- ^ - negative
     | Bonus Int                   -- ^ + positive
-    deriving (Show, Read, Eq)
+    deriving (Generic, Show, Read, Eq)
 derivePersistField "WalletTransactionType"
+
+instance ToJSON WalletTransactionType where
+    toEncoding = genericToEncoding defaultOptions
+instance FromJSON WalletTransactionType
 
 
 data DepositRequestStatus
@@ -27,7 +33,7 @@ data DepositRequestStatus
     | OperatorAccepted Text
     | OperatorArchived Text
     | TimeoutArchieved Text
-    deriving (Show, Read, Eq)
+    deriving (Generic, Show, Read, Eq)
 derivePersistField "DepositRequestStatus"
 
 data WithdrawalStatus
@@ -37,5 +43,13 @@ data WithdrawalStatus
     | WsOperatorExecuted Text
     | WsOperatorArchived Text
     | WsTimeoutArchieved Text
-    deriving (Show, Read, Eq)
+    deriving (Generic, Show, Read, Eq)
 derivePersistField "WithdrawalStatus"
+
+instance ToJSON DepositRequestStatus where
+    toEncoding = genericToEncoding defaultOptions
+instance FromJSON DepositRequestStatus
+
+instance ToJSON WithdrawalStatus where
+    toEncoding = genericToEncoding defaultOptions
+instance FromJSON WithdrawalStatus

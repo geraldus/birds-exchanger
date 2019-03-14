@@ -1,35 +1,54 @@
+{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes       #-}
 module Local.Persist.Currency where
 
 import           ClassyPrelude.Yesod
+import           Data.Aeson
 import           Text.Read           ( readMaybe )
 
 
 data CurrencyType
     = FiatT
     | CryptoT
-    deriving (Show, Read, Eq)
+    deriving (Generic, Show, Read, Eq)
 derivePersistField "CurrencyType"
 
 data FiatCurrency
     = RUR
     | USD
-    deriving (Show, Read, Eq)
+    deriving (Generic, Show, Read, Eq)
 derivePersistField "FiatCurrency"
 
 data CryptoCurrency
     = PZM
     | ETH
     | BTC
-    deriving (Show, Read, Eq)
+    deriving (Generic, Show, Read, Eq)
 derivePersistField "CryptoCurrency"
 
 data Currency
     = FiatC FiatCurrency
     | CryptoC CryptoCurrency
-    deriving (Show, Read, Eq)
+    deriving (Generic, Show, Read, Eq)
 derivePersistField "Currency"
+
+instance ToJSON CurrencyType where
+    toEncoding = genericToEncoding defaultOptions
+instance FromJSON CurrencyType
+
+instance ToJSON FiatCurrency where
+    toEncoding = genericToEncoding defaultOptions
+instance FromJSON FiatCurrency
+
+instance ToJSON CryptoCurrency where
+    toEncoding = genericToEncoding defaultOptions
+instance FromJSON CryptoCurrency
+
+instance ToJSON Currency where
+    toEncoding = genericToEncoding defaultOptions
+instance FromJSON Currency
+
 
 pzmC :: Currency
 pzmC = CryptoC PZM
@@ -79,14 +98,27 @@ data FiatTransferMethod
     | TinkoffBankCard2CardFTM
     | PayPalTransferFTM
     | QiwiFTM
-    deriving (Show, Read, Eq)
+    deriving (Generic, Show, Read, Eq)
 derivePersistField "FiatTransferMethod"
 
 data TransferMethod
     = FiatTM FiatTransferMethod FiatCurrency
     | CryptoTM CryptoCurrency
-    deriving (Show, Read, Eq)
+    deriving (Generic, Show, Read, Eq)
 derivePersistField "TransferMethod"
+
+instance ToJSON FiatTransferMethod where
+    toEncoding = genericToEncoding defaultOptions
+instance FromJSON FiatTransferMethod
+
+instance ToJSON TransferMethod where
+    toEncoding = genericToEncoding defaultOptions
+instance FromJSON TransferMethod
+
+instance PathPiece TransferMethod where
+    fromPathPiece = readMaybe . unpack
+    toPathPiece = pack . show
+
 
 tmSber :: FiatCurrency -> TransferMethod
 tmSber = FiatTM SberBankCard2CardFTM
@@ -147,8 +179,3 @@ tmTShort (CryptoTM cc) = [shamlet|
     #{cCurrencyTLong cc} #
         <small .text-muted>#{cCurrencyCodeT cc}
     |]
-
-
-instance PathPiece TransferMethod where
-    fromPathPiece = readMaybe . unpack
-    toPathPiece = pack . show
