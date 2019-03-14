@@ -27,6 +27,7 @@ ClientProfilePageTitle: Мой портфель
 ClientOrdersPageTitle: Мои ордера
 ClientDepositPageTitle: Пополнение счёта
 ClientWithdrawalPageTitle: Вывод средств
+OneClickExchange: Обмен в один клик
 
 # FORM ERROS
 PositiveValueRequired: должно быть положительным числом
