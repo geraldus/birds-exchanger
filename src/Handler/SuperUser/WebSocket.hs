@@ -13,7 +13,6 @@ import           Utils.Money
 import           Yesod.WebSockets
 
 import qualified Data.Aeson             as A
-import           Data.Ratio
 import           Database.Esqueleto
 
 default (Text, String)
