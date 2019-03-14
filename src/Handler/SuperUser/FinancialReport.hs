@@ -11,6 +11,7 @@ getSuperUserFinancialReportViewR = do
     requireSu
     renderUrl <- getUrlRender
     rm <- getMessageRender
+
     let reactBuild =
 #ifdef DEVELOPMENT
             "development"
@@ -20,6 +21,6 @@ getSuperUserFinancialReportViewR = do
     defaultLayout $ do
         addScriptRemote $ "https://unpkg.com/react@16/umd/react." <> reactBuild <> ".js"
         addScriptRemote $ "https://unpkg.com/react-dom@16/umd/react-dom." <> reactBuild <> ".js"
-        addScriptAttrs (StaticR js_bundle_js) []
         rootId <- newIdent
         $(widgetFile "su/financial-report")
+        addScriptAttrs (StaticR js_bundle_js) []

@@ -74,7 +74,7 @@ DepositReject
     UniqueDepositReject requestId
     deriving Show
 
-WithdrawalRequest
+WithdrawalRequest json
     walletId UserWalletId
     method TransferMethod
     addressee Text
