@@ -1,6 +1,5 @@
-import  "./staff/super-user/financial-report/financial-report"
-import runFinancialReport from "./staff/super-user/financial-report/runner"
+import FinancialReportView from "./staff/super-user/financial-report"
+import Notifier from "./staff/operator/notifier"
 
-export const FinancialReportView = FinancialReportView
-
-export const financialReportRunner = runFinancialReport
+export const financialReportView = FinancialReportView
+export const notifier = Notifier
