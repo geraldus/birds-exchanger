@@ -1,0 +1,3 @@
+<div #notifications .container-fluid>
+    <div .row>
+        <div .col-10 .mx-auto .react-root .mb-2>

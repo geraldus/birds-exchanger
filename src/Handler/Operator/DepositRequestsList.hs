@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP               #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes       #-}
 {-# LANGUAGE RecordWildCards   #-}
@@ -26,10 +27,19 @@ getOperatorDepositRequestsListR = do
     list <-
         runDB $ rawSql s [toPersistValue ClientConfirmed] :: Handler
             [(Entity DepositRequest, Entity UserWallet, Entity User)]
+    let reactBuild =
+#ifdef DEVELOPMENT
+            "development"
+#else
+            "production.min"
+#endif
     defaultLayout $ do
+        addScriptRemote $ "https://unpkg.com/react@16/umd/react." <> reactBuild <> ".js"
+        addScriptRemote $ "https://unpkg.com/react-dom@16/umd/react-dom." <> reactBuild <> ".js"
         $(widgetFile "operator/common")
         $(widgetFile "operator/request-list-common")
         $(widgetFile "operator/deposit-requests-list")
+        addScriptAttrs (StaticR js_bundle_js) []
   where
     s = concat
         [ "SELECT ??, ??, ?? FROM deposit_request, user_wallet, \"user\""

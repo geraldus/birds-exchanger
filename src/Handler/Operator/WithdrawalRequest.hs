@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP               #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes       #-}
 {-# LANGUAGE RecordWildCards   #-}
@@ -26,16 +27,27 @@ getOperatorWithdrawalRequestsListR = do
     list <-
         runDB $ rawSql s [ toPersistValue WsNew ] :: Handler
             [(Entity WithdrawalRequest, Entity UserWallet, Entity User)]
+    let reactBuild =
+#ifdef DEVELOPMENT
+            "development"
+#else
+            "production.min"
+#endif
+    renderUrl <- getUrlRender
     defaultLayout $ do
+        addScriptRemote $ "https://unpkg.com/react@16/umd/react." <> reactBuild <> ".js"
+        addScriptRemote $ "https://unpkg.com/react-dom@16/umd/react-dom." <> reactBuild <> ".js"
+        $(widgetFile "operator/common")
         $(widgetFile "operator/request-list-common")
         $(widgetFile "operator/withdrawal-requests-list")
+        addScriptAttrs (StaticR js_bundle_js) []
   where
-    s
-        = "SELECT ??, ??, ?? FROM withdrawal_request, user_wallet, \"user\" \
-        \ WHERE withdrawal_request.status = ? \
-        \ AND withdrawal_request.wallet_id = user_wallet.id \
-        \ AND user_wallet.user_id = \"user\".id \
-        \ ORDER BY withdrawal_request.created DESC"
+    s = concat
+        [ "SELECT ??, ??, ?? FROM withdrawal_request, user_wallet, \"user\" "
+        , "WHERE withdrawal_request.status = ? "
+        , "AND withdrawal_request.wallet_id = user_wallet.id "
+        , "AND user_wallet.user_id = \"user\".id "
+        , "ORDER BY withdrawal_request.created DESC" ]
 
 
 renderReqAddress :: UserWallet -> WithdrawalRequest -> Html
