@@ -51,33 +51,34 @@ export default class FinancialReportView extends React.Component {
             }
         }
         super(props)
-        this.props.labels = _.merge(defLabels, props.labels)
+        this.labels = _.merge({}, defLabels, props.labels)
         // Don't call this.setState() here!
         this.state = {
             userCount: 0,
             innerProfit: {},
-            activeDeposit: {
-                count: 0,
-                items: []
-            },
-            acceptedDeposit: {
-                count: 0,
-                items: []
-            },
             deposit: {
                 income: {
                     real: {},
                     fee: {}
-                }
+                },
+                active: {
+                    counter: 0,
+                    items: []
+                },
+                accepted: {
+                    counter: 0,
+                    items: []
+                },
+
             },
             orders: {
                 active: {
-                    count: 0,
+                    counter: 0,
                     amountStats: {},
                     leftStats: {}
                 },
                 executions: {
-                    count: 0,
+                    counter: 0,
                     transferStats: {},
                     amountStats: {},
                     feeStats: {}
@@ -85,12 +86,12 @@ export default class FinancialReportView extends React.Component {
             },
             withdrawal: {
                 new: {
-                    count: 0,
+                    counter: 0,
                     amountStats: {},
                     frozenStats: {}
                 },
                 accepted: {
-                    count: 0,
+                    counter: 0,
                     feeStats: {},
                     transferStats: {}
                 }
@@ -122,7 +123,10 @@ export default class FinancialReportView extends React.Component {
             const j = JSON.parse(e.data)
             this.handleJsonMessage(j)
         } catch (error) {
-            console.log('Socket message', e.data)
+            console.groupCollapsed('Non-JSON message')
+            console.log('Event', e)
+            console.log('Error', error)
+            console.groupEnd()
         }
     }
 
@@ -142,10 +146,10 @@ export default class FinancialReportView extends React.Component {
                 this.setState(s => _.merge({}, s, { userCount: val }))
                 break
             case 'Active Deposit Count':
-                this.setState(s => _.merge({}, s, { activeDeposit: { count: val } }))
+                this.setState(s => _.merge({}, s, { deposit: { active: { counter: val } } }))
                 break
             case 'Accepted Deposit Count':
-                this.setState(s => _.merge({}, s, { acceptedDeposit: { count: val } }))
+                this.setState(s => _.merge({}, s, { deposit: { accepted: { counter: val } } }))
                 break
             case 'Inner Profit':
                 this.setState(s => _.merge({}, s, { innerProfit: val }))
@@ -160,10 +164,10 @@ export default class FinancialReportView extends React.Component {
                 this.setState(s => _.merge({}, s, { wallets: { total: val } }))
                 break
             case 'Withdrawal New Count':
-                this.setState(s => _.merge({}, s, { withdrawal: { new: { count: val } } }))
+                this.setState(s => _.merge({}, s, { withdrawal: { new: { counter: val } } }))
                 break
             case 'Withdrawal Accepted Count':
-                this.setState(s => _.merge({}, s, { withdrawal: { accepted: { count: val } } }))
+                this.setState(s => _.merge({}, s, { withdrawal: { accepted: { counter: val } } }))
                 break
             case 'Withdrawal New Amount Stats':
                 this.setState(s => _.merge({}, s, { withdrawal: { new: { amountStats: val } } }))
@@ -178,7 +182,7 @@ export default class FinancialReportView extends React.Component {
                 this.setState(s => _.merge({}, s, { withdrawal: { accepted: { feeStats: val } } }))
                 break
             case 'Orders Active Count':
-                this.setState(s => _.merge({}, s, { orders: { active: { count: val } } }))
+                this.setState(s => _.merge({}, s, { orders: { active: { counter: val } } }))
                 break
             case 'Orders Active Amount Stats':
                 this.setState(s => _.merge({}, s, { orders: { active: { amountStats: val } } }))
@@ -187,7 +191,7 @@ export default class FinancialReportView extends React.Component {
                 this.setState(s => _.merge({}, s, { orders: { active: { leftStats: val } } }))
                 break
             case 'Order Executions Count':
-                this.setState(s => _.merge({}, s, { orders: { executions: { count: val } } }))
+                this.setState(s => _.merge({}, s, { orders: { executions: { counter: val } } }))
                 break
             case 'Order Executions Transfer Stats':
                 this.setState(s => _.merge({}, s, { orders: { executions: { transferStats: val } } }))
@@ -205,7 +209,6 @@ export default class FinancialReportView extends React.Component {
     }
 
     render () {
-        console.log(this.state.withdrawal)
         let ipState = this.state.innerProfit
         const innerProfit = Object
                 .keys(ipState)
@@ -228,7 +231,7 @@ export default class FinancialReportView extends React.Component {
                     <span>+{f.toFixed(2)}</span>
                 </div>)})
         }
-        const lbl = this.props.labels
+        const lbl = this.labels
         const wwl = this.state.withdrawal
         const dpt = this.state.deposit
         return(<React.Fragment>
@@ -242,7 +245,7 @@ export default class FinancialReportView extends React.Component {
                 <div className="row">
                     <div className="mb-3 col-12 col-sm-6">
                         <h2>{lbl.wallets.stats}</h2>
-                        <div>{this.props.labels.wallets.balanceTotals}:</div>
+                        <div>{lbl.wallets.balanceTotals}:</div>
                         {Object.keys(this.state.wallets.total).map(k => {
                             let v = this.state.wallets.total[k] / 100
                             return(<div className={`${k.toLowerCase()}`}>
@@ -253,42 +256,42 @@ export default class FinancialReportView extends React.Component {
                         }
                     </div>
                     <div className="mb-3 col-12 col-sm-6">
-                        <h2>{this.props.labels.fee.stats}</h2>
-                        <div>{`${this.props.labels.innerProfit}`}: </div>
+                        <h2>{lbl.fee.stats}</h2>
+                        <div>{lbl.innerProfit}: </div>
                         {innerProfit}
                     </div>
                 </div>
                 <div className="row">
                     <div className="mb-3 col-12 col-lg-6">
-                        <h2>{this.props.labels.deposit.stats}</h2>
+                        <h2>{lbl.deposit.stats}</h2>
                         <div>
-                            <span>{`${this.props.labels.activeDeposits}`}: </span>
-                            <span>{this.state.activeDeposit.count}</span>
+                            <span>{lbl.activeDeposits}: </span>
+                            <span>{this.state.deposit.active.counter}</span>
                         </div>
                         <div className="mb-2">
-                            <span>{`${this.props.labels.acceptedDeposits}`}: </span>
-                            <span>{this.state.acceptedDeposit.count}</span>
+                            <span>{lbl.acceptedDeposits}: </span>
+                            <span>{this.state.deposit.accepted.counter}</span>
                         </div>
                         <div>
-                            <span>{`${this.props.labels.deposit.income.realTotal}`}</span>
+                            <span>{lbl.deposit.income.realTotal}</span>
                             <span> / </span>
-                            <span>{`${this.props.labels.deposit.income.feeTotal}`}</span>
+                            <span>{lbl.deposit.income.feeTotal}</span>
                             <span>:</span>
                         </div>
                         {pairedVals(dpt.income.real, dpt.income.fee)}
                     </div>
                     <div className="mb-3 col-12 col-lg-6">
-                        <h2>{this.props.labels.withdrawal.stats}</h2>
+                        <h2>{lbl.withdrawal.stats}</h2>
                         <div>
-                            <span>{`${this.props.labels.withdrawal.new.count}`}: </span>
-                            <span>{this.state.withdrawal.new.count}</span>
+                            <span>{lbl.withdrawal.new.count}: </span>
+                            <span>{this.state.withdrawal.new.counter}</span>
                         </div>
                         <div className="mb-2">
                             <div>{lbl.withdrawal.new.amount} / {lbl.withdrawal.new.frozen}</div>
                             {pairedVals(wwl.new.amountStats, wwl.new.frozenStats)}
                         </div>
                         <div>
-                            <div>{lbl.withdrawal.accepted.count}: {wwl.accepted.count}</div>
+                            <div>{lbl.withdrawal.accepted.count}: {wwl.accepted.counter}</div>
                             <div>{lbl.withdrawal.accepted.transfered} / {lbl.withdrawal.accepted.fee}</div>
                             {pairedVals(wwl.accepted.transferStats, wwl.accepted.feeStats)}
                         </div>
