@@ -100,11 +100,16 @@ postDepositConfirmRequestR :: Handler Html
 postDepositConfirmRequestR = do
     clientId <- requireClientId
     code <- runInputPost $ ireq textField "transaction-code"
-    withClientRequestByCode code $ \(Entity tid t) -> do
-        runDB $
-            update tid [DepositRequestStatus =. ClientConfirmed]
-        setMessageI MsgDepositRequestConfirmedMessage
-        redirect DepositR
+    ch <- depositUserConfirm . appChannels <$> getYesod
+    withClientRequestByCode code $ \request@(Entity tid t) ->
+        if clientId == depositRequestUserId t
+            then do
+                runDB $
+                    update tid [DepositRequestStatus =. ClientConfirmed]
+                liftIO . atomically $ writeTChan ch request
+                setMessageI MsgDepositRequestConfirmedMessage
+                redirect DepositR
+            else notFound
 
 postClientCancelDepositR :: Handler Html
 postClientCancelDepositR = do

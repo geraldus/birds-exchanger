@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleContexts  #-}
+{-# LANGUAGE GADTs             #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes       #-}
 {-# LANGUAGE RecordWildCards   #-}
@@ -74,13 +75,18 @@ postWithdrawalCreateR = do
                             reasonId
                             walletCents
                             time
-                    _ <- runDB $ do
-                        insert record
-                        insert transaction
+                    (recId, _) <- runDB $ do
+                        r <- insert record
+                        t <- insert transaction
                         update wid [UserWalletAmountCents -=. amount2Freeze]
+                        return (r, t)
+                    notify' (Entity recId record)
                     setMessage "Заявка на вывод успешно создана"
                     redirect WithdrawalR
-
+  where
+    notify' r = do
+        ch <- withdrawalRequest . appChannels <$> getYesod
+        liftIO . atomically $ writeTChan ch r
 
 defaultWidget :: Text -> Widget -> Enctype -> Maybe [Text] -> Widget
 defaultWidget formId widget enctype mayError = do
