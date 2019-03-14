@@ -1,4 +1,5 @@
 
+
 $(document).ready(() => {
     const inputs = $('.deposit-amount-input')
 
