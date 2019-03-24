@@ -6,13 +6,14 @@ import Autocomplete from 'react-autocomplete'
 export default class Form extends React.Component {
     constructor (props) {
         super(props)
-        this.state = {
+        this.initialState = {
             step: 0,
             currency: 'rur',
             amount: '',
             ratio: '',
             person: ''
         }
+        this.state = this.initialState
         this.stepBack = this.stepBack.bind(this)
         this.personStep = this.personStep.bind(this)
     }
@@ -61,16 +62,22 @@ export default class Form extends React.Component {
     updatePerson (p) {
         this.setState({ person: p })
     }
+    resetForm () {
+        this.setState(this.initialState)
+    }
     submitForm () {
         const { currency, amount, ratio, person } = this.state
+        const a = this.props.operation == 'd' ? amount : -amount
         this.props.onSubmit({
             currency: currency,
-            amount: amount,
+            amount: a,
             ratio: ratio,
             person: person
         })
+        this.resetForm()
     }
     dismissForm () {
+        this.resetForm()
         this.props.onDismiss()
     }
     render () {
@@ -142,7 +149,7 @@ export default class Form extends React.Component {
                         onSelect={(val) => this.updatePerson(val)}
                         shouldItemRender={(item, val) => item.toLowerCase().indexOf(val.toLocaleLowerCase()) !== -1}
                         renderInput={props => <div className="form-group">
-                            <label htmlFor="person-in">Кому</label>
+                            <label htmlFor="person-in">{`${operation == 'd'? 'Кому' : 'Кто'}`}</label>
                             <input {... props} />
                         </div>}
                         />

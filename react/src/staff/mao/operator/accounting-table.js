@@ -20,7 +20,8 @@ export default class MaoOperatorAccountingTable extends React.Component {
                 investments: []
             },
             formVisible: false,
-            formState: ''
+            formState: '',
+            anyUpdates: false
         }
         this.sheetId = '1gl5eHg2AFGKrQnJM_WUWs1qKk9UyACSGEIUZ3M-0o4M'
         this.authorizeButton =
@@ -30,7 +31,8 @@ export default class MaoOperatorAccountingTable extends React.Component {
         this.depositButton =
             <button className="btn btn-outline mx-2" onClick={_ => this.handleDepositButton()}>Пополнение</button>
         this.withdrawalButton =
-            <button className="btn btn-outline mx-2" onClick={() => null}>Вывод</button>
+            <button className="btn btn-outline mx-2" onClick={() => this.handleWithdrawalButton()}>Вывод</button>
+        this.form = React.createRef()
         // bindings
         this.initGoogleClient = this.initGoogleClient.bind(this)
         this.updateSigninStatus = this.updateSigninStatus.bind(this)
@@ -115,6 +117,12 @@ export default class MaoOperatorAccountingTable extends React.Component {
             formState: 'd'
         })
     }
+    handleWithdrawalButton () {
+        this.setState({
+            formVisible: true,
+            formState: 'w'
+        })
+    }
     handleFormDismiss () {
         this.setState({
             formVisible: false,
@@ -158,7 +166,7 @@ export default class MaoOperatorAccountingTable extends React.Component {
             if (amount > 0) {
                 d[6] = amount
             } else {
-                d[7] = amount
+                d[7] = -amount
             }
         }
         this.setState(s => _.merge({}, s, {
@@ -166,44 +174,84 @@ export default class MaoOperatorAccountingTable extends React.Component {
                 history: [ ... s.data.history, { updated: true, value: d } ]
             }
         }))
-        // update totals
+        // 2. update totals
         const { data: { totals } } = this.state
-        let recId = this.state.data.totals.findIndex(e => e.value[0] == person)
+        let recId = totals.findIndex(e => e.value[0] == person)
         let coins = currency === 'pzm'? amount : amount / ratio
-        let x, y, tid, cin, cout, ts, t = [ person, '', '', '', '', '' ]
+        let x, y, tid, cin = 0, cout = 0, ts, t = [ person, '0', '0', '0', '', '' ]
         if (recId !== -1) {
             t = totals[recId].value
-            console.log('Record', recId, totals[recId].value, t)
             cin = parse(totals[recId].value[1])
             cout = parse(totals[recId].value[2])
-            if (coins > 0) {
-                tid = 1
-                x = cin + coins
-                y = x - cout
-            } else {
-                tid = 2
-                x = cout + Math.abs(coins)
-                y = cin - x
-            }
-            console.log(cin, cout, x, y)
-            t[tid] = formatN(x)
-            t[3] = formatN(y)
-            ts = totals
-            ts[recId] = {
-                updated: true,
-                value: t
-            }
-            this.setState(s => _.merge({}, s, {
-                data: {
-                    totals: ts
-                }
-            }))
         } else {
-
+            recId = totals.findIndex(e => e.value[0] == '')
+            if (recId === -1) recId = totals.length
         }
+        if (coins > 0) {
+            tid = 1
+            x = cin + coins
+            y = x - cout
+        } else {
+            tid = 2
+            x = cout + Math.abs(coins)
+            y = cin - x
+        }
+        t[tid] = formatN(x)
+        t[3] = formatN(y)
+        ts = totals
+        ts[recId] = {
+            updated: true,
+            value: t
+        }
+        this.setState(s => _.merge({}, s, {
+            data: {
+                totals: ts
+            },
+            anyUpdates: true
+        }))
+        this.handleFormDismiss()
+    }
+    saveSheet () {
+        const date = moment().format('DD.MM.YY_x')
+        const self = this
+        const { data: { sheets, history, totals } } = this.state
+        gapi.client.sheets.spreadsheets.create({
+            properties: {
+              title: 'Обновление_' + date
+            },
+            sheets: sheets.map(s => ({ properties: s.properties }))
+        }).then((response) => {
+            const sheetId = response.result.spreadsheetId
+            const r1 = sheets[0].properties.title + '!A1'
+            const r2 = sheets[1].properties.title + '!A1'
+            const v1 = history.map(x => x.value)
+            const v2 = totals.map(x => x.value)
+            let data = [
+                {
+                    range: r1,
+                    values: v1
+                },
+                {
+                    range: r2,
+                    values: v2
+                }
+            ]
+            const body = {
+                data: data,
+                valueInputOption: 'RAW'
+            }
+            gapi.client.sheets.spreadsheets.values.batchUpdate({
+                spreadsheetId: sheetId,
+                resource: body
+            }).then((response) => {
+                var result = response.result;
+                console.log(`${result.totalUpdatedCells} cells updated.`);
+                self.setState({ anyUpdates: false })
+            })
+        });
     }
     render () {
-        const { isSignedIn, data: { sheets, history, totals, selected } } = this.state
+        const { isSignedIn, anyUpdates, data: { sheets, history, totals, selected } } = this.state
         const personList = this.getPersonList()
         return (<React.Fragment>
             <div className="row mb-2">
@@ -211,6 +259,8 @@ export default class MaoOperatorAccountingTable extends React.Component {
                 {isSignedIn  && <React.Fragment>
                     {this.signoutButton}
                     {this.depositButton}
+                    {this.withdrawalButton}
+                    {anyUpdates && <button className="btn btn-danger mx-2" onClick={_ => this.saveSheet()}>Сохранить</button>}
                 </React.Fragment>}
             </div>
             {isSignedIn && sheets.length > 0 && <React.Fragment>
@@ -230,6 +280,7 @@ export default class MaoOperatorAccountingTable extends React.Component {
                 </div>
                 {this.state.formVisible && <div className="container-fluid my-1">
                     <Form
+                        ref={f => this.form = f}
                         persons={personList}
                         onSubmit={d => this.updateSheets(d)}
                         onDismiss={_ => this.handleFormDismiss()}

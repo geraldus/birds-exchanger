@@ -3,7 +3,7 @@ import React from 'react'
 
 export default class History extends React.Component {
     render () {
-        const vs = this.props.values
+        const vs = [ ... this.props.values].reverse()
         return (
         <table className="table table-hover">
             <thead>
