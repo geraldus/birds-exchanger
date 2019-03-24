@@ -1,0 +1,30 @@
+// Client ID and API key from the Developer Console
+var CLIENT_ID = '425119019369-6p1ghe8gkd4tlmfp2el6i0tmmb19v28g.apps.googleusercontent.com';
+var API_KEY = 'AIzaSyB3AAM0uXMtEPpfbR1BzA2XW4ONCoPE6ag';
+
+// Array of API discovery doc URLs for APIs used by the quickstart
+var DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4"];
+
+// Authorization scopes required by the API; multiple scopes can be
+// included, separated by spaces.
+var SCOPES =
+    "https://www.googleapis.com/auth/spreadsheets.readonly https://www.googleapis.com/auth/userinfo.profile profile"
+
+const init = () => {
+    const tableRoot = document.querySelector('#table')
+    ReactDOM.render(
+        React.createElement(
+            outbirds_react.maoOperatorAccountingTable,
+            {
+                apiKey: API_KEY,
+                clientId: CLIENT_ID,
+                discoveryDocs: DISCOVERY_DOCS,
+                scopes: SCOPES
+            },
+            null
+        ),
+        tableRoot
+    )
+}
+
+$(document).ready(init)

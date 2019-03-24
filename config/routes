@@ -39,6 +39,11 @@
 -- /info/manage/archive                 ManageInfoArchiveR                POST
 /operator/websocket                  OperatorWebSocketR                GET
 
+
+-- MAO: Operators
+
+/mao/accounting                      MaoAccountingR                    GET
+
 -- SUPER USERS
 /su/websocket                        SuperUserWebSocketR               GET
 

@@ -305,6 +305,9 @@ instance Yesod App where
     isAuthorized ManageInfoIndexR _                  = isEditorAuthenticated
     isAuthorized ManageInfoAddR _                    = isEditorAuthenticated
     isAuthorized ManageInfoUpdateR _                 = isEditorAuthenticated
+    -- MAO: Operators
+    isAuthorized MaoAccountingR _
+        = isMaoOperatorAuthenticated
     -- SUPER USERS
     isAuthorized SuperUserFinancialReportViewR _     = isSuperUserAuthenticated
     isAuthorized SuperUserWebSocketR _               = isSuperUserAuthenticated
@@ -359,6 +362,7 @@ instance YesodBreadcrumbs App where
         -> Handler (Text, Maybe (Route App))
     breadcrumb r = do
         mr <- getMessageRender
+        -- TODO: FIXME: Do not show breadcrumbs for non-staff users
         breadcrumb' mr r
       where
         breadcrumb'
@@ -383,6 +387,8 @@ instance YesodBreadcrumbs App where
             return ("Заявки на пополнение", Just HomeR)
         breadcrumb' _ OperatorWithdrawalRequestsListR =
             return ("Заявки на вывод", Just HomeR)
+        breadcrumb' mr MaoAccountingR =
+            return (mr MsgMaoOperatorsAccounting, Just HomeR)
         breadcrumb' _ SuperUserFinancialReportViewR =
             return ("Финансовая отчётность", Just HomeR)
         breadcrumb' _ AdminLogInR = return ("Вход для супер-пользователя", Just HomeR)
