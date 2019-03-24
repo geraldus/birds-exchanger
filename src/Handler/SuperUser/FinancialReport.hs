@@ -11,7 +11,6 @@ getSuperUserFinancialReportViewR = do
     requireSu
     renderUrl <- getUrlRender
     rm <- getMessageRender
-
     let reactBuild =
 #ifdef DEVELOPMENT
             "development"
