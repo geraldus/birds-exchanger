@@ -5,7 +5,9 @@
   "main": "main.js",
   "dependencies": {
     "@babel/polyfill": "^7.2.5",
-    "babel": "^6.23.0"
+    "babel": "^6.23.0",
+    "moment": "^2.24.0",
+    "react-autocomplete": "^1.8.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",
