@@ -158,6 +158,13 @@ NewArticle: Новая статья
 EditMenuTitle: Редактирование
 
 
+# MAO
+
+## Operators
+
+MaoOperatorsAccounting: Баланс операций МАО банка
+
+
 # SUPER USERS
 
 FinancialReport: Финансовый отчёт
