@@ -8,7 +8,7 @@ var DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4"
 // Authorization scopes required by the API; multiple scopes can be
 // included, separated by spaces.
 var SCOPES =
-    "https://www.googleapis.com/auth/spreadsheets.readonly https://www.googleapis.com/auth/userinfo.profile profile"
+    "https://www.googleapis.com/auth/spreadsheets.readonly https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/drive.file"
 
 const init = () => {
     const tableRoot = document.querySelector('#table')
