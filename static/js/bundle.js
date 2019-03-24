@@ -5272,7 +5272,6 @@
       _this.handleUpdateEvent = _this.handleUpdateEvent.bind(_assertThisInitialized(_this));
       _this.beepComponent = react.createElement(Beep, {
         ref: function ref(beepC) {
-          console.log(beepC);
           _this.beep = beepC;
         },
         src: window.app.config.beep
@@ -9990,7 +9989,8 @@
     _createClass(History, [{
       key: "render",
       value: function render() {
-        var vs = this.props.values;
+        var vs = _toConsumableArray(this.props.values).reverse();
+
         return react.createElement("table", {
           className: "table table-hover"
         }, react.createElement("thead", null, react.createElement("tr", null, react.createElement("th", null, "\u0414\u0430\u0442\u0430"), react.createElement("th", null, "\u0424\u0418\u041E"), react.createElement("th", null, "\u0417\u0430\u0432\u0451\u043B \u20BD"), react.createElement("th", null, "\u041A\u0443\u0440\u0441"), react.createElement("th", null, "\u041F\u043E\u043B\u0443\u0447\u0438\u043B \u20BD"), react.createElement("th", null, "\u041A\u0443\u0440\u0441"), react.createElement("th", null, "\u0417\u0430\u0432\u0451\u043B PZM"), react.createElement("th", null, "\u0412\u044B\u0432\u0435\u043B PZM"), react.createElement("th", null, "\u041F\u0440\u0438\u043C\u0435\u0447\u0430\u043D\u0438\u0435"))), vs.length > 0 && react.createElement("tbody", null, vs.map(function (x, i) {
@@ -18468,13 +18468,14 @@
       _classCallCheck(this, Form);
 
       _this = _possibleConstructorReturn(this, _getPrototypeOf(Form).call(this, props));
-      _this.state = {
+      _this.initialState = {
         step: 0,
         currency: 'rur',
         amount: '',
         ratio: '',
         person: ''
       };
+      _this.state = _this.initialState;
       _this.stepBack = _this.stepBack.bind(_assertThisInitialized(_this));
       _this.personStep = _this.personStep.bind(_assertThisInitialized(_this));
       return _this;
@@ -18564,6 +18565,11 @@
         });
       }
     }, {
+      key: "resetForm",
+      value: function resetForm() {
+        this.setState(this.initialState);
+      }
+    }, {
       key: "submitForm",
       value: function submitForm() {
         var _this$state2 = this.state,
@@ -18571,16 +18577,19 @@
             amount = _this$state2.amount,
             ratio = _this$state2.ratio,
             person = _this$state2.person;
+        var a = this.props.operation == 'd' ? amount : -amount;
         this.props.onSubmit({
           currency: currency,
-          amount: amount,
+          amount: a,
           ratio: ratio,
           person: person
         });
+        this.resetForm();
       }
     }, {
       key: "dismissForm",
       value: function dismissForm() {
+        this.resetForm();
         this.props.onDismiss();
       }
     }, {
@@ -18689,7 +18698,7 @@
               className: "form-group"
             }, react.createElement("label", {
               htmlFor: "person-in"
-            }, "\u041A\u043E\u043C\u0443"), react.createElement("input", props));
+            }, "".concat(operation == 'd' ? 'Кому' : 'Кто')), react.createElement("input", props));
           }
         })), react.createElement("div", {
           className: "row my-2"
@@ -18745,7 +18754,8 @@
           investments: []
         },
         formVisible: false,
-        formState: ''
+        formState: '',
+        anyUpdates: false
       };
       _this.sheetId = '1gl5eHg2AFGKrQnJM_WUWs1qKk9UyACSGEIUZ3M-0o4M';
       _this.authorizeButton = react.createElement("button", {
@@ -18765,9 +18775,10 @@
       _this.withdrawalButton = react.createElement("button", {
         className: "btn btn-outline mx-2",
         onClick: function onClick() {
-          return null;
+          return _this.handleWithdrawalButton();
         }
-      }, "\u0412\u044B\u0432\u043E\u0434"); // bindings
+      }, "\u0412\u044B\u0432\u043E\u0434");
+      _this.form = react.createRef(); // bindings
 
       _this.initGoogleClient = _this.initGoogleClient.bind(_assertThisInitialized(_this));
       _this.updateSigninStatus = _this.updateSigninStatus.bind(_assertThisInitialized(_this));
@@ -18905,6 +18916,14 @@
         });
       }
     }, {
+      key: "handleWithdrawalButton",
+      value: function handleWithdrawalButton() {
+        this.setState({
+          formVisible: true,
+          formState: 'w'
+        });
+      }
+    }, {
       key: "handleFormDismiss",
       value: function handleFormDismiss() {
         this.setState({
@@ -18969,7 +18988,7 @@
           if (amount > 0) {
             d[6] = amount;
           } else {
-            d[7] = amount;
+            d[7] = -amount;
           }
         }
 
@@ -18982,53 +19001,109 @@
               }])
             }
           });
-        }); // update totals
+        }); // 2. update totals
 
         var totals = this.state.data.totals;
-        var recId = this.state.data.totals.findIndex(function (e) {
+        var recId = totals.findIndex(function (e) {
           return e.value[0] == person;
         });
         var coins = currency === 'pzm' ? amount : amount / ratio;
         var x,
             y,
             tid,
-            cin,
-            cout,
+            cin = 0,
+            cout = 0,
             ts,
-            t = [person, '', '', '', '', ''];
+            t = [person, '0', '0', '0', '', ''];
 
         if (recId !== -1) {
           t = totals[recId].value;
-          console.log('Record', recId, totals[recId].value, t);
           cin = parse(totals[recId].value[1]);
           cout = parse(totals[recId].value[2]);
+        } else {
+          recId = totals.findIndex(function (e) {
+            return e.value[0] == '';
+          });
+          if (recId === -1) recId = totals.length;
+        }
 
-          if (coins > 0) {
-            tid = 1;
-            x = cin + coins;
-            y = x - cout;
-          } else {
-            tid = 2;
-            x = cout + Math.abs(coins);
-            y = cin - x;
-          }
+        if (coins > 0) {
+          tid = 1;
+          x = cin + coins;
+          y = x - cout;
+        } else {
+          tid = 2;
+          x = cout + Math.abs(coins);
+          y = cin - x;
+        }
 
-          console.log(cin, cout, x, y);
-          t[tid] = formatN(x);
-          t[3] = formatN(y);
-          ts = totals;
-          ts[recId] = {
-            updated: true,
-            value: t
+        t[tid] = formatN(x);
+        t[3] = formatN(y);
+        ts = totals;
+        ts[recId] = {
+          updated: true,
+          value: t
+        };
+        this.setState(function (s) {
+          return merge_1({}, s, {
+            data: {
+              totals: ts
+            },
+            anyUpdates: true
+          });
+        });
+        this.handleFormDismiss();
+      }
+    }, {
+      key: "saveSheet",
+      value: function saveSheet() {
+        var date = moment().format('DD.MM.YY_x');
+        var self = this;
+        var _this$state$data2 = this.state.data,
+            sheets = _this$state$data2.sheets,
+            history = _this$state$data2.history,
+            totals = _this$state$data2.totals;
+        gapi.client.sheets.spreadsheets.create({
+          properties: {
+            title: 'Обновление_' + date
+          },
+          sheets: sheets.map(function (s) {
+            return {
+              properties: s.properties
+            };
+          })
+        }).then(function (response) {
+          var sheetId = response.result.spreadsheetId;
+          var r1 = sheets[0].properties.title + '!A1';
+          var r2 = sheets[1].properties.title + '!A1';
+          var v1 = history.map(function (x) {
+            return x.value;
+          });
+          var v2 = totals.map(function (x) {
+            return x.value;
+          });
+          var data = [{
+            range: r1,
+            values: v1
+          }, {
+            range: r2,
+            values: v2
+          }];
+          var body = {
+            data: data,
+            valueInputOption: 'RAW'
           };
-          this.setState(function (s) {
-            return merge_1({}, s, {
-              data: {
-                totals: ts
-              }
+          gapi.client.sheets.spreadsheets.values.batchUpdate({
+            spreadsheetId: sheetId,
+            resource: body
+          }).then(function (response) {
+            var result = response.result;
+            console.log("".concat(result.totalUpdatedCells, " cells updated."));
+            self.setState({
+              anyUpdates: false
             });
           });
-        }
+        });
       }
     }, {
       key: "render",
@@ -19037,15 +19112,21 @@
 
         var _this$state = this.state,
             isSignedIn = _this$state.isSignedIn,
-            _this$state$data2 = _this$state.data,
-            sheets = _this$state$data2.sheets,
-            history = _this$state$data2.history,
-            totals = _this$state$data2.totals,
-            selected = _this$state$data2.selected;
+            anyUpdates = _this$state.anyUpdates,
+            _this$state$data3 = _this$state.data,
+            sheets = _this$state$data3.sheets,
+            history = _this$state$data3.history,
+            totals = _this$state$data3.totals,
+            selected = _this$state$data3.selected;
         var personList = this.getPersonList();
         return react.createElement(react.Fragment, null, react.createElement("div", {
           className: "row mb-2"
-        }, !isSignedIn && this.authorizeButton, isSignedIn && react.createElement(react.Fragment, null, this.signoutButton, this.depositButton)), isSignedIn && sheets.length > 0 && react.createElement(react.Fragment, null, react.createElement("div", {
+        }, !isSignedIn && this.authorizeButton, isSignedIn && react.createElement(react.Fragment, null, this.signoutButton, this.depositButton, this.withdrawalButton, anyUpdates && react.createElement("button", {
+          className: "btn btn-danger mx-2",
+          onClick: function onClick(_) {
+            return _this2.saveSheet();
+          }
+        }, "\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C"))), isSignedIn && sheets.length > 0 && react.createElement(react.Fragment, null, react.createElement("div", {
           className: "row mb-2"
         }, react.createElement("ul", {
           className: "nav nav-tabs"
@@ -19060,6 +19141,9 @@
         }))), this.state.formVisible && react.createElement("div", {
           className: "container-fluid my-1"
         }, react.createElement(Form, {
+          ref: function ref(f) {
+            return _this2.form = f;
+          },
           persons: personList,
           onSubmit: function onSubmit(d) {
             return _this2.updateSheets(d);
