@@ -10,7 +10,7 @@ export default class OperatorNotifier extends React.Component {
         this.webScoketOnMessage = this.webScoketOnMessage.bind(this)
         this.handleJsonMessage = this.handleJsonMessage.bind(this)
         this.handleUpdateEvent = this.handleUpdateEvent.bind(this)
-        this.beepComponent = <Beep ref={beepC => { console.log(beepC); this.beep = beepC }} src={window.app.config.beep}/>
+        this.beepComponent = <Beep ref={beepC => { this.beep = beepC }} src={window.app.config.beep}/>
         this.state = {
             deposit: {
                 confirmation: {
