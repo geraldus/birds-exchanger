@@ -508,6 +508,9 @@ isEditorAuthenticated = authorizeStaffRoles [ Editor ]
 isOperatorAuthenticated :: Handler AuthResult
 isOperatorAuthenticated = authorizeStaffRoles [ Operator ]
 
+isMaoOperatorAuthenticated :: Handler AuthResult
+isMaoOperatorAuthenticated = authorizeStaffRoles [MaoOperator]
+
 isSuperUserAuthenticated :: Handler AuthResult
 isSuperUserAuthenticated = authorizeStaffRoles []
 
