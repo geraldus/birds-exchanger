@@ -33,8 +33,8 @@ stanzas:
     # Can be added to any stanza
     requires-secure: true
     ssl:
-      key: /opt/keter/etc/cert/outb.info.key
-      certificate: /opt/keter/etc/cert/outb.info.pem
+      key: /opt/keter/etc/outb.info.key
+      certificate: /opt/keter/etc/outb.info.pem
 
   # Static files.
   # - type: static-files
