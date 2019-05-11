@@ -27,6 +27,7 @@ stanzas:
       # root.
       - outb.info
       # - 185.53.169.5
+      - 185.17.203.48
       - www.outb.info
 
     # Enable to force Keter to redirect to https
