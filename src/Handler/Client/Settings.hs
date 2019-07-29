@@ -6,7 +6,7 @@ import           Import
 
 getClientSettingsR :: Handler Html
 getClientSettingsR = do
-    clientData <- requireClientData
+    (user, _) <- requireClientData
     ((_, formWidget), enctype) <- generateFormGet personalDataForm
     defaultLayout $
         $(widgetFile "client/settings")

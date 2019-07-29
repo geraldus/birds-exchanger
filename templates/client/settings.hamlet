@@ -1,4 +1,6 @@
-<h1>_{MsgClientSettingsPageTitle}
+<h3>
+    #{userIdent (entityVal user)}
 
-<form>
+<form .mt-3>
+    <h5>_{MsgPassword}
     ^{formWidget}
