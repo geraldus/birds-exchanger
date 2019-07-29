@@ -191,6 +191,11 @@ instance Yesod App where
                     , menuItemRoute = TermsOfUseR
                     , menuItemAccessCallback = isClientLoggedIn }
                 , MenuItem
+                    { menuItemLabel = mr MsgClientSettingsPageTitle
+                    , menuItemRoute = ClientSettingsR
+                    , menuItemAccessCallback = isClientLoggedIn
+                    }
+                , MenuItem
                     { menuItemLabel = "Выход"
                     , menuItemRoute = AuthR LogoutR
                     , menuItemAccessCallback = isJust muser
@@ -289,6 +294,7 @@ instance Yesod App where
     isAuthorized ClientOrdersR _                     = isClientAuthenticated
     isAuthorized (ClientOrderViewR _) _              = isClientAuthenticated
     isAuthorized ClientOrderCancelR _                = isClientAuthenticated
+    isAuthorized ClientSettingsR _                   = isClientAuthenticated
     -- STAFF
     isAuthorized AdminLogInR _                       = return Authorized
     -- OPERATORS
@@ -374,6 +380,7 @@ instance YesodBreadcrumbs App where
         breadcrumb' _ SignUpR     = return ("Регистрация", Just HomeR)
         breadcrumb' _ ProfileR    = return ("Портфель", Just HomeR)
         breadcrumb' _ ClientOrdersR = return ("Мои ордера на обмен", Just HomeR)
+        breadcrumb' mr ClientSettingsR = return (mr MsgClientSettingsPageTitle, Just HomeR)
         breadcrumb' _ (ClientOrderViewR oid) =
             return ("Ордер #" <> pack (show (fromSqlKey oid)), Just ClientOrdersR)
         breadcrumb' _ DepositR    = return ("Внесение средств", Just ProfileR)

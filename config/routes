@@ -24,6 +24,7 @@
 /order/#ExchangeOrderId              ClientOrderViewR                GET
 /client/order/create                 ExchangeOrderCreateR                POST
 /client/order/cancel                 ClientOrderCancelR                  POST
+/settings                            ClientSettingsR                 GET
 
 /operator/login                      OperatorLogInR  GET
 /operator/deposit-requests-list      OperatorDepositRequestsListR      GET

@@ -54,6 +54,7 @@ import           Handler.Client.HandleDeposit
 import           Handler.Client.HandleWithdrawal
 import           Handler.Client.Order.Create
 import           Handler.Client.Orders
+import           Handler.Client.Settings
 import           Handler.Client.Withdrawal
 import           Handler.Common
 import           Handler.Home
