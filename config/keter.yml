@@ -25,17 +25,20 @@ stanzas:
       # You can specify one or more hostnames for your application to respond
       # to. The primary hostname will be used for generating your application
       # root.
-      - outb.info
+      # - outb.info
       # - 185.53.169.5
-      - 185.17.203.48
-      - www.outb.info
+      # - 185.17.203.48
+      # - www.outb.info
+      - agolos.ru
+      - www.agolos.ru
 
     # Enable to force Keter to redirect to https
     # Can be added to any stanza
-    requires-secure: true
-    ssl:
-      key: /opt/keter/etc/outb.info.key
-      certificate: /opt/keter/etc/outb.info.pem
+    requires-secure: false
+    # requires-secure: true
+    # ssl:
+    #   key: /opt/keter/etc/outb.info.key
+    #   certificate: /opt/keter/etc/outb.info.pem
 
   # Static files.
   # - type: static-files
@@ -49,11 +52,13 @@ stanzas:
   # Redirect plain domain name to www.
   - type: redirect
     hosts:
-      - www.outb.info
+      # - www.outb.info
+      - www.agolos.ru
     actions:
-      - host: outb.info
-        secure: true
-        port: 443
+      - host: agolos.ru
+      # - host: outb.info
+        # secure: true
+        # port: 443
 
     # Uncomment to switch to a non-permanent redirect.
     # status: 303
