@@ -9,7 +9,7 @@
             <div .alert.alert-warning #message>#{msg}
     <div .container .mt-5>
         <div .row>
-            <div .col-8 .col-md-6 .mx-auto>
+            <div .col-8 .mx-auto>
                 <ul .nav .nav-tabs .justify-content-center>
                     <li .nav-item .mx-1>
                         <a #pzm-rur-pair .nav-link.active .pzm .rur href="#" title="Показать информацию по комиссии">PZM / RUR (₽)
@@ -18,13 +18,14 @@
                     <li .nav-item .mx-1>
                         <a #our-rur-pair .nav-link .text-light .our .rur href="#" title="Показать информацию по комиссии">OUR / RUR (₽)
         <div .row>
-            <div .col-8 .col-md-6 .col-lg-4 .mx-auto .pt-3>
-                <div .collapse #pzm-rur-fee-info>
-                    <p>_{MsgOperationDepositShort} #{currencyCodeT rurC} #{renderFeeAsPct defRurDepositFee}%
-                    <p>_{MsgOperationWithdrawShort} #{currencyCodeT pzmC} #{renderFeeAsPct defPzmWithdrawalFee}%
-                    <p>_{MsgOperationExchangeShort} #{renderFeeAsPct defaultExchangeFee}%
-                    <p>_{MsgOperationWithdrawShort} #{currencyCodeT rurC} #{renderFeeAsPct defRurWithdrawalFee}%
-                    <p>_{MsgOperationDepositShort} #{currencyCodeT pzmC} #{renderFeeAsPct defPzmDepositFee}%
+            <div .col-8 .mx-auto .pt-3>
+                <div #pzm-rur-fee-info>
+                    <p .text-muted>
+                        _{MsgOperationDepositShort} #{currencyCodeT rurC} #{renderFeeAsPct defRurDepositFee}%
+                        | _{MsgOperationWithdrawShort} #{currencyCodeT pzmC} #{renderFeeAsPct defPzmWithdrawalFee}%
+                        | _{MsgOperationExchangeShort} #{renderFeeAsPct defaultExchangeFee}%
+                        | _{MsgOperationWithdrawShort} #{currencyCodeT rurC} #{renderFeeAsPct defRurWithdrawalFee}%
+                        | _{MsgOperationDepositShort} #{currencyCodeT pzmC} #{renderFeeAsPct defPzmDepositFee}%
         <div .row .mt-5>
             <div .col>
                 <form method=post action=@{ExchangeOrderCreateR} enctype="">
@@ -40,12 +41,12 @@
         ^{clickableOrderW modalWrapId}
         <div .col-12 .col-lg-6 .mb-3 .order-col>
             ^{renderOrderLeftCol ExchangePzmRur (map entityVal rurPzmOrders)}
-            ^{renderOrderTable ExchangePzmOur False comingSoonColContent}
-            ^{renderOrderTable ExchangeOurRur False comingSoonColContent}
+            ^{renderOrderTable ExchangePzmOur False True comingSoonColContent}
+            ^{renderOrderTable ExchangeOurRur False True comingSoonColContent}
         <div .col-12 .col-lg-6 .mb-3 .order-col>
             ^{renderOrderRightCol ExchangeRurPzm (map entityVal pzmRurOrders)}
-            ^{renderOrderTable ExchangePzmOur True comingSoonColContent}
-            ^{renderOrderTable ExchangeOurRur True comingSoonColContent}
+            ^{renderOrderTable ExchangePzmOur True True comingSoonColContent}
+            ^{renderOrderTable ExchangeOurRur True True comingSoonColContent}
 
 <div #clickable-order-modal .modal .fade tabindex="-1" role=dialog>
     <div .modal-dialog .modal-lg .modal-dialog-centered role=document>

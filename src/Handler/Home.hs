@@ -87,18 +87,24 @@ getActiveOrders mu = do
     where isPzmRurOrder = (== ExchangePzmRur) . exchangeOrderPair
 
 renderOrderLeftCol :: ExchangePair -> [ExchangeOrder] -> Widget
-renderOrderLeftCol exchange orders = renderOrderTable exchange False widget
-    where widget = foldr (\o w -> w >> renderOrderRow o) mempty orders
+renderOrderLeftCol exchange orders =
+    renderOrderTable exchange False False widget
+    where widget
+            | null orders = noOrdersColContent
+            | otherwise = foldr (\o w -> w >> renderOrderRow o) mempty orders
 
 renderOrderRightCol :: ExchangePair -> [ExchangeOrder] -> Widget
-renderOrderRightCol exchange orders = renderOrderTable exchange True widget
-    where widget = foldr (\o w -> w >> renderOrderRow o) mempty orders
+renderOrderRightCol exchange orders =
+    renderOrderTable exchange True False widget
+    where widget
+            | null orders = noOrdersColContent
+            | otherwise = foldr (\o w -> w >> renderOrderRow o) mempty orders
 
-renderOrderTable :: ExchangePair -> Bool -> Widget -> Widget
-renderOrderTable exchange flip' tableBodyWidget =
+renderOrderTable :: ExchangePair -> Bool -> Bool -> Widget -> Widget
+renderOrderTable exchange flip' hidden tableBodyWidget =
     [whamlet|
-        <h5 .text-center data-pair="#{epair}">#{title}
-        <table .table .table-hover data-pair="#{epair}">
+        <h5 :hidden:.hide .text-center data-pair="#{epair}">#{title}
+        <table :hidden:.hide .table .table-hover data-pair="#{epair}">
             <thead .thead-dark>
                 <tr>
                     <th>_{MsgRatio}
@@ -137,6 +143,17 @@ renderOrderRow order =
             <td .amount-left>
                 #{cents2dblT (amtLeft)}
         |]
+
+noOrdersColContent :: Widget
+noOrdersColContent = [whamlet|
+    <tr rowspan="2">
+        <td colspan="3" .text-center .align-middle>
+            ОРДЕРОВ НА ОБМЕН ЕЩЁ НЕТ
+            <br />
+            <small>
+                Станьте первым, кто создаст новый ордер
+    |]
+
 
 comingSoonColContent :: Widget
 comingSoonColContent = [whamlet|
