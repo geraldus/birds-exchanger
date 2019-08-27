@@ -6,23 +6,22 @@
 {-# LANGUAGE TypeFamilies          #-}
 module Handler.Home where
 
-import           Import                       hiding ( decodeUtf8, httpLbs )
+import           Import                  hiding ( decodeUtf8, httpLbs )
 
 import           Form.Exchanger.Order
-import           Local.Params                 ( defPzmDepositFee,
-                                                defRurDepositFee,
-                                                defaultExchangeFee )
+import           Local.Params            ( defPzmDepositFee, defRurDepositFee,
+                                           defaultExchangeFee )
 import           Local.Persist.Currency
-import           Local.Persist.Exchange       ( ExchangePair (..) )
+import           Local.Persist.Exchange  ( ExchangePair (..) )
 import           Utils.Money
 import           Utils.Render
 import           Utils.Withdrawal
 
-import           Data.Text.Lazy.Encoding      ( decodeUtf8 )
-import           Network.HTTP.Client.Internal
-import           Network.HTTP.Client.TLS
-import           Prelude                      ( foldl )
-import           Text.Julius                  ( RawJS (..) )
+import           Data.Text.Lazy.Encoding ( decodeUtf8 )
+-- import           Network.HTTP.Client.Internal
+-- import           Network.HTTP.Client.TLS
+import           Prelude                 ( foldl )
+import           Text.Julius             ( RawJS (..) )
 
 
 -- Define our data that will be used for creating the form.
@@ -44,16 +43,17 @@ getHomeR = do
     ratioId <- newIdent
     modalWrapId <- newIdent
     modalRatioId <- newIdent
-    (mmsg, mayClientUser, orderCreateFormW, modalOrderCreateFormW, (pzmRurOrders, rurPzmOrders')) <- getData wrapId modalWrapId ratioId modalRatioId
+    (mmsg, mayClientUser, orderCreateFormW, modalOrderCreateFormW, (pzmRurOrders, rurPzmOrders')) <-
+            getData wrapId modalWrapId ratioId modalRatioId
     -- Sort RUR to PZM orders by descending order ratio
     let rurPzmOrders = foldl (flip (:)) [] rurPzmOrders'
-    (btcARes, cbrRes) <- runResourceT $ liftIO $ do
-        manager <- newTlsManager
-        btcAReq <- parseRequest "https://btc-alpha.com/exchange/PZM_USD"
-        cbrReq <- parseRequest "http://cbr.ru"
-        btcARes <- httpLbs btcAReq manager
-        cbrRes <- httpLbs cbrReq manager
-        return (rbt btcARes, rbt cbrRes)
+    -- (btcARes, cbrRes) <- runResourceT $ liftIO $ do
+    --     manager <- newTlsManager
+    --     btcAReq <- parseRequest "https://btc-alpha.com/exchange/PZM_USD"
+    --     cbrReq <- parseRequest "http://cbr.ru"
+    --     btcARes <- httpLbs btcAReq manager
+    --     cbrRes <- httpLbs cbrReq manager
+    --     return (rbt btcARes, rbt cbrRes)
     defaultLayout $ do
         setAppPageTitle MsgHomePageTitle
         $(widgetFile "homepage")

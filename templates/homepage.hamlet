@@ -2,16 +2,21 @@
     <div .container .mt-2>
         <div .row>
             <div #mainlogo .col-8 .col-sm-6 .mx-auto .my-2>
-                <img .mw-100 src=@{StaticR images_logo__sayt_png} alt="OutBirds | Site Logo">
+                <a href="info/view/our" title="Читать анонс">
+                    <img #main-promo .mw-100 src=@{StaticR images_promo280819_jpg} alt="OutBirds | Site Logo">
     $maybe msg <- mmsg
         <div .container .mt-3>
             <div .alert.alert-warning #message>#{msg}
     <div .container .mt-5>
         <div .row>
-            <div .col-8 .col-md-6 .col-lg-4 .mx-auto>
+            <div .col-8 .col-md-6 .mx-auto>
                 <ul .nav .nav-tabs .justify-content-center>
-                    <li .nav-item>
+                    <li .nav-item .mx-1>
                         <a #pzm-rur-pair .nav-link.active .pzm .rur href="#" title="Показать информацию по комиссии">PZM / RUR (₽)
+                    <li .nav-item .mx-1>
+                        <a #pzm-our-pair .nav-link .text-light .pzm .our href="#" title="Показать информацию по комиссии">PZM / OUR
+                    <li .nav-item .mx-1>
+                        <a #our-rur-pair .nav-link .text-light .our .rur href="#" title="Показать информацию по комиссии">OUR / RUR (₽)
         <div .row>
             <div .col-8 .col-md-6 .col-lg-4 .mx-auto .pt-3>
                 <div .collapse #pzm-rur-fee-info>
@@ -30,19 +35,17 @@
                         <div .text-muted .mb-5>
                             <small>
                                 авторизуйтесь для обмена
-        <div .row .pb-5>
-            <div .col-8 .mx-auto .d-flex .justify-content-start>
-                <a .text-secondary .font-weight-bold .info-button href=@{InfoListR}>
-                    <img .logo src=@{StaticR images_pzm_color_icon_png} alt="pzm icon">
-                    \INFO
-
 <div .container .mt-5>
     <div .row>
         ^{clickableOrderW modalWrapId}
-        <div .col-12 .col-lg-6 .mb-3>
-            ^{renderOrderLeftCol "rur_pzm" "₽ ⇢ PZM" ExchangePzmRur (map entityVal rurPzmOrders)}
-        <div .col-12 .col-lg-6 .mb-3>
-            ^{renderOrderCol "pzm_rur" "PZM ⇢ ₽" ExchangeRurPzm (map entityVal pzmRurOrders)}
+        <div .col-12 .col-lg-6 .mb-3 .order-col>
+            ^{renderOrderLeftCol ExchangePzmRur (map entityVal rurPzmOrders)}
+            ^{renderOrderTable ExchangePzmOur False comingSoonColContent}
+            ^{renderOrderTable ExchangeOurRur False comingSoonColContent}
+        <div .col-12 .col-lg-6 .mb-3 .order-col>
+            ^{renderOrderRightCol ExchangeRurPzm (map entityVal pzmRurOrders)}
+            ^{renderOrderTable ExchangePzmOur True comingSoonColContent}
+            ^{renderOrderTable ExchangeOurRur True comingSoonColContent}
 
 <div #clickable-order-modal .modal .fade tabindex="-1" role=dialog>
     <div .modal-dialog .modal-lg .modal-dialog-centered role=document>
@@ -60,6 +63,6 @@
 
 <div #rateData .d-none>
     <pre #cbr>
-        #{cbrRes}
+        # {cbrRes}
     <pre #btca>
-        #{btcARes}
+        # {btcARes}

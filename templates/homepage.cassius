@@ -1,3 +1,6 @@
+#main-promo
+    max-height: 300px
+
 .masthead .form-control
     border: 1px solid #666
 
@@ -11,3 +14,7 @@
 #clickable-order-modal .modal-content
     background-color: #1a1c1d
     border: 1px solid #666
+
+
+.order-col > *.hide
+    display: none
