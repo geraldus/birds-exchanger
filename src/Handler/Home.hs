@@ -86,36 +86,18 @@ getActiveOrders mu = do
     return $ partition (isPzmRurOrder . entityVal) os
     where isPzmRurOrder = (== ExchangePzmRur) . exchangeOrderPair
 
+renderOrderLeftCol :: ExchangePair -> [ExchangeOrder] -> Widget
+renderOrderLeftCol exchange orders = renderOrderTable exchange False widget
+    where widget = foldr (\o w -> w >> renderOrderRow o) mempty orders
 
-renderOrderCol :: Text -> Text -> ExchangePair -> [ExchangeOrder] -> Widget
-renderOrderCol epair title exchange orders =
-    [whamlet|
-        <h5 .text-center>#{title}
-        <table .table .table-hover data-pair="#{epair}">
-            <thead .thead-dark>
-                <tr>
-                    <th>_{MsgRatio}
-                    <th>_{MsgQuantityShort} #
-                        <span .text-muted>(#{currSign c2})
-                    <th>_{MsgAmount} #
-                        <span .text-muted>(#{currSign c1})
-            <tbody>
-                $forall order <- orders
-                    <tr .clickable-order>
-                        <td .ratio>
-                            #{show (exchangeOrderNormalizedRatio order)}
-                        <td .amount-left>
-                            #{cents2dblT (exchangeOrderAmountLeft order)}
-                        <td .expected>
-                            #{cents2dblT (multiplyCents (normalizeRatio (exchangeOrderPair order) (exchangeOrderRatioNormalization order) (exchangeOrderNormalizedRatio order)) (exchangeOrderAmountLeft order))}
-        |]
-  where
-    (c1, c2) = unPairCurrency exchange
+renderOrderRightCol :: ExchangePair -> [ExchangeOrder] -> Widget
+renderOrderRightCol exchange orders = renderOrderTable exchange True widget
+    where widget = foldr (\o w -> w >> renderOrderRow o) mempty orders
 
-renderOrderLeftCol :: Text -> Text -> ExchangePair -> [ExchangeOrder] -> Widget
-renderOrderLeftCol epair title exchange orders =
+renderOrderTable :: ExchangePair -> Bool -> Widget -> Widget
+renderOrderTable exchange flip' tableBodyWidget =
     [whamlet|
-        <h5 .text-center>#{title}
+        <h5 .text-center data-pair="#{epair}">#{title}
         <table .table .table-hover data-pair="#{epair}">
             <thead .thead-dark>
                 <tr>
@@ -125,17 +107,46 @@ renderOrderLeftCol epair title exchange orders =
                     <th>_{MsgAmount} #
                         <span .text-muted>(#{currSign c2})
             <tbody>
-                $forall order <- orders
-                    <tr .clickable-order>
-                        <td .ratio>
-                            #{show (exchangeOrderNormalizedRatio order)}
-                        <td .expected>
-                            #{cents2dblT (multiplyCents (normalizeRatio (exchangeOrderPair order) (exchangeOrderRatioNormalization order) (exchangeOrderNormalizedRatio order)) (exchangeOrderAmountLeft order))}
-                        <td .amount-left>
-                            #{cents2dblT (exchangeOrderAmountLeft order)}
+                ^{tableBodyWidget}
         |]
   where
-    (c1, c2) = unPairCurrency exchange
+    (c1, c2) = (\(a, b) -> if flip' then (b, a) else (a, b)) $
+        unPairCurrency exchange
+    c1code = toLower $ currencyCodeT c1
+    c2code = toLower $ currencyCodeT c2
+    c1sign = currSign c1
+    c2sign = currSign c2
+    epair  = c1code <> "_" <> c2code
+    title  = c1sign <> " ⇢ " <> c2sign
+
+
+renderOrderRow :: ExchangeOrder -> Widget
+renderOrderRow order =
+    let pair'         = exchangeOrderPair order
+        nRatio        = exchangeOrderNormalizedRatio order
+        normalization = exchangeOrderRatioNormalization order
+        amtLeft       = exchangeOrderAmountLeft order
+        cents         = multiplyCents
+                (normalizeRatio pair' normalization nRatio) amtLeft
+    in [whamlet|
+        <tr .clickable-order>
+            <td .ratio>
+                #{show (nRatio)}
+            <td .expected>
+                #{cents2dblT (cents)}
+            <td .amount-left>
+                #{cents2dblT (amtLeft)}
+        |]
+
+comingSoonColContent :: Widget
+comingSoonColContent = [whamlet|
+    <tr rowspan="2">
+        <td colspan="3" .text-center .align-middle>
+            СКОРО
+            <br />
+            <small>
+                Следите за новостями
+    |]
 
 
 clickableOrderW :: Text -> Widget
