@@ -162,17 +162,13 @@ instance Yesod App where
                     , menuItemRoute = WithdrawalR
                     , menuItemAccessCallback = isClientLoggedIn }
                 , NavbarLeft $ MenuItem
-                    { menuItemLabel = mr MsgInfo
+                    { menuItemLabel = "Новости"
                     , menuItemRoute = InfoListR
                     , menuItemAccessCallback = True }
                 , NavbarLeft $ MenuItem
                     { menuItemLabel = mr MsgTermsOfUse
                     , menuItemRoute = TermsOfUseR
                     , menuItemAccessCallback = isNothing muser }
-                , NavbarLeft $ MenuItem
-                    { menuItemLabel = "Чёрный список"
-                    , menuItemRoute = BlackListR
-                    , menuItemAccessCallback = True }
                 , NavbarRight $ MenuItem
                     { menuItemLabel = "Регистрация"
                     , menuItemRoute = SignUpR
