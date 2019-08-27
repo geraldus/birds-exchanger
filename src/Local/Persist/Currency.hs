@@ -24,6 +24,7 @@ data CryptoCurrency
     = PZM
     | ETH
     | BTC
+    | OUR
     deriving (Generic, Show, Read, Eq)
 derivePersistField "CryptoCurrency"
 
@@ -56,6 +57,10 @@ pzmC = CryptoC PZM
 rurC :: Currency
 rurC = FiatC RUR
 
+ourC :: Currency
+ourC = CryptoC OUR
+
+
 fCurrencyCodeT :: FiatCurrency -> Text
 fCurrencyCodeT USD = "USD"
 fCurrencyCodeT RUR = "RUR"
@@ -64,6 +69,8 @@ cCurrencyCodeT :: CryptoCurrency -> Text
 cCurrencyCodeT PZM = "PZM"
 cCurrencyCodeT BTC = "BTC"
 cCurrencyCodeT ETH = "ETH"
+cCurrencyCodeT OUR = "OUR"
+
 
 fCurrencyTShort :: FiatCurrency -> Text
 fCurrencyTShort USD = "$"
@@ -80,6 +87,7 @@ cCurrencyTLong :: CryptoCurrency -> Text
 cCurrencyTLong PZM = "Prizm"
 cCurrencyTLong BTC = "Bitcoin"
 cCurrencyTLong ETH = "Etherium"
+cCurrencyTLong OUR = "Ouroboros"
 
 
 currSign :: Currency -> Text
@@ -161,6 +169,10 @@ ctmBtc = CryptoTM BTC
 
 ctmEth :: TransferMethod
 ctmEth = CryptoTM ETH
+
+ctmOur :: TransferMethod
+ctmOur = CryptoTM OUR
+
 
 fTmTShort :: FiatTransferMethod -> Html
 fTmTShort SberBankCard2CardFTM    = "СберБанк"

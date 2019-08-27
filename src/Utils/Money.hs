@@ -28,14 +28,27 @@ defPairDir :: ExchangePair -> ExchangePair
 defPairDir p = case p of
     ExchangePzmRur -> ExchangeRurPzm
     ExchangeRurPzm -> ExchangeRurPzm
+    ExchangeRurOur -> ExchangeRurOur
+    ExchangeOurRur -> ExchangeRurOur
+    ExchangeOurPzm -> ExchangeOurPzm
+    ExchangePzmOur -> ExchangeOurPzm
 
 flipPair :: ExchangePair -> ExchangePair
 flipPair ExchangePzmRur = ExchangeRurPzm
 flipPair ExchangeRurPzm = ExchangePzmRur
+flipPair ExchangeOurRur = ExchangeRurOur
+flipPair ExchangeRurOur = ExchangeOurRur
+flipPair ExchangePzmOur = ExchangeOurPzm
+flipPair ExchangeOurPzm = ExchangePzmOur
+
 
 unPairCurrency :: ExchangePair -> (Currency, Currency)
 unPairCurrency ExchangePzmRur = (pzmC, rurC)
 unPairCurrency ExchangeRurPzm = (rurC, pzmC)
+unPairCurrency ExchangePzmOur = (pzmC, ourC)
+unPairCurrency ExchangeOurPzm = (ourC, pzmC)
+unPairCurrency ExchangeOurRur = (ourC, rurC)
+unPairCurrency ExchangeRurOur = (rurC, ourC)
 
 -- | Normalize ratio @r@ to preffered direction @d@ for given
 --   exchange pair @p@

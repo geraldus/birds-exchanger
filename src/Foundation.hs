@@ -712,7 +712,7 @@ accessErrorClientOnly = "Доступно только для аккаунтов
 
 
 defaultWalletCurrencies :: [Currency]
-defaultWalletCurrencies = [ FiatC RUR, CryptoC PZM ]
+defaultWalletCurrencies = [ FiatC RUR, CryptoC PZM, CryptoC OUR ]
 
 
 getOrCreateWalletDB :: UserId -> Currency -> SqlPersistT Handler (Entity UserWallet)

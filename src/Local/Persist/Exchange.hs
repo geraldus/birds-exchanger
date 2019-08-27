@@ -26,6 +26,10 @@ derivePersistField "ProfitType"
 data ExchangePair
     = ExchangePzmRur
     | ExchangeRurPzm
+    | ExchangePzmOur
+    | ExchangeOurPzm
+    | ExchangeRurOur
+    | ExchangeOurRur
     deriving (Show, Read, Eq)
 derivePersistField "ExchangePair"
 
