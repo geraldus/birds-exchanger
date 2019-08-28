@@ -41,7 +41,7 @@ createOrderForm wrapId ratid defaultPair extra = do
         (fsAddAttrs
             [("autocomplete", "off")
             ,("min", "0")]
-            (fsAddClasses (fsAddPlaceholder (fsBs4WithId ratid) "67.00")
+            (fsAddClasses (fsAddPlaceholder (fsBs4WithId ratid) "курс")
                           (fsOpts <> ["ratio-input"])
             )
         )
