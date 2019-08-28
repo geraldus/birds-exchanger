@@ -150,6 +150,7 @@ WithdrawalExecuted: Перевод выполнен
 InfoListTitle: Информация
 Alias: Ссылка
 Title: Заголовок
+ThumbUrl: Обложка (URL-путь изображения)
 ArticeContent: Текст статьи
 NewArticle: Новая статья
 
