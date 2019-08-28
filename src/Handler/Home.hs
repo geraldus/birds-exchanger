@@ -54,6 +54,7 @@ getHomeR = do
     --     btcARes <- httpLbs btcAReq manager
     --     cbrRes <- httpLbs cbrReq manager
     --     return (rbt btcARes, rbt cbrRes)
+    let featured = featuredModal
     defaultLayout $ do
         setAppPageTitle MsgHomePageTitle
         $(widgetFile "homepage")
@@ -213,3 +214,40 @@ clickableOrderW wrapId = toWidget [julius|
         actionInput.attr('readonly', 'readonly')
     })
     |]
+
+featuredModal :: Widget
+featuredModal = do
+    mayFeatured <- handlerToWidget getLastFeaturedNews
+    case mayFeatured of
+        Nothing -> [whamlet||]
+        Just (Entity iid info)  -> do
+            let desc = case infoDescHtml info of
+                    Just "" -> infoContentHtml info
+                    Just desc' -> desc'
+                    _ -> infoContentHtml info
+            [whamlet|
+                <div #featured-modal .modal .fade tabindex="-1" role="dialog">
+                    <div .modal-dialog .modal-dialog-centered role="document">
+                        <div .modal-content .text-white style="background-color: #0e0e0e">
+                            <div .container-fluid>
+                                <div .row>
+                                    <div .col-12>
+                                        <img
+                                            style="max-width: 100%"
+                                            src="@{StaticR images_promo280819_jpg}"
+                                            alt="Иконка новости"/>
+                                    <div .col-10 .mx-auto .pb-2>
+                                        #{preEscapedToMarkup desc}
+                                        <p style="text-align: right">
+                                            <a href="@{InfoViewR (infoAlias info)}">Подробнее...
+                                        |]
+            toWidget [julius|$('#featured-modal').modal('show');
+                |]
+
+
+getLastFeaturedNews :: Handler (Maybe (Entity Info))
+getLastFeaturedNews = do
+    allNews <- runDB $ selectList [ InfoFeatured ==. True ] [ Desc InfoCreated, LimitTo 1 ]
+    case allNews of
+        []  -> return Nothing
+        x:_ -> return (Just x)
