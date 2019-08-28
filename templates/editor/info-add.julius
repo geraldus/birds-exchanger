@@ -1,11 +1,22 @@
 $(document).ready(() => {
-    const contentHostId = '#content-editor'
-    const contentData = $('#content-data')
+    const contentHostId = '#content-html-editor'
+    const contentData = $('#content-html-data')
     ClassicEditor
+    // InlineEditor
         .create(document.querySelector(contentHostId))
         .then(editor => {
             editor.model.document.on('change:data', () => {
                 contentData.val(editor.getData())
+            })
+        })
+    const descHostId = '#desc-html-editor'
+    const descData = $('#desc-html-data')
+    // InlineEditor
+    ClassicEditor
+        .create(document.querySelector(descHostId))
+        .then(editor => {
+            editor.model.document.on('change:data', () => {
+                descData.val(editor.getData())
             })
         })
 })

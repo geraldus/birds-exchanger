@@ -1,18 +1,25 @@
 $(document).ready(() => {
     const titleHostId = '##{rawJS titleIdent}'
     const aliasHostId = '##{rawJS aliasIdent}'
+    const thumbHostId = '##{rawJS thumbIdent}'
+    const featuredHostId = '##{rawJS featuredIdent}'
     const contentHostId = '##{rawJS contentIdent}'
-    const titleInput = $('#title-input')
-    const aliasInput = $('#alias-input')
-    const titleData = $(titleHostId + '-data')
-    const aliasData = $(aliasHostId + '-data')
+    const descHostId = '##{rawJS descIdent}'
+    const titleInput = $(titleHostId)
+    const aliasInput = $(aliasHostId)
+    const thumbInput = $(thumbHostId)
+    const featuredInput = $(featuredHostId)
     const contentData = $(contentHostId + '-data')
-    const updateTitleData = () => { titleData.val(titleInput.val()) }
-    const updateAliasData = () => { aliasData.val(aliasInput.val()) }
-    titleInput.change(updateTitleData).keyup(updateTitleData)
-    aliasInput.change(updateAliasData).keyup(updateAliasData)
-    InlineEditor
-        .create(document.querySelector(contentHostId))
+    const descData = $(descHostId + '-data')
+    ClassicEditor
+        .create(document.querySelector(descHostId + '-editor'))
+        .then(editor => {
+            editor.model.document.on('change:data', () => {
+                descData.val(editor.getData())
+            })
+        })
+    ClassicEditor
+        .create(document.querySelector(contentHostId + '-editor'))
         .then(editor => {
             editor.model.document.on('change:data', () => {
                 contentData.val(editor.getData())

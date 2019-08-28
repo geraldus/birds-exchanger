@@ -167,5 +167,7 @@ Info
     contentHtml Text
     created UTCTime default=(now() at time zone 'utc')
     featured Bool default=false
+    thumbUrl Text Maybe default=null
+    descHtml Text Maybe default=null
     UniqueInfoAlias alias
     deriving Show
