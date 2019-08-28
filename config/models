@@ -166,5 +166,6 @@ Info
     alias Text
     contentHtml Text
     created UTCTime default timezone('utc', now())
+    featured Bool default=False
     UniqueInfoAlias alias
     deriving Show

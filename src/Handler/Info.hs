@@ -69,6 +69,15 @@ getInfoViewR alias = do
                         <label .col-form-label .col-2 for="alias-input">Ссылка на статью
                         <div .col-10>
                             <input #alias-input .form-control type="text" required=required value="#{infoAlias info}"/>
+                    <div .form-check .mb-2>
+                        <input
+                            #featured-input
+                            name="featured"
+                            .form-check-input
+                            type="checkbox"
+                            placeholder="_{MsgTitle}"/>
+                        <label .form-check-label for="featured-input">
+                            Продивигать
                 $else
                     <h1>#{infoTitle info}
 
