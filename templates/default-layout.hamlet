@@ -9,6 +9,9 @@
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#main-nav-menu" aria-controls="main-nav-menu" aria-expanded="false" aria-label="Показать меню">
         <span class="navbar-toggler-icon">
 
+    <a class="navbar-brand" href="/">
+        <img src="@{StaticR images_logo_header_png}" style="max-height: 20px;" alt="OutBirds"/>
+
     <div #main-nav-menu .collapse.navbar-collapse.justify-content-between>
         <ul .navbar-nav>
             $forall MenuItem label route _ <- navbarLeftFilteredMenuItems

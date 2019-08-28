@@ -23,9 +23,6 @@
     border-bottom: 2px solid white;
 }
 
-.navbar-nav {
-    padding-bottom: 1em;
-}
 
 .masthead {
     margin-top: -21px;
