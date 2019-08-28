@@ -48,7 +48,7 @@ DepositRequest json
     created UTCTime
     userId UserId
     status DepositRequestStatus
-    archived  Bool default=FALSE
+    archived  Bool default=false
     UniqueDepositRequest transactionCode
     deriving Show
 
@@ -70,7 +70,7 @@ DepositReject
     requestId DepositRequestId
     staffId Text
     reason Textarea
-    time UTCTime default timezone('utc', now())
+    time UTCTime default=(now() at time zone 'utc')
     UniqueDepositReject requestId
     deriving Show
 
@@ -99,7 +99,7 @@ WithdrawalAccept
 WithdrawalCancel
     requestId WithdrawalRequestId
     transactionReasonId WalletTransactionReasonId
-    time UTCTime default timezone('utc', now())
+    time UTCTime default=(now() at time zone 'utc')
     UniqueWithdrawalCancel requestId
     deriving Show
 
@@ -108,7 +108,7 @@ WithdrawalReject
     staffId Text
     reason Textarea
     transactionReasonId WalletTransactionReasonId
-    time UTCTime default timezone('utc', now())
+    time UTCTime default=(now() at time zone 'utc')
     UniqueWithdrawalReject requestId
     deriving Show
 
@@ -134,7 +134,7 @@ ExchangeOrderExecution
     -- ^ Out-wallet is match wallet
     inWalletTransactionReasonId WalletTransactionReasonId
     -- ^ In-wallet is order's creator wallet
-    fullyExecuted Bool default=FALSE
+    fullyExecuted Bool default=false
     transferAmountCents Int
     -- ^ Pure amount, fee included.  Match receives with fee excluded
     incomeAmountCents Int
@@ -165,7 +165,7 @@ Info
     title Text
     alias Text
     contentHtml Text
-    created UTCTime default timezone('utc', now())
-    featured Bool default=False
+    created UTCTime default=(now() at time zone 'utc')
+    featured Bool default=false
     UniqueInfoAlias alias
     deriving Show
