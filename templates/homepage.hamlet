@@ -62,8 +62,3 @@
                                 <small>
                                     авторизуйтесь для обмена
 
-<div #rateData .d-none>
-    <pre #cbr>
-        # {cbrRes}
-    <pre #btca>
-        # {btcARes}
