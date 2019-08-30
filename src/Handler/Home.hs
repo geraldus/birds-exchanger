@@ -230,15 +230,17 @@ featuredModal = do
                     <div .modal-dialog .modal-dialog-centered role="document">
                         <div .modal-content .text-white style="background-color: #0e0e0e">
                             <div .container-fluid>
+                                $maybe thumb <- infoThumbUrl info
+                                    <div .row>
+                                        <div .col-12>
+                                            <img
+                                                style="max-width: 100%"
+                                                src="#{thumb}"
+                                                alt="Иконка новости"/>
                                 <div .row>
-                                    <div .col-12>
-                                        <img
-                                            style="max-width: 100%"
-                                            src="@{StaticR images_promo280819_jpg}"
-                                            alt="Иконка новости"/>
-                                    <div .col-10 .mx-auto .pb-2>
+                                    <div .col-10 .mx-auto .py-3>
                                         #{preEscapedToMarkup desc}
-                                        <p style="text-align: right">
+                                        <span style="float: right">
                                             <a href="@{InfoViewR (infoAlias info)}">Подробнее...
                                         |]
             toWidget [julius|$('#featured-modal').modal('show');
