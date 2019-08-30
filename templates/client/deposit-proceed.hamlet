@@ -5,6 +5,6 @@
             <p>После выполнения перевода, нажмите на кнопку "Перевод подтверждаю"
 
 <form method=post action=@{DepositConfirmRequestR}>
-    <input type=hidden name="transaction-code" value="#{transactionCode}">
+    <input type=hidden name="transaction-id" value="#{fromSqlKey transactionId}">
     <div .form-group .row>
         <button .mx-auto .btn.btn-primary type=submit>Перевод подтверждаю

@@ -7,7 +7,7 @@ import           Local.Persist.Currency
 import           Local.Persist.Wallet   ( DepositRequestStatus (..) )
 import           Utils.Money
 
-import           Database.Persist.Sql   ( toSqlKey )
+import           Database.Persist.Sql   ( toSqlKey, fromSqlKey )
 
 {-
 Qiwi
@@ -34,11 +34,12 @@ Etherium
 
 
 getDepositRequestConfirmationR :: Text -> Handler Html
-getDepositRequestConfirmationR code = withClientRequestByCode code $ \(Entity _ t) -> do
+getDepositRequestConfirmationR code = withClientRequestByCode code $ \(Entity tid t) -> do
     when (depositRequestStatus t /= New) $ do
         setMessageI MsgDepositRequestAlreadyConfirmed
         redirect HomeR
-    let transactionCode = depositRequestTransactionCode t
+    let transactionId = tid
+        transactionCode = depositRequestTransactionCode t
         transferMethod = depositRequestTransferMethod t
         cents = depositRequestCentsAmount t
         currency = depositRequestCurrency t
@@ -58,12 +59,15 @@ getDepositRequestConfirmationR code = withClientRequestByCode code $ \(Entity _ 
             \#{currSign curr}
             \ #{desc} #
             <span .font-weight-bold .text-monospace>#{addr}
+        |]
+        {-
         <p>В комментарии платежа #
             <span .font-weight-bold>ОБЯЗАТЕЛЬНО УКАЖИТЕ КОД ОПЕРАЦИИ!
         <div .alert .alert-warning>
             <p .text-center>
                 <small>КОД ОПЕРАЦИИ
-            <div .text-monospace .text-center .h3>#{code}|]
+            <div .text-monospace .text-center .h3>#{code}
+        -}
     paymentGuideCard2Card tm cents curr code =
         guideTemplate (paymentTitle tm) cents curr "на карту" (paymentAddr tm) code
     paymentGuideQiwi tm cents curr code =
@@ -79,14 +83,16 @@ getDepositRequestConfirmationR code = withClientRequestByCode code $ \(Entity _ 
     paymentTitle (FiatTM QiwiFTM _) = "Перевод на Qiwi кошелёк по номеру телефона"
     paymentTitle (CryptoTM curr) = "Перевод на " <> cryptoName curr <> " кошелёк"
     paymentAddr :: TransferMethod -> Html
-    paymentAddr (FiatTM SberBankCard2CardFTM RUR) = "5469 7200 1260 8192"
+    -- paymentAddr (FiatTM SberBankCard2CardFTM RUR) = "5469 7200 1260 8192"
+    paymentAddr (FiatTM SberBankCard2CardFTM RUR) = "6390 0272 9012 4958 23"
     paymentAddr (FiatTM TinkoffBankCard2CardFTM RUR) = "5536 9137 9648 0594"
     paymentAddr (FiatTM QiwiFTM RUR) = "+79090991177"
     paymentAddr (CryptoTM PZM) = [shamlet|
         <br>
         PRIZM-8GBY-JZ9V-UJAZ-DNLU2
         <br>
-        12d9435fa9a3ecf3c11c6b8bf7662dec44842616d2cde82cfbf8fb489b3d6d16
+        <small>
+            12d9435fa9a3ecf3c11c6b8bf7662dec44842616d2cde82cfbf8fb489b3d6d16
         |]
     paymentAddr (CryptoTM BTC) = [shamlet|1Hih1ccN7oAxfYWh2tTENiesJ69vt8fdvS|]
     paymentAddr (CryptoTM ETH) = [shamlet|0x790d1e80934232e16FEA0360Ad8963E04Ab528Dc|]
@@ -99,9 +105,10 @@ getDepositRequestConfirmationR code = withClientRequestByCode code $ \(Entity _ 
 postDepositConfirmRequestR :: Handler Html
 postDepositConfirmRequestR = do
     clientId <- requireClientId
-    code <- runInputPost $ ireq textField "transaction-code"
+    -- code <- runInputPost $ ireq textField "transaction-code"
+    trid <- fmap toSqlKey $ runInputPost $ ireq intField "transaction-id"
     ch <- depositUserConfirm . appChannels <$> getYesod
-    withClientRequestByCode code $ \request@(Entity tid t) ->
+    withClientRequest trid $ \request@(Entity tid t) ->
         if clientId == depositRequestUserId t
             then do
                 runDB $
