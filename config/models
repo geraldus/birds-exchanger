@@ -70,7 +70,7 @@ DepositReject
     requestId DepositRequestId
     staffId Text
     reason Textarea
-    time UTCTime default=(now() at time zone 'utc')
+    time UTCTime default=now() AT TIMEZONE 'UTC'
     UniqueDepositReject requestId
     deriving Show
 
@@ -99,7 +99,7 @@ WithdrawalAccept
 WithdrawalCancel
     requestId WithdrawalRequestId
     transactionReasonId WalletTransactionReasonId
-    time UTCTime default=(now() at time zone 'utc')
+    time UTCTime default=now() AT TIME ZONE 'UTC'
     UniqueWithdrawalCancel requestId
     deriving Show
 
@@ -108,7 +108,7 @@ WithdrawalReject
     staffId Text
     reason Textarea
     transactionReasonId WalletTransactionReasonId
-    time UTCTime default=(now() at time zone 'utc')
+    time UTCTime default=now() AT TIME ZONE 'UTC'
     UniqueWithdrawalReject requestId
     deriving Show
 
@@ -165,7 +165,7 @@ Info
     title Text
     alias Text
     contentHtml Text
-    created UTCTime default=(now() at time zone 'utc')
+    created UTCTime default=now() AT TIME ZONE 'UTC'
     featured Bool default=false
     thumbUrl Text Maybe default=null
     descHtml Text Maybe default=null
