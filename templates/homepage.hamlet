@@ -44,7 +44,7 @@
             ^{renderOrderTable ExchangePzmOur False True comingSoonColContent}
             ^{renderOrderTable ExchangeOurRur False True comingSoonColContent}
         <div .col-12 .col-lg-6 .mb-3 .order-col>
-            ^{renderOrderRightCol ExchangeRurPzm (map entityVal pzmRurOrders)}
+            ^{renderOrderRightCol ExchangePzmRur (map entityVal pzmRurOrders)}
             ^{renderOrderTable ExchangePzmOur True True comingSoonColContent}
             ^{renderOrderTable ExchangeOurRur True True comingSoonColContent}
 

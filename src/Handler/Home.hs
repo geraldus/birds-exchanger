@@ -89,14 +89,14 @@ getActiveOrders mu = do
 
 renderOrderLeftCol :: ExchangePair -> [ExchangeOrder] -> Widget
 renderOrderLeftCol exchange orders =
-    renderOrderTable exchange False False widget
+    renderOrderTable exchange True False widget
     where widget
             | null orders = noOrdersColContent
             | otherwise = foldr (\o w -> w >> renderOrderRow o) mempty orders
 
 renderOrderRightCol :: ExchangePair -> [ExchangeOrder] -> Widget
 renderOrderRightCol exchange orders =
-    renderOrderTable exchange True False widget
+    renderOrderTable exchange False False widget
     where widget
             | null orders = noOrdersColContent
             | otherwise = foldr (\o w -> w >> renderOrderRow o) mempty orders
@@ -139,10 +139,10 @@ renderOrderRow order =
         <tr .clickable-order>
             <td .ratio>
                 #{show (nRatio)}
-            <td .expected>
-                #{cents2dblT (cents)}
             <td .amount-left>
                 #{cents2dblT (amtLeft)}
+            <td .expected>
+                #{cents2dblT (cents)}
         |]
 
 noOrdersColContent :: Widget
