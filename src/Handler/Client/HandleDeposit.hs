@@ -10,11 +10,12 @@ import           Utils.Money
 import           Database.Persist.Sql   ( toSqlKey, fromSqlKey )
 
 {-
-Qiwi
-  +79090991177
+Qiwкарты:
+сбер 5469 7200 1233 4856
+все остальное остается.
+позже добавим еще тинькоф
 
-Sber
-  5469 7200 1260 8192
+  +79090991177
 
 Tinkoff
   5536 9137 9169 3324
@@ -30,7 +31,12 @@ Bitcoin
 
 Etherium
   0x790d1e80934232e16FEA0360Ad8963E04Ab528Dc
--}
+
+Устаревшее
+Sber
+  5469 7200 1260 8192
+
+  -}
 
 
 getDepositRequestConfirmationR :: Text -> Handler Html
@@ -83,8 +89,7 @@ getDepositRequestConfirmationR code = withClientRequestByCode code $ \(Entity ti
     paymentTitle (FiatTM QiwiFTM _) = "Перевод на Qiwi кошелёк по номеру телефона"
     paymentTitle (CryptoTM curr) = "Перевод на " <> cryptoName curr <> " кошелёк"
     paymentAddr :: TransferMethod -> Html
-    -- paymentAddr (FiatTM SberBankCard2CardFTM RUR) = "5469 7200 1260 8192"
-    paymentAddr (FiatTM SberBankCard2CardFTM RUR) = "6390 0272 9012 4958 23"
+    paymentAddr (FiatTM SberBankCard2CardFTM RUR) = "5469 7200 1233 4856"
     paymentAddr (FiatTM TinkoffBankCard2CardFTM RUR) = "5536 9137 9648 0594"
     paymentAddr (FiatTM QiwiFTM RUR) = "+79090991177"
     paymentAddr (CryptoTM PZM) = [shamlet|
