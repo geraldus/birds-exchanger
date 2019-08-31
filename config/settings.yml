@@ -30,13 +30,14 @@ ip-from-header: "_env:YESOD_IP_FROM_HEADER:false"
 # See https://github.com/yesodweb/yesod/wiki/Configuration#parsing-numeric-values-as-strings
 
 database:
-  user:     "_env:YESOD_PGUSER:prizm-exchange"
-  password: "_env:YESOD_PGPASS:prizm-exchange"
-  host:     "_env:YESOD_PGHOST:localhost"
-  port:     "_env:YESOD_PGPORT:5432"
   # See config/test-settings.yml for an override during tests
-  database: "_env:YESOD_PGDATABASE:prizm-exchange"
-  poolsize: "_env:YESOD_PGPOOLSIZE:10"
+  user:     "_env:PGUSER:prizm-exchange"
+  password: "_env:PGPASS:prizm-exchange"
+  host:     "_env:PGHOST:localhost"
+  port:     "_env:PGPORT:5432"
+  # See config/test-settings.yml for an override during tests
+  database: "_env:PGDATABASE:prizm-exchange"
+  poolsize: "_env:PGPOOLSIZE:10"
 
 copyright: © 2018-2019 «OutBirds»
 #analytics: UA-YOURCODE
