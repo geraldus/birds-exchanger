@@ -20,12 +20,14 @@ module Application
     , db
     ) where
 
+import           Import
+import           Type.App
+
 import           Control.Monad.Logger                 ( liftLoc, runLoggingT )
 import qualified Crypto.Nonce                         as CN
 import           Database.Persist.Postgresql          ( createPostgresqlPool,
                                                         pgConnStr, pgPoolSize,
                                                         runSqlPool )
-import           Import
 import           Language.Haskell.TH.Syntax           ( qLocation )
 import           Network.HTTP.Client.TLS              ( getGlobalManager )
 import           Network.Wai                          ( Middleware )
@@ -44,6 +46,7 @@ import           Network.Wai.Middleware.RequestLogger ( Destination (Logger),
 import           System.Log.FastLogger                ( defaultBufSize,
                                                         newStdoutLoggerSet,
                                                         toLogStr )
+
 
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
@@ -99,6 +102,7 @@ makeFoundation appSettings = do
     appNonceGen <- liftIO CN.new
     chDepositUserConfirm <- newBroadcastTChanIO
     chWithdrawalRequest <- newBroadcastTChanIO
+    appPaymentMethods <- newTMVarIO hardcodedPaymentMethods
     let appChannels = AppChannels chDepositUserConfirm chWithdrawalRequest
 
     -- We need a log function to create a connection pool. We need a connection

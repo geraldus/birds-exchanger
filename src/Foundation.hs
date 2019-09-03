@@ -58,13 +58,14 @@ data AppChannels = AppChannels
 -- starts running, such as database connections. Every handler will have
 -- access to the data present here.
 data App = App
-    { appSettings    :: AppSettings
-    , appStatic      :: Static -- ^ Settings for static file serving.
-    , appConnPool    :: ConnectionPool -- ^ Database connection pool.
-    , appHttpManager :: Manager
-    , appLogger      :: Logger
-    , appNonceGen    :: CN.Generator
-    , appChannels    :: AppChannels
+    { appSettings       :: AppSettings
+    , appStatic         :: Static -- ^ Settings for static file serving.
+    , appConnPool       :: ConnectionPool -- ^ Database connection pool.
+    , appHttpManager    :: Manager
+    , appLogger         :: Logger
+    , appNonceGen       :: CN.Generator
+    , appChannels       :: AppChannels
+    , appPaymentMethods :: TMVar AppPaymentMethods
     }
 
 -- This is where we define all of the routes in our application. For a full
