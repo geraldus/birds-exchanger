@@ -74,9 +74,8 @@ hardcodedPaymentMethods = AppPaymentMethods
             OUR
             0
             [ PaymentAddress
-                ["TEST ADDRESS 1"] 0 ]
+                ["TEST ADDRESS 1"] 0 ] ]
     }
-
 
 defaultPaymentAddressRotationThreshold :: Int
 defaultPaymentAddressRotationThreshold = 10
