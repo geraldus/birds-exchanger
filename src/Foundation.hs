@@ -186,11 +186,11 @@ instance Yesod App where
                     { menuItemLabel = mr MsgTermsOfUse
                     , menuItemRoute = TermsOfUseR
                     , menuItemAccessCallback = isClientLoggedIn }
-                , MenuItem
-                    { menuItemLabel = mr MsgClientSettingsPageTitle
-                    , menuItemRoute = ClientSettingsR
-                    , menuItemAccessCallback = isClientLoggedIn
-                    }
+                -- , MenuItem
+                --     { menuItemLabel = mr MsgClientSettingsPageTitle
+                --     , menuItemRoute = ClientSettingsR
+                --     , menuItemAccessCallback = isClientLoggedIn
+                --     }
                 , MenuItem
                     { menuItemLabel = "Выход"
                     , menuItemRoute = AuthR LogoutR
