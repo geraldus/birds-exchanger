@@ -7,7 +7,8 @@ import           Local.Persist.Currency
 import           Local.Persist.Wallet   ( DepositRequestStatus (..) )
 import           Utils.Money
 
-import           Database.Persist.Sql   ( toSqlKey, fromSqlKey )
+import           Data.Aeson             ( decode )
+import           Database.Persist.Sql   ( fromSqlKey, toSqlKey )
 
 {-
 Qiwкарты:
@@ -45,20 +46,21 @@ getDepositRequestConfirmationR code = withClientRequestByCode code $ \(Entity ti
         setMessageI MsgDepositRequestAlreadyConfirmed
         redirect HomeR
     let transactionId = tid
-        transactionCode = depositRequestTransactionCode t
+        -- transactionCode = depositRequestTransactionCode t
         transferMethod = depositRequestTransferMethod t
+        transferAddressee = fromMaybe [] ((decode . fromStrict . encodeUtf8) (depositRequestAddressee t))
         cents = depositRequestCentsAmount t
         currency = depositRequestCurrency t
         paymentGuide = case transferMethod of
-            FiatTM SberBankCard2CardFTM RUR -> paymentGuideCard2Card transferMethod cents currency code
-            FiatTM TinkoffBankCard2CardFTM RUR -> paymentGuideCard2Card transferMethod cents currency code
-            FiatTM QiwiFTM RUR -> paymentGuideQiwi transferMethod cents currency code
-            CryptoTM PZM -> paymentGuideCryptoC transferMethod cents currency code
+            FiatTM SberBankCard2CardFTM RUR -> paymentGuideCard2Card transferMethod transferAddressee cents currency code
+            FiatTM TinkoffBankCard2CardFTM RUR -> paymentGuideCard2Card transferMethod transferAddressee cents currency code
+            FiatTM QiwiFTM RUR -> paymentGuideQiwi transferMethod transferAddressee cents currency code
+            CryptoTM PZM -> paymentGuideCryptoC transferMethod transferAddressee cents currency code
             _ -> [whamlet|Приём средств временно приостановлен.  Попробуйте позже|]
     defaultLayout $(widgetFile "client/deposit-proceed")
   where
     guideTemplate :: Text -> Int -> Currency -> Text -> Html -> Text -> Widget
-    guideTemplate title cents curr desc addr code = [whamlet|
+    guideTemplate title cents curr desc addr _ = [whamlet|
         <p .lead .text-center>#{title}
         <p>Переведите #
             <span .text-monospace.font-weight-bold>#{cents2dblT cents}
@@ -66,45 +68,41 @@ getDepositRequestConfirmationR code = withClientRequestByCode code $ \(Entity ti
             \ #{desc} #
             <span .font-weight-bold .text-monospace>#{addr}
         |]
-        {-
-        <p>В комментарии платежа #
-            <span .font-weight-bold>ОБЯЗАТЕЛЬНО УКАЖИТЕ КОД ОПЕРАЦИИ!
-        <div .alert .alert-warning>
-            <p .text-center>
-                <small>КОД ОПЕРАЦИИ
-            <div .text-monospace .text-center .h3>#{code}
-        -}
-    paymentGuideCard2Card tm cents curr code =
-        guideTemplate (paymentTitle tm) cents curr "на карту" (paymentAddr tm) code
-    paymentGuideQiwi tm cents curr code =
-        guideTemplate (paymentTitle tm) cents curr "на Qiwi-кошелёк" (paymentAddr tm) code
-    paymentGuideCryptoC tm cents curr code =
+    paymentGuideCard2Card :: TransferMethod -> [Text] -> Int -> Currency -> Text -> Widget
+    paymentGuideCard2Card tm addressee cents curr _ =
+        guideTemplate (paymentTitle tm) cents curr "на карту" (paymentAddr tm addressee) code
+    paymentGuideQiwi tm addressee cents curr _ =
+        guideTemplate (paymentTitle tm) cents curr "на Qiwi-кошелёк" (paymentAddr tm addressee) code
+    paymentGuideCryptoC tm addressee cents curr _ =
         let c = case tm of
                 CryptoTM c' -> c'
                 _           -> error "Ошибка.  Неверные данные"
-        in guideTemplate (paymentTitle tm) cents curr (cryptoCDesc c) (paymentAddr tm) code
+        in guideTemplate (paymentTitle tm) cents curr (cryptoCDesc c) (paymentAddr tm addressee) code
     paymentTitle :: TransferMethod -> Text
     paymentTitle (FiatTM SberBankCard2CardFTM _) = "Пополнение переводом на карту СберБанка"
     paymentTitle (FiatTM TinkoffBankCard2CardFTM _) = "Пополнение переводом на карту Тинькофф Банка"
     paymentTitle (FiatTM QiwiFTM _) = "Перевод на Qiwi кошелёк по номеру телефона"
+    paymentTitle (FiatTM _ _) = "Перевод на данный момент не поддерживается"
     paymentTitle (CryptoTM curr) = "Перевод на " <> cryptoName curr <> " кошелёк"
-    paymentAddr :: TransferMethod -> Html
-    paymentAddr (FiatTM SberBankCard2CardFTM RUR) = "5469 7200 1233 4856"
-    paymentAddr (FiatTM TinkoffBankCard2CardFTM RUR) = "5536 9137 9648 0594"
-    paymentAddr (FiatTM QiwiFTM RUR) = "+79090991177"
-    paymentAddr (CryptoTM PZM) = [shamlet|
-        <br>
-        PRIZM-8GBY-JZ9V-UJAZ-DNLU2
-        <br>
-        <small>
-            12d9435fa9a3ecf3c11c6b8bf7662dec44842616d2cde82cfbf8fb489b3d6d16
-        |]
-    paymentAddr (CryptoTM BTC) = [shamlet|1Hih1ccN7oAxfYWh2tTENiesJ69vt8fdvS|]
-    paymentAddr (CryptoTM ETH) = [shamlet|0x790d1e80934232e16FEA0360Ad8963E04Ab528Dc|]
+    paymentAddr :: TransferMethod -> [Text] -> Html
+    paymentAddr (FiatTM AlphaBankCard2CardFTM _) _ = [shamlet|Нет адреса для перевода|]
+    paymentAddr (FiatTM _ _) adr = [shamlet|#{concat adr}|]
+    paymentAddr (CryptoTM PZM) adr =
+        let (w, pk) = case adr of
+                w':pk':_ -> (w', pk')
+                w':_ -> (w', "")
+                _ -> ("", "")
+        in [shamlet|
+                #{w}
+                <br>
+                <small>#{pk} |]
+    paymentAddr (CryptoTM _) adr = [shamlet|#{concat adr}|]
     cryptoCDesc curr = "на " <> cryptoName curr <> " кошелёк"
     cryptoName PZM = "Prizm"
     cryptoName BTC = "Bitcoin"
     cryptoName ETH = "Etherium"
+    cryptoName OUR = "Etherium"
+
 
 
 postDepositConfirmRequestR :: Handler Html

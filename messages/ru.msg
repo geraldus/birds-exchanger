@@ -43,6 +43,7 @@ Save: Сохранить
 Cancel: Отмена
 ChangesSaved: Изменения сохранены
 AccessDenied: Недостаточно прав доступа
+NoPaymentMethodAvailable: Нет подходящего способа перевода
 
 IAcceptTemrsOfUseText: регистрируясь, я принимаю правила и условия использования сервиса
 

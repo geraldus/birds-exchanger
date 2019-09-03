@@ -40,6 +40,7 @@ WalletBalanceTransaction
 DepositRequest json
     currency Currency
     transferMethod TransferMethod
+    addressee Text default=''
     centsAmount Int
     expectedFeeCents Int
     transactionCode Text

@@ -9,12 +9,14 @@ import           Import                 hiding ( on, (==.) )
 import           Form.Profile.Deposit
 import           Local.Persist.Currency ( Currency (..), currSign )
 import           Local.Persist.Wallet   ( DepositRequestStatus (..) )
+import           Type.App
 import           Utils.App.Client
 import           Utils.App.Common
 import           Utils.Common
 import           Utils.I18n
 import           Utils.Money
 
+import           Data.Aeson             ( encode )
 import           Database.Esqueleto
 import           Database.Persist.Sql   ( fromSqlKey )
 
@@ -41,20 +43,31 @@ postDepositR = do
         FormSuccess DepositRequestFD{..} -> do
             code <- appNonce128urlT
             time <- liftIO getCurrentTime
-            let depReqRecord = DepositRequest
-                    depReqCurrency
-                    depReqTransferMethod
-                    depReqCentsAmount
-                    depReqCentsExpectedFee
-                    code
-                    depReqTargetCurrency
-                    depReqExpectedConversionRatio
-                    time
-                    userId
-                    New
-                    False
-            _ <- runDB $ insert depReqRecord
-            redirect $ DepositRequestConfirmationR code
+            paymentAddressee <- getNextPaymentAddressee defaultSelectNextAddr depReqTransferMethod
+            renderMessage <- getMessageRender
+            case paymentAddressee of
+                Nothing -> defaultLayout $
+                    defaultWidget
+                        formId
+                        widget
+                        enctype
+                        (Just [ renderMessage MsgNoPaymentMethodAvailable ])
+                Just (PaymentAddress depReqPaymentAddressee _) -> do
+                    let depReqRecord = DepositRequest
+                            depReqCurrency
+                            depReqTransferMethod
+                            (decodeUtf8 . toStrict . encode $ depReqPaymentAddressee)
+                            depReqCentsAmount
+                            depReqCentsExpectedFee
+                            code
+                            depReqTargetCurrency
+                            depReqExpectedConversionRatio
+                            time
+                            userId
+                            New
+                            False
+                    _ <- runDB $ insert depReqRecord
+                    redirect $ DepositRequestConfirmationR code
 
 defaultWidget :: Text -> Widget -> Enctype -> Maybe [Text] -> Widget
 defaultWidget formId widget enctype mayError = do

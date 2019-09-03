@@ -5,6 +5,7 @@ module Type.App where
 import           Import.NoFoundation
 import           Local.Persist.Currency
 
+
 data MenuItem m where
     MenuItem :: RenderRoute m =>
         { menuItemLabel          :: Text
@@ -24,16 +25,18 @@ type PaymentAddressee = [Text]
 data PaymentAddress = PaymentAddress
     { paymentAddressAddressee :: PaymentAddressee
     , paymentAddressCount     :: Int }
+    deriving Show
 
 data PaymentMethod
     = FiatPaymentMethod TransferMethod TransactionsCount [PaymentAddress]
     | CryptoPaymentMethod CryptoCurrency TransactionsCount [PaymentAddress]
-
+    deriving Show
 
 data AppPaymentMethods = AppPaymentMethods
     { appDepositFiatMethods   :: [PaymentMethod]
     , appDepositCryptoMethods :: [PaymentMethod]
     }
+    deriving Show
 
 hardcodedPaymentMethods :: AppPaymentMethods
 hardcodedPaymentMethods = AppPaymentMethods
@@ -71,5 +74,35 @@ hardcodedPaymentMethods = AppPaymentMethods
             OUR
             0
             [ PaymentAddress
-                ["TEST ADDRESS"] 0 ] ]
+                ["TEST ADDRESS 1"] 0 ]
     }
+
+
+defaultPaymentAddressRotationThreshold :: Int
+defaultPaymentAddressRotationThreshold = 10
+
+defaultSelectNextAddr :: PaymentMethod -> (Maybe PaymentAddress, PaymentMethod)
+defaultSelectNextAddr pm@(FiatPaymentMethod  _ _ []) = (Nothing, pm)
+defaultSelectNextAddr pm@(CryptoPaymentMethod _ _ []) = (Nothing, pm)
+defaultSelectNextAddr pm =
+    let addrs = getParams pm
+        x1 = zip addrs [0..]
+        x2 = flip map x1 $ \ (x@(PaymentAddress _ q), n) ->
+                    ( x
+                    , q `div` defaultPaymentAddressRotationThreshold
+                    , n
+                    )
+        x3 = sortOn ( \(_, snd3, _) -> snd3) x2
+        (adr@(PaymentAddress a cnt), _, i) = case x3 of
+            h:_ -> h
+            _ -> error "Impossible.  Payment address list should be already pattern matched"
+        upd = PaymentAddress a (cnt + 1)
+        (prev, _:rest) = splitAt i addrs
+    in (Just adr, updateMethod pm (prev <> [upd] <> rest))
+    where
+        getParams (FiatPaymentMethod _ _ as) = as
+        getParams (CryptoPaymentMethod _ _ as) = as
+        updateMethod (FiatPaymentMethod method count _) addrs
+            = FiatPaymentMethod method (count + 1) addrs
+        updateMethod (CryptoPaymentMethod cur count _) addrs
+            = CryptoPaymentMethod cur (count + 1) addrs

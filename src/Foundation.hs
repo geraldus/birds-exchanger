@@ -21,15 +21,6 @@ import qualified Yesod.Core.Unsafe       as Unsafe
 import           Yesod.Default.Util      ( addStaticContentExternal )
 import           Yesod.Form.I18n.Russian
 
-import           Control.Monad.Logger    ( LogSource )
-import qualified Data.CaseInsensitive    as CI
-import qualified Data.Text.Encoding      as TE
-import           Database.Persist.Sql    ( ConnectionPool, fromSqlKey,
-                                           runSqlPool )
-import           Text.Hamlet             ( hamletFile )
-import           Text.Jasmine            ( minifym )
-
--- Extra imports
 import           Local.Auth
 import           Local.Persist.Currency
 import           Local.Persist.UserRole
@@ -39,7 +30,15 @@ import           Utils.Form              ( currencyOptionListRaw,
                                            transferOptionsRaw )
 import           Utils.Money
 
+import           Control.Monad.Logger    ( LogSource )
 import qualified Crypto.Nonce            as CN
+import qualified Data.CaseInsensitive    as CI
+import           Data.List               ( findIndex )
+import qualified Data.Text.Encoding      as TE
+import           Database.Persist.Sql    ( ConnectionPool, fromSqlKey,
+                                           runSqlPool )
+import           Text.Hamlet             ( hamletFile )
+import           Text.Jasmine            ( minifym )
 import           Text.Read               ( readMaybe )
 
 
@@ -783,3 +782,81 @@ setAppTitle = setCompositeTitle . (:) MsgProjectName
 
 setAppPageTitle :: AppMessage -> Widget
 setAppPageTitle = setAppTitle . (: [])
+
+getNextPaymentAddressee
+    :: (PaymentMethod -> (Maybe PaymentAddress, PaymentMethod))
+    -> TransferMethod
+    -> Handler (Maybe PaymentAddress)
+getNextPaymentAddressee selectNext method@(FiatTM m c) =
+    getNextPaymentGeneric matchMethod selectNext method
+    where
+        matchMethod :: TransferMethod -> PaymentMethod -> Bool
+        matchMethod
+                (FiatTM tm tc)
+                (FiatPaymentMethod (FiatTM pm pc) _ _)
+            = tm == pm && tc == pc
+        matchMethod
+                (CryptoTM tc)
+                (CryptoPaymentMethod pc _ _)
+            = tc == pc
+        matchMethod _ _ = False
+
+        findMethod
+            :: FiatTransferMethod
+            -> FiatCurrency
+            -> PaymentMethod
+            -> Bool
+        findMethod tm tc method@(FiatPaymentMethod (FiatTM ftm fc) _ _) =
+            ftm == tm && fc == tc
+        findMethod _ _ _ = False
+getNextPaymentAddressee _ (CryptoTM c) = error "wup"
+
+getNextPaymentGeneric
+    :: (TransferMethod -> PaymentMethod -> Bool)
+    -> (PaymentMethod -> (Maybe PaymentAddress, PaymentMethod))
+    -> TransferMethod
+    -> Handler (Maybe PaymentAddress)
+getNextPaymentGeneric matchMethod selectNext targetTransferMethod = do
+    pasMVar <- appPaymentMethods <$> getYesod
+    liftIO . atomically $ do
+        v <- takeTMVar pasMVar
+        let nothingFound = putTMVar pasMVar v >> return Nothing
+        let knownPaymentMethods = selectMethods targetTransferMethod v
+        let mayIndex =
+                findIndex (matchMethod targetTransferMethod) knownPaymentMethods
+        case mayIndex of
+            Nothing -> nothingFound
+            Just i -> do
+                let (prev, current:rest) = splitAt i knownPaymentMethods
+                if noAddrs current
+                    then nothingFound
+                    else do
+                        let (addr, update) = selectNext current
+                        case addr of
+                            Nothing -> nothingFound
+                            Just paymentAddr -> do
+                                let nextState = prev <> [update] <> rest
+                                putTMVar
+                                    pasMVar
+                                    -- Make next state via Record update
+                                    (updateMethods targetTransferMethod v nextState)
+                                return (Just paymentAddr)
+    where
+        noAddrs :: PaymentMethod -> Bool
+        noAddrs (FiatPaymentMethod _ _ []) = True
+        noAddrs (CryptoPaymentMethod _ _ []) = True
+        noAddrs _ = False
+
+        selectMethods :: TransferMethod -> AppPaymentMethods -> [PaymentMethod]
+        selectMethods (FiatTM _ _) app = appDepositFiatMethods app
+        selectMethods (CryptoTM _) app = appDepositCryptoMethods app
+
+        updateMethods
+            :: TransferMethod
+            -> AppPaymentMethods
+            -> [PaymentMethod]
+            -> AppPaymentMethods
+        updateMethods (FiatTM _ _) app update = app
+                { appDepositFiatMethods = update }
+        updateMethods (CryptoTM _) app update = app
+                { appDepositCryptoMethods = update }
