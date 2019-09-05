@@ -33,6 +33,7 @@ OneClickExchange: Обмен в один клик
 # FORM ERROS
 PositiveValueRequired: должно быть положительным числом
 NotEnoughFunds: Недостаточно средств
+FormInvalidMinimalAmount: Минимальная сумма пополнения
 
 User: Пользователь
 EmailAddress: Адрес эл.почты
