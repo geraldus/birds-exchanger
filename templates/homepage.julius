@@ -1,59 +1,95 @@
-const init = () => {
-    // const cbr_tree = $(
-    //     $('#cbr')
-    //         .text()
-    //         .replace(/<img.*?>/gm, '')
-    //         .replace(/<script.*?<\/script>/gm, '')
-    //         .replace(/<style.*?<\/style>/gm, ''))
-    // const btca_tree = $(
-    //     $('#btca')
-    //         .text()
-    //         .replace(/<img.*?>/gm, '')
-    //         .replace(/<script.*?<\/script>/gm, '')
-    //         .replace(/<style.*?<\/style>/gm, ''))
-    // $('#rateData').remove()
-    // const cbr_data = $('#group_mainind .name_exchange.opened .w_data_wrap', cbr_tree).first()
-    // const cbr_nodes = getTextNodesIn(cbr_data)
-    // const cbr_rate = parseFloat($(cbr_nodes[cbr_nodes.length - 1]).text().replace(',', '.'))
-    // const btca_data = $('#pair_PZM_USD .markets-col-price', btca_tree).text()
-    // const btca_rate = parseFloat(btca_data)
-    // const rateInput = $('##{rawJS ratioId}')
-    // rateInput.attr('placeholder', (cbr_rate * btca_rate).toFixed(2))
-    const orderCols = $('.order-col')
-    const switchTab = (e, pair, tabs) => {
-        e.preventDefault()
-        tabs.forEach(t => $(t).removeClass('active').addClass('text-light'))
-        $(pair).addClass('active').removeClass('text-light')
-        const id = $(pair)
-            .attr('id')
-            .slice(0, -('-pair').length)
-            .replace('-', '_')
-        const flip_id = id.split('_').reverse().join('_')
-        const els = orderCols.find('> *')
-        els.each((_, x) => {
-            const el = $(x)
-            const pair = el.data('pair')
-            if (pair == id || pair == flip_id) {
-                el.removeClass('hide')
-                el.addClass('show')
-            } else {
-                el.removeClass('show')
-                el.addClass('hide')
-            }
-        })
+const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1)
+
+const currenctySign = (c) => {
+    switch (true) {
+        case c == 'rur' || c == 'rub':
+            return '₽'
+        case c == 'pzm':
+            return 'PZM'
+        case c == 'our':
+            return 'OUR'
+        default:
+            return c
     }
+}
+
+const switchTab = (
+    e,
+    pair,
+    tabs,
+    {
+        orderCols,
+        hiddenPairInput,
+        formAppendOutCurrency,
+        formAppendRate,
+        inCurrencySum,
+        outCurrencyFee,
+        inCurrencyFee,
+        outCurrencyTotal,
+        inCurrencyTotal,
+    }
+) => {
+    e.preventDefault()
+    tabs.forEach(t => $(t).removeClass('active').addClass('text-light'))
+    $(pair).addClass('active').removeClass('text-light')
+    const currency = $(pair).attr('id').slice(0, -('-pair').length).split('-')
+    const id = currency.join('_')
+    const flip_id = id.split('_').reverse().join('_')
+    const els = orderCols.find('> *')
+    els.each((_, x) => {
+        const el = $(x)
+        const pair = el.data('pair')
+        if (pair == id || pair == flip_id) {
+            el.removeClass('hide')
+            el.addClass('show')
+        } else {
+            el.removeClass('show')
+            el.addClass('hide')
+        }
+    })
+    const cap = capitalize
+    const cur = currenctySign
+    $(hiddenPairInput).val(`Exchange${cap(currency[0])}${cap(currency[1])}`)
+    $(formAppendOutCurrency).text(cur(currency[0]))
+    $(formAppendRate).html(`${cur(currency[1])}/${cur(currency[0])}`)
+    $(inCurrencySum).html(`&nbsp;${cur(currency[1])}`)
+    $(outCurrencyFee).html(`&nbsp;${cur(currency[0])}`)
+    $(inCurrencyFee).html(`&nbsp;${cur(currency[1])}`)
+    $(outCurrencyTotal).html(`&nbsp;${cur(currency[0])}`)
+    $(inCurrencyTotal).html(`&nbsp;${cur(currency[1])}`)
+}
+
+
+const init = () => {
+    const hiddenPairInput = $('##{rawJS wrapId}-hidden-pair');
+    const formAppendOutCurrency = $('##{rawJS wrapId}-out-currency-append')
+    const formAppendRate = $('##{rawJS wrapId}-rate-append')
+
+    const inCurrencySum = $('##{rawJS wrapId}-in-currency-sum')
+    const outCurrencyFee = $('##{rawJS wrapId}-out-currency-fee')
+    const inCurrencyFee = $('##{rawJS wrapId}-in-currency-fee')
+    const outCurrencyTotal = $('##{rawJS wrapId}-out-currency-total')
+    const inCurrencyTotal = $('##{rawJS wrapId}-in-currency-total')
+
+    const orderCols = $('.order-col')
     const pzmRurTab = $('#pzm-rur-pair')
-    const pzmOurTab = $('#pzm-our-pair')
+    const pzmOurTab = $('#our-pzm-pair')
     const ourRurTab = $('#our-rur-pair')
     const tabs = [pzmRurTab, pzmOurTab, ourRurTab]
-    pzmRurTab.click((e) => { switchTab(e, pzmRurTab, tabs) })
-    pzmOurTab.click((e) => { switchTab(e, pzmOurTab, tabs) })
-    ourRurTab.click((e) => { switchTab(e, ourRurTab, tabs) })
-    // const pzmRurFeeInfo = $('#pzm-rur-fee-info')
-    // pzmRurTab.click(() => {
-    //     pzmRurTab.parent().toggleClass('expanded')
-    //     pzmRurFeeInfo.collapse('toggle')
-    // })
+    const switchConf = {
+        orderCols,
+        hiddenPairInput,
+        formAppendOutCurrency,
+        formAppendRate,
+        inCurrencySum,
+        outCurrencyFee,
+        inCurrencyFee,
+        outCurrencyTotal,
+        inCurrencyTotal,
+    }
+    pzmRurTab.click((e) => { switchTab(e, pzmRurTab, tabs, switchConf) })
+    pzmOurTab.click((e) => { switchTab(e, pzmOurTab, tabs, switchConf) })
+    ourRurTab.click((e) => { switchTab(e, ourRurTab, tabs, switchConf) })
 }
 
 const getTextNodesIn = (n, includeWhitespaceNodes) => {

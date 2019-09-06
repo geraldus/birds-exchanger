@@ -2,7 +2,8 @@ module Utils.Deposit where
 
 import           Prelude
 
-import           Local.Params           ( defPzmDepositFee, defRurDepositFee )
+import           Local.Params           ( defOurDepositFee, defPzmDepositFee,
+                                          defRurDepositFee )
 import           Local.Persist.Currency
 import           Type.Fee
 
@@ -12,6 +13,7 @@ import           Type.Fee
 selectDepositFee :: Currency -> Fee
 selectDepositFee (FiatC   RUR) = defRurDepositFee
 selectDepositFee (CryptoC PZM) = defPzmDepositFee
+selectDepositFee (CryptoC OUR) = defOurDepositFee
 selectDepositFee c             = error $ "No deposit fee rules for " <> show c
 
 selectRatio :: Currency -> Currency -> Double

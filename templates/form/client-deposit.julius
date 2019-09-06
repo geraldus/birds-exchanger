@@ -42,6 +42,9 @@ $(document).ready(() => {
             case 'pzm':
                 updatePayamentMethods(selectedCurrency, true)
                 break
+            case 'our':
+                updatePayamentMethods(selectedCurrency, true)
+                break
             default: break
         }
     })

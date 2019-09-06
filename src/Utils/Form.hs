@@ -2,8 +2,7 @@
 module Utils.Form where
 
 import           Import.NoFoundation
-import           Local.Params           ( depositPzmMinCentsAmount,
-                                          depositRurMinCentsAmount )
+import           Local.Params
 import           Local.Persist.Currency
 import           Type.Money             ( oneCoinCents )
 
@@ -13,24 +12,29 @@ amountIsValidC (CryptoC PZM) a =
     a * fromIntegral oneCoinCents >= fromIntegral depositPzmMinCentsAmount
 amountIsValidC (FiatC RUR) a =
     a * fromIntegral oneCoinCents >= fromIntegral depositRurMinCentsAmount
+amountIsValidC (CryptoC OUR) a =
+    a * fromIntegral oneCoinCents >= fromIntegral depositOurMinCentsAmount
 amountIsValidC _ _ = False
 
 
 currencyOptions :: [(Text, Currency)]
 currencyOptions =
-    [ ("Российский рубль ₽ (RUR)", FiatC RUR)
+    [ ("Российский рубль ₽ (RUB)", FiatC RUR)
     , ("Криптовалюта Prizm (PZM)", CryptoC PZM)
+    , ("Криптовалюта Ouroboros (OUR)", CryptoC OUR)
     ]
 
 currencyOptionListRaw :: [Option Currency]
 currencyOptionListRaw =
-    [ Option "Российский рубль ₽ (RUR)" (FiatC RUR)   "rur"
-    , Option "Криптовалюта Prizm (PZM)" (CryptoC PZM) "pzm"
+    [ Option "Российский рубль ₽ (RUB)"     (FiatC RUR)   "rur"
+    , Option "Криптовалюта Prizm (PZM)"     (CryptoC PZM) "pzm"
+    , Option "Криптовалюта Ouroboros (OUR)" (CryptoC OUR) "our"
     ]
 
 transferOptionsRaw :: [Option TransferMethod]
 transferOptionsRaw =
     [ Option "перевод Prizm"                    ctmPzm        "pzm_tm"
+    , Option "перевод Ouroboros"                ctmOur        "our_tm"
     -- , Option "перевод Bitcoin" ctmBtc "btc_tm"
     -- , Option "перевод Etherium" ctmBtc "eth_tm"
     , Option "СберБанк - перевод на карту"      ftmSberRur    "rur_sber_tm"
