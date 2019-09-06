@@ -20,7 +20,6 @@ createOrderForm wrapId ratid defaultPair extra = do
     actid  <- newIdent
     amtid  <- newIdent
     sumid  <- newIdent
-    renderMessage <- (getMessageRender :: MForm Handler (AppMessage -> Text))
     let wrapid = wrapId
         feeid = wrapId <> "-hidden-fee"
         pairid = wrapId <> "-hidden-pair"
@@ -42,10 +41,6 @@ createOrderForm wrapId ratid defaultPair extra = do
                 )
              )
             Nothing
-    let validate = \x y z-> validateParams renderMessage userWallets x y z
-    let validatedAmountRes :: FormResult Double
-        validatedAmountRes =  joinResult
-            (validate <$> pairRes <*> actionRes  <*> amountRes)
     (ratioRes, ratioView) <- mreq
         doubleField
         (fsAddAttrs
@@ -58,10 +53,14 @@ createOrderForm wrapId ratid defaultPair extra = do
         Nothing
     (feeRes, hiddenFeeView) <- mreq
             hiddenField (fsBs4WithId feeid) (Nothing :: Maybe Int)
+    renderMessage' <- getMessageRender
+    let validate = validateParams renderMessage' userWallets
+        validatedAmountRes = joinResult
+            (validate <$> pairRes <*> actionRes  <*> amountRes)
     let result =
             OrderFD
                 <$> actionRes
-                <*> fmap truncCoins2Cents validatedAmountRes
+                <*> (truncCoins2Cents <$> validatedAmountRes)
                 <*> ratioRes
                 <*> feeRes
                 <*> pairRes
@@ -86,14 +85,14 @@ createOrderForm wrapId ratid defaultPair extra = do
             validateByCurrency mr ws (snd $ unPairCurrency p) a
 
     validateByCurrency :: (AppMessage -> Text) -> [Entity UserWallet] -> Currency -> Double -> FormResult Double
-    validateByCurrency renderMessage [] _ _ =
-        FormFailure [ renderMessage MsgUserWalletNotFound ]
-    validateByCurrency renderMessage (Entity _ w:ws) c amt
+    validateByCurrency renderMessage' [] _ _ =
+        FormFailure [ renderMessage' MsgUserWalletNotFound ]
+    validateByCurrency renderMessage' (Entity _ w:ws) c amt
         | userWalletCurrency w == c
             = if fromIntegral (userWalletAmountCents w) >= amt * 100
                 then FormSuccess amt
-                else FormFailure [ renderMessage MsgNotEnoughFunds ]
-        | otherwise = validateByCurrency renderMessage ws c amt
+                else FormFailure [ renderMessage' MsgNotEnoughFunds ]
+        | otherwise = validateByCurrency renderMessage' ws c amt
 
 data OrderFD = OrderFD
     { action :: ExchangeAction
@@ -108,6 +107,7 @@ data ExchangeAction = EAGive | EAReceive
     deriving (Show, Eq)
 
 
+joinResult :: FormResult (FormResult a) -> FormResult a
 joinResult FormMissing                    = FormMissing
 joinResult (FormFailure es)               = FormFailure es
 joinResult (FormSuccess FormMissing)      = FormMissing
