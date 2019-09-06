@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
 module Form.Exchanger.Order where
@@ -5,21 +6,24 @@ module Form.Exchanger.Order where
 import           Import
 
 import           Local.Params           ( defaultExchangeFee )
+import           Local.Persist.Currency ( Currency (..) )
 import           Local.Persist.Exchange ( ExchangePair (..) )
 import           Type.Fee               ( Fee (..) )
-import           Utils.Money            ( truncCoins2Cents )
+import           Utils.Money            ( truncCoins2Cents, unPairCurrency )
 
 import           Text.Julius            ( RawJS (..) )
 
 
 createOrderForm :: Text -> Text -> ExchangePair -> Form OrderFD
 createOrderForm wrapId ratid defaultPair extra = do
+    userWallets <- lift maybeClient >>= return . maybe [] snd
     actid  <- newIdent
     amtid  <- newIdent
     sumid  <- newIdent
-    feeid  <- newIdent
-    pairid <- newIdent
+    renderMessage <- (getMessageRender :: MForm Handler (AppMessage -> Text))
     let wrapid = wrapId
+        feeid = wrapId <> "-hidden-fee"
+        pairid = wrapId <> "-hidden-pair"
     (actionRes, actionView) <- mreq
         actionField
         (fsAddClasses
@@ -27,15 +31,21 @@ createOrderForm wrapId ratid defaultPair extra = do
             (fsOpts <> ["font-weight-bold", "exchange-action-input"])
         )
         Nothing
+    (pairRes, hiddenPairView) <- mreq
+            hiddenField (fsBs4WithId pairid) (Just defaultPair)
     (amountRes, amountView) <- mreq
-        doubleField
-        (fsAddAttrs
-            [("min", "0")]
-            (fsAddClasses (fsAddPlaceholder (fsBs4WithId amtid) "кол-во")
-                      (fsOpts <> ["font-weight-bold", "amount-input"])
-            )
-        )
-        Nothing
+            doubleField
+            (fsAddAttrs
+                [("min", "0")]
+                (fsAddClasses (fsAddPlaceholder (fsBs4WithId amtid) "кол-во")
+                        (fsOpts <> ["font-weight-bold", "amount-input"])
+                )
+             )
+            Nothing
+    let validate = \x y z-> validateParams renderMessage userWallets x y z
+    let validatedAmountRes :: FormResult Double
+        validatedAmountRes =  joinResult
+            (validate <$> pairRes <*> actionRes  <*> amountRes)
     (ratioRes, ratioView) <- mreq
         doubleField
         (fsAddAttrs
@@ -46,16 +56,12 @@ createOrderForm wrapId ratid defaultPair extra = do
             )
         )
         Nothing
-    (feeRes, hiddenFeeView) <- mreq hiddenField
-                                    (fsBs4WithId feeid)
-                                    (Nothing :: Maybe Int)
-    (pairRes, hiddenPairView) <- mreq hiddenField
-                                      (fsBs4WithId pairid)
-                                      (Just defaultPair)
+    (feeRes, hiddenFeeView) <- mreq
+            hiddenField (fsBs4WithId feeid) (Nothing :: Maybe Int)
     let result =
             OrderFD
                 <$> actionRes
-                <*> fmap truncCoins2Cents amountRes
+                <*> fmap truncCoins2Cents validatedAmountRes
                 <*> ratioRes
                 <*> feeRes
                 <*> pairRes
@@ -66,6 +72,28 @@ createOrderForm wrapId ratid defaultPair extra = do
     actionField = selectField $ optionsPairs
         [("Отдаю" :: SomeMessage App, EAGive), ("Принимаю", EAReceive)]
     fsOpts = ["form-control-lg", "text-right", "bg-dark", "text-white"]
+
+    validateParams
+        :: (AppMessage -> Text)
+        -> [Entity UserWallet]
+        -> ExchangePair
+        -> ExchangeAction
+        -> Double
+        -> FormResult Double
+    validateParams mr ws p EAGive a =
+            validateByCurrency mr ws (fst $ unPairCurrency p) a
+    validateParams mr ws p EAReceive a =
+            validateByCurrency mr ws (snd $ unPairCurrency p) a
+
+    validateByCurrency :: (AppMessage -> Text) -> [Entity UserWallet] -> Currency -> Double -> FormResult Double
+    validateByCurrency renderMessage [] _ _ =
+        FormFailure [ renderMessage MsgUserWalletNotFound ]
+    validateByCurrency renderMessage (Entity _ w:ws) c amt
+        | userWalletCurrency w == c
+            = if fromIntegral (userWalletAmountCents w) >= amt * 100
+                then FormSuccess amt
+                else FormFailure [ renderMessage MsgNotEnoughFunds ]
+        | otherwise = validateByCurrency renderMessage ws c amt
 
 data OrderFD = OrderFD
     { action :: ExchangeAction
@@ -78,3 +106,10 @@ data OrderFD = OrderFD
 
 data ExchangeAction = EAGive | EAReceive
     deriving (Show, Eq)
+
+
+joinResult FormMissing                    = FormMissing
+joinResult (FormFailure es)               = FormFailure es
+joinResult (FormSuccess FormMissing)      = FormMissing
+joinResult (FormSuccess (FormFailure es)) = FormFailure es
+joinResult (FormSuccess (FormSuccess r))  = FormSuccess r
