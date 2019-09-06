@@ -34,6 +34,7 @@ OneClickExchange: Обмен в один клик
 PositiveValueRequired: должно быть положительным числом
 NotEnoughFunds: Недостаточно средств
 FormInvalidMinimalAmount: Минимальная сумма пополнения
+UserWalletNotFound: У вас нет подходящего кошелька
 
 User: Пользователь
 EmailAddress: Адрес эл.почты
@@ -189,8 +190,8 @@ WithdrawalFeeTotal: Удержанная комиссия с вывода
 
 # MISC COMMON PHRASES
 
-InFact: по факту
 
+InFact: по факту
 TMSberBankCard2Card: СберБанк
 TMTinkoffBankCard2Card: Тинькофф Банк
 TMAlphaBankCard2Card: Альфа Банк
