@@ -787,29 +787,8 @@ getNextPaymentAddressee
     :: (PaymentMethod -> (Maybe PaymentAddress, PaymentMethod))
     -> TransferMethod
     -> Handler (Maybe PaymentAddress)
-getNextPaymentAddressee selectNext method@(FiatTM m c) =
+getNextPaymentAddressee selectNext method =
     getNextPaymentGeneric matchMethod selectNext method
-    where
-        matchMethod :: TransferMethod -> PaymentMethod -> Bool
-        matchMethod
-                (FiatTM tm tc)
-                (FiatPaymentMethod (FiatTM pm pc) _ _)
-            = tm == pm && tc == pc
-        matchMethod
-                (CryptoTM tc)
-                (CryptoPaymentMethod pc _ _)
-            = tc == pc
-        matchMethod _ _ = False
-
-        findMethod
-            :: FiatTransferMethod
-            -> FiatCurrency
-            -> PaymentMethod
-            -> Bool
-        findMethod tm tc method@(FiatPaymentMethod (FiatTM ftm fc) _ _) =
-            ftm == tm && fc == tc
-        findMethod _ _ _ = False
-getNextPaymentAddressee _ (CryptoTM c) = error "wup"
 
 getNextPaymentGeneric
     :: (TransferMethod -> PaymentMethod -> Bool)
@@ -860,3 +839,12 @@ getNextPaymentGeneric matchMethod selectNext targetTransferMethod = do
                 { appDepositFiatMethods = update }
         updateMethods (CryptoTM _) app update = app
                 { appDepositCryptoMethods = update }
+
+
+matchMethod :: TransferMethod -> PaymentMethod -> Bool
+matchMethod (FiatTM tm tc) (FiatPaymentMethod (FiatTM pm pc) _ _)
+    = tm == pm && tc == pc
+matchMethod (CryptoTM tc) (CryptoPaymentMethod pc _ _)
+    = tc == pc
+matchMethod _ _ = False
+
