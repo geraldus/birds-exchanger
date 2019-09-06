@@ -4,8 +4,7 @@ module Form.Profile.Deposit where
 
 
 import           Import
-import           Local.Params                  ( depositPzmMinCentsAmount,
-                                                 depositRurMinCentsAmount )
+import           Local.Params                  ( currencyDefaultMinimalDeposit )
 import           Local.Persist.Currency
 import           Utils.Deposit
 import           Utils.Form
@@ -20,6 +19,7 @@ depositForm formId extra = do
     cid <- newIdent
     tid <- newIdent
     aid <- newIdent
+    renderMessage <- getMessageRender
     (paymentCurrencyRes, paymentCurrencyView) <- mreq currencySelect (fsBs4WithId cid) Nothing
     (paymentAmountRes, paymentAmountView) <- mreq
         doubleField
@@ -33,25 +33,24 @@ depositForm formId extra = do
         amountCentsRes   = truncCoins2Cents <$> paymentAmountRes
         matchingFee = selectDepositFee <$> paymentCurrencyRes
         expectedFee = calcFeeCents <$> matchingFee <*> amountCentsRes
-        expectedRatio = selectRatio <$> paymentCurrencyRes <*> paymentCurrencyRes-- targetCurrencyRes
+        -- expectedRatio = selectRatio <$> paymentCurrencyRes <*> paymentCurrencyRes
         depReqRes = DepositRequestFD
                         <$> paymentCurrencyRes
                         <*> transferMethodRes
                         <*> amountCentsRes
                         <*> expectedFee
                         <*> paymentCurrencyRes
-                        -- ^ for now no conversion; no instant exchange
-                        -- <*> targetCurrencyRes
-                        <*> expectedRatio
+                        -- <*> expectedRatio
+    let mayPaymentCurrency = maybeSuccess paymentCurrencyRes
         formResult = case amountIsValidRes of
             FormSuccess True -> depReqRes
-            FormSuccess False -> FormFailure [
+            FormSuccess False ->
+                let limits = fromMaybeMinAmountDesc mayPaymentCurrency
+                in FormFailure [
                     toStrict $ renderHtml [shamlet|
                         $newline never
-                        Минимальная сумма пополнения #
-                        \#{cents2dblT depositRurMinCentsAmount} ₽ / #
-                        \#{cents2dblT depositPzmMinCentsAmount} #
-                        \PZM|]
+                        #{renderMessage MsgFormInvalidMinimalAmount} #
+                        \#{limits}|]
                 ]
             FormFailure es -> FormFailure es
             FormMissing -> FormMissing
@@ -59,9 +58,23 @@ depositForm formId extra = do
     -- let isValidTransferMethod = isJust . fvErrors $ transferMethodView
     let widget = do
             inCurrencyId <- newIdent
-            -- inTargetCurrencyId <- newIdent
             $(widgetFile "form/client-deposit")
     return (formResult, widget)
+
+fromMaybeMinAmountDesc :: Maybe Currency -> Html
+fromMaybeMinAmountDesc mc = [shamlet|#{messages}|]
+    where
+        messages = intercalate " / " cs'
+        cs' = flip map cs $ \c -> [shamlet|#{cents2dblT (currencyDefaultMinimalDeposit c)} #{currSign c}|]
+        cs = fromMaybeMinAmountCurrencies mc
+
+fromMaybeMinAmountCurrencies :: Maybe Currency -> [ Currency ]
+fromMaybeMinAmountCurrencies (Just c) = [ c ]
+fromMaybeMinAmountCurrencies _ = [ pzmC, ourC, rurC ]
+
+maybeSuccess :: FormResult a -> Maybe a
+maybeSuccess (FormSuccess x) = Just x
+maybeSuccess _               = Nothing
 
 
 data DepositRequestFD = DepositRequestFD
@@ -70,5 +83,5 @@ data DepositRequestFD = DepositRequestFD
     , depReqCentsAmount             :: Int
     , depReqCentsExpectedFee        :: Int
     , depReqTargetCurrency          :: Currency
-    , depReqExpectedConversionRatio :: Double
+    -- , depReqExpectedConversionRatio :: Double
     }
