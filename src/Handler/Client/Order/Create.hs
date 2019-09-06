@@ -8,11 +8,13 @@ module Handler.Client.Order.Create where
 import           Import
 
 import           Form.Exchanger.Order
-import           Local.Params              ( defaultExchangeFee )
+import           Local.Params                    ( defaultExchangeFee )
 import           Local.Persist.Currency
 import           Local.Persist.Exchange
 import           Utils.Database.Operations
 import           Utils.Money
+
+import           Text.Blaze.Html.Renderer.Pretty ( renderHtml )
 
 
 data ProcessForm
@@ -94,16 +96,18 @@ giveTake a giveChoise takeChoise = if a == EAGive
     then giveChoise else takeChoise
 
 
-postExchangeOrderCreateR' :: ExchangePair -> Handler Html
-postExchangeOrderCreateR' epair = do
+postExchangeOrderCreateR :: Handler Html
+postExchangeOrderCreateR = do
     client <- requireClientId
     rid <- newIdent
     wid <- newIdent
-    ((res, _), _) <- runFormPost $ createOrderForm wid rid epair
+    ((res, _), _) <- runFormPost $ createOrderForm wid rid
+        ExchangePzmRur -- This is not actually used here, will be
+        -- valueable when rendering form widget takes place
     proceessResult <- case res of
         FormMissing    -> return ProcessFormNoData
         FormFailure es -> return $
-                ProcessFormErrors $ zip es (repeat "form")
+                ProcessFormErrors $ zip (repeat "form") es
         FormSuccess od -> do
             let act = action od
                 r = ratio od
@@ -120,15 +124,12 @@ postExchangeOrderCreateR' epair = do
     case proceessResult of
         ProcessFormErrors es -> do
             -- TODO: FIXME: Add JSON response capabilities
-            let msg = [shamlet|$forall (_, message) <- es
-                    <div>#{message} |]
+            let msg = [shamlet|
+                    $forall (_, message) <- es
+                        <div>#{message}|]
             setMessage msg
-        ProcessFormSuccess a c t checkOrder -> do
-            runDB $ saveAndExecuteOrder client a c t checkOrder
-            return ()
+        ProcessFormSuccess a c t checkOrder ->
+            runDB (saveAndExecuteOrder client a c t checkOrder) >> return ()
         _ -> return ()
     redirect HomeR
 
-
-postExchangeOrderCreateR :: Handler Html
-postExchangeOrderCreateR = postExchangeOrderCreateR' ExchangePzmRur

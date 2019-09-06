@@ -29,10 +29,6 @@ depositForm formId extra = do
             [ "form-control-lg", "text-center" ] )
         Nothing
     (transferMethodRes, transferMethodView) <- mreq transferMethodSelect (fsBs4WithId tid) Nothing
-    -- (targetCurrencyRes, _) <- mreq
-    --     ( selectFieldList currencyOptions )
-    --     fsBs4
-    --     Nothing
     let amountIsValidRes = amountIsValidC <$> paymentCurrencyRes <*> paymentAmountRes
         amountCentsRes   = truncCoins2Cents <$> paymentAmountRes
         matchingFee = selectDepositFee <$> paymentCurrencyRes

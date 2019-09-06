@@ -47,13 +47,6 @@ getHomeR = do
             getData wrapId modalWrapId ratioId modalRatioId
     -- Sort RUR to PZM orders by descending order ratio
     let rurPzmOrders = foldl (flip (:)) [] rurPzmOrders'
-    -- (btcARes, cbrRes) <- runResourceT $ liftIO $ do
-    --     manager <- newTlsManager
-    --     btcAReq <- parseRequest "https://btc-alpha.com/exchange/PZM_USD"
-    --     cbrReq <- parseRequest "http://cbr.ru"
-    --     btcARes <- httpLbs btcAReq manager
-    --     cbrRes <- httpLbs cbrReq manager
-    --     return (rbt btcARes, rbt cbrRes)
     let featured = featuredModal
     defaultLayout $ do
         setAppPageTitle MsgHomePageTitle
