@@ -23,6 +23,7 @@ postOperatorAcceptDepositRequestR = do
     case mdepreq of
         Nothing                  -> notFound
         Just DepositRequest {..} -> do
+            now <- liftIO getCurrentTime
             mue <- runDB . get $ depositRequestUserId
             case mue of
                 Nothing -> notFound
@@ -55,7 +56,7 @@ postOperatorAcceptDepositRequestR = do
                         let mStaffUserId = case staffId of
                                 Left uid -> Just uid
                                 _        -> Nothing
-                        let time = userWalletCreated userWallet
+                        let time = now
                         _ <- insert $ AcceptedDeposit
                             drId
                             depositRequestCurrency
