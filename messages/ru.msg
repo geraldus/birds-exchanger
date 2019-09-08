@@ -192,6 +192,8 @@ WithdrawalFeeTotal: Удержанная комиссия с вывода
 
 # MISC COMMON PHRASES
 
+ReadMore: Подробнее
+DoNotShowAgain: Больше не показывать
 
 InFact: по факту
 TMSberBankCard2Card: СберБанк

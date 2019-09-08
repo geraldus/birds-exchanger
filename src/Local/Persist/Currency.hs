@@ -63,7 +63,7 @@ ourC = CryptoC OUR
 
 fCurrencyCodeT :: FiatCurrency -> Text
 fCurrencyCodeT USD = "USD"
-fCurrencyCodeT RUR = "RUR"
+fCurrencyCodeT RUR = "RUB"
 
 cCurrencyCodeT :: CryptoCurrency -> Text
 cCurrencyCodeT PZM = "PZM"

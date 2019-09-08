@@ -18,7 +18,7 @@ import           Utils.Render
 
 import qualified Data.HashMap.Strict     as HMS
 import           Data.Text.Lazy.Encoding ( decodeUtf8 )
-import           Prelude                 ( foldl )
+import           Database.Persist.Sql    ( fromSqlKey )
 import           Text.Julius             ( RawJS (..) )
 
 
@@ -72,86 +72,6 @@ getActiveOrders mu = do
         [Asc ExchangeOrderNormalizedRatio, Asc ExchangeOrderCreated]
     return $ partition (isPzmRurOrder . entityVal) os
     where isPzmRurOrder = (== ExchangePzmRur) . exchangeOrderPair
-
-renderOrderLeftCol :: ExchangePair -> [ExchangeOrder] -> Widget
-renderOrderLeftCol exchange orders =
-    renderOrderTable exchange True False widget
-    where widget
-            | null orders = noOrdersColContent
-            | otherwise = foldr (\o w -> w >> renderOrderRow o) mempty orders
-
-renderOrderRightCol :: ExchangePair -> [ExchangeOrder] -> Widget
-renderOrderRightCol exchange orders =
-    renderOrderTable exchange False False widget
-    where widget
-            | null orders = noOrdersColContent
-            | otherwise = foldr (\o w -> w >> renderOrderRow o) mempty orders
-
-renderOrderTable :: ExchangePair -> Bool -> Bool -> Widget -> Widget
-renderOrderTable exchange flip' hidden tableBodyWidget =
-    [whamlet|
-        <h5 :hidden:.hide .text-center data-pair="#{epair}">#{title}
-        <table :hidden:.hide .table .table-hover data-pair="#{epair}">
-            <thead .thead-dark>
-                <tr>
-                    <th>_{MsgRatio}
-                    <th>_{MsgQuantityShort} #
-                        <span .text-muted>(#{currSign c1})
-                    <th>_{MsgAmount} #
-                        <span .text-muted>(#{currSign c2})
-            <tbody>
-                ^{tableBodyWidget}
-        |]
-  where
-    (c1, c2) = (\(a, b) -> if flip' then (b, a) else (a, b)) $
-        unPairCurrency exchange
-    c1code = toLower $ currencyCodeT c1
-    c2code = toLower $ currencyCodeT c2
-    c1sign = currSign c1
-    c2sign = currSign c2
-    epair  = c1code <> "_" <> c2code
-    title  = c1sign <> " ⇢ " <> c2sign
-
-
-renderOrderRow :: ExchangeOrder -> Widget
-renderOrderRow order =
-    let pair'         = exchangeOrderPair order
-        nRatio        = exchangeOrderNormalizedRatio order
-        normalization = exchangeOrderRatioNormalization order
-        amtLeft       = exchangeOrderAmountLeft order
-        cents         = multiplyCents
-                (normalizeRatio pair' normalization nRatio) amtLeft
-    in [whamlet|
-        <tr .clickable-order>
-            <td .ratio>
-                #{show (nRatio)}
-            <td .amount-left>
-                #{cents2dblT (amtLeft)}
-            <td .expected>
-                #{cents2dblT (cents)}
-        |]
-
-noOrdersColContent :: Widget
-noOrdersColContent = [whamlet|
-    <tr rowspan="2">
-        <td colspan="3" .text-center .align-middle>
-            ОРДЕРОВ НА ОБМЕН ЕЩЁ НЕТ
-            <br />
-            <small>
-                Станьте первым, кто создаст новый ордер
-    |]
-
-
-comingSoonColContent :: Widget
-comingSoonColContent = [whamlet|
-    <tr rowspan="2">
-        <td colspan="3" .text-center .align-middle>
-            СКОРО
-            <br />
-            <small>
-                Следите за новостями
-    |]
-
 
 clickableOrderW :: Text -> Widget
 clickableOrderW wrapId = toWidget [julius|
@@ -213,8 +133,16 @@ featuredModal = do
                     Just ""    -> infoContentHtml info
                     Just desc' -> desc'
                     _          -> infoContentHtml info
+            wrapId <- newIdent
             [whamlet|
-                <div #featured-modal .modal .fade tabindex="-1" role="dialog">
+                <div
+                    #featured-modal
+                    .modal
+                    .fade
+                    tabindex="-1"
+                    role="dialog"
+                    data-newsid="#{fromSqlKey iid}"
+                    >
                     <div .modal-dialog .modal-dialog-centered role="document">
                         <div .modal-content .text-white style="background-color: #0e0e0e">
                             <div .container-fluid>
@@ -228,12 +156,39 @@ featuredModal = do
                                 <div .row>
                                     <div .col-10 .mx-auto .py-3>
                                         #{preEscapedToMarkup desc}
-                                        <span style="float: right">
-                                            <a href="@{InfoViewR (infoAlias info)}">Подробнее...
+                                        <div style="float: left; cursor: pointer; user-select: none">
+                                            <span .checkmark>✓
+                                            <span ##{wrapId}-remember-trigger .text-muted>
+                                                _{MsgDoNotShowAgain}
+                                        <div style="float: right">
+                                            <a href="@{InfoViewR (infoAlias info)}">
+                                                _{MsgReadMore}
                                         |]
-            toWidget [julius|$('#featured-modal').modal('show');
-                |]
-
+            toWidget [julius|
+            $(document).ready(() => {
+                const featured = '#{rawJS (show $ fromSqlKey iid)}'
+                const cookieName = 'outb.info_featured'
+                const newsCookie = Cookies.get(cookieName)
+                const markedNews =
+                    newsCookie && new Set(JSON.parse(newsCookie)) || new Set()
+                const trigger = $('##{rawJS wrapId}-remember-trigger')
+                const toggleFeaturedVisibility = () => {
+                    if (trigger.parent().hasClass('toggle')) {
+                        markedNews.delete(featured)
+                    } else {
+                        markedNews.add(featured)
+                    }
+                    console.log('set', JSON.stringify([ ...markedNews ]))
+                    Cookies.set(cookieName, JSON.stringify([ ...markedNews ]), { domain: 'outb.info', expires: 60 })
+                    Cookies.set(cookieName, JSON.stringify([ ...markedNews ]), { domain: 'localhost', expires: 60 })
+                    trigger.parent().toggleClass('toggle')
+                }
+                if (!newsCookie || !markedNews.has(featured)) {
+                    $('#featured-modal').modal('show')
+                }
+                trigger.click(toggleFeaturedVisibility)
+            });
+            |]
 
 getLastFeaturedNews :: Handler (Maybe (Entity Info))
 getLastFeaturedNews = do
@@ -241,6 +196,8 @@ getLastFeaturedNews = do
     case allNews of
         []  -> return Nothing
         x:_ -> return (Just x)
+
+-- | ** Depth of Market
 
 renderDomTable :: ExchangePair -> Bool -> Bool -> DomStats -> Widget
 renderDomTable p buy hidden d = domTable pair hidden title body
@@ -275,7 +232,7 @@ domRow r t buy d =
             style=#{style}
         >
             <td .ratio>
-                #{cents2dblT (round r * 100)}
+                #{cents2dblT $ round (r * 100)}
             <td .amount-left>
                 #{cents2dblT outCents}
             <td .expected>

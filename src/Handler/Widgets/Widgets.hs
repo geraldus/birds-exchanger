@@ -67,12 +67,12 @@ infoArticleSimpleForm
                 ##{contentIdent'}-data
                 name="content"
                 type="hidden"
-                value='#{content}'
+                value=#{content}
                 />
             <input
                 ##{descIdent'}-data
                 name="desc"
-                value='#{desc}'
+                value=#{desc}
                 type="hidden"/>
             |]
     where

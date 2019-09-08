@@ -19,7 +19,6 @@ $(document).ready(() => {
             console.log(filteredTrs)
             filteredTrs.hide()
         }
-        console.log(curr)
     }
 
     navLinks

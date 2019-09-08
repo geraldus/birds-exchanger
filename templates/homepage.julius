@@ -34,24 +34,19 @@ const updateTextalData = (wrapid, currency) => {
     $(inCurrencyTotal).html(`&nbsp;${cur(currency[1])}`)
 }
 
-const switchTab = (
-    e,
-    pair,
-    tabs,
-    {
-        orderCols,
-    }
-) => {
+const switchTab = (e, pair, tabs, { orderCols, }) => {
     e.preventDefault()
     tabs.forEach(t => $(t).removeClass('active').addClass('text-light'))
     $(pair).addClass('active').removeClass('text-light')
-    const currency = $(pair).attr('id').slice(0, -('-pair').length).split('-')
+    const currency = $(pair).attr('id')
+        .slice(0, -('-pair').length)
+        .split('-')
     const id = currency.join('_')
     const flip_id = id.split('_').reverse().join('_')
     const els = orderCols.find('> *')
     els.each((_, x) => {
         const el = $(x)
-        const pair = el.data('pair')
+        const pair = el.data('pair').replace('rub', 'rur')
         if (pair == id || pair == flip_id) {
             el.removeClass('hide')
             el.addClass('show')
