@@ -65,10 +65,8 @@ getInfoViewR alias = do
         ((infoAlias info)                  , Just aliasIdent)
         ((fromMaybe "" (infoThumbUrl info)), Just thumbIdent)
         ((infoFeatured info)               , Just featuredIdent)
-        ( preEscapedToMarkup (infoContentHtml info)
-        , Just contentIdent)
-        ( preEscapedToMarkup (fromMaybe "" (infoDescHtml info))
-        , Just descIdent)
+        ( infoContentHtml info , Just contentIdent)
+        ( fromMaybe "" (infoDescHtml info) , Just descIdent)
   defaultLayout $ do
     when isEditorLoggedIn $ do
         addScriptRemote

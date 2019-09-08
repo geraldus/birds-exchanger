@@ -26,8 +26,8 @@ infoArticleSimpleForm
     -> (Text, Maybe Text)
     -> (Text, Maybe Text)
     -> (Bool, Maybe Text)
-    -> (Html, Maybe Text)
-    -> (Html, Maybe Text)
+    -> (Text, Maybe Text)
+    -> (Text, Maybe Text)
     -> Widget
 infoArticleSimpleForm
     (title, titleIdent)
@@ -57,22 +57,22 @@ infoArticleSimpleForm
         <div .form-group .mb-3>
             <label for="#{descIdent'}-editor">Короткое описание
             <div ##{descIdent'}-editor>
-                #{desc}
+                #{preEscapedToMarkup desc}
         <div .form-group>
             <label for="#{contentIdent'}-editor">Текст новости
             <div ##{contentIdent'}-editor>
-                #{content}
+                #{preEscapedToMarkup content}
         <div .form-group>
             <input
                 ##{contentIdent'}-data
                 name="content"
                 type="hidden"
-                value="#{content}"
+                value='#{content}'
                 />
             <input
                 ##{descIdent'}-data
                 name="desc"
-                value="#{desc}"
+                value='#{desc}'
                 type="hidden"/>
             |]
     where
