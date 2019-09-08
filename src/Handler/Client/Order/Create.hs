@@ -14,14 +14,50 @@ import           Local.Persist.Exchange
 import           Utils.Database.Operations
 import           Utils.Money
 
-import           Text.Blaze.Html.Renderer.Pretty ( renderHtml )
-
 
 data ProcessForm
     = ProcessFormNoData
     | ProcessFormErrors [ LabeledError ]
     | ProcessFormSuccess
             AmountCents Currency UTCTime (UserWallet -> OrderCheck)
+
+postExchangeOrderCreateR :: Handler Html
+postExchangeOrderCreateR = do
+    client <- requireClientId
+    rid <- newIdent
+    wid <- newIdent
+    ((res, _), _) <- runFormPost $ createOrderForm wid rid
+        ExchangePzmRur -- This is not actually used here, will be
+        -- valueable when rendering form widget takes place
+    proceessResult <- case res of
+        FormMissing    -> return ProcessFormNoData
+        FormFailure es -> return $
+                ProcessFormErrors $ zip (repeat "form") es
+        FormSuccess od -> do
+            let act = action od
+                r = ratio od
+                formPair = pair od
+                d = giveTake act formPair (flipPair formPair)
+            let a = case act of
+                        EAGive -> amount od
+                        EAReceive ->
+                            let k = pairRatioByNormalizedRatio formPair r
+                            in multiplyCents k (amount od)
+            mr <- getMessageRender
+            t <- liftIO getCurrentTime
+            return $ processNewOrder client d a r t mr
+    case proceessResult of
+        ProcessFormErrors es -> do
+            -- TODO: FIXME: Add JSON response capabilities
+            let msg = [shamlet|
+                    $forall (_, message) <- es
+                        <div>#{message}|]
+            setMessage msg
+        ProcessFormSuccess a c t checkOrder ->
+            runDB (saveAndExecuteOrder client a c t checkOrder) >> return ()
+        _ -> return ()
+    redirect HomeR
+
 
 
 processNewOrder
@@ -94,42 +130,3 @@ orderCreateRenderFormErrors a r w m =
 giveTake :: ExchangeAction -> p -> p -> p
 giveTake a giveChoise takeChoise = if a == EAGive
     then giveChoise else takeChoise
-
-
-postExchangeOrderCreateR :: Handler Html
-postExchangeOrderCreateR = do
-    client <- requireClientId
-    rid <- newIdent
-    wid <- newIdent
-    ((res, _), _) <- runFormPost $ createOrderForm wid rid
-        ExchangePzmRur -- This is not actually used here, will be
-        -- valueable when rendering form widget takes place
-    proceessResult <- case res of
-        FormMissing    -> return ProcessFormNoData
-        FormFailure es -> return $
-                ProcessFormErrors $ zip (repeat "form") es
-        FormSuccess od -> do
-            let act = action od
-                r = ratio od
-                formPair = pair od
-                d = giveTake act formPair (flipPair formPair)
-            let a = case act of
-                        EAGive -> amount od
-                        EAReceive ->
-                            let k = pairRatioByNormalizedRatio formPair r
-                            in multiplyCents k (amount od)
-            mr <- getMessageRender
-            t <- liftIO getCurrentTime
-            return $ processNewOrder client d a r t mr
-    case proceessResult of
-        ProcessFormErrors es -> do
-            -- TODO: FIXME: Add JSON response capabilities
-            let msg = [shamlet|
-                    $forall (_, message) <- es
-                        <div>#{message}|]
-            setMessage msg
-        ProcessFormSuccess a c t checkOrder ->
-            runDB (saveAndExecuteOrder client a c t checkOrder) >> return ()
-        _ -> return ()
-    redirect HomeR
-
