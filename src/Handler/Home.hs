@@ -278,6 +278,8 @@ getLastFeaturedNews = do
         []  -> return Nothing
         x:_ -> return (Just x)
 
+-- | ** Depth of Market
+
 renderDomTable :: ExchangePair -> Bool -> Bool -> DomStats -> Widget
 renderDomTable p buy hidden d = domTable pair hidden title body
     where
@@ -311,7 +313,7 @@ domRow r t buy d =
             style=#{style}
         >
             <td .ratio>
-                #{cents2dblT (round r * 100)}
+                #{cents2dblT $ round (r * 100)}
             <td .amount-left>
                 #{cents2dblT outCents}
             <td .expected>
