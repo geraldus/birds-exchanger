@@ -90,6 +90,8 @@ ExecutedOrders: Выполненые
 ViewOrderDetails: Просмотр истории ордера
 CancelOrder: Отменить ордер
 CancelOrderConfirmationText: Вы уверены, что хотите отменить ордер на обмен?
+DomNoOrders: Ордеров на обмен ещё нет
+DomCreateNewOrderOffer: Станьте первым, кто создаст новый ордер
 
 
 Balance: Баланс
