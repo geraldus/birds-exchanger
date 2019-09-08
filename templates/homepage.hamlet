@@ -42,13 +42,13 @@
     <div .row>
         ^{clickableOrderW modalWrapId}
         <div .col-12 .col-lg-6 .mb-3 .order-col>
-            ^{renderOrderLeftCol ExchangePzmRur (map entityVal rurPzmOrders)}
-            ^{renderOrderTable ExchangeOurPzm False True comingSoonColContent}
-            ^{renderOrderTable ExchangeOurRur False True comingSoonColContent}
+            ^{renderDomTable ExchangePzmRur False False statsDOM}
+            ^{renderDomTable ExchangeOurPzm False True statsDOM}
+            ^{renderDomTable ExchangeOurRur False True statsDOM}
         <div .col-12 .col-lg-6 .mb-3 .order-col>
-            ^{renderOrderRightCol ExchangePzmRur (map entityVal pzmRurOrders)}
-            ^{renderOrderTable ExchangeOurPzm True True comingSoonColContent}
-            ^{renderOrderTable ExchangeOurRur True True comingSoonColContent}
+            ^{renderDomTable ExchangePzmRur True False statsDOM}
+            ^{renderDomTable ExchangeOurPzm True True statsDOM}
+            ^{renderDomTable ExchangeOurRur True True statsDOM}
 
 <div #clickable-order-modal .modal .fade tabindex="-1" role=dialog>
     <div .modal-dialog .modal-lg .modal-dialog-centered role=document>

@@ -9,17 +9,15 @@ module Handler.Home where
 import           Import                  hiding ( decodeUtf8, httpLbs )
 
 import           Form.Exchanger.Order
-import           Local.Params            ( defPzmDepositFee, defRurDepositFee,
-                                           defaultExchangeFee )
+import           Handler.API.Order.Index
+import           Local.Params
 import           Local.Persist.Currency
 import           Local.Persist.Exchange  ( ExchangePair (..) )
 import           Utils.Money
 import           Utils.Render
-import           Utils.Withdrawal
 
+import qualified Data.HashMap.Strict     as HMS
 import           Data.Text.Lazy.Encoding ( decodeUtf8 )
--- import           Network.HTTP.Client.Internal
--- import           Network.HTTP.Client.TLS
 import           Prelude                 ( foldl )
 import           Text.Julius             ( RawJS (..) )
 
@@ -30,40 +28,35 @@ data FileForm = FileForm
     , fileDescription :: Text
     }
 
--- This is a handler function for the GET request method on the HomeR
--- resource pattern. All of your resource patterns are defined in
--- config/routes
---
--- The majority of the code you will write in Yesod lives in these handler
--- functions. You can spread them across multiple files if you are so
--- inclined, or create a single monolithic file.
 getHomeR :: Handler Html
 getHomeR = do
     wrapId <- newIdent
     ratioId <- newIdent
     modalWrapId <- newIdent
     modalRatioId <- newIdent
-    (mmsg, mayClientUser, orderCreateFormW, modalOrderCreateFormW, (pzmRurOrders, rurPzmOrders')) <-
+    (mmsg, mayClientUser, orderCreateFormW, modalOrderCreateFormW) <-
             getData wrapId modalWrapId ratioId modalRatioId
     -- Sort RUR to PZM orders by descending order ratio
-    let rurPzmOrders = foldl (flip (:)) [] rurPzmOrders'
     let featured = featuredModal
+    orders <- runDB $ flip mapM [ ExchangePzmRur, ExchangeOurRur, ExchangeOurPzm ] selectActiveOrdersOf
+    let statsDOM = reduceDomStats [] $ concat orders
+    renderMessage <- getMessageRender
     defaultLayout $ do
         setAppPageTitle MsgHomePageTitle
         $(widgetFile "homepage")
   where
     rbt = decodeUtf8 . responseBody
 
-getData :: Text -> Text -> Text -> Text -> HandlerFor App (Maybe Html, Maybe (Key User), Widget, Widget,
-        ([Entity ExchangeOrder], [Entity ExchangeOrder]))
+getData :: Text -> Text -> Text -> Text -> HandlerFor App (Maybe Html, Maybe (Key User), Widget, Widget)
 getData wrapId modalWrapId ratioId modalRatioId = do
     mUser <- maybeClientUser
-    (,,,,)
+    (,,,)
         <$> getMessage
         <*> pure mUser
-        <*> fmap fst (generateFormPost (createOrderForm wrapId ratioId ExchangePzmRur))
-        <*> fmap fst (generateFormPost (createOrderForm modalWrapId modalRatioId ExchangePzmRur))
-        <*> getActiveOrders mUser
+        <*> fmap fst (generateFormPost
+                (createOrderForm wrapId ratioId ExchangePzmRur))
+        <*> fmap fst (generateFormPost
+                (createOrderForm modalWrapId modalRatioId ExchangePzmRur))
 
 maybeClientUser :: HandlerFor App (Maybe (Key User))
 maybeClientUser = (entityKey . fst <$>) <$> maybeClient
@@ -178,6 +171,8 @@ clickableOrderW wrapId = toWidget [julius|
         actions.removeAttr('selected')
         switch (action) {
             case 'rur_pzm':
+            case 'pzm_our':
+            case 'rur_our':
                 $(actions[0]).attr('selected', 'selected')
                 form.removeClass('action-give').addClass('action-take')
                 amountInput.val(expected)
@@ -215,9 +210,9 @@ featuredModal = do
         Nothing -> [whamlet||]
         Just (Entity iid info)  -> do
             let desc = case infoDescHtml info of
-                    Just "" -> infoContentHtml info
+                    Just ""    -> infoContentHtml info
                     Just desc' -> desc'
-                    _ -> infoContentHtml info
+                    _          -> infoContentHtml info
             [whamlet|
                 <div #featured-modal .modal .fade tabindex="-1" role="dialog">
                     <div .modal-dialog .modal-dialog-centered role="document">
@@ -246,3 +241,87 @@ getLastFeaturedNews = do
     case allNews of
         []  -> return Nothing
         x:_ -> return (Just x)
+
+renderDomTable :: ExchangePair -> Bool -> Bool -> DomStats -> Widget
+renderDomTable p buy hidden d = domTable pair hidden title body
+    where
+        pair = if buy then flipPair p else p
+        pairStats = (sortBy (flip (comparing fst)) . HMS.toList) <$> (HMS.lookup pair d)
+        maxCount = fromMaybe 0 $ (foldr max 0 . map ((\(a, _, _) -> a) . snd)) <$> pairStats
+        title = if buy
+            then currSign inc <> " ⇢ " <> currSign outc <> " BID"
+            else currSign outc <> " ⇢ " <> currSign inc <> " ASK"
+        body = (concatMap $ \(r, s) -> domRow r maxCount buy s) <$> pairStats
+        (outc, inc) = unPairCurrency p
+
+domRow :: Double -> Int -> Bool -> Dom -> Widget
+domRow r t buy d =
+    let (count, outCents, inCents) = d
+        leftd = "left" :: Text
+        rightd = "right" :: Text
+        (direction, color) = if buy
+            then (leftd, "#47b9002b")
+            else (rightd, "#ff23002b")
+        widtht = round $ (fromIntegral count) / (fromIntegral t) * 100
+        widthf = 100 - widtht
+        style = concat
+            [ "background: linear-gradient(to "
+            , direction <> ", "
+            , "#fff0 " <> (pack . show $ widthf) <> "%, "
+            , color <> " " <> (pack . show $ widthf) <> "%);" ]
+    in [whamlet|
+        <tr
+            .clickable-order
+            style=#{style}
+        >
+            <td .ratio>
+                #{cents2dblT (round r * 100)}
+            <td .amount-left>
+                #{cents2dblT outCents}
+            <td .expected>
+                #{cents2dblT inCents}
+            <td .depth>
+                #{show count}
+        |]
+
+domTable :: ExchangePair -> Bool -> Text -> Maybe Widget -> Widget
+domTable pair hidden title mbody  =
+    let (outc, inc) = unPairCurrency pair
+        expair = intercalate "_" . map (toLower . currencyCodeT) $ [outc, inc]
+        body = fromMaybe (emptyList 10 4) mbody
+    in
+        [whamlet|
+            <h5 :hidden:.hide .text-center data-pair="#{expair}">#{title}
+            <table :hidden:.hide .table .table-hover data-pair="#{expair}">
+                <thead .thead-dark>
+                    <tr>
+                        <th>_{MsgRatio}
+                        <th>_{MsgAmount} #
+                            <span .text-muted>(#{currSign outc})
+                        <th>_{MsgAmount} #
+                            <span .text-muted>(#{currSign inc})
+                        <th>_{MsgQuantityShort}
+                <tbody>
+                    ^{body}
+        |]
+
+emptyList :: Int -> Int -> Widget
+emptyList row col = [whamlet|
+    <tr rowspan=#{row}>
+        <td colspan=#{col} .text-uppercase .text-center .align-middle>
+            _{MsgDomNoOrders}
+            <br />
+            <small>
+                _{MsgDomCreateNewOrderOffer}
+        |]
+
+genericDomRender
+    :: ExchangePair
+    -> DomStats
+    -> (ExchangePair -> ExchangePair)
+    -> (ExchangePair -> Text)
+    -> (Text -> Maybe Widget -> Widget)
+    -> (ExchangePairDom -> Widget)
+    -> Widget
+genericDomRender p ds direction title wrapper itemRender =
+        wrapper (title p) $ itemRender <$> HMS.lookup (direction p) ds

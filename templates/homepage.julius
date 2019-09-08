@@ -13,20 +13,33 @@ const currenctySign = (c) => {
     }
 }
 
+const updateTextalData = (wrapid, currency) => {
+    const cap = capitalize
+    const cur = currenctySign
+    const hiddenPairInput = $(`#${wrapid}-hidden-pair`);
+    const formAppendOutCurrency = $(`#${wrapid}-out-currency-append`)
+    const formAppendRate = $(`#${wrapid}-rate-append`)
+    const inCurrencySum = $(`#${wrapid}-in-currency-sum`)
+    const outCurrencyFee = $(`#${wrapid}-out-currency-fee`)
+    const inCurrencyFee = $(`#${wrapid}-in-currency-fee`)
+    const outCurrencyTotal = $(`#${wrapid}-out-currency-total`)
+    const inCurrencyTotal = $(`#${wrapid}-in-currency-total`)
+    $(hiddenPairInput).val(`Exchange${cap(currency[0])}${cap(currency[1])}`)
+    $(formAppendOutCurrency).text(cur(currency[0]))
+    $(formAppendRate).html(`${cur(currency[1])}/${cur(currency[0])}`)
+    $(inCurrencySum).html(`&nbsp;${cur(currency[1])}`)
+    $(outCurrencyFee).html(`&nbsp;${cur(currency[0])}`)
+    $(inCurrencyFee).html(`&nbsp;${cur(currency[1])}`)
+    $(outCurrencyTotal).html(`&nbsp;${cur(currency[0])}`)
+    $(inCurrencyTotal).html(`&nbsp;${cur(currency[1])}`)
+}
+
 const switchTab = (
     e,
     pair,
     tabs,
     {
         orderCols,
-        hiddenPairInput,
-        formAppendOutCurrency,
-        formAppendRate,
-        inCurrencySum,
-        outCurrencyFee,
-        inCurrencyFee,
-        outCurrencyTotal,
-        inCurrencyTotal,
     }
 ) => {
     e.preventDefault()
@@ -47,46 +60,18 @@ const switchTab = (
             el.addClass('hide')
         }
     })
-    const cap = capitalize
-    const cur = currenctySign
-    $(hiddenPairInput).val(`Exchange${cap(currency[0])}${cap(currency[1])}`)
-    $(formAppendOutCurrency).text(cur(currency[0]))
-    $(formAppendRate).html(`${cur(currency[1])}/${cur(currency[0])}`)
-    $(inCurrencySum).html(`&nbsp;${cur(currency[1])}`)
-    $(outCurrencyFee).html(`&nbsp;${cur(currency[0])}`)
-    $(inCurrencyFee).html(`&nbsp;${cur(currency[1])}`)
-    $(outCurrencyTotal).html(`&nbsp;${cur(currency[0])}`)
-    $(inCurrencyTotal).html(`&nbsp;${cur(currency[1])}`)
+    updateTextalData('#{rawJS wrapId}', currency)
+    updateTextalData('#{rawJS modalWrapId}', currency)
 }
 
 
 const init = () => {
-    const hiddenPairInput = $('##{rawJS wrapId}-hidden-pair');
-    const formAppendOutCurrency = $('##{rawJS wrapId}-out-currency-append')
-    const formAppendRate = $('##{rawJS wrapId}-rate-append')
-
-    const inCurrencySum = $('##{rawJS wrapId}-in-currency-sum')
-    const outCurrencyFee = $('##{rawJS wrapId}-out-currency-fee')
-    const inCurrencyFee = $('##{rawJS wrapId}-in-currency-fee')
-    const outCurrencyTotal = $('##{rawJS wrapId}-out-currency-total')
-    const inCurrencyTotal = $('##{rawJS wrapId}-in-currency-total')
-
     const orderCols = $('.order-col')
     const pzmRurTab = $('#pzm-rur-pair')
     const pzmOurTab = $('#our-pzm-pair')
     const ourRurTab = $('#our-rur-pair')
     const tabs = [pzmRurTab, pzmOurTab, ourRurTab]
-    const switchConf = {
-        orderCols,
-        hiddenPairInput,
-        formAppendOutCurrency,
-        formAppendRate,
-        inCurrencySum,
-        outCurrencyFee,
-        inCurrencyFee,
-        outCurrencyTotal,
-        inCurrencyTotal,
-    }
+    const switchConf = { orderCols }
     pzmRurTab.click((e) => { switchTab(e, pzmRurTab, tabs, switchConf) })
     pzmOurTab.click((e) => { switchTab(e, pzmOurTab, tabs, switchConf) })
     ourRurTab.click((e) => { switchTab(e, ourRurTab, tabs, switchConf) })
