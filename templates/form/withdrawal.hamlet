@@ -8,11 +8,13 @@
             <span .fee .val>?#
             <small .currency .rur>₽#
             <small .currency .pzm>PZM#
+            <small .currency .our>OUR#
             <small>
                 <span> (#
+                <!-- TODO: FIXME: Loop over values -->
                 <span .def-fee .val .rur .percent>#{renderFeeAsPct defRurWithdrawalFee}#
                 <span .def-fee .val .pzm .percent>#{renderFeeAsPct defPzmWithdrawalFee}#
-                <!-- TODO: FIXME: Loop over values -->
+                <span .def-fee .val .our .percent>#{renderFeeAsPct defOurWithdrawalFee}#
                 <span>%)
         <br>
         <small>
@@ -20,6 +22,7 @@
             <span .total .val>?#
             <small .currency .rur>₽#
             <small .currency .pzm>PZM#
+            <small .currency .our>OUR#
         ^{fvInput feeHiddenView}
 <div .form-row>
     <div .form-group .col-12>
@@ -36,6 +39,7 @@
         <label for="#{adrid}-1" .pzm_tm_addr>Адрес Prizm кошелька (PZM Address)
         <label for="#{adrid}-1" .btc_addr_tm>Адрес Bitcoin кошелька  (BTC)
         <label for="#{adrid}-1" .eth_addr_tm>Адрес Etherium кошелька (ETH)
+        <label for="#{adrid}-1" .our_addr_tm>Адрес Ouroboros кошелька (OUR)
         <input ##{adrid}-1 type=text .form-control required>
 <div ##{adrid}-2-row .form-row .tm-addr-row style="display: none">
     <div .form-group .col-12>

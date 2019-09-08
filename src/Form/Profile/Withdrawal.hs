@@ -4,7 +4,7 @@ module Form.Profile.Withdrawal where
 
 import           Form.Money      ( moneyInput )
 import           Import
-import           Local.Params    ( defPzmWithdrawalFee, defRurWithdrawalFee )
+import           Local.Params
 import           Type.Withdrawal
 import           Utils.Render    ( renderFeeAsPct )
 

@@ -28,7 +28,7 @@ $(document).ready(() => {
 
     const updateView = (selectFirst = false, currency = null) => {
         const selectedCurrency = currency || currencySelect.val()
-        form.removeClass('rur usd pzm btc eth')
+        form.removeClass('rur usd pzm btc eth our')
         form.addClass(selectedCurrency)
         updateTranserMethodView(selectFirst)
         updateAddressView()
@@ -127,6 +127,8 @@ $(document).ready(() => {
         let selectedCurrency = currencySelect.val()
         switch (selectedCurrency) {
             case 'pzm':
+            case 'our':
+            case 'rur':
                 updateView(true)
                 break
             default:
