@@ -56,6 +56,7 @@ getDepositRequestConfirmationR code = withClientRequestByCode code $ \(Entity ti
             FiatTM TinkoffBankCard2CardFTM RUR -> paymentGuideCard2Card transferMethod transferAddressee cents currency code
             FiatTM QiwiFTM RUR -> paymentGuideQiwi transferMethod transferAddressee cents currency code
             CryptoTM PZM -> paymentGuideCryptoC transferMethod transferAddressee cents currency code
+            CryptoTM OUR -> paymentGuideCryptoC transferMethod transferAddressee cents currency code
             _ -> [whamlet|Приём средств временно приостановлен.  Попробуйте позже|]
     defaultLayout $(widgetFile "client/deposit-proceed")
   where
