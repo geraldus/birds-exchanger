@@ -1,4 +1,4 @@
-{-# LANGUAGE  DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric #-}
 module Handler.API.Order.Index where
 
 import           Import                 as I hiding ( (==.), (||.) )
@@ -8,15 +8,21 @@ import           Utils.Money
 import           Data.HashMap.Strict    as HMS
 import           Database.Esqueleto     as E
 
+
 type OrderUserP = (Entity ExchangeOrder, Entity User)
 
-data DOMStats = DOMStats
-    { domStatsPair     :: ExchangePair
-    , domStatsDirect   :: HashMap Double (Int, Int, Int)
-    , domStatsOpposite :: HashMap Double (Int, Int, Int)
-    }
-    deriving (Show, Generic)
-instance ToJSON DOMStats
+type Rate = Double
+type OutAmountCents = Int
+type InAmountCents = Int
+type OrdersCount = Int
+
+type Dom = (OrdersCount, OutAmountCents, InAmountCents)
+
+type ExchangePairDom =
+    HashMap Rate Dom
+
+type DomStats = HashMap ExchangePair ExchangePairDom
+
 
 selectActiveOrdersOf
     :: ExchangePair
@@ -33,7 +39,6 @@ selectActiveOrdersOf p = select . from $ \(o, u) -> do
         , asc (o ^. ExchangeOrderCreated) ]
     return (o, u)
 
-
 partByPair :: [OrderUserP] -> ([OrderUserP], [OrderUserP])
 partByPair [] = ([], [])
 partByPair (head'@(order, _):rest) =
@@ -42,40 +47,52 @@ partByPair (head'@(order, _):rest) =
             (head':rest)
             $ \(v, _) -> exchangeOrderPair (entityVal v) == pair
 
-reduceDOM :: [OrderUserP] -> Maybe DOMStats
-reduceDOM [] = Nothing
-reduceDOM (head'@(o, _):rest) =
-    let pair = exchangeOrderPair $ entityVal o
-    in Just $
-        I.foldr
-            (domReducer pair)
-            (DOMStats pair HMS.empty HMS.empty)
-            (head':rest)
+emptyDomStats :: DomStats
+emptyDomStats = HMS.empty
 
-domReducer :: ExchangePair -> OrderUserP -> DOMStats -> DOMStats
-domReducer p ((Entity _ o), _) state
-    | p == orderPair =
-        updateDirectStats state currentStats
-    | p == flipPair orderPair =
-        updateOppositeStats state currentStats
-    | otherwise = state
+-- | Reduce orders list to Depth of Market stats
+-- First argument is used to filter data source.  If it is non empty
+-- it defines pairs filter.
+-- When first argument is empty no filtering applies.
+reduceDomStats
+    :: [ExchangePair] -- list of desired exchange directions
+    -> [OrderUserP]
+    -> DomStats
+reduceDomStats pairFilter = I.foldr reducePair emptyDomStats
     where
-        orderPair = exchangeOrderPair o
-        amt = exchangeOrderAmountLeft o
-        rat = exchangeOrderNormalizedRatio o
-        k = normalizeRatio orderPair (exchangeOrderRatioNormalization o) rat
-        mlt = multiplyCents k amt
+        reducePair :: OrderUserP -> DomStats -> DomStats
+        reducePair (Entity _ o, _) ds =
+            let (key, _, rate, _) = exParams o
+            in if isKnownPair key
+                then HMS.insertWith
+                        (updatePair rate) key (pairSingleton o) ds
+                else ds
 
-        currentStats = (1, amt, mlt)
-        updateDirectStats x y =
-            updateDirect x (HMS.insertWith updateStats rat y (domStatsDirect x))
-        updateOppositeStats x y =
-            updateOpposite x (HMS.insertWith updateStats rat y (domStatsOpposite x))
+        isKnownPair p
+                | pairFilter == [] = True
+                | otherwise = flip any pairFilter $
+                        \f -> f == p || f == flipPair p
 
-        updateDirect x y = x { domStatsDirect = y }
-        updateOpposite x y = x { domStatsOpposite = y }
+        pairSingleton :: ExchangeOrder -> ExchangePairDom
+        pairSingleton o = HMS.singleton r (1, a, m)
+            where
+                (p, a, r, m) = exParams o
+                n = normalizeRatio p (exchangeOrderRatioNormalization o) r
 
-        updateStats (newCnt, newSum, newMlt) (oldCnt, oldSum, oldMlt) =
-            (oldCnt + newCnt, oldSum + newSum, newMlt + oldMlt)
 
+updatePair :: Rate -> ExchangePairDom -> ExchangePairDom -> ExchangePairDom
+updatePair rate newState =
+    HMS.insertWith updateRatioStats rate (newState ! rate)
 
+updateRatioStats :: Dom -> Dom -> Dom
+updateRatioStats (newCnt, newSum, newMlt) (oldCnt, oldSum, oldMlt) =
+    (oldCnt + newCnt, oldSum + newSum, newMlt + oldMlt)
+
+exParams :: ExchangeOrder -> (ExchangePair, OutAmountCents, Rate, InAmountCents)
+exParams o =
+    let p = exchangeOrderPair o
+        a = exchangeOrderAmountLeft o
+        r = exchangeOrderNormalizedRatio o
+        k = normalizeRatio p (exchangeOrderRatioNormalization o) r
+        m = multiplyCents k a
+    in (p, a, r, m)
