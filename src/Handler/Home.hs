@@ -250,10 +250,9 @@ featuredModal = do
                 const cookieName = 'outb.info_featured'
                 const newsCookie = Cookies.get(cookieName)
                 const markedNews =
-                    newsCookie && new Set(JSON.parse(newsCookie))
-                    || new Set()
+                    newsCookie && new Set(JSON.parse(newsCookie)) || new Set()
                 const trigger = $('##{rawJS wrapId}-remember-trigger')
-                const toggleFeaturedVisibility  = () => {
+                const toggleFeaturedVisibility = () => {
                     if (trigger.parent().hasClass('toggle')) {
                         markedNews.delete(featured)
                     } else {
@@ -264,7 +263,7 @@ featuredModal = do
                     Cookies.set(cookieName, JSON.stringify([ ...markedNews ]), { domain: 'localhost', expires: 60 })
                     trigger.parent().toggleClass('toggle')
                 }
-                if (!newsCookie || newsCookie.indexOf(featured) == -1) {
+                if (!newsCookie || !markedNews.has(featured)) {
                     $('#featured-modal').modal('show')
                 }
                 trigger.click(toggleFeaturedVisibility)
