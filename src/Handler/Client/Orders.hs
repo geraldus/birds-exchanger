@@ -98,7 +98,6 @@ renderOrderTr messageRender urlRender l tzo (Entity orderId order) = [shamlet|
         _          -> False
 
 
-
 renderOrderExchange :: ExchangeOrder -> Html
 renderOrderExchange order = [shamlet|
     #{cents2dblT (exchangeOrderAmountCents order)}#

@@ -60,7 +60,7 @@ createOrderForm wrapId ratid defaultPair extra = do
     let result =
             OrderFD
                 <$> actionRes
-                <*> (truncCoins2Cents <$> validatedAmountRes)
+                <*> fmap truncCoins2Cents validatedAmountRes
                 <*> ratioRes
                 <*> feeRes
                 <*> pairRes
