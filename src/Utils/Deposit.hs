@@ -16,11 +16,12 @@ selectDepositFee (CryptoC PZM) = defPzmDepositFee
 selectDepositFee (CryptoC OUR) = defOurDepositFee
 selectDepositFee c             = error $ "No deposit fee rules for " <> show c
 
-selectRatio :: Currency -> Currency -> Double
-selectRatio (CryptoC PZM) (FiatC   RUR) = depositPzmRurRatio
-selectRatio (FiatC   RUR) (CryptoC PZM) = depositRurPzmRatio
-selectRatio a b | a == b    = 1
-                 | otherwise = error "Ratio selection not described yet!"
+-- selectRatio :: Currency -> Currency -> Double
+-- selectRatio (CryptoC PZM) (FiatC   RUR) = depositPzmRurRatio
+-- selectRatio (FiatC   RUR) (CryptoC PZM) = depositRurPzmRatio
+-- selectRatio (FiatC   OUR) (CryptoC RUR) = depositRurPzmRatio
+-- selectRatio a b | a == b    = 1
+--                  | otherwise = error "Ratio selection not described yet!"
 
 depositPzmRurRatio :: Double
 depositPzmRurRatio = 25

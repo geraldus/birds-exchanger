@@ -61,7 +61,7 @@ postDepositR = do
                             depReqCentsExpectedFee
                             code
                             depReqTargetCurrency
-                            depReqExpectedConversionRatio
+                            1
                             time
                             userId
                             New

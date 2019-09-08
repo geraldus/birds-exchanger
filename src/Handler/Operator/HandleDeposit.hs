@@ -41,18 +41,15 @@ postOperatorAcceptDepositRequestR = do
                             ]
                         let realAmountCents =
                                 floor (realAmount * fromIntegral oneCoinCents)
-                            ratio = selectRatio
-                                depositRequestCurrency
-                                depositRequestTargetCurrency
+                            ratio = 1
                             fee = calcFeeCents
                                 (selectDepositFee depositRequestCurrency)
                                 realAmountCents
                             realAmountToConvert = realAmountCents - fee
-                            targetAmountCents =
-                                truncate
-                                    $ fromIntegral realAmountToConvert
-                                    * ratio
-                        let realWalletIncome = targetAmountCents
+                        let realWalletIncome = truncate
+                                $ fromIntegral realAmountToConvert
+                                * ratio
+
                         let mStaffUserId = case staffId of
                                 Left uid -> Just uid
                                 _        -> Nothing

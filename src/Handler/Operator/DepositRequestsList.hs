@@ -55,7 +55,7 @@ renderSums :: DepositRequest -> Html
 renderSums req@DepositRequest{..} =
     let iC = currSign depositRequestCurrency
         tC = currSign depositRequestTargetCurrency
-        ratio = selectRatio depositRequestCurrency depositRequestTargetCurrency
+        ratio = 1
         ratioT = renderRequestRatio req
         reqAmt = depositRequestCentsAmount
         reqAmtT = cents2dblT reqAmt
@@ -74,7 +74,7 @@ renderSums req@DepositRequest{..} =
 
 renderRequestRatio :: DepositRequest -> Html
 renderRequestRatio DepositRequest{..} =
-    let ratio = selectRatio depositRequestCurrency depositRequestTargetCurrency
+    let ratio = 1 -- selectRatio depositRequestCurrency depositRequestTargetCurrency
         ratioT = cents2dblT . truncCoins2Cents $ ratio
     in [shamlet|#{ratioT}|]
 
