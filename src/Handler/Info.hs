@@ -61,14 +61,12 @@ getInfoViewR alias = do
   featuredIdent <- newIdent
   thumbIdent    <- newIdent
   let form = infoArticleSimpleForm
-        ((infoTitle info)                  , Just titleIdent)
-        ((infoAlias info)                  , Just aliasIdent)
-        ((fromMaybe "" (infoThumbUrl info)), Just thumbIdent)
-        ((infoFeatured info)               , Just featuredIdent)
-        ( preEscapedToMarkup (infoContentHtml info)
-        , Just contentIdent)
-        ( preEscapedToMarkup (fromMaybe "" (infoDescHtml info))
-        , Just descIdent)
+        (infoTitle info                  , Just titleIdent)
+        (infoAlias info                  , Just aliasIdent)
+        (fromMaybe "" (infoThumbUrl info), Just thumbIdent)
+        (infoFeatured info               , Just featuredIdent)
+        (infoContentHtml info            , Just contentIdent)
+        (fromMaybe "" (infoDescHtml info), Just descIdent)
   defaultLayout $ do
     when isEditorLoggedIn $ do
         addScriptRemote
