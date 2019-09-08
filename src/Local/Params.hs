@@ -23,10 +23,10 @@ defRurDepositFee :: Fee
 defRurDepositFee = Percent 0.0
 
 defPzmDepositFee :: Fee
-defPzmDepositFee = Percent 2.0
+defPzmDepositFee = Percent 0.5
 
 defOurDepositFee :: Fee
-defOurDepositFee = Percent 0.0
+defOurDepositFee = Percent 0.5
 
 
 depositRurMinCentsAmount :: Int
