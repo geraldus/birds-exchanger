@@ -84,7 +84,7 @@ getDepositRequestConfirmationR code = withClientRequestByCode code $ \(Entity ti
     paymentTitle (FiatTM TinkoffBankCard2CardFTM _) = "Пополнение переводом на карту Тинькофф Банка"
     paymentTitle (FiatTM QiwiFTM _) = "Перевод на Qiwi кошелёк по номеру телефона"
     paymentTitle (FiatTM _ _) = "Перевод на данный момент не поддерживается"
-    paymentTitle (CryptoTM curr) = "Перевод на " <> cryptoName curr <> " кошелёк"
+    paymentTitle (CryptoTM curr) = "Перевод на " <> cCurrencyTLong curr <> " кошелёк"
     paymentAddr :: TransferMethod -> [Text] -> Html
     paymentAddr (FiatTM AlphaBankCard2CardFTM _) _ = [shamlet|Нет адреса для перевода|]
     paymentAddr (FiatTM _ _) adr = [shamlet|#{concat adr}|]
@@ -98,11 +98,7 @@ getDepositRequestConfirmationR code = withClientRequestByCode code $ \(Entity ti
                 <br>
                 <small>#{pk} |]
     paymentAddr (CryptoTM _) adr = [shamlet|#{concat adr}|]
-    cryptoCDesc curr = "на " <> cryptoName curr <> " кошелёк"
-    cryptoName PZM = "Prizm"
-    cryptoName BTC = "Bitcoin"
-    cryptoName ETH = "Etherium"
-    cryptoName OUR = "Etherium"
+    cryptoCDesc curr = "на " <> cCurrencyTLong curr <> " кошелёк"
 
 
 
