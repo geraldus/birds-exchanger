@@ -97,7 +97,7 @@ getInfoViewR alias = do
                 <h1>#{infoTitle info}
                 ^{dateRow l tzo (infoCreated info)}
             $maybe t <- infoThumbUrl info
-                <div ##{thumbIdent} .info-thumb>
+                <div ##{thumbIdent} .info-thumb .text-center .mb-5>
                     <img src=#{t} alt="Обложка" style="max-width: 100%"/>
             <div ##{contentIdent} .info-content>
                 #{preEscapedToMarkup (infoContentHtml info)}
