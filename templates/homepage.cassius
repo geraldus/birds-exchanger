@@ -1,5 +1,5 @@
 #main-promo
-    max-height: 300px
+    max-height: 130px
 
 .masthead .form-control
     border: 1px solid #666
@@ -22,3 +22,9 @@
 #featured-modal .modal-content
     box-shadow: 0 0 60px 10px #ef7f1a96
     border-radius: 0.5em
+
+#featured-modal .checkmark
+    opacity: 0
+
+#featured-modal .toggle .checkmark
+    opacity: 1
