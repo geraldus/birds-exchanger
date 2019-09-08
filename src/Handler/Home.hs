@@ -73,86 +73,6 @@ getActiveOrders mu = do
     return $ partition (isPzmRurOrder . entityVal) os
     where isPzmRurOrder = (== ExchangePzmRur) . exchangeOrderPair
 
-renderOrderLeftCol :: ExchangePair -> [ExchangeOrder] -> Widget
-renderOrderLeftCol exchange orders =
-    renderOrderTable exchange True False widget
-    where widget
-            | null orders = noOrdersColContent
-            | otherwise = foldr (\o w -> w >> renderOrderRow o) mempty orders
-
-renderOrderRightCol :: ExchangePair -> [ExchangeOrder] -> Widget
-renderOrderRightCol exchange orders =
-    renderOrderTable exchange False False widget
-    where widget
-            | null orders = noOrdersColContent
-            | otherwise = foldr (\o w -> w >> renderOrderRow o) mempty orders
-
-renderOrderTable :: ExchangePair -> Bool -> Bool -> Widget -> Widget
-renderOrderTable exchange flip' hidden tableBodyWidget =
-    [whamlet|
-        <h5 :hidden:.hide .text-center data-pair="#{epair}">#{title}
-        <table :hidden:.hide .table .table-hover data-pair="#{epair}">
-            <thead .thead-dark>
-                <tr>
-                    <th>_{MsgRatio}
-                    <th>_{MsgQuantityShort} #
-                        <span .text-muted>(#{currSign c1})
-                    <th>_{MsgAmount} #
-                        <span .text-muted>(#{currSign c2})
-            <tbody>
-                ^{tableBodyWidget}
-        |]
-  where
-    (c1, c2) = (\(a, b) -> if flip' then (b, a) else (a, b)) $
-        unPairCurrency exchange
-    c1code = toLower $ currencyCodeT c1
-    c2code = toLower $ currencyCodeT c2
-    c1sign = currSign c1
-    c2sign = currSign c2
-    epair  = c1code <> "_" <> c2code
-    title  = c1sign <> " ⇢ " <> c2sign
-
-
-renderOrderRow :: ExchangeOrder -> Widget
-renderOrderRow order =
-    let pair'         = exchangeOrderPair order
-        nRatio        = exchangeOrderNormalizedRatio order
-        normalization = exchangeOrderRatioNormalization order
-        amtLeft       = exchangeOrderAmountLeft order
-        cents         = multiplyCents
-                (normalizeRatio pair' normalization nRatio) amtLeft
-    in [whamlet|
-        <tr .clickable-order>
-            <td .ratio>
-                #{show (nRatio)}
-            <td .amount-left>
-                #{cents2dblT (amtLeft)}
-            <td .expected>
-                #{cents2dblT (cents)}
-        |]
-
-noOrdersColContent :: Widget
-noOrdersColContent = [whamlet|
-    <tr rowspan="2">
-        <td colspan="3" .text-center .align-middle>
-            ОРДЕРОВ НА ОБМЕН ЕЩЁ НЕТ
-            <br />
-            <small>
-                Станьте первым, кто создаст новый ордер
-    |]
-
-
-comingSoonColContent :: Widget
-comingSoonColContent = [whamlet|
-    <tr rowspan="2">
-        <td colspan="3" .text-center .align-middle>
-            СКОРО
-            <br />
-            <small>
-                Следите за новостями
-    |]
-
-
 clickableOrderW :: Text -> Widget
 clickableOrderW wrapId = toWidget [julius|
     const handleOrderClick = (e) => {
@@ -269,7 +189,6 @@ featuredModal = do
                 trigger.click(toggleFeaturedVisibility)
             });
             |]
-
 
 getLastFeaturedNews :: Handler (Maybe (Entity Info))
 getLastFeaturedNews = do
