@@ -2,7 +2,22 @@
     <div .row>
         <div .col-8 .mx-auto>
             ^{paymentGuide}
-            <p>После выполнения перевода, нажмите на кнопку "Перевод подтверждаю"
+        <div .col-8 .mx-auto .alert .alert-warning role='alert' .p-3>
+            <p>
+                После выполнения перевода, пожалуйста, <b>напишите в чат технической
+                поддержки</b>, чтобы сообщить реквизиты перевода (номер карты или
+                кошелька, с которого вы отправляли средства).
+            <p>
+                <b>Outbirds техническая поддержка:</b>
+                <br>
+                <a href="https://t.me/outb_support" title="перейти в чат" target="_blank">
+                    @outb_support (https://t.me/outb_support)
+            <p>
+                Прежде чем писать в чат, нажмите на кнопку "Перевод подтверждаю"
+            <p>
+                <small .text-muted>
+                    В скором времени механизм пополнения средств будет упрощен,
+                    следите за новостями.
 
 <form method=post action=@{DepositConfirmRequestR}>
     <input type=hidden name="transaction-id" value="#{fromSqlKey transactionId}">

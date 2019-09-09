@@ -64,10 +64,12 @@ getDepositRequestConfirmationR code = withClientRequestByCode code $ \(Entity ti
     guideTemplate title cents curr desc addr _ = [whamlet|
         <p .lead .text-center>#{title}
         <p>Переведите #
-            <span .text-monospace.font-weight-bold>#{cents2dblT cents}
-            \#{currSign curr}
+            <span .font-weight-bold>
+                <big>
+                    #{cents2dblT cents}&nbsp;#{currSign curr}
             \ #{desc} #
-            <span .font-weight-bold .text-monospace>#{addr}
+            <span .font-weight-bold .text-monospace>
+                #{addr}
         |]
     paymentGuideCard2Card :: TransferMethod -> [Text] -> Int -> Currency -> Text -> Widget
     paymentGuideCard2Card tm addressee cents curr _ =
