@@ -2,8 +2,7 @@
     <div .container .mt-2>
         <div .row>
             <div #mainlogo .col-8 .col-sm-6 .mx-auto .my-2>
-                <a href="info/view/our" title="Читать анонс">
-                    <img #main-promo .mw-100 src=@{StaticR images_logo__sayt_png} alt="OutBirds | Site Logo">
+                <img #main-promo .mw-100 src=@{StaticR images_logo__sayt_png} alt="OutBirds | Site Logo">
     $maybe msg <- mmsg
         <div .container .mt-3>
             <div .alert.alert-warning #message>#{msg}
