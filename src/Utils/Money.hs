@@ -30,8 +30,8 @@ defPairDir p = case p of
     ExchangeRurPzm -> ExchangeRurPzm
     ExchangeRurOur -> ExchangeRurOur
     ExchangeOurRur -> ExchangeRurOur
-    ExchangeOurPzm -> ExchangeOurPzm
-    ExchangePzmOur -> ExchangeOurPzm
+    ExchangeOurPzm -> ExchangePzmOur
+    ExchangePzmOur -> ExchangePzmOur
 
 flipPair :: ExchangePair -> ExchangePair
 flipPair ExchangePzmRur = ExchangeRurPzm
