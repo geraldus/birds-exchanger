@@ -1,9 +1,7 @@
 ProjectName: OutBirds
 Info: Инфо
 TermsOfUse: Правила
-TermsOfUseTitle: Правила пользования сервисом
 BlackList: Чёрный список
-PrizmBlackListTitle: Список Prizm-кошельков, уличённых в мошенничестве
 
 
 # ACCESS
@@ -14,12 +12,14 @@ PleaseLogInText: Пожалуйста, войдите в систему для �
 
 # PAGE TITLES
 
+TermsOfUseTitle: Правила пользования сервисом
+PrizmBlackListTitle: Список Prizm-кошельков, уличённых в мошенничестве
+
 ## COMMON
 
 HomePageTitle: Главная страница
 SignInPageTitle: Вход
 SignUpPageTitle: Регистрация
-
 
 ## CLIENT
 
@@ -28,7 +28,7 @@ ClientOrdersPageTitle: Мои ордера
 ClientDepositPageTitle: Пополнение счёта
 ClientWithdrawalPageTitle: Вывод средств
 ClientSettingsPageTitle: Настройки
-OneClickExchange: Обмен в один клик
+
 
 # FORM ERROS
 PositiveValueRequired: должно быть положительным числом
@@ -46,6 +46,8 @@ Cancel: Отмена
 ChangesSaved: Изменения сохранены
 AccessDenied: Недостаточно прав доступа
 NoPaymentMethodAvailable: Нет подходящего способа перевода
+
+OneClickExchange: Обмен в один клик
 
 IAcceptTemrsOfUseText: регистрируясь, я принимаю правила и условия использования сервиса
 
