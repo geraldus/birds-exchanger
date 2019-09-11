@@ -131,14 +131,14 @@ $else
 
 <!-- Footer -->
 <footer .footer .mt-2 .pt-3>
-    <div .container>
-        <div .row>
-            <div .col-12 .col-md-6 .col-lg-4>
-                <small>
-                    <p .text-muted>
-                        _{MsgSupport}: #
-                        <a href="mailto:#{supportEmail}">
-                            #{supportEmail}
 
+        <p .text-center .text-muted>
+            _{MsgSupport}: #
+            <a .mx-2 href="mailto:#{supportEmail}" title="_{MsgSendEmail}">
+                <i class="far fa-envelope-open">
+                #{supportEmail}
+            <a .mx-2 href="https://t.me/outb_support" title="_{MsgToTelegramChat}">
+                <i class="far fa-paper-plane">
+                @outb_support
         <p .text-center>
             _{MsgCurrencyExchangeService} «OutBirds» v#{appVersion}
