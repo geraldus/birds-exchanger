@@ -35,8 +35,10 @@ import qualified Crypto.Nonce            as CN
 import qualified Data.CaseInsensitive    as CI
 import           Data.List               ( findIndex )
 import qualified Data.Text.Encoding      as TE
+import           Data.Version            ( showVersion )
 import           Database.Persist.Sql    ( ConnectionPool, fromSqlKey,
                                            runSqlPool )
+import           Paths_prizm_exchange    ( version )
 import           Text.Hamlet             ( hamletFile )
 import           Text.Jasmine            ( minifym )
 import           Text.Read               ( readMaybe )
@@ -119,6 +121,7 @@ instance Yesod App where
 
     defaultLayout :: Widget -> Handler Html
     defaultLayout widget = do
+        let appVersion = showVersion version
         master <- getYesod
         mmsg <- getMessage
         muser <- maybeAuthPair

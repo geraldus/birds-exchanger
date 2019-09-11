@@ -140,5 +140,5 @@ $else
                         <a href="mailto:#{supportEmail}">
                             #{supportEmail}
 
-        <p .text-muted .text-center>
-            #{appCopyright $ appSettings master}
+        <p .text-center>
+            _{MsgCurrencyExchangeService} «OutBirds» v#{appVersion}
