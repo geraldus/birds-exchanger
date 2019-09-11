@@ -640,19 +640,6 @@ requireClientData = do
         Nothing         -> permissionDenied accessErrorClientOnly
         Just clientData -> return clientData
 
--- requireStaffId :: Handler (Either UserId Text)
--- requireStaffId = do
---     mayAuth <- maybeAuthPair
---     case mayAuth of
---         -- SuperUsers authorized everywhere
---         Just (uid, Right _  ) -> return uid
---         -- For DB users: clients are rejected, operators and admins are allowed
---         Just (uid, Left user) -> case userRole user of
---             Client   -> notFound
---             Operator -> return uid
---             Admin    -> return uid
---         _ -> notFound
-
 requireOperatorId :: Handler (Either UserId Text)
 requireOperatorId = requireRolesId True [ Operator ] notFound
 
@@ -787,8 +774,7 @@ getNextPaymentAddressee
     :: (PaymentMethod -> (Maybe PaymentAddress, PaymentMethod))
     -> TransferMethod
     -> Handler (Maybe PaymentAddress)
-getNextPaymentAddressee selectNext method =
-    getNextPaymentGeneric matchMethod selectNext method
+getNextPaymentAddressee = getNextPaymentGeneric matchMethod
 
 getNextPaymentGeneric
     :: (TransferMethod -> PaymentMethod -> Bool)
@@ -822,9 +808,9 @@ getNextPaymentGeneric matchMethod selectNext targetTransferMethod = do
                                 return (Just paymentAddr)
     where
         noAddrs :: PaymentMethod -> Bool
-        noAddrs (FiatPaymentMethod _ _ []) = True
+        noAddrs (FiatPaymentMethod _ _ [])   = True
         noAddrs (CryptoPaymentMethod _ _ []) = True
-        noAddrs _ = False
+        noAddrs _                            = False
 
         selectMethods :: TransferMethod -> AppPaymentMethods -> [PaymentMethod]
         selectMethods (FiatTM _ _) app = appDepositFiatMethods app
