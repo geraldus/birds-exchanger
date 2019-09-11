@@ -204,7 +204,7 @@ renderDomTable p buy hidden d = domTable pair hidden title body
     where
         pair = if buy then flipPair p else p
         pairStats = (sortBy (flip (comparing fst)) . HMS.toList) <$> (HMS.lookup pair d)
-        maxCount = fromMaybe 0 $ (foldr max 0 . map ((\(a, _, _) -> a) . snd)) <$> pairStats
+        maxCount = fromMaybe 0 $ (foldr max 0 . map ((\(_, b, _) -> b) . snd)) <$> pairStats
         title = if buy
             then currSign inc <> " ⇢ " <> currSign outc <> " BID"
             else currSign outc <> " ⇢ " <> currSign inc <> " ASK"
@@ -219,7 +219,7 @@ domRow r t buy d =
         (direction, color) = if buy
             then (leftd, "#47b9002b")
             else (rightd, "#ff23002b")
-        widtht = round $ (fromIntegral count) / (fromIntegral t) * 100
+        widtht = round $ (fromIntegral outCents) / (fromIntegral t) * 100
         widthf = 100 - widtht
         style = concat
             [ "background: linear-gradient(to "
