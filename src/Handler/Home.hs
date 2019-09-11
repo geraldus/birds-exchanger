@@ -204,7 +204,7 @@ renderDomTable p buy hidden d = domTable pair hidden title body
     where
         pair = if buy then flipPair p else p
         pairStats = (sortBy (flip (comparing fst)) . HMS.toList) <$> (HMS.lookup pair d)
-        maxCount = fromMaybe 0 $ (foldr max 0 . map ((\(_, b, _) -> b) . snd)) <$> pairStats
+        maxCount = maybe 0 (foldr max 0 . map ((\(_, b, _) -> b) . snd)) pairStats
         title = if buy
             then currSign inc <> " ⇢ " <> currSign outc <> " BID"
             else currSign outc <> " ⇢ " <> currSign inc <> " ASK"
