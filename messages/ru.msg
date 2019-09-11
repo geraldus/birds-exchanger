@@ -1,3 +1,4 @@
+CurrencyExchangeService: Сервис обмена валют
 ProjectName: OutBirds
 Info: Инфо
 TermsOfUse: Правила
@@ -196,6 +197,8 @@ WithdrawalFeeTotal: Удержанная комиссия с вывода
 
 ReadMore: Подробнее
 DoNotShowAgain: Больше не показывать
+SendEmail: Написать на эл.почту
+ToTelegramChat: Перейти в Telegram-чат
 
 InFact: по факту
 TMSberBankCard2Card: СберБанк
