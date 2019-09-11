@@ -16,19 +16,26 @@
                         <a #our-pzm-pair .nav-link .text-light .our .pzm href="#" title="#{renderMessage MsgExchange} Ouroboros на Prizm">OUR / PZM
                     <li .nav-item .mx-1>
                         <a #our-rur-pair .nav-link .text-light .our .rur href="#" title="#{renderMessage MsgExchange} Ouroboros на рубли">OUR / RUB (₽)
-        <div .row .mt-5>
+        <div .row .mt-3>
             <div .col>
                 <form method=post action=@{ExchangeOrderCreateR} enctype="">
                     ^{orderCreateFormW}
                     $maybe _ <- mayClientUser
-                        <button .btn .btn-outline-warning .btn-lg .text-lowercase .mb-5 type=submit>_{MsgCreateRequest}
+                        <button
+                            .btn
+                            .btn-outline-warning
+                            .btn-lg
+                            .text-lowercase
+                            .mb-3
+                            type=submit >
+                            _{MsgCreateRequest}
                     $nothing
-                        <div .text-muted .mb-5>
+                        <div .text-muted .mb-3>
                             <small>
                                 авторизуйтесь для обмена
         <div .row>
-            <div .col-8 .mx-auto .pt-3>
-                <div #pzm-rur-fee-info>
+            <div .col-8 .mx-auto>
+                <div>
                     <p .text-muted>
                         _{MsgOperationExchangeShort}&nbsp;#{renderFeeAsPct defaultExchangeFee}%
                         <br>
