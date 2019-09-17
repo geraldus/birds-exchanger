@@ -12,7 +12,17 @@ $(document).ready(() => {
     const contentData = $(contentHostId + '-data')
     const descData = $(descHostId + '-data')
     ClassicEditor
-        .create(document.querySelector(descHostId + '-editor'))
+        .create(document.querySelector(descHostId + '-editor'), {
+            mediaEmbed: {
+                previewsInData: true,
+                extraProviders: [
+                    {
+                        name: 'ckeditor',
+                        url: /^ckeditor\.com/
+                    }
+                ]
+            }
+        })
         .then(editor => {
             editor.model.document.on('change:data', () => {
                 descData.val(editor.getData())

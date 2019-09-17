@@ -3,7 +3,17 @@ $(document).ready(() => {
     const contentData = $('#content-html-data')
     ClassicEditor
     // InlineEditor
-        .create(document.querySelector(contentHostId))
+        .create(document.querySelector(contentHostId), {
+            mediaEmbed: {
+                previewsInData: true,
+                extraProviders: [
+                    {
+                        name: 'ckeditor',
+                        url: /^ckeditor\.com/
+                    }
+                ]
+            }
+        })
         .then(editor => {
             editor.model.document.on('change:data', () => {
                 contentData.val(editor.getData())
