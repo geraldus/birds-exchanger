@@ -200,6 +200,9 @@ DoNotShowAgain: Больше не показывать
 SendEmail: Написать на эл.почту
 ToTelegramChat: Перейти в Telegram-чат
 
+Schedule: График работы
+ScheduleDesc: Операторы онлайн с 7:00 - 21:00 МСК
+
 InFact: по факту
 TMSberBankCard2Card: СберБанк
 TMTinkoffBankCard2Card: Тинькофф Банк
