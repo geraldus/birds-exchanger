@@ -13,7 +13,17 @@ $(document).ready(() => {
     const descData = $('#desc-html-data')
     // InlineEditor
     ClassicEditor
-        .create(document.querySelector(descHostId))
+        .create(document.querySelector(descHostId), {
+            mediaEmbed: {
+                previewsInData: true,
+                extraProviders: [
+                    {
+                        name: 'ckeditor',
+                        url: /^ckeditor\.com/
+                    }
+                ]
+            }
+        })
         .then(editor => {
             editor.model.document.on('change:data', () => {
                 descData.val(editor.getData())

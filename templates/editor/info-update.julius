@@ -19,7 +19,17 @@ $(document).ready(() => {
             })
         })
     ClassicEditor
-        .create(document.querySelector(contentHostId + '-editor'))
+        .create(document.querySelector(contentHostId + '-editor'), {
+            mediaEmbed: {
+                previewsInData: true,
+                extraProviders: [
+                    {
+                        name: 'ckeditor',
+                        url: /^ckeditor\.com/
+                    }
+                ]
+            }
+        })
         .then(editor => {
             editor.model.document.on('change:data', () => {
                 contentData.val(editor.getData())

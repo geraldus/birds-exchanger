@@ -74,3 +74,8 @@
 .bs-docs-section:last-child {
   margin-bottom: 0;
 }
+
+.media > * {
+    min-height: 240px;
+    width: 100%;
+}
