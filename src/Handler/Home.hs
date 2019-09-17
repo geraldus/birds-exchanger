@@ -206,8 +206,14 @@ renderDomTable p buy hidden d = domTable pair hidden title body
         pairStats = (sortBy (flip (comparing fst)) . HMS.toList) <$> (HMS.lookup pair d)
         maxCount = maybe 0 (foldr max 0 . map ((\(_, b, _) -> b) . snd)) pairStats
         title = if buy
-            then currSign inc <> " ⇢ " <> currSign outc <> " BID"
-            else currSign outc <> " ⇢ " <> currSign inc <> " ASK"
+            then [shamlet|
+                    \#{currSign inc} ⇢ #{currSign outc} #
+                    <small .text-warning>BID
+                    |]
+            else [shamlet|
+                    \#{currSign outc} ⇢ #{currSign inc} #
+                    <small .text-warning>ASK
+                    |]
         body = (concatMap $ \(r, s) -> domRow r maxCount buy s) <$> pairStats
         (outc, inc) = unPairCurrency p
 
@@ -241,7 +247,7 @@ domRow r t buy d =
                 #{show count}
         |]
 
-domTable :: ExchangePair -> Bool -> Text -> Maybe Widget -> Widget
+domTable :: ExchangePair -> Bool -> Html -> Maybe Widget -> Widget
 domTable pair hidden title mbody  =
     let (outc, inc) = unPairCurrency pair
         expair = intercalate "_" . map (toLower . currencyCodeT) $ [outc, inc]
