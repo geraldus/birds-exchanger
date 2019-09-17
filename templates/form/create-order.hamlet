@@ -13,7 +13,7 @@
             ^{fvInput ratioView}
             <div .input-group-append>
                 <span .input-group-text ##{wrapid}-rate-append>₽/PZM
-    <div .row .justify-content-center>
+    <div .row .justify-content-center .order-form-stats>
         <table .col-11 .col-sm-6 .table.table-borderless .text-white-50>
             <thead>
                 <tr>

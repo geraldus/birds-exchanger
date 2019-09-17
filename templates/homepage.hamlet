@@ -33,24 +33,14 @@
                         <div .text-muted .mb-3>
                             <small>
                                 авторизуйтесь для обмена
-        <div .row>
-            <div .col-8 .mx-auto>
-                <div>
-                    <p .text-muted>
-                        _{MsgOperationExchangeShort}&nbsp;#{renderFeeAsPct defaultExchangeFee}%
-                        <br>
-                        _{MsgOperationWithdrawShort}&nbsp;#{currencyCodeT rurC}&nbsp;#{renderFeeAsPct defRurWithdrawalFee}%#
-                        \&nbsp;|&nbsp;#
-                        \_{MsgOperationDepositShort}&nbsp;#{currencyCodeT rurC}&nbsp;#{renderFeeAsPct defRurDepositFee}%
-                        <br>
-                        _{MsgOperationWithdrawShort}&nbsp;#{currencyCodeT pzmC}&nbsp;#{renderFeeAsPct defPzmWithdrawalFee}%#
-                        \&nbsp;|&nbsp;#
-                        \_{MsgOperationDepositShort}&nbsp;#{currencyCodeT pzmC}&nbsp;#{renderFeeAsPct defPzmDepositFee}%
-                        <br>
-                        _{MsgOperationWithdrawShort}&nbsp;#{currencyCodeT ourC}&nbsp;#{renderFeeAsPct defOurWithdrawalFee}%#
-                        \&nbsp;|&nbsp;#
-                        \_{MsgOperationDepositShort}&nbsp;#{currencyCodeT ourC}&nbsp;#{renderFeeAsPct defOurDepositFee}%
+
 <div .container .mt-5>
+    <div .row>
+        <div .col-8 .mx-auto>
+            <div>
+                <p .text-center .text-muted>
+                    _{MsgScheduleDesc}
+
     <div .row>
         ^{clickableOrderW modalWrapId}
         <div .col-12 .col-lg-6 .mb-3 .order-col>
@@ -61,6 +51,24 @@
             ^{renderDomTable ExchangePzmRur True False statsDOM}
             ^{renderDomTable ExchangeOurPzm True True statsDOM}
             ^{renderDomTable ExchangeOurRur True True statsDOM}
+
+    <div .row>
+        <div .col-8 .mx-auto>
+            <div>
+                <p .text-center .text-muted>
+                    _{MsgOperationExchangeShort}&nbsp;#{renderFeeAsPct defaultExchangeFee}%
+                    <br>
+                    _{MsgOperationWithdrawShort}&nbsp;#{currencyCodeT rurC}&nbsp;#{renderFeeAsPct defRurWithdrawalFee}%#
+                    \&nbsp;|&nbsp;#
+                    \_{MsgOperationDepositShort}&nbsp;#{currencyCodeT rurC}&nbsp;#{renderFeeAsPct defRurDepositFee}%
+                    <br>
+                    _{MsgOperationWithdrawShort}&nbsp;#{currencyCodeT pzmC}&nbsp;#{renderFeeAsPct defPzmWithdrawalFee}%#
+                    \&nbsp;|&nbsp;#
+                    \_{MsgOperationDepositShort}&nbsp;#{currencyCodeT pzmC}&nbsp;#{renderFeeAsPct defPzmDepositFee}%
+                    <br>
+                    _{MsgOperationWithdrawShort}&nbsp;#{currencyCodeT ourC}&nbsp;#{renderFeeAsPct defOurWithdrawalFee}%#
+                    \&nbsp;|&nbsp;#
+                    \_{MsgOperationDepositShort}&nbsp;#{currencyCodeT ourC}&nbsp;#{renderFeeAsPct defOurDepositFee}%
 
 <div #clickable-order-modal .modal .fade tabindex="-1" role=dialog>
     <div .modal-dialog .modal-lg .modal-dialog-centered role=document>

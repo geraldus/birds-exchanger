@@ -20,3 +20,6 @@
 
 ##{sumid}-info-row
     font-size: 1.15rem
+
+.order-form-stats
+    transform: scale(0.7)
