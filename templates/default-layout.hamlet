@@ -121,25 +121,26 @@ $if not $ Just HomeR == mcurrentRoute
 $if (Just HomeR == mcurrentRoute)
     ^{widget}
 $else
-    <div .container style="min-height:100vh">
+    <div .container>
         <div .row>
             <div .col-md-12>
                 ^{widget}
 
         <!-- Footer -->
 
-    <footer .footer .mt-2 .pt-3 .container-fluid>
-        <div .row>
-            <div .col-sm .text-center>
-                <p .text-muted .mx-2>
-                    _{MsgSupport}: #
-            <div .col-sm .text-center>
-                <a .mx-2 href="mailto:#{supportEmail}" title="_{MsgSendEmail}">
-                    <i class="far fa-envelope-open"/>&nbsp;#{supportEmail}
-            <div .col-sm .text-center>
-                <a .mx-2 href="https://t.me/outb_support" title="_{MsgToTelegramChat}">
-                    <i class="far fa-paper-plane"/>&nbsp;@outb_support
-        <div .row .pt-3>
-            <div .col style="background: #e9ecef">
-                <p .text-center>
-                    _{MsgCurrencyExchangeService} «OutBirds» v#{appVersion}
+<footer .footer .mt-2 .pt-3 .container-fluid>
+    <div .row>
+        <div .col-sm .text-center>
+            <p .text-muted .mx-2>
+                _{MsgSupport}: #
+        <div .col-sm .text-center>
+            <a .mx-2 href="mailto:#{supportEmail}" title="_{MsgSendEmail}">
+                <i class="far fa-envelope-open"/>&nbsp;#{supportEmail}
+        <div .col-sm .text-center>
+            <a .mx-2 href="https://t.me/outb_support" title="_{MsgToTelegramChat}">
+                <i class="far fa-paper-plane"/>&nbsp;@outb_support
+    <div .row>
+        <div .col style="background: #e9ecef" .pt-3>
+            <p .text-center>
+                _{MsgCurrencyExchangeService} «OutBirds» #
+                    <small .text-muted>v#{appVersion}
