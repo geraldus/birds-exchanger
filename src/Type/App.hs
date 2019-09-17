@@ -74,11 +74,7 @@ hardcodedPaymentMethods = AppPaymentMethods
             OUR
             0
             [ PaymentAddress
-                ["ouro136wuugmfct5tv6famn0n9hmmjw5gwsw3wvq6kk"] 0
-            , PaymentAddress
-                ["ouro1uru3e8tfudnh7usswjqegquvt9scw2aw5q7w6z"] 0
-            , PaymentAddress
-                ["ouro1t0hype03tlsw32rc8rzk7h6a6q4qru93l0xr4r"] 0 ] ]
+                ["ouro1uru3e8tfudnh7usswjqegquvt9scw2aw5q7w6z"] 0 ] ]
     }
 
 defaultPaymentAddressRotationThreshold :: Int
