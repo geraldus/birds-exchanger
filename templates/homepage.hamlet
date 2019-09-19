@@ -75,6 +75,9 @@
         <div .modal-content>
             <div .modal-body>
                 <form method=post action=@{ExchangeOrderCreateR} .container-fluid>
+                    <div .row>
+                        <div .col .text-center>
+                            <p .title .h5>_{MsgExchange}
                     ^{modalOrderCreateFormW}
                     <div .row>
                         $maybe _ <- mayClientUser

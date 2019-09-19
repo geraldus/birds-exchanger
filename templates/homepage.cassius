@@ -25,3 +25,6 @@
 
 #featured-modal .toggle .checkmark
     opacity: 1
+
+#clickable-order-modal .title
+    color: #e9ecef
