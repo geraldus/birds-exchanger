@@ -1,5 +1,4 @@
 const copyAddressAction = (group) => {
-    console.log(group)
     const p = $(group).parents('.form-group')
     const i = p.find('.form-control')
     i[0].select()
