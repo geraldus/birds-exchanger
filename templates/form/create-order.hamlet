@@ -3,7 +3,7 @@
     ^{fvInput hiddenPairView}
     ^{fvInput hiddenFeeView}
     <div .form-group .row .justify-content-center .no-gutters>
-        <div              .col-8 .col-sm-7 .col-md-3 .col-lg-2 .mx-1>
+        <div .col-8 .col-sm-7 .col-md-3 .col-lg-2 .mx-1>
             ^{fvInput actionView}
         <div .input-group .col-8 .col-sm-7 .col-md-4 .col-lg-2 .mx-1 .mt-3 .mt-md-0>
             ^{fvInput amountView}
@@ -13,7 +13,7 @@
             ^{fvInput ratioView}
             <div .input-group-append>
                 <span .input-group-text ##{wrapid}-rate-append>₽/PZM
-    <div .row .justify-content-center>
+    <div .row .justify-content-center .order-form-stats>
         <table .col-11 .col-sm-6 .table.table-borderless .text-white-50>
             <thead>
                 <tr>
@@ -24,16 +24,19 @@
             <tbody>
                 <tr ##{sumid}-info-row>
                     <td ##{sumid}-tbl .text-right>
-                        <span .val>-
-                        <span .cur-sign ##{wrapid}-in-currency-sum>&nbsp;₽
+                        <span .val>-#
+                        \&nbsp;#
+                        <span .cur-sign ##{wrapid}-in-currency-sum>₽
                     <td ##{feeid}-tbl>
-                        <span .val.take>-
-                        <span .val.give>-
-                        <span .cur-sign-give ##{wrapid}-out-currency-fee>&nbsp;PZM
-                        <span .cur-sign-take ##{wrapid}-in-currency-fee>&nbsp;₽
+                        <span .val.take>-#
+                        <span .val.give>-#
+                        \&nbsp;#
+                        <span .cur-sign-give ##{wrapid}-out-currency-fee>PZM
+                        <span .cur-sign-take ##{wrapid}-in-currency-fee>₽
                     <th ##{sumid}-total-tbl .text-left .text-warning .font-weight-bold>
                         <big>
-                            <span .val.take>-
-                            <span .val.give>-
-                            <span .cur-sign-give ##{wrapid}-out-currency-total>&nbsp;PZM
-                            <span .cur-sign-take ##{wrapid}-in-currency-total>&nbsp;₽
+                            <span .val.take>-#
+                            <span .val.give>-#
+                            \&nbsp;#
+                            <span .cur-sign-give ##{wrapid}-out-currency-total>PZM
+                            <span .cur-sign-take ##{wrapid}-in-currency-total>₽

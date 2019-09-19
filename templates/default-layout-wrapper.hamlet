@@ -46,7 +46,7 @@ $newline never
 
       document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/,'js');
     ^{pageHead pc}
-  <body>
+  <body style="min-height:100vh">
     ^{pageBody pc}
 
     $maybe analytics <- appAnalytics $ appSettings master

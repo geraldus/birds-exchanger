@@ -1,10 +1,16 @@
-<div .container .mt-5>
+<div .container>
     <div .row>
-        <div .col-8 .mx-auto>
+        <div .col-12 .col-xs-11 col-md-10 .mx-auto>
             ^{paymentGuide}
-            <p>После выполнения перевода, нажмите на кнопку "Перевод подтверждаю"
 
-<form method=post action=@{DepositConfirmRequestR}>
-    <input type=hidden name="transaction-id" value="#{fromSqlKey transactionId}">
-    <div .form-group .row>
-        <button .mx-auto .btn.btn-primary type=submit>Перевод подтверждаю
+    <div .row>
+        <div .col-11 .col-md-8 .mx-auto>
+            <form method=post action=@{DepositConfirmRequestR} .mt-3>
+                <input type=hidden name="transaction-id" value="#{fromSqlKey transactionId}">
+                <div .form-group .row>
+                    <label for="payer-address-input">_{MsgFormPayerAddressLabel}</label>
+                    <input name="payer-address" .form-control aria-describedby="payer-address-input-help" required>
+                    <small #payer-address-input-help .form-text .text-muted>
+                        _{MsgFormPayerAddressHelp}
+                <div .form-group .row>
+                    <button .mx-auto .btn.btn-primary type=submit>_{MsgFormDepositConfirmSubmit}

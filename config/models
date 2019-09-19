@@ -53,6 +53,11 @@ DepositRequest json
     UniqueDepositRequest transactionCode
     deriving Show
 
+DepositPayer json
+    addressJson Text
+    deposit DepositRequestId
+    UniqueDepositPayer deposit
+
 AcceptedDeposit
     depositRequestId DepositRequestId
     currency Currency

@@ -37,7 +37,7 @@ createOrderForm wrapId ratid defaultPair extra = do
             (fsAddAttrs
                 [("min", "0")]
                 (fsAddClasses (fsAddPlaceholder (fsBs4WithId amtid) "кол-во")
-                        (fsOpts <> ["font-weight-bold", "amount-input"])
+                        (fsOpts <> ["amount-input"])
                 )
              )
             Nothing

@@ -13,11 +13,12 @@
 
 ##{pageId}-table .data-row .controls .control
     cursor: pointer
-    opacity: 0
-    color: #ef7f19
+    opacity: 1
+    color: #00000080
 
 ##{pageId}-table .data-row:hover .controls .control
-    opacity: 0.5
+    opacity: 0.75
+    color: #ef7f19
 
 ##{pageId}-table .data-row:hover .controls .control:hover
     opacity: 1

@@ -13,10 +13,12 @@
                 <small>
                     Пользователь
             <th .align-middle .text-center>
-                КОД ОПЕРАЦИИ
+                _{MsgDepositPayerAddress}
+                <br>
+                <small .text-muted .text-uppercase>_{MsgDepositTransactionCode}
             <th .align-middle>
     <tbody>
-        $forall ((Entity reqId req@DepositRequest{..}), (Entity _ UserWallet{..}), eUser@(Entity _ User{..}))  <- list
+        $forall ((Entity reqId req@DepositRequest{..}), (Entity _ UserWallet{..}), eUser@(Entity _ User{..}), mayAddr)  <- list
             <tr
                     .request-data-row
                     title="_{MsgProcessRequest}"
@@ -25,14 +27,13 @@
                     <small>#{reqDateT req}
                 <td>#{renderSums req}
                 <td>#{renderMethodUser req eUser}
-                <td .text-monospace .text-center .align-middle>
-                    <big>
-                        #{depositRequestTransactionCode}
+                <td .text-center .align-middle>
+                    #{maybe depositRequestTransactionCode (depositPayerAddressJson . entityVal) mayAddr}
                 <td .align-middle>
                     <i .accept-icon .fas .fa-check>
 
 
-$forall ((Entity reqId req@DepositRequest{..}), _, Entity userId User{..}) <- list
+$forall ((Entity reqId req@DepositRequest{..}), _, Entity userId User{..}, mayAddr) <- list
     <div #req-modal-#{fromSqlKey reqId} .modal .request-modal tabindex="-1" role=dialog>
         <div .modal-dialog role=document>
             <div .modal-content>
@@ -43,11 +44,17 @@ $forall ((Entity reqId req@DepositRequest{..}), _, Entity userId User{..}) <- li
                         <span aria-hidden="true">&times;
                 <form method=post action=@{OperatorAcceptDepositRequestR}>
                     <div .modal-body>
+                        $maybe Entity _ DepositPayer{..} <- mayAddr
+                            <div .form-group>
+                                <div .input-group>
+                                    <input
+                                        .form-control
+                                        readonly
+                                        value=#{depositPayerAddressJson}>
+                                    <div .input-group-append>
+                                        <span .input-group-text onclick="copyAddressAction(this)">
+                                            <i .far .fa-clipboard>
                         <div .form-group>
-                            <p .h4 .text-center>КОД ОПЕРАЦИИ
-                            <div .alert .alert-warning .py-1>
-                                <p .h3 .text-monospace .text-center .mt-3>
-                                    #{depositRequestTransactionCode}
                             <input
                                 ##{fromSqlKey reqId}-deposit-code
                                 .form-control
@@ -65,6 +72,10 @@ $forall ((Entity reqId req@DepositRequest{..}), _, Entity userId User{..}) <- li
                                 value="#{fromSqlKey reqId}">
                         <div .form-group>
                             <p>
+                                <small>
+                                    _{MsgDepositTransactionCode}: #
+                                    #{depositRequestTransactionCode}
+                                <br>
                                 <small>_{MsgTransferMethod} #
                                 #{tmTShort depositRequestTransferMethod}
                                 <br>

@@ -8,9 +8,6 @@
     width: 25px
     height: 25px
 
-#pzm-rur-fee-info
-    border-bottom: 1px solid
-
 #clickable-order-modal .modal-content
     background-color: #1a1c1d
     border: 1px solid #666
@@ -28,3 +25,6 @@
 
 #featured-modal .toggle .checkmark
     opacity: 1
+
+#clickable-order-modal .title
+    color: #e9ecef

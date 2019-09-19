@@ -30,8 +30,8 @@ defPairDir p = case p of
     ExchangeRurPzm -> ExchangeRurPzm
     ExchangeRurOur -> ExchangeRurOur
     ExchangeOurRur -> ExchangeRurOur
-    ExchangeOurPzm -> ExchangeOurPzm
-    ExchangePzmOur -> ExchangeOurPzm
+    ExchangeOurPzm -> ExchangePzmOur
+    ExchangePzmOur -> ExchangePzmOur
 
 flipPair :: ExchangePair -> ExchangePair
 flipPair ExchangePzmRur = ExchangeRurPzm
@@ -57,7 +57,7 @@ normalizeRatio p d r
     | p == d = 1 / r
     | otherwise = r
 
--- | Returns correct multiplicator (ratio) for convertion first
+-- | Returns correct multiplicator (ratio) for conversion first
 --   pair's (outgoing) currency to target currency
 pairRatioByNormalizedRatio :: ExchangePair -> Double -> Double
 pairRatioByNormalizedRatio p = normalizeRatio (defPairDir p) p

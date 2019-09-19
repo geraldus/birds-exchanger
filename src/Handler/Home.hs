@@ -90,14 +90,13 @@ clickableOrderW wrapId = toWidget [julius|
         ratioInput.val(ratio)
         actions.removeAttr('selected')
         switch (action) {
-            case 'rur_pzm':
+            case 'rub_pzm':
             case 'pzm_our':
-            case 'rur_our':
+            case 'rub_our':
                 $(actions[0]).attr('selected', 'selected')
                 form.removeClass('action-give').addClass('action-take')
                 amountInput.val(expected)
                 break
-            case 'pzm_rur':
             default:
                 amountInput.val(amountLeft)
                 form.removeClass('action-take').addClass('action-give')
@@ -204,10 +203,16 @@ renderDomTable p buy hidden d = domTable pair hidden title body
     where
         pair = if buy then flipPair p else p
         pairStats = (sortBy (flip (comparing fst)) . HMS.toList) <$> (HMS.lookup pair d)
-        maxCount = fromMaybe 0 $ (foldr max 0 . map ((\(a, _, _) -> a) . snd)) <$> pairStats
+        maxCount = maybe 0 (foldr max 0 . map ((\(_, b, _) -> b) . snd)) pairStats
         title = if buy
-            then currSign inc <> " ⇢ " <> currSign outc <> " BID"
-            else currSign outc <> " ⇢ " <> currSign inc <> " ASK"
+            then [shamlet|
+                    \#{currSign inc} ⇢ #{currSign outc} #
+                    <small .text-warning>BID
+                    |]
+            else [shamlet|
+                    \#{currSign outc} ⇢ #{currSign inc} #
+                    <small .text-warning>ASK
+                    |]
         body = (concatMap $ \(r, s) -> domRow r maxCount buy s) <$> pairStats
         (outc, inc) = unPairCurrency p
 
@@ -219,7 +224,7 @@ domRow r t buy d =
         (direction, color) = if buy
             then (leftd, "#47b9002b")
             else (rightd, "#ff23002b")
-        widtht = round $ (fromIntegral count) / (fromIntegral t) * 100
+        widtht = round $ (fromIntegral outCents) / (fromIntegral t) * 100
         widthf = 100 - widtht
         style = concat
             [ "background: linear-gradient(to "
@@ -241,7 +246,7 @@ domRow r t buy d =
                 #{show count}
         |]
 
-domTable :: ExchangePair -> Bool -> Text -> Maybe Widget -> Widget
+domTable :: ExchangePair -> Bool -> Html -> Maybe Widget -> Widget
 domTable pair hidden title mbody  =
     let (outc, inc) = unPairCurrency pair
         expair = intercalate "_" . map (toLower . currencyCodeT) $ [outc, inc]
