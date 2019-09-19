@@ -104,7 +104,7 @@
 <!-- Page Contents -->
 
 $if not $ Just HomeR == mcurrentRoute
-    <div .container-fluid .mt-4 .mb-5>
+    <div .container-fluid .my-3>
         <div .row>
             <div .col-11 .mx-auto>
                 <ul .breadcrumb>

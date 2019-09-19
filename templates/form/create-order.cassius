@@ -23,3 +23,10 @@
 
 .order-form-stats
     transform: scale(0.7)
+
+##{wrapid} .input-group-text
+    font-size: 80%
+    background: #333a40
+    border: none
+    color: #e9ecef
+    padding: .375rem .45rem

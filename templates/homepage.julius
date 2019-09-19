@@ -27,11 +27,11 @@ const updateTextalData = (wrapid, currency) => {
     $(hiddenPairInput).val(`Exchange${cap(currency[0])}${cap(currency[1])}`)
     $(formAppendOutCurrency).text(cur(currency[0]))
     $(formAppendRate).html(`${cur(currency[1])}/${cur(currency[0])}`)
-    $(inCurrencySum).html(`&nbsp;${cur(currency[1])}`)
-    $(outCurrencyFee).html(`&nbsp;${cur(currency[0])}`)
-    $(inCurrencyFee).html(`&nbsp;${cur(currency[1])}`)
-    $(outCurrencyTotal).html(`&nbsp;${cur(currency[0])}`)
-    $(inCurrencyTotal).html(`&nbsp;${cur(currency[1])}`)
+    $(inCurrencySum).html(cur(currency[1]))
+    $(outCurrencyFee).html(cur(currency[0]))
+    $(inCurrencyFee).html(cur(currency[1]))
+    $(outCurrencyTotal).html(cur(currency[0]))
+    $(inCurrencyTotal).html(cur(currency[1]))
 }
 
 const switchTab = (e, pair, tabs, { orderCols, }) => {
