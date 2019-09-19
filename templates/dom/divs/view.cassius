@@ -1,0 +1,13 @@
+.dom-view .header.row
+    background-color: #333a40
+    color: white
+    padding: 0.5rem
+    font-weight: bold
+
+.dom-view .header.row .text-muted
+    color: #ffffffb5 !important
+
+div.clickable-order
+    cursor: pointer
+div.clickable-order:hover > div
+    background-color: #ef7f1a21

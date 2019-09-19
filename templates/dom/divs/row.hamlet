@@ -1,0 +1,9 @@
+<div .row .clickable-order style=#{style}>
+    <div .col-2 .ratio>
+        #{cents2dblT $ round (r * 100)}
+    <div .col-4 .amount-left>
+        #{cents2dblT outCents}
+    <div .col-4 .expected>
+        #{cents2dblT inCents}
+    <div .col-2 .depth>
+        #{show count}

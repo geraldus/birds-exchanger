@@ -77,7 +77,7 @@ clickableOrderW :: Text -> Widget
 clickableOrderW wrapId = toWidget [julius|
     const handleOrderClick = (e) => {
         const row = $(e.currentTarget)
-        const table = row.parents('table').first()
+        const parent = row.parents('.dom-view').first()
         const form = $('##{rawJS wrapId}')
         const ratioInput = $('.ratio-input', form)
         const amountInput = $('.amount-input', form)
@@ -86,7 +86,7 @@ clickableOrderW wrapId = toWidget [julius|
         const ratio = $('.ratio', row).text()
         const amountLeft = $('.amount-left', row).text()
         const expected = $('.expected', row).text()
-        const action = table.data('pair')
+        const action = parent.data('pair')
         ratioInput.val(ratio)
         actions.removeAttr('selected')
         switch (action) {
@@ -198,7 +198,7 @@ getLastFeaturedNews = do
 -- | ** Depth of Market
 
 renderDomTable :: ExchangePair -> Bool -> Bool -> DomStats -> Widget
-renderDomTable p buy hidden d = domTable pair hidden title body
+renderDomTable p buy hidden d = domDivView pair hidden title body
     where
         pair = if buy then flipPair p else p
         pairStats = (sortBy (flip (comparing fst)) . HMS.toList) <$> (HMS.lookup pair d)
@@ -212,7 +212,7 @@ renderDomTable p buy hidden d = domTable pair hidden title body
                     \#{currSign outc} ⇢ #{currSign inc} #
                     <small .text-warning>ASK
                     |]
-        body = (concatMap $ \(r, s) -> domRow r maxCount buy s) <$> pairStats
+        body = (concatMap $ \(r, s) -> domDivRow r maxCount buy s) <$> pairStats
         (outc, inc) = unPairCurrency p
 
 domRow :: Double -> Int -> Bool -> Dom -> Widget
@@ -230,41 +230,39 @@ domRow r t buy d =
             , direction <> ", "
             , "#fff0 " <> (pack . show $ widthf) <> "%, "
             , color <> " " <> (pack . show $ widthf) <> "%);" ]
-    in [whamlet|
-        <tr
-            .clickable-order
-            style=#{style}
-        >
-            <td .ratio>
-                #{cents2dblT $ round (r * 100)}
-            <td .amount-left>
-                #{cents2dblT outCents}
-            <td .expected>
-                #{cents2dblT inCents}
-            <td .depth>
-                #{show count}
-        |]
+    in $(widgetFile "dom/table/row")
 
 domTable :: ExchangePair -> Bool -> Html -> Maybe Widget -> Widget
 domTable pair hidden title mbody  =
     let (outc, inc) = unPairCurrency pair
         expair = intercalate "_" . map (toLower . currencyCodeT) $ [outc, inc]
         body = fromMaybe (emptyList 10 4) mbody
-    in
-        [whamlet|
-            <h5 :hidden:.hide .text-center data-pair="#{expair}">#{title}
-            <table :hidden:.hide .table .table-hover data-pair="#{expair}">
-                <thead .thead-dark>
-                    <tr>
-                        <th>_{MsgRatio}
-                        <th>_{MsgAmount} #
-                            <span .text-muted>(#{currSign outc})
-                        <th>_{MsgAmount} #
-                            <span .text-muted>(#{currSign inc})
-                        <th>_{MsgQuantityShort}
-                <tbody>
-                    ^{body}
-        |]
+    in $(widgetFile "dom/table/table")
+
+domDivRow :: Double -> Int -> Bool -> Dom -> Widget
+domDivRow r t buy d =
+    let (count, outCents, inCents) = d
+        leftd = "left" :: Text
+        rightd = "right" :: Text
+        (direction, color) = if buy
+            then (leftd, "#47b9002b")
+            else (rightd, "#ff23002b")
+        widtht = round $ (fromIntegral outCents) / (fromIntegral t) * 100
+        widthf = 100 - widtht
+        style = concat
+            [ "background: linear-gradient(to "
+            , direction <> ", "
+            , "#fff0 " <> (pack . show $ widthf) <> "%, "
+            , color <> " " <> (pack . show $ widthf) <> "%);" ]
+    in $(widgetFile "dom/divs/row")
+
+
+domDivView :: ExchangePair -> Bool -> Html -> Maybe Widget -> Widget
+domDivView pair hidden title mbody  =
+    let (outc, inc) = unPairCurrency pair
+        expair = intercalate "_" . map (toLower . currencyCodeT) $ [outc, inc]
+        body = fromMaybe (emptyList 10 4) mbody
+    in $(widgetFile "dom/divs/view")
 
 emptyList :: Int -> Int -> Widget
 emptyList row col = [whamlet|

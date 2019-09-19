@@ -1,0 +1,13 @@
+<h5 :hidden:.hide .text-center data-pair="#{expair}">#{title}
+<div :hidden:.hide .container-fluid .dom-view data-pair="#{expair}">
+    <div .header .row>
+        <div .col-2>
+            _{MsgRatio}
+        <div .col-4>
+            _{MsgAmount} #
+            <small .text-muted>#{currSign outc}
+        <div .col-4>
+            _{MsgAmount} #
+            <small .text-muted>#{currSign inc}
+        <div .col-2>_{MsgQuantityShort}
+    ^{body}

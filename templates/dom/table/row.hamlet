@@ -1,0 +1,9 @@
+<tr .clickable-order style=#{style}>
+    <td .ratio>
+        #{cents2dblT $ round (r * 100)}
+    <td .amount-left>
+        #{cents2dblT outCents}
+    <td .expected>
+        #{cents2dblT inCents}
+    <td .depth>
+        #{show count}
