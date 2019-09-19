@@ -11,9 +11,7 @@ getManageInfoAddR :: Handler Html
 getManageInfoAddR = do
     mr <- getMessageRender
     defaultLayout $ do
-        addScriptRemote "https://cdn.ckeditor.com/ckeditor5/11.2.0/classic/ckeditor.js"
-        -- addScriptRemote "https://cdn.ckeditor.com/ckeditor5/12.4.0/inline/ckeditor.js"
-        -- addScript (StaticR js_ckeditor_ckeditor_js)
+        addScript (StaticR js_ckeditor5_ckeditor_js)
         $(widgetFile "editor/info-add")
         setTitle $ toHtml $ mr MsgInfo <> " | " <> mr MsgNewArticle
         let form = infoArticleSimpleForm

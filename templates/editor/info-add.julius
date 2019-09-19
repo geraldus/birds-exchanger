@@ -1,8 +1,9 @@
 $(document).ready(() => {
+    const { ClassicEditor, InlineEditor } = CKEDITOR
     const contentHostId = '#content-html-editor'
     const contentData = $('#content-html-data')
-    ClassicEditor
     // InlineEditor
+    ClassicEditor
         .create(document.querySelector(contentHostId), {
             mediaEmbed: {
                 previewsInData: true,

@@ -11,7 +11,8 @@ $(document).ready(() => {
     const featuredInput = $(featuredHostId)
     const contentData = $(contentHostId + '-data')
     const descData = $(descHostId + '-data')
-    ClassicEditor
+    const { ClassicEditor, InlineEditor } = CKEDITOR
+    InlineEditor
         .create(document.querySelector(descHostId + '-editor'), {
             mediaEmbed: {
                 previewsInData: true,
@@ -28,7 +29,7 @@ $(document).ready(() => {
                 descData.val(editor.getData())
             })
         })
-    ClassicEditor
+    InlineEditor
         .create(document.querySelector(contentHostId + '-editor'), {
             mediaEmbed: {
                 previewsInData: true,

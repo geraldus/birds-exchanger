@@ -109,6 +109,8 @@ instance Yesod App where
         120    -- timeout in minutes
         "config/client_session_key.aes"
 
+    maximumContentLengthIO _ _ = pure $ Just $ 25 * 1024 * 1024
+
     -- Yesod Middleware allows you to run code before and after each handler function.
     -- The defaultYesodMiddleware adds the response header "Vary: Accept, Accept-Language" and performs authorization checks.
     -- Some users may also want to add the defaultCsrfMiddleware, which:

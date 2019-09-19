@@ -79,3 +79,7 @@
     min-height: 240px;
     width: 100%;
 }
+
+.modal figure.image > img {
+    max-width: 100%;
+}

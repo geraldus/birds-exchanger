@@ -68,10 +68,8 @@ getInfoViewR alias = do
         (infoContentHtml info            , Just contentIdent)
         (fromMaybe "" (infoDescHtml info), Just descIdent)
   defaultLayout $ do
-    when isEditorLoggedIn $ do
-        addScriptRemote
-            "https://cdn.ckeditor.com/ckeditor5/11.2.0/classic/ckeditor.js"
-        -- addScriptRemote "https://cdn.ckeditor.com/ckeditor5/12.4.0/inline/ckeditor.js"
+    when isEditorLoggedIn $
+        addScript (StaticR js_ckeditor5_ckeditor_js)
     setTitle $ toHtml $ infoTitle info <> " " <> mr MsgInfo
     [whamlet|
         $if isEditorLoggedIn
