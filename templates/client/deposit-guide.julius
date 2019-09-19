@@ -1,0 +1,7 @@
+const copyAddressAction = (group) => {
+    const p = $(group).parents('.input-group')
+    const i = p.find('.form-control')
+    i[0].select()
+    i[0].setSelectionRange(0, 999999)
+    document.execCommand('copy')
+}

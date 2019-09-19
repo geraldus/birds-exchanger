@@ -1,0 +1,42 @@
+<div .deposit-guide .container-fluid>
+    <div .row .mb-5>
+        <div .col-12 .col-md-8 .mx-auto .alert.alert-warning role="alert">
+            <h4 .alert-heading>
+                _{MsgTransfer}
+                <span .font-weight-bold>#{cents2dblT cents}<small>#{currSign curr}</small>
+                #{desc} #
+                <span .font-weight-bold style="word-break: break-all">
+                    #{addr}
+            <hr>
+            _{MsgDepositPayerAddressPrompt}
+    <dl .row .justify-content-center>
+        <dt .d-none .d-md-block .col-md-3 .text-right>_{MsgTransferMethod}
+        <dt .col-12 .d-md-none .text-center>_{MsgTransferMethod}
+        <dd .col-12 .col-md-5>#{title}
+    <dl .row .justify-content-center>
+        <dt .d-none .d-md-block .col-md-3 .text-right>_{MsgAddressee}
+        <dt .col-12 .d-md-none .text-center>_{MsgAddressee}
+        <dd .col-12 .col-md-5>
+            <div .form-group>
+                <div .input-group>
+                    <input
+                        .form-control
+                        readonly
+                        value=#{addr}>
+                    <div .input-group-append>
+                        <span .input-group-text onclick="copyAddressAction(this)">
+                            <i .far .fa-clipboard>
+    <dl .row .justify-content-center>
+        <dt .d-none .d-md-block .col-md-3 .text-right>_{MsgAmount}
+        <dt .col-12 .d-md-none .text-center>_{MsgAmount}
+        <dd .col-12 .col-md-5>
+            <div .form-group>
+                <div .input-group>
+                    <input .form-control readonly value=#{cents2dblT cents}>
+                    <div .input-group-append>
+                        <span .input-group-text>
+                            #{currSign curr}
+    <div .row .justify-content-center>
+        <div .col-12 .col-md-8 .alert .alert-warning role="alert">
+            _{MsgDepositConfirmPrompt}
+
