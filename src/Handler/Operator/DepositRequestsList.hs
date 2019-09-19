@@ -5,7 +5,7 @@
 {-# LANGUAGE TypeFamilies      #-}
 module Handler.Operator.DepositRequestsList where
 
-import           Import
+import           Import                 as I hiding ( on, (&&.), (==.) )
 import           Local.Persist.Currency ( currSign, tmTShort )
 import           Local.Persist.Wallet   ( DepositRequestStatus (..) )
 import           Utils.Common           ( selectLocale )
@@ -14,6 +14,7 @@ import           Utils.Money
 import           Utils.Render
 import           Utils.Time
 
+import           Database.Esqueleto     as E
 import           Database.Persist.Sql   ( fromSqlKey, rawSql )
 
 
@@ -24,9 +25,7 @@ getOperatorDepositRequestsListR = do
     tzo <- timezoneOffsetFromCookie
     let reqDateT = renderTimeDateCol loc tzo . depositRequestCreated
     renderUrl <- getUrlRender
-    list <-
-        runDB $ rawSql s [toPersistValue ClientConfirmed] :: Handler
-            [(Entity DepositRequest, Entity UserWallet, Entity User)]
+    list <- runDB selectData
     let reactBuild =
 #ifdef DEVELOPMENT
             "development"
@@ -41,15 +40,16 @@ getOperatorDepositRequestsListR = do
         $(widgetFile "operator/deposit-requests-list")
         addScriptAttrs (StaticR js_bundle_js) []
   where
-    s = concat
-        [ "SELECT ??, ??, ?? FROM deposit_request, user_wallet, \"user\""
-        , " WHERE deposit_request.status = ? "
-        , " AND deposit_request.archived = FALSE "
-        , " AND deposit_request.user_id = \"user\".id "
-        , " AND user_wallet.currency = deposit_request.currency "
-        , " AND user_wallet.user_id = deposit_request.user_id "
-        , " ORDER BY deposit_request.created ASC" ]
-
+    selectData = select $ from $ \(depReq `LeftOuterJoin` addr, wlt, usr) -> do
+        on (addr ?. DepositPayerDeposit ==. just (depReq ^. DepositRequestId))
+        where_ (
+            (depReq ^. DepositRequestStatus  ==. val ClientConfirmed)
+            &&. (depReq ^. DepositRequestArchived ==. val False)
+            &&. (depReq ^. DepositRequestUserId  ==. usr ^. UserId)
+            &&. (depReq ^. DepositRequestCurrency ==. wlt ^. UserWalletCurrency)
+            &&. (wlt ^. UserWalletUserId ==. usr ^. UserId) )
+        orderBy [ asc (depReq ^. DepositRequestCreated) ]
+        return (depReq, wlt, usr, addr)
 
 renderSums :: DepositRequest -> Html
 renderSums req@DepositRequest{..} =

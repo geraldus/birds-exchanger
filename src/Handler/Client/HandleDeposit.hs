@@ -61,16 +61,7 @@ getDepositRequestConfirmationR code = withClientRequestByCode code $ \(Entity ti
     defaultLayout $(widgetFile "client/deposit-proceed")
   where
     guideTemplate :: Text -> Int -> Currency -> Text -> Html -> Text -> Widget
-    guideTemplate title cents curr desc addr _ = [whamlet|
-        <p .lead .text-center>#{title}
-        <p>Переведите #
-            <span .font-weight-bold>
-                <big>
-                    #{cents2dblT cents}&nbsp;#{currSign curr}
-            \ #{desc} #
-            <span .font-weight-bold .text-monospace>
-                #{addr}
-        |]
+    guideTemplate title cents curr desc addr _ = $(widgetFile "client/deposit-guide")
     paymentGuideCard2Card :: TransferMethod -> [Text] -> Int -> Currency -> Text -> Widget
     paymentGuideCard2Card tm addressee cents curr _ =
         guideTemplate (paymentTitle tm) cents curr "на карту" (paymentAddr tm addressee) code
@@ -103,18 +94,20 @@ getDepositRequestConfirmationR code = withClientRequestByCode code $ \(Entity ti
     cryptoCDesc curr = "на " <> cCurrencyTLong curr <> " кошелёк"
 
 
-
 postDepositConfirmRequestR :: Handler Html
 postDepositConfirmRequestR = do
     clientId <- requireClientId
     -- code <- runInputPost $ ireq textField "transaction-code"
     trid <- fmap toSqlKey $ runInputPost $ ireq intField "transaction-id"
+    payer <- runInputPost $ ireq textField "payer-address"
     ch <- depositUserConfirm . appChannels <$> getYesod
     withClientRequest trid $ \request@(Entity tid t) ->
         if clientId == depositRequestUserId t
             then do
-                runDB $
+                let payerRecord = DepositPayer payer tid
+                runDB $ do
                     update tid [DepositRequestStatus =. ClientConfirmed]
+                    insert payerRecord
                 liftIO . atomically $ writeTChan ch request
                 setMessageI MsgDepositRequestConfirmedMessage
                 redirect DepositR

@@ -1,25 +1,16 @@
-<div .container .mt-5>
+<div .container>
     <div .row>
-        <div .col-8 .mx-auto>
+        <div .col-12 .col-xs-11 col-md-10 .mx-auto>
             ^{paymentGuide}
-        <div .col-8 .mx-auto .alert .alert-warning role='alert' .p-3>
-            <p>
-                После выполнения перевода, пожалуйста, <b>напишите в чат технической
-                поддержки</b>, чтобы сообщить реквизиты перевода (номер карты или
-                кошелька, с которого вы отправляли средства).
-            <p>
-                <b>Outbirds техническая поддержка:</b>
-                <br>
-                <a href="https://t.me/outb_support" title="перейти в чат" target="_blank">
-                    @outb_support (https://t.me/outb_support)
-            <p>
-                Прежде чем писать в чат, нажмите на кнопку "Перевод подтверждаю"
-            <p>
-                <small .text-muted>
-                    В скором времени механизм пополнения средств будет упрощен,
-                    следите за новостями.
 
-<form method=post action=@{DepositConfirmRequestR}>
-    <input type=hidden name="transaction-id" value="#{fromSqlKey transactionId}">
-    <div .form-group .row>
-        <button .mx-auto .btn.btn-primary type=submit>Перевод подтверждаю
+    <div .row>
+        <div .col-11 .col-md-8 .mx-auto>
+            <form method=post action=@{DepositConfirmRequestR} .mt-3>
+                <input type=hidden name="transaction-id" value="#{fromSqlKey transactionId}">
+                <div .form-group .row>
+                    <label for="payer-address-input">_{MsgFormPayerAddressLabel}</label>
+                    <input name="payer-address" .form-control aria-describedby="payer-address-input-help" required>
+                    <small #payer-address-input-help .form-text .text-muted>
+                        _{MsgFormPayerAddressHelp}
+                <div .form-group .row>
+                    <button .mx-auto .btn.btn-primary type=submit>_{MsgFormDepositConfirmSubmit}
