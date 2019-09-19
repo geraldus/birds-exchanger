@@ -31,7 +31,15 @@ ClientWithdrawalPageTitle: Вывод средств
 ClientSettingsPageTitle: Настройки
 
 
-# FORM ERROS
+# FORMS
+
+FormPayerAddressLabel: Реквизиты перевода
+FormPayerAddressHelp: Номер карты или кошелька, с которого сделан перевод
+DepositConfirmPrompt: После выполнения перевода нажмите кнопку «Перевод подтверждаю»
+DepositPayerAddressPrompt: Для зачисления средств укажите адрес кошелька или номер карты, с которого был сделан перевод.
+FormDepositConfirmSubmit: Перевод подтверждаю
+
+## FORM ERROS
 PositiveValueRequired: должно быть положительным числом
 NotEnoughFunds: Недостаточно средств
 FormInvalidMinimalAmount: Минимальная сумма пополнения
@@ -152,6 +160,8 @@ DepositRequestAcceptFormStatsTitle: Расчёт заявки
 DeclineRequestTitle: Отмена заявки
 DeclineRequest: Отклонить заявку
 DeclineReason: Причина отмены
+DepositPayerAddress: Счёт плательщика
+DepositTransactionCode: Код операции
 
 WithdrawalExecuted: Перевод выполнен
 
@@ -197,13 +207,17 @@ WithdrawalFeeTotal: Удержанная комиссия с вывода
 
 ReadMore: Подробнее
 DoNotShowAgain: Больше не показывать
+
+
 SendEmail: Написать на эл.почту
 ToTelegramChat: Перейти в Telegram-чат
 
 Schedule: График работы
 ScheduleDesc: Операторы онлайн с 7:00 - 21:00 МСК
 
+Transfer: Переведите
 InFact: по факту
+
 TMSberBankCard2Card: СберБанк
 TMTinkoffBankCard2Card: Тинькофф Банк
 TMAlphaBankCard2Card: Альфа Банк
@@ -212,6 +226,7 @@ TMQiwi: Qiwi кошелёк
 TMCryptoTransfer: Перевод
 
 WalletAddress: Адрес кошелька
+Addressee: Адресат
 Card: Карта
 Phone: Телефон
 Skype: Skype
