@@ -8,15 +8,12 @@ $(document).ready(() => {
 
         $('#wallets-view a.nav-link.active').removeClass('active')
         selected.addClass('active')
-        console.log(table)
         let allTrs = $('.data-row', table)
         allTrs.show()
-        console.log(allTrs)
 
         const curr = selected.data('filter') || 'all'
         if (curr != 'all') {
             filteredTrs = $('.data-row:not(.' + curr + ')', table)
-            console.log(filteredTrs)
             filteredTrs.hide()
         }
     }

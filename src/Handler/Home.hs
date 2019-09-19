@@ -177,7 +177,6 @@ featuredModal = do
                     } else {
                         markedNews.add(featured)
                     }
-                    console.log('set', JSON.stringify([ ...markedNews ]))
                     Cookies.set(cookieName, JSON.stringify([ ...markedNews ]), { domain: 'outb.info', expires: 60 })
                     Cookies.set(cookieName, JSON.stringify([ ...markedNews ]), { domain: 'localhost', expires: 60 })
                     trigger.parent().toggleClass('toggle')
