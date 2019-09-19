@@ -66,7 +66,6 @@ export default class MaoOperatorAccountingTable extends React.Component {
             gapi.client.sheets.spreadsheets.get({
                 spreadsheetId: self.sheetId
             }).then(r => {
-                // console.log(r.result)
                 let sdata = r.result.sheets
                 self.fetchSheetsData(sdata)
                 self.setState(s => _.merge({}, s, { data: { sheets: sdata } }))
@@ -150,7 +149,6 @@ export default class MaoOperatorAccountingTable extends React.Component {
         const { currency, person } = formData
         const amount = parseFloat(formData.amount)
         const ratio = parseFloat(formData.ratio)
-        console.log('FD', amount, ratio, person, currency)
         // 1. add history record
         const date = moment().format('DD.MM.YY')
         let d = [ date, person, '', '', '', '', '', '', '' ]
@@ -245,7 +243,6 @@ export default class MaoOperatorAccountingTable extends React.Component {
                 resource: body
             }).then((response) => {
                 var result = response.result;
-                console.log(`${result.totalUpdatedCells} cells updated.`);
                 self.setState({ anyUpdates: false })
             })
         });

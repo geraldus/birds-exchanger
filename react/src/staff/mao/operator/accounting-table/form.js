@@ -36,7 +36,6 @@ export default class Form extends React.Component {
         if (currency === 'rur') {
             conditionMet = conditionMet && c3 && c4
         }
-        console.log(amountValue, ratioValue)
         if (conditionMet) {
             this.setState({ step: 2 })
         } else {

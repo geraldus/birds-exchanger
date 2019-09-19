@@ -50,7 +50,6 @@ export default class OperatorNotifier extends React.Component {
             console.groupCollapsed('Non JSON socket messages')
             console.warn(error)
             console.groupEnd()
-            console.log('Socket message', e)
 
         }
     }
@@ -61,7 +60,6 @@ export default class OperatorNotifier extends React.Component {
                 this.handleUpdateEvent(json.object, json.value)
                 break
             default:
-                console.log('Unexpected type', json)
         }
     }
 
@@ -85,7 +83,6 @@ export default class OperatorNotifier extends React.Component {
     }
 
     render () {
-        console.log(this.state)
         const confirmations = this.state.deposit.confirmation.counter
         const requests = this.state.withdrawal.request.counter
         const loc = window.location
