@@ -11,11 +11,11 @@
             <div .col-8 .mx-auto>
                 <ul .nav .nav-tabs .justify-content-center>
                     <li .nav-item .mx-1>
-                        <a #pzm-rur-pair .nav-link.active .pzm .rur href="#" title="#{renderMessage MsgExchange} Prizm на рубли">PZM / RUB (₽)
+                        <a #pzm-rur-pair .nav-link :paramsPair == defPairDir ExchangePzmRur:.active :paramsPair /= defPairDir ExchangePzmRur:.text-light .pzm .rur href="#" title="#{renderMessage MsgExchange} Prizm на рубли">PZM / RUB (₽)
                     <li .nav-item .mx-1>
-                        <a #our-pzm-pair .nav-link .text-light .our .pzm href="#" title="#{renderMessage MsgExchange} Ouroboros на Prizm">OUR / PZM
+                        <a #our-pzm-pair .nav-link :paramsPair == defPairDir ExchangeOurPzm:.active :paramsPair /= defPairDir ExchangeOurPzm:.text-light .our .pzm href="#" title="#{renderMessage MsgExchange} Ouroboros на Prizm">OUR / PZM
                     <li .nav-item .mx-1>
-                        <a #our-rur-pair .nav-link .text-light .our .rur href="#" title="#{renderMessage MsgExchange} Ouroboros на рубли">OUR / RUB (₽)
+                        <a #our-rur-pair .nav-link :paramsPair == defPairDir ExchangeOurRur:.active :paramsPair /= defPairDir ExchangeOurRur:.text-light .our .rur href="#" title="#{renderMessage MsgExchange} Ouroboros на рубли">OUR / RUB (₽)
         <div .row .mt-3>
             <div .col>
                 <form method=post action=@{ExchangeOrderCreateR} enctype="">
@@ -44,13 +44,13 @@
     <div .row>
         ^{clickableOrderW modalWrapId}
         <div .col-12 .col-lg-6 .mb-3 .order-col>
-            ^{renderDomTable ExchangePzmRur False False statsDOM}
-            ^{renderDomTable ExchangeOurPzm False True statsDOM}
-            ^{renderDomTable ExchangeOurRur False True statsDOM}
+            ^{renderDomTable ExchangePzmRur False (paramsPair /= defPairDir ExchangePzmRur) statsDOM}
+            ^{renderDomTable ExchangeOurPzm False (paramsPair /= defPairDir ExchangeOurPzm) statsDOM}
+            ^{renderDomTable ExchangeOurRur False (paramsPair /= defPairDir ExchangeOurRur) statsDOM}
         <div .col-12 .col-lg-6 .mb-3 .order-col>
-            ^{renderDomTable ExchangePzmRur True False statsDOM}
-            ^{renderDomTable ExchangeOurPzm True True statsDOM}
-            ^{renderDomTable ExchangeOurRur True True statsDOM}
+            ^{renderDomTable ExchangePzmRur True (paramsPair /= defPairDir ExchangePzmRur) statsDOM}
+            ^{renderDomTable ExchangeOurPzm True (paramsPair /= defPairDir ExchangeOurPzm) statsDOM}
+            ^{renderDomTable ExchangeOurRur True (paramsPair /= defPairDir ExchangeOurRur) statsDOM}
 
     <div .row>
         <div .col-8 .mx-auto>

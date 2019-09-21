@@ -41,11 +41,30 @@ getHomeR = do
     orders <- runDB $ flip mapM [ ExchangePzmRur, ExchangeOurRur, ExchangeOurPzm ] selectActiveOrdersOf
     let statsDOM = reduceDomStats [] $ concat orders
     renderMessage <- getMessageRender
+    paramsFrom <- lookupGetParam "from"
+    paramsTo <- lookupGetParam "to"
+    let paramsPair = selectPair paramsFrom paramsTo
     defaultLayout $ do
         setAppPageTitle MsgHomePageTitle
         $(widgetFile "homepage")
   where
     rbt = decodeUtf8 . responseBody
+    selectPair Nothing Nothing = defPairDir ExchangePzmRur
+    selectPair _ Nothing       = defPairDir ExchangePzmRur
+    selectPair Nothing _       = defPairDir ExchangePzmRur
+    selectPair (Just c1) (Just c2)
+        | c1 == "rur" || c1 == "rub" && c2 == "our" =
+            defPairDir ExchangeRurOur
+        | c2 == "rur" || c2 == "rub" && c1 == "our" =
+            defPairDir ExchangeOurRur
+        | c1 == "pzm" && c2 == "our" =
+            defPairDir ExchangePzmOur
+        | c2 == "pzm" && c1 == "our" =
+            defPairDir ExchangeOurPzm
+        | otherwise = defPairDir ExchangePzmRur
+
+
+
 
 getData :: Text -> Text -> Text -> Text -> HandlerFor App (Maybe Html, Maybe (Key User), Widget, Widget)
 getData wrapId modalWrapId ratioId modalRatioId = do

@@ -19,7 +19,7 @@ data ProcessForm
     = ProcessFormNoData
     | ProcessFormErrors [ LabeledError ]
     | ProcessFormSuccess
-            AmountCents Currency UTCTime (UserWallet -> OrderCheck)
+            AmountCents Currency UTCTime ExchangePair (UserWallet -> OrderCheck)
 
 postExchangeOrderCreateR :: Handler Html
 postExchangeOrderCreateR = do
@@ -46,18 +46,24 @@ postExchangeOrderCreateR = do
             mr <- getMessageRender
             t <- liftIO getCurrentTime
             return $ processNewOrder client d a r t mr
-    case proceessResult of
+    pair' <- case proceessResult of
         ProcessFormErrors es -> do
             -- TODO: FIXME: Add JSON response capabilities
             let msg = [shamlet|
                     $forall (_, message) <- es
                         <div>#{message}|]
             setMessage msg
-        ProcessFormSuccess a c t checkOrder ->
-            runDB (saveAndExecuteOrder client a c t checkOrder) >> return ()
-        _ -> return ()
-    redirect HomeR
-
+            return ExchangePzmRur
+        ProcessFormSuccess a c t p checkOrder -> do
+            runDB (saveAndExecuteOrder client a c t checkOrder)
+            return . flipPair . defPairDir $ p
+        _ -> return ExchangePzmRur
+    let (c1', c2') = unPairCurrency pair'
+        c1 = toLower $ currencyCodeT c1'
+        c2 = toLower $ currencyCodeT c2'
+    renderUrl <- getUrlRenderParams
+    let url = renderUrl HomeR [("from", c1), ("to", c2)]
+    redirect url
 
 
 processNewOrder
@@ -72,7 +78,7 @@ processNewOrder client epair a r t mr =
     let er a' r' w' = orderCreateRenderFormErrors a' r' w' mr
         chk w = checkOrderData epair a r client w t er
         c = fst . unPairCurrency $ epair
-    in ProcessFormSuccess a c t chk
+    in ProcessFormSuccess a c t epair chk
 
 checkOrderData
     :: ExchangePair
