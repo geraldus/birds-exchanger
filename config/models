@@ -8,13 +8,13 @@ User json
     UniqueUser ident
     deriving Show Typeable
 
-Email
+Email json
     email Text
     userId UserId Maybe
     verkey Text Maybe
     UniqueEmail email
 
-UserWallet
+UserWallet json
     userId UserId
     currency Currency
     amountCents Int
@@ -24,11 +24,11 @@ UserWallet
     deriving Show
 
 
-WalletTransactionReason
+WalletTransactionReason json
     walletId UserWalletId
     deriving Show
 
-WalletBalanceTransaction
+WalletBalanceTransaction json
     walletId UserWalletId
     type WalletTransactionType
     walletTransactionReasonId WalletTransactionReasonId
@@ -58,7 +58,7 @@ DepositPayer json
     deposit DepositRequestId
     UniqueDepositPayer deposit
 
-AcceptedDeposit
+AcceptedDeposit json
     depositRequestId DepositRequestId
     currency Currency
     targetCurrency Currency
@@ -72,7 +72,7 @@ AcceptedDeposit
     walletTransactionReasonId WalletTransactionReasonId
     deriving Show
 
-DepositReject
+DepositReject json
     requestId DepositRequestId
     staffId Text
     reason Textarea
@@ -93,7 +93,7 @@ WithdrawalRequest json
     accepted UTCTime Maybe
     deriving Show
 
-WithdrawalAccept
+WithdrawalAccept json
     requestId WithdrawalRequestId
     amountTransfered Int
     actualFee Int
@@ -102,14 +102,14 @@ WithdrawalAccept
     time UTCTime
     deriving Show
 
-WithdrawalCancel
+WithdrawalCancel json
     requestId WithdrawalRequestId
     transactionReasonId WalletTransactionReasonId
     time UTCTime default=now() AT TIME ZONE 'UTC'
     UniqueWithdrawalCancel requestId
     deriving Show
 
-WithdrawalReject
+WithdrawalReject json
     requestId WithdrawalRequestId
     staffId Text
     reason Textarea
@@ -133,7 +133,7 @@ ExchangeOrder json
     walletTransactionReasonId WalletTransactionReasonId
     deriving Show Eq
 
-ExchangeOrderExecution
+ExchangeOrderExecution json
     orderId ExchangeOrderId
     time UTCTime
     outWalletTransactionReasonId WalletTransactionReasonId
@@ -149,7 +149,7 @@ ExchangeOrderExecution
     -- ^ Incoming funds fee paid by creator
     deriving Show
 
-ExchangeOrderCancellation
+ExchangeOrderCancellation json
     orderId ExchangeOrderId
     userId UserId
     walletId UserWalletId
@@ -160,14 +160,14 @@ ExchangeOrderCancellation
     UniqueOrderCancellation orderId
     deriving Show
 
-InnerProfitRecord
+InnerProfitRecord json
     reasonId WalletTransactionReasonId
     currency Currency
     amountCents Int
     profitType ProfitType
     deriving Show
 
-Info
+Info json
     title Text
     alias Text
     contentHtml Text

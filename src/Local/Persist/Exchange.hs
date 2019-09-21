@@ -24,7 +24,9 @@ data ProfitType
     | WithdrawalFee
     | ExchangeFee
     | ExchangeDiff
-    deriving (Show, Read, Eq)
+    deriving (Show, Read, Eq, Generic)
+instance ToJSON ProfitType
+instance FromJSON ProfitType
 derivePersistField "ProfitType"
 
 
