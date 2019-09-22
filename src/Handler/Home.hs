@@ -34,16 +34,18 @@ getHomeR = do
     ratioId <- newIdent
     modalWrapId <- newIdent
     modalRatioId <- newIdent
+    paramsFrom <- lookupGetParam "from"
+    paramsTo <- lookupGetParam "to"
+    let paramsPair = selectPair paramsFrom paramsTo
     (mmsg, mayClientUser, orderCreateFormW, modalOrderCreateFormW) <-
-            getData wrapId modalWrapId ratioId modalRatioId
-    -- Sort RUR to PZM orders by descending order ratio
+            getData wrapId modalWrapId ratioId modalRatioId (flipPair paramsPair)
+            -- flipping paramsPair gives right tab (and form) exchange direction
+            -- (defPairDir seems to always be opposite form pair in current form
+            -- implementation)
     let featured = featuredModal
     orders <- runDB $ flip mapM [ ExchangePzmRur, ExchangeOurRur, ExchangeOurPzm ] selectActiveOrdersOf
     let statsDOM = reduceDomStats [] $ concat orders
     renderMessage <- getMessageRender
-    paramsFrom <- lookupGetParam "from"
-    paramsTo <- lookupGetParam "to"
-    let paramsPair = selectPair paramsFrom paramsTo
     defaultLayout $ do
         setAppPageTitle MsgHomePageTitle
         $(widgetFile "homepage")
@@ -64,18 +66,16 @@ getHomeR = do
         | otherwise = defPairDir ExchangePzmRur
 
 
-
-
-getData :: Text -> Text -> Text -> Text -> HandlerFor App (Maybe Html, Maybe (Key User), Widget, Widget)
-getData wrapId modalWrapId ratioId modalRatioId = do
+getData :: Text -> Text -> Text -> Text -> ExchangePair -> HandlerFor App (Maybe Html, Maybe (Key User), Widget, Widget)
+getData wrapId modalWrapId ratioId modalRatioId exdir = do
     mUser <- maybeClientUser
     (,,,)
         <$> getMessage
         <*> pure mUser
         <*> fmap fst (generateFormPost
-                (createOrderForm wrapId ratioId ExchangePzmRur))
+                (createOrderForm wrapId ratioId exdir))
         <*> fmap fst (generateFormPost
-                (createOrderForm modalWrapId modalRatioId ExchangePzmRur))
+                (createOrderForm modalWrapId modalRatioId exdir))
 
 maybeClientUser :: HandlerFor App (Maybe (Key User))
 maybeClientUser = (entityKey . fst <$>) <$> maybeClient
