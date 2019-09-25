@@ -22,3 +22,28 @@
 
 ##{pageId}-table .data-row:hover .controls .control:hover
     opacity: 1
+
+.order-list.mobile .date > span
+    padding: 0.4em
+
+.order-list.mobile .order-card > .row
+    background: #e9ecef
+    border-radius: 0.2em
+
+.order-list.mobile.active .order-card:not(.active)
+    display: none
+
+.order-list.mobile.executed .order-card:not(.executed)
+    display: none
+
+.order-list.mobile.cancelled .order-card:not(.cancelled)
+    display: none
+
+.order-list.mobile.active .group-date:not(.active)
+    display: none
+
+.order-list.mobile:not(.all).executed .group-date:not(.executed)
+    display: none
+
+.order-list.mobile:not(.all).cancelled .group-date:not(.cancelled)
+    display: none

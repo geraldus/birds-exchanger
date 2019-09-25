@@ -1,4 +1,4 @@
-<div .row .my-4>
+<div .row .my-4 .d-none .d-md-flex>
     <div .col-2 .justify-content-center>
         <big>
             <big>
@@ -34,16 +34,70 @@
     <div .col-3 .justify-content-center>
         ^{orderStatus status}
 
+<dl .d-md-none>
+    <dt>_{MsgExchange}
+    <dd>
+        #{cents2dblT amount} #
+        <small>#{renderPairOut pair}
+        <span>⇢
+        #{cents2dblT expectedIn} #
+        <small>#{renderPairIn pair}
+    <dt>
+        _{MsgRatio}
+    <dd>
+        <span .normalized-ratio>
+            #{dbl2MoneyT ratio}
+            <small .text-muted>
+                #{renderPairOut ratioN}/#{renderPairIn ratioN}
+    $if exchangeOrderIsActive order
+        <dd>
+            <form action=@{ClientOrderCancelR} method="POST">
+                <input
+                    type="hidden"
+                    name="order-id"
+                    value=#{fromSqlKey orderId}
+                    >
+                <button
+                    type="submit"
+                    #order-cancel-button
+                    .btn
+                    .btn-outline-danger
+                    .w-100
+                    onclick="return false">
+                    _{MsgOrderCancellation}
+    <dt>
+        _{MsgStatus}
+    <dd>
+        ^{orderStatus status}
+    <dt>
+        _{MsgExecuted}
+    <dd>
+        #{cents2dblT totalExecuted}
+        <small .text-muted>#{renderPairOut pair}
+    <dt>
+        _{MsgReceived}
+    <dd>
+        #{cents2dblT (totalIncome - totalFee)}
+        <small .text-muted>#{renderPairIn pair}
+    <dt>
+        _{MsgFee}
+    <dd>
+        -#{cents2dblT totalFee}
+        <small .text-muted>#{renderPairIn pair}
 
 <h5>_{MsgOrderHistory}
 
 <table .table .table-striped>
     <thead>
         <tr .text-center>
-            <th>_{MsgDate}
-            <th>_{MsgEvent}
-            <th>_{MsgBalance}
-            <th>_{MsgFee}
+            <th>
+                _{MsgDate}
+            <th>
+                _{MsgEvent}
+            <th>
+                _{MsgBalance}
+            <th .d-none .d-md-table-cell>
+                _{MsgFee}
     <tbody>
         $forall operation <- operations
             ^{orderOperationTr pair operation}
@@ -55,6 +109,6 @@
             <td .text-center>
                 -#
                 <span>
-                    <big>#{cents2dblT amount}#
+                    <b>#{cents2dblT amount}#
                     <small .text-muted>#{renderPairOut pair}
-            <td .text-center>
+            <td .d-none .d-md-table-cell .text-center>

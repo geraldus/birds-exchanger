@@ -1,0 +1,13 @@
+const handleCancelConfirm = (e) => {
+    let _
+    if (!confirm(#{ msgRender MsgCancelOrderConfirmationText })) {
+        e.preventDefault()
+    }
+};
+
+$(document).ready(() => {
+    $('#order-cancel-button')
+        .attr('onclick', '')
+        .click(handleCancelConfirm)
+});
+

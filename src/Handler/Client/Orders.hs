@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes       #-}
+{-# LANGUAGE RecordWildCards   #-}
 module Handler.Client.Orders where
 
 import           Import
@@ -13,6 +14,7 @@ import           Utils.Common           ( selectLocale )
 import           Utils.Money
 import           Utils.Time
 
+import           Data.Time.Clock        ( addUTCTime, secondsToDiffTime )
 import           Data.Time.Format       ( TimeLocale (..) )
 import           Database.Persist.Sql   ( fromSqlKey, toSqlKey )
 import           Formatting
@@ -30,6 +32,7 @@ getClientOrdersR = do
     pageId <- newIdent
     msgRender <- getMessageRender
     urlRender <- getUrlRender
+    let mobileList = renderMobileList allOrders locale tzo
     defaultLayout $ do
         setAppPageTitle MsgClientOrdersPageTitle
         $(widgetFile "client/orders/list")
@@ -39,6 +42,7 @@ getClientOrderViewR :: ExchangeOrderId -> Handler Html
 getClientOrderViewR orderId = do
     clientId <- requireClientId
     order <- runDB $ get404 orderId
+    msgRender <- getMessageRender
     if exchangeOrderUserId order /= clientId
         then do
             setMessageI MsgCantViewThisOrder
@@ -46,13 +50,26 @@ getClientOrderViewR orderId = do
         else do
             l <- selectLocale
             tzo <- timezoneOffsetFromCookie
-            let ExchangeOrder _  pair amount _alft ratioN ratio expectedFee created status isActivel _wtr = order
+            let ExchangeOrder
+                    _
+                    pair
+                    amount
+                    alft
+                    ratioN
+                    ratio
+                    _expectedFee
+                    created
+                    status
+                    _isActivel
+                    _wtr =
+                        order
                 r = normalizeRatio ratioN pair ratio
                 expectedIn = multiplyCents r amount
             operations <- runDB $
                 selectList
                     [ ExchangeOrderExecutionOrderId ==. orderId ]
                     [ Desc ExchangeOrderExecutionTime ]
+            let totalExecuted = amount - alft
             let totalIncome = totalIncomeSum operations
                 totalFee = totalFeeSum operations
             defaultLayout $ do
@@ -67,10 +84,54 @@ getClientOrderViewR orderId = do
         -> Int
     totalSum prop = sum . map (prop . entityVal)
 
+postClientOrderCancelR :: Handler Html
+postClientOrderCancelR = do
+    orderId  <- toSqlKey <$> runInputPost (ireq intField "order-id")
+    clientId <- requireClientId
+    time <- liftIO getCurrentTime
+    messageRender <- getMessageRender
+    runDB $ do
+        order <- get404 orderId
+        when (exchangeOrderUserId order /= clientId) $ do
+            setMessageI MsgAccessDenied
+            redirect ClientOrdersR
+        let currency = fst . unPairCurrency . exchangeOrderPair $ order
+        (Entity walletId wallet) <- getBy404 (UniqueWallet clientId currency)
+        let income = exchangeOrderAmountLeft order
+            before = userWalletAmountCents wallet
+        update
+            orderId
+            [ ExchangeOrderIsActive =. False
+            , ExchangeOrderStatus =. Cancelled time ]
+        reasonId <- insert $ WalletTransactionReason walletId
+        insert $ WalletBalanceTransaction
+            walletId (ExchangeReturn income) reasonId before time
+        insert $ ExchangeOrderCancellation
+            orderId
+            clientId
+            walletId
+            reasonId
+            (Just $ messageRender MsgUserCancelled)
+            time
+            income
+        update
+            walletId
+            [ UserWalletAmountCents +=. income ]
+    setMessageI MsgOrderWasCancelled
+    redirect ClientOrdersR
+
+
+-- | == Utils
+-- | === Rendering Markup
 
 renderOrderTr :: (AppMessage -> Text) -> (Route App -> Text) -> TimeLocale -> Int -> Entity ExchangeOrder -> Html
 renderOrderTr messageRender urlRender l tzo (Entity orderId order) = [shamlet|
-    <tr #order-data-#{fromSqlKey orderId} .data-row :isActive:.active :isExecuted:.executed>
+    <tr
+        #order-data-#{fromSqlKey orderId}
+        .data-row
+        :isActive:.active
+        :isExecuted:.executed
+        >
         <td .text-muted .text-center>
             <small>#{renderDateTimeRow l tzo (exchangeOrderCreated order)}
         <td .text-center>
@@ -93,10 +154,7 @@ renderOrderTr messageRender urlRender l tzo (Entity orderId order) = [shamlet|
     |]
   where
     isActive = exchangeOrderIsActive order
-    isExecuted = case exchangeOrderStatus order of
-        Executed _ -> True
-        _          -> False
-
+    isExecuted = isOrderExecuted order
 
 renderOrderExchange :: ExchangeOrder -> Html
 renderOrderExchange order = [shamlet|
@@ -107,25 +165,6 @@ renderOrderExchange order = [shamlet|
     \#{renderPairIn (exchangeOrderPair order)}#
     |]
 
-renderOrderRate :: ExchangeOrder -> Html
-renderOrderRate order = [shamlet|
-    #{format (fixed 2) rate}|]
-  where
-    rate = exchangeOrderNormalizedRatio order
-
-renderPairOut :: ExchangePair -> Html
-renderPairOut = toHtml . currSign . fst . unPairCurrency
-
-renderPairIn :: ExchangePair -> Html
-renderPairIn = toHtml . currSign . snd . unPairCurrency
-
-renderOrderNRatioSign :: ExchangeOrder -> Html
-renderOrderNRatioSign order = [shamlet|
-    #{renderPairOut rn}/#{renderPairIn rn}
-    |]
-  where
-    rn = exchangeOrderRatioNormalization order
-
 renderOrderRemainderExecuted :: TimeLocale -> Int -> ExchangeOrder -> Html
 renderOrderRemainderExecuted l tzo order =
     case exchangeOrderStatus order of
@@ -133,7 +172,6 @@ renderOrderRemainderExecuted l tzo order =
         Executed t            -> [shamlet|<small>#{renderStatusExecuted t}|]
         Cancelled t           -> [shamlet|<small>#{renderStatusCancelled t}|]
         PartiallyExecuted t e -> [shamlet|<small>#{renderStatusPartial t e}|]
-        _                     -> [shamlet|>|]
   where
     renderStatusNew = [shamlet| Новый ордер, не исполнялся |]
     renderStatusExecuted t = [shamlet|
@@ -158,7 +196,6 @@ renderOrderRemainderExecuted l tzo order =
     left = exchangeOrderAmountLeft order
     pair = exchangeOrderPair order
 
-
 orderOperationTr :: ExchangePair -> Entity ExchangeOrderExecution -> Widget
 orderOperationTr pair (Entity _ op) = do
     l <- liftHandler selectLocale
@@ -170,16 +207,21 @@ orderOperationTr pair (Entity _ op) = do
             <td>
                 <small>_{MsgExchange} #
                 <span>
-                    <big>#{cents2dblT transfered}#
+                    <b>#{cents2dblT transfered}#
                     <small .text-muted>#{renderPairOut pair}
                 $if exchangeOrderExecutionFullyExecuted op
                     <small> _{MsgOrderWasExecuted} #
             <td .text-center .align-middle>
                 +#
                 <span>
-                    <big>#{cents2dblT (income - fee)}#
+                    <b>#{cents2dblT (income - fee)}#
                     <small .text-muted>#{renderPairIn pair}
-            <td .text-center .align-middle>
+                <br .d-md-none>
+                <small .d-md-none>
+                    -#
+                    <span>#{cents2dblT fee}
+                        <small .text-muted>#{renderPairIn pair}
+            <td .d-none .d-md-table-cell .text-center .align-middle>
                 -#
                 <span>#{cents2dblT fee}
                     <small .text-muted>#{renderPairIn pair}
@@ -219,39 +261,114 @@ orderStatus' stName stDesc time = do
         <small>#{renderDateTimeRow l tzo time}
         |]
 
+renderMobileList :: [ Entity ExchangeOrder ] -> TimeLocale -> Int -> Widget
+renderMobileList os loc off = do
+    locale <- selectLocale
+    tzo <- handlerToWidget timezoneOffsetFromCookie
+    let groups = labeledGroups $ dateGroups tzo
+    [whamlet|
+        <div .container-fluid .d-md-none .order-list .mobile .active>
+            $forall (d, g) <- groups
+                <div .row .group-date>
+                    <div
+                        .col
+                        .date
+                        .text-center
+                        .text-lowercase
+                        .text-muted
+                        .mb-2
+                        .mt-4
+                        >
+                        <small>
+                            #{renderDateRow locale tzo (dateFromDay d)}
+                <div .row .order-list .group-view .client .mobile>
+                    ^{children g}
+        |]
+    where
+        children g = concat <$> mapM
+            (\x -> [whamlet|<div .col-12 .mx-auto>
+                    ^{renderMobileOrderCard x }|])
+            g
 
-postClientOrderCancelR :: Handler Html
-postClientOrderCancelR = do
-    orderId  <- toSqlKey <$> runInputPost (ireq intField "order-id")
-    clientId <- requireClientId
-    time <- liftIO getCurrentTime
-    messageRender <- getMessageRender
-    runDB $ do
-        order <- get404 orderId
-        when (exchangeOrderUserId order /= clientId) $ do
-            setMessageI MsgAccessDenied
-            redirect ClientOrdersR
-        let currency = fst . unPairCurrency . exchangeOrderPair $ order
-        (Entity walletId wallet) <- getBy404 (UniqueWallet clientId currency)
-        let income = exchangeOrderAmountLeft order
-            before = userWalletAmountCents wallet
-        update
-            orderId
-            [ ExchangeOrderIsActive =. False
-            , ExchangeOrderStatus =. Cancelled time ]
-        reasonId <- insert $ WalletTransactionReason walletId
-        insert $ WalletBalanceTransaction
-            walletId (ExchangeReturn income) reasonId before time
-        insert $ ExchangeOrderCancellation
-            orderId
-            clientId
-            walletId
-            reasonId
-            (Just $ messageRender MsgUserCancelled)
-            time
-            income
-        update
-            walletId
-            [ UserWalletAmountCents +=. income ]
-    setMessageI MsgOrderWasCancelled
-    redirect ClientOrdersR
+        dateGroups tzo = groupBy (equalOrderEntityDate tzo) os
+
+        labeledGroups = map unsafeLabelByHead
+
+        unsafeLabelByHead xs@(Entity _ ExchangeOrder{..} : _) =
+            (utctDay exchangeOrderCreated, xs)
+
+        dateFromDay d = UTCTime d (fromIntegral 0)
+
+renderMobileOrderCard :: Entity ExchangeOrder -> Widget
+renderMobileOrderCard (Entity oid o@ExchangeOrder{..}) = [whamlet|
+    <div
+        .order-card
+        .mobile
+        :exchangeOrderIsActive:.active
+        :isOrderExecuted o:.executed
+        :isOrderCancelled o:.cancelled
+        data-order=#{fromSqlKey oid}
+        .container-fluid
+        .my-1
+        >
+            <div .row>
+                <div .col-3 .text-right>
+                    <small>
+                        #{dbl2MoneyT exchangeOrderNormalizedRatio}
+                <div .col-5 .text-right>
+                    <a href=@{ClientOrderViewR oid}>
+                        <small>
+                            #{cents2dblT exchangeOrderAmountCents}
+                            <small .text-muted>#{currSign outCurrency}
+                <div .col-4 .text-right>
+                    <a href=@{ClientOrderViewR oid}>
+                        <small>
+                            #{cents2dblT inAmountCents}&nbsp;#
+                            <small .text-muted>#{currSign inCurrency}
+    |]
+    where
+        (outCurrency, inCurrency) = unPairCurrency exchangeOrderPair
+        ratio = normalizeRatio
+            exchangeOrderRatioNormalization
+            exchangeOrderPair
+            exchangeOrderNormalizedRatio
+        inAmountCents = multiplyCents ratio exchangeOrderAmountCents
+
+renderOrderRate :: ExchangeOrder -> Html
+renderOrderRate order = [shamlet|
+    #{format (fixed 2) rate}|]
+  where
+    rate = exchangeOrderNormalizedRatio order
+
+renderPairOut :: ExchangePair -> Html
+renderPairOut = toHtml . currSign . fst . unPairCurrency
+
+renderPairIn :: ExchangePair -> Html
+renderPairIn = toHtml . currSign . snd . unPairCurrency
+
+renderOrderNRatioSign :: ExchangeOrder -> Html
+renderOrderNRatioSign order = [shamlet|
+    #{renderPairOut rn}/#{renderPairIn rn}
+    |]
+  where
+    rn = exchangeOrderRatioNormalization order
+
+-- | === Predicates
+
+isOrderExecuted :: ExchangeOrder -> Bool
+isOrderExecuted o = case exchangeOrderStatus o of
+    Executed _ -> True
+    _          -> False
+
+isOrderCancelled :: ExchangeOrder -> Bool
+isOrderCancelled o = case exchangeOrderStatus o of
+    Cancelled _ -> True
+    _           -> False
+
+equalOrderEntityDate
+    :: Int ->  Entity ExchangeOrder -> Entity ExchangeOrder -> Bool
+equalOrderEntityDate tzo (Entity _ o1) (Entity _ o2) =
+    let tzoPico = fromRational . toRational . secondsToDiffTime $
+            fromIntegral tzo
+        t = utctDay . addUTCTime tzoPico . exchangeOrderCreated
+    in t o1 == t o2

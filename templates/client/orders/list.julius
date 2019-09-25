@@ -1,21 +1,38 @@
 $(document).ready(() => {
     const t = $('##{rawJS pageId}-table')
+    const lv = $('.order-list.mobile')
     const ns = $('##{rawJS pageId}-nav .nav-item')
     const as = $('##{rawJS pageId}-nav .nav-item .nav-link')
     const cancelButtons = $('.order-cancel-button')
-
     as.click((e) => {
-        let a = $(e.target)
+        let a = $(e.target).parents('.nav-item').find('a').first()
         $('.active', ns).removeClass('active')
         a.addClass('active')
-        t.removeClass('active executed')
+        t.removeClass('active executed all')
         t.addClass(a.parent().data('target'))
+        lv.removeClass('active executed all')
+        lv.addClass(a.parent().data('target'))
         e.preventDefault()
     })
-    cancelButtons.click((e) => {
-        if (confirm(#{msgRender MsgCancelOrderConfirmationText})) {
+    cancelButtons.click(e => {
+        e.preventDefault()
+        if (confirm(#{ msgRender MsgCancelOrderConfirmationText })) {
             const f = $(e.currentTarget).parent().find('form')
             f.submit()
         }
     })
-})
+    const dateGroups = $('.group-date')
+    dateGroups.each(function () {
+        const g = $(this)
+        const gs = g.next('.group-view')
+        const children = gs.find('.order-card').length
+        const active = gs.find('.order-card.active').length
+        const executed = gs.find('.order-card.executed').length
+        const cancelled = gs.find('.order-card.cancelled').length
+        if (children == active) { g.addClass('active') }
+        if (children == executed) { g.addClass('executed') }
+        if (children == cancelled) { g.addClass('cancelled') }
+        if (children == cancelled + executed) { g.addClass('inactive') }
+    })
+});
+

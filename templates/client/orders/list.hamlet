@@ -1,12 +1,15 @@
-<ul ##{pageId}-nav .nav .nav-pills .mt-2 .mb-5 .justify-content-center>
-    <li .nav-item data-target="all">
-        <a .nav-link href="#all-orders">_{MsgAllOrders}
+<ul ##{pageId}-nav .nav .nav-pills .mt-2 .mb-3 .justify-content-center>
     <li .nav-item data-target="active">
-        <a .nav-link .active href="#active-orders">_{MsgActiveOrders}
+        <a .nav-link .active href="#active-orders">
+            <small>_{MsgActiveOrders}
     <li .nav-item data-target="executed">
-        <a .nav-link href="#executed-orders">_{MsgExecutedOrders}
+        <a .nav-link href="#executed-orders">
+            <small>_{MsgExecutedOrders}
+    <li .nav-item data-target="all">
+        <a .nav-link href="#all-orders">
+            <small>_{MsgAll}
 
-<table ##{pageId}-table .table .active>
+<table ##{pageId}-table .table .active .d-none .d-md-table>
     <thead .text-center .thead-light>
         <th scope="row">
             <small>_{MsgDateCreated}
@@ -20,3 +23,5 @@
     <tbody>
         $forall order <- allOrders
             #{renderOrderTr msgRender urlRender locale tzo order}
+
+^{mobileList}
