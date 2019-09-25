@@ -60,7 +60,6 @@ OneClickExchange: Обмен в один клик
 
 IAcceptTemrsOfUseText: регистрируясь, я принимаю правила и условия использования сервиса
 
-All: Все
 Add: Добавить
 Manage: Управление
 NoPublicationsYet: Публикаций пока не было
@@ -75,6 +74,7 @@ DateCreated: Дата создания
 Details: Подробности
 
 Ratio: Курс
+Status: Статус
 
 # ORDERS
 
@@ -205,6 +205,7 @@ WithdrawalFeeTotal: Удержанная комиссия с вывода
 
 # MISC COMMON PHRASES
 
+All: Все
 ReadMore: Подробнее
 DoNotShowAgain: Больше не показывать
 
