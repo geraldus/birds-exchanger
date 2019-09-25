@@ -29,7 +29,7 @@ renderDateTimeRow :: TimeLocale -> Int -> UTCTime -> Html
 renderDateTimeRow loc moff utc = [shamlet|
     <span .text-uppercase>
         #{localeFormatDate loc utc'}#
-        &nbsp;&nbsp;#{localeFormatTime loc utc'}
+        &#32;&#32;#{localeFormatTime loc utc'}
     |]
   where utc' = offsetTime moff utc
 
