@@ -14,8 +14,11 @@ import           Text.Read           ( readMaybe )
 mayCookie :: MonadHandler m => Text -> Text -> m Text
 mayCookie name defaultVal = fromMaybe defaultVal <$> lookupCookie name
 
+-- | Read client timezone offset from @timezoneOffset@ cookie.
+-- Return offset value in minutes.
 timezoneOffsetFromCookie :: MonadHandler m => m Int
-timezoneOffsetFromCookie = fromMaybe 0 . readMaybe . unpack <$> mayCookie "timezoneOffset" ""
+timezoneOffsetFromCookie =
+    fromMaybe 0 . readMaybe . unpack <$> mayCookie "timezoneOffset" ""
 
 
 renderTimeDateCol :: TimeLocale -> Int -> UTCTime -> Html
