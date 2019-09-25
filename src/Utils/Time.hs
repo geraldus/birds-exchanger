@@ -28,6 +28,15 @@ renderTimeDateCol loc moff utc = [shamlet|
     |]
   where utc' = offsetTime moff utc
 
+renderDateRow :: TimeLocale -> Int -> UTCTime -> Html
+renderDateRow loc moff utc = [shamlet|
+    <span>
+        #{toHtml gencase}
+    |]
+  where utc' = offsetTime moff utc
+        ft = formatTime loc "%e %B %Y" utc'
+        gencase = unwords . map genetiveCase $ words ft
+
 renderDateTimeRow :: TimeLocale -> Int -> UTCTime -> Html
 renderDateTimeRow loc moff utc = [shamlet|
     <span .text-uppercase>
@@ -100,3 +109,18 @@ localeFormatDate l = toHtml . formatTime l dateFormatMNH
 offsetTime :: Int -> UTCTime -> UTCTime
 offsetTime minutesOffset = addUTCTime (negate . fromIntegral $ minutesOffset * 60)
 
+genetiveCase :: String -> String
+genetiveCase t
+    | t == "Январь"   = "Января"
+    | t == "Февраль"  = "Февраля"
+    | t == "Март"     = "Марта"
+    | t == "Апрель"   = "Апреля"
+    | t == "Май"      = "Мая"
+    | t == "Июнь"     = "Июня"
+    | t == "Июль"     = "Июля"
+    | t == "Август"   = "Августа"
+    | t == "Сентябрь" = "Сентября"
+    | t == "Октябрь"  = "Октября"
+    | t == "Ноябрь"   = "Ноября"
+    | t == "Декабрь"  = "Декабря"
+    | otherwise = t
