@@ -73,6 +73,7 @@ multiplyCents r a =
 cents2dblT :: Int -> Text
 cents2dblT n = dbl2MoneyT (fromIntegral n / fromIntegral oneCoinCents)
 
+-- | Render 'Double' as 'Text' with two fractional digits
 dbl2MoneyT :: Double -> Text
 dbl2MoneyT = sformat (F.fixed (2 :: Int))
 
