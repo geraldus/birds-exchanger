@@ -53,7 +53,7 @@
             ^{renderDomTable ExchangeOurRur True (paramsPair /= defPairDir ExchangeOurRur) statsDOM}
 
     <div .row>
-        <div .col-8 .mx-auto>
+        <div .col .mx-auto>
             <div>
                 <p .text-center .text-muted>
                     _{MsgOperationExchangeShort}&nbsp;#{renderFeeAsPct defaultExchangeFee}%
