@@ -129,7 +129,7 @@ $else
         <!-- Footer -->
 
 <footer .footer .mt-2 .pt-3 .container-fluid>
-    <div .row>
+    <div .row .mb-2>
         <div .col-sm .text-center>
             <p .text-muted .mx-2>
                 _{MsgSupport}: #
@@ -144,3 +144,4 @@ $else
             <p .text-center>
                 _{MsgCurrencyExchangeService} «OutBirds» #
                     <small .text-muted>v#{appVersion}
+                        <small .text-lowercase> _{MsgVerPublicBeta}
