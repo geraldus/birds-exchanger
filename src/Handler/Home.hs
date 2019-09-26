@@ -55,9 +55,9 @@ getHomeR = do
     selectPair _ Nothing       = defPairDir ExchangePzmRur
     selectPair Nothing _       = defPairDir ExchangePzmRur
     selectPair (Just c1) (Just c2)
-        | c1 == "rur" || c1 == "rub" && c2 == "our" =
+        | (c1 == "rur" || c1 == "rub") && c2 == "our" =
             defPairDir ExchangeRurOur
-        | c2 == "rur" || c2 == "rub" && c1 == "our" =
+        | (c2 == "rur" || c2 == "rub") && c1 == "our" =
             defPairDir ExchangeOurRur
         | c1 == "pzm" && c2 == "our" =
             defPairDir ExchangePzmOur
