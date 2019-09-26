@@ -5,14 +5,34 @@
     <div .form-group .row .justify-content-center .no-gutters>
         <div .col-8 .col-sm-7 .col-md-3 .col-lg-2 .mx-1>
             ^{fvInput actionView}
-        <div .input-group .col-8 .col-sm-7 .col-md-4 .col-lg-2 .mx-1 .mt-3 .mt-md-0>
+        <div
+            .input-group
+            .col-8
+            .col-sm-7
+            .col-md-4
+            .col-lg-2
+            .mx-1
+            .mt-3
+            .mt-md-0
+            >
             ^{fvInput amountView}
             <div .input-group-append>
-                <span .input-group-text ##{wrapid}-out-currency-append>PZM
-        <div .input-group .col-8 .col-sm-7 .col-md-3 .col-lg-2 .mx-1 .mt-3 .mt-md-0>
+                <span .input-group-text ##{wrapid}-out-currency-append>
+                    #{currSign currencyOut}
+        <div
+            .input-group
+            .col-8
+            .col-sm-7
+            .col-md-3
+            .col-lg-2
+            .mx-1
+            .mt-3
+            .mt-md-0
+            >
             ^{fvInput ratioView}
             <div .input-group-append>
-                <span .input-group-text ##{wrapid}-rate-append>₽/PZM
+                <span .input-group-text ##{wrapid}-rate-append>
+                    #{currSign currencyIn}/#{currSign currencyOut}
     <div .row .justify-content-center .order-form-stats>
         <table .col-11 .col-sm-6 .table.table-borderless .text-white-50>
             <thead>
@@ -26,17 +46,26 @@
                     <td ##{sumid}-tbl .text-right>
                         <span .val>-#
                         \&nbsp;#
-                        <span .cur-sign ##{wrapid}-in-currency-sum>₽
+                        <span .cur-sign ##{wrapid}-in-currency-sum>
+                            #{currSign currencyIn}
                     <td ##{feeid}-tbl>
                         <span .val.take>-#
                         <span .val.give>-#
                         \&nbsp;#
-                        <span .cur-sign-give ##{wrapid}-out-currency-fee>PZM
-                        <span .cur-sign-take ##{wrapid}-in-currency-fee>₽
-                    <th ##{sumid}-total-tbl .text-left .text-warning .font-weight-bold>
-                        <big>
-                            <span .val.take>-#
-                            <span .val.give>-#
-                            \&nbsp;#
-                            <span .cur-sign-give ##{wrapid}-out-currency-total>PZM
-                            <span .cur-sign-take ##{wrapid}-in-currency-total>₽
+                        <span .cur-sign-give ##{wrapid}-out-currency-fee>
+                            #{currSign currencyOut}
+                        <span .cur-sign-take ##{wrapid}-in-currency-fee>
+                            #{currSign currencyIn}
+                    <th
+                        ##{sumid}-total-tbl
+                        .text-left
+                        .text-warning
+                        .font-weight-bold
+                        >
+                        <span .val.take>-#
+                        <span .val.give>-#
+                        \&nbsp;#
+                        <span .cur-sign-give ##{wrapid}-out-currency-total>
+                            #{currSign currencyOut}
+                        <span .cur-sign-take ##{wrapid}-in-currency-total>
+                            #{currSign currencyIn}

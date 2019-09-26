@@ -6,7 +6,7 @@ module Form.Exchanger.Order where
 import           Import
 
 import           Local.Params           ( defaultExchangeFee )
-import           Local.Persist.Currency ( Currency (..) )
+import           Local.Persist.Currency ( Currency (..), currSign )
 import           Local.Persist.Exchange ( ExchangePair (..) )
 import           Type.Fee               ( Fee (..) )
 import           Utils.Money            ( truncCoins2Cents, unPairCurrency )
@@ -65,7 +65,8 @@ createOrderForm wrapId ratid defaultPair extra = do
                 <*> feeRes
                 <*> pairRes
         (Percent feePercent) = defaultExchangeFee
-        widget               = $(widgetFile "form/create-order")
+        (currencyOut, currencyIn) = unPairCurrency defaultPair
+    let widget               = $(widgetFile "form/create-order")
     return (result, widget)
   where
     actionField = selectField $ optionsPairs
