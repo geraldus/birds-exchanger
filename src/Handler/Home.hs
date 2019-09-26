@@ -43,14 +43,15 @@ getHomeR = do
             -- (defPairDir seems to always be opposite form pair in current form
             -- implementation)
     let featured = featuredModal
-    orders <- runDB $ flip mapM [ ExchangePzmRur, ExchangeOurRur, ExchangeOurPzm ] selectActiveOrdersOf
+    orders <- runDB $ mapM
+        selectActiveOrdersOf
+        [ ExchangePzmRur, ExchangeOurRur, ExchangeOurPzm ]
     let statsDOM = reduceDomStats [] $ concat orders
-    renderMessage <- getMessageRender
+    messageRender <- getMessageRender
     defaultLayout $ do
         setAppPageTitle MsgHomePageTitle
         $(widgetFile "homepage")
   where
-    rbt = decodeUtf8 . responseBody
     selectPair Nothing Nothing = defPairDir ExchangePzmRur
     selectPair _ Nothing       = defPairDir ExchangePzmRur
     selectPair Nothing _       = defPairDir ExchangePzmRur
@@ -66,7 +67,15 @@ getHomeR = do
         | otherwise = defPairDir ExchangePzmRur
 
 
-getData :: Text -> Text -> Text -> Text -> ExchangePair -> HandlerFor App (Maybe Html, Maybe (Key User), Widget, Widget)
+-- | == Utils
+
+getData
+    :: Text
+    -> Text
+    -> Text
+    -> Text
+    -> ExchangePair
+    -> HandlerFor App (Maybe Html, Maybe (Key User), Widget, Widget)
 getData wrapId modalWrapId ratioId modalRatioId exdir = do
     mUser <- maybeClientUser
     (,,,)
@@ -80,12 +89,11 @@ getData wrapId modalWrapId ratioId modalRatioId exdir = do
 maybeClientUser :: HandlerFor App (Maybe (Key User))
 maybeClientUser = (entityKey . fst <$>) <$> maybeClient
 
-
 getActiveOrders :: Maybe UserId -> Handler ([Entity ExchangeOrder], [Entity ExchangeOrder])
 getActiveOrders mu = do
     let userConstraint = case mu of
             Nothing -> []
-            Just _  -> [] -- [ExchangeOrderUserId !=. uid]
+            Just _  -> []
     os <- runDB $ selectList
         ((ExchangeOrderIsActive ==. True) : userConstraint)
         [Asc ExchangeOrderNormalizedRatio, Asc ExchangeOrderCreated]
@@ -217,20 +225,16 @@ getLastFeaturedNews = do
 -- | ** Depth of Market
 
 renderDomTable :: ExchangePair -> Bool -> Bool -> DomStats -> Widget
-renderDomTable p buy hidden d = domDivView pair hidden title body
+renderDomTable p buy hidden d = domDivView pair' hidden title body
     where
-        pair = if buy then flipPair p else p
-        pairStats = (sortBy (flip (comparing fst)) . HMS.toList) <$> (HMS.lookup pair d)
-        maxCount = maybe 0 (foldr max 0 . map ((\(_, b, _) -> b) . snd)) pairStats
+        pair' = if buy then flipPair p else p
+        pairStats =
+            sortBy (flip (comparing fst)) . HMS.toList <$> HMS.lookup pair' d
+        maxCount =
+            maybe 0 (foldr max 0 . map ((\(_, b, _) -> b) . snd)) pairStats
         title = if buy
-            then [shamlet|
-                    \#{currSign inc} ⇢ #{currSign outc} #
-                    <small .text-warning>BID
-                    |]
-            else [shamlet|
-                    \#{currSign outc} ⇢ #{currSign inc} #
-                    <small .text-warning>ASK
-                    |]
+            then [shamlet|#{currSign inc} ⇢ #{currSign outc}|]
+            else [shamlet|#{currSign outc} ⇢ #{currSign inc}|]
         body = (concatMap $ \(r, s) -> domDivRow r maxCount buy s) <$> pairStats
         (outc, inc) = unPairCurrency p
 
@@ -252,8 +256,8 @@ domRow r t buy d =
     in $(widgetFile "dom/table/row")
 
 domTable :: ExchangePair -> Bool -> Html -> Maybe Widget -> Widget
-domTable pair hidden title mbody  =
-    let (outc, inc) = unPairCurrency pair
+domTable pair' hidden title mbody  =
+    let (outc, inc) = unPairCurrency pair'
         expair = intercalate "_" . map (toLower . currencyCodeT) $ [outc, inc]
         body = fromMaybe (emptyList 10 4) mbody
     in $(widgetFile "dom/table/table")
@@ -275,10 +279,9 @@ domDivRow r t buy d =
             , color <> " " <> (pack . show $ widthf) <> "%);" ]
     in $(widgetFile "dom/divs/row")
 
-
 domDivView :: ExchangePair -> Bool -> Html -> Maybe Widget -> Widget
-domDivView pair hidden title mbody  =
-    let (outc, inc) = unPairCurrency pair
+domDivView pair' hidden title mbody  =
+    let (outc, inc) = unPairCurrency pair'
         expair = intercalate "_" . map (toLower . currencyCodeT) $ [outc, inc]
         body = fromMaybe (emptyList 10 4) mbody
     in $(widgetFile "dom/divs/view")

@@ -11,11 +11,41 @@
             <div .col-8 .mx-auto>
                 <ul .nav .nav-tabs .justify-content-center>
                     <li .nav-item .mx-1>
-                        <a #pzm-rur-pair .nav-link :paramsPair == defPairDir ExchangePzmRur:.active :paramsPair /= defPairDir ExchangePzmRur:.text-light .pzm .rur href="#" title="#{renderMessage MsgExchange} Prizm на рубли">PZM / RUB (₽)
+                        <a
+                            #pzm-rur-pair
+                            .nav-link
+                            :paramsPair == defPairDir ExchangePzmRur:.active
+                            :paramsPair /= defPairDir ExchangePzmRur:.text-light
+                            .pzm
+                            .rur
+                            href="#"
+                            title="#{messageRender MsgExchange} Prizm на рубли"
+                            >
+                                PZM / RUB (₽)
                     <li .nav-item .mx-1>
-                        <a #our-pzm-pair .nav-link :paramsPair == defPairDir ExchangeOurPzm:.active :paramsPair /= defPairDir ExchangeOurPzm:.text-light .our .pzm href="#" title="#{renderMessage MsgExchange} Ouroboros на Prizm">OUR / PZM
+                        <a
+                            #our-pzm-pair
+                            .nav-link
+                            :paramsPair == defPairDir ExchangeOurPzm:.active
+                            :paramsPair /= defPairDir ExchangeOurPzm:.text-light
+                            .our
+                            .pzm
+                            href="#"
+                            title="#{messageRender MsgExchange} Ouroboros на Prizm"
+                            >
+                                OUR / PZM
                     <li .nav-item .mx-1>
-                        <a #our-rur-pair .nav-link :paramsPair == defPairDir ExchangeOurRur:.active :paramsPair /= defPairDir ExchangeOurRur:.text-light .our .rur href="#" title="#{renderMessage MsgExchange} Ouroboros на рубли">OUR / RUB (₽)
+                        <a
+                            #our-rur-pair
+                            .nav-link
+                            :paramsPair == defPairDir ExchangeOurRur:.active
+                            :paramsPair /= defPairDir ExchangeOurRur:.text-light
+                            .our
+                            .rur
+                            href="#"
+                            title="#{messageRender MsgExchange} Ouroboros на рубли"
+                            >
+                                OUR / RUB (₽)
         <div .row .mt-3>
             <div .col>
                 <form method=post action=@{ExchangeOrderCreateR} enctype="">
