@@ -57,6 +57,7 @@ const switchTab = (e, pair, tabs, { orderCols, }) => {
     })
     updateTextalData('#{rawJS wrapId}', currency)
     updateTextalData('#{rawJS modalWrapId}', currency)
+    history.replaceState({}, '', `/?from=${currency[0]}&to=${currency[1]}`)
 }
 
 
