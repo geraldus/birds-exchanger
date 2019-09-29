@@ -75,6 +75,7 @@ Details: Подробности
 
 Ratio: Курс
 Status: Статус
+Continue: Продолжить
 
 # ORDERS
 

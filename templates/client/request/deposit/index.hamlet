@@ -1,0 +1,18 @@
+<form
+    ##{formId}
+    method=post
+    enctype=#{enctype}
+    .col-12
+    .col-sm-10
+    .col-md-8
+    .mx-auto
+    >
+    ^{widget}
+    $maybe error <- mayError
+        <div .alert .alert-danger role="alert">
+            $forall e <- error
+                <div .error>#{e}
+    <div .form-group .row>
+        <button type=submit .btn.btn-outline-primary.btn-lg .mx-auto>
+            <span .text-lowercase>_{MsgContinue}
+^{depositHistory}

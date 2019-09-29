@@ -2,6 +2,7 @@
 $(document).ready(() => {
     const cancelButtons = $('.data-row .controls .request-cancel-button')
     cancelButtons.click(e => {
+        let _ = e
         if (confirm(#{messageRender MsgDepositConfirmCancellationText})) {
             $(e.currentTarget)
                 .parents('td.controls')

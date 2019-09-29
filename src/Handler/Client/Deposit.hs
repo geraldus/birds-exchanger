@@ -78,17 +78,7 @@ defaultWidget formId widget enctype mayError = do
     setAppPageTitle MsgClientDepositPageTitle
     messageRender <- liftHandler getMessageRender
     $(widgetFile "client/request/common")
-    [whamlet|
-        <form ##{formId} method=post enctype=#{enctype} .col-12 .col-sm-10 .col-md-8 .mx-auto>
-            ^{widget}
-            $maybe error <- mayError
-                <div .alert .alert-danger role="alert">
-                    $forall e <- error
-                        <div .error>#{e}
-            <div .form-group .row>
-                <button type=submit .btn.btn-outline-primary.btn-lg .mx-auto>продолжить
-        ^{depositHistory}
-        |]
+    $(widgetFile "client/request/deposit/index")
 
 
 type DepositDetails =
@@ -113,26 +103,8 @@ depositHistory = do
             orderBy [desc (r ^. DepositRequestCreated)]
             return (r, macc, mrej)
     let list = map wrapDetails depositDetails
-    toWidget [whamlet|
-        <table .table .table-striped .mt-5>
-            <thead .thead-light>
-                <th .align-top>_{MsgDateCreated}
-                <th .align-top>
-                    _{MsgAmount}
-                    <br>
-                    <small .text-muted>
-                        _{MsgTransferMethod}
-                <th .align-top>
-                    _{MsgDepositRealAmount}
-                    <br>
-                    <small .text-muted>
-                        _{MsgFee}
-                <th colspan=2 .align-top>
-                    _{MsgDetails}
-            <tbody>
-                $forall r <- list
-                    ^{depositHistoryRow r}
-        |]
+    let body = concatMap depositHistoryRow list
+    $(widgetFile "client/request/deposit/desktop/table")
   where
     wrapDetails (r, Just accepted, _) = AcceptD r accepted
     wrapDetails (r, _, Just rejected) = RejectD r rejected
