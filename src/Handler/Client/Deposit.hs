@@ -38,25 +38,29 @@ postDepositR = do
             FormMissing   -> Just  ["Не получены данные формы"]
             FormFailure e -> Just e
     case res of
-        FormMissing -> defaultLayout $ defaultWidget formId widget enctype mayError
-        FormFailure _ -> defaultLayout $ defaultWidget formId widget enctype mayError
+        FormMissing -> defaultLayout $
+                defaultWidget formId widget enctype mayError
+        FormFailure _ -> defaultLayout $
+                defaultWidget formId widget enctype mayError
         FormSuccess DepositRequestFD{..} -> do
             code <- appNonce128urlT
             time <- liftIO getCurrentTime
-            paymentAddressee <- getNextPaymentAddressee defaultSelectNextAddr depReqTransferMethod
-            renderMessage <- getMessageRender
+            paymentAddressee <- getNextPaymentAddressee
+                defaultSelectNextAddr depReqTransferMethod
+            render <- getMessageRender
             case paymentAddressee of
                 Nothing -> defaultLayout $
                     defaultWidget
                         formId
                         widget
                         enctype
-                        (Just [ renderMessage MsgNoPaymentMethodAvailable ])
+                        (Just [ render MsgNoPaymentMethodAvailable ])
                 Just (PaymentAddress depReqPaymentAddressee _) -> do
                     let depReqRecord = DepositRequest
                             depReqCurrency
                             depReqTransferMethod
-                            (decodeUtf8 . toStrict . encode $ depReqPaymentAddressee)
+                            (decodeUtf8 . toStrict . encode $
+                                    depReqPaymentAddressee)
                             depReqCentsAmount
                             depReqCentsExpectedFee
                             code
@@ -172,9 +176,24 @@ genericRow (Entity ident r@DepositRequest{..}) expected status =
                 ^{status}
             <td .controls .align-middle>
                 $if isNew r
-                    <i .request-cancel-button .control .fas .fa-times-circle title=_{MsgCancelRequest}>
-                    <form .request-cancel-form .d-none method=post action=@{ClientCancelDepositR}>
-                        <input type=hidden name="request-id" value="#{fromSqlKey ident}">
+                    <i
+                        .request-cancel-button
+                        .control
+                        .fas
+                        .fa-times-circle
+                        title=_{MsgCancelRequest}
+                        >
+                    <form
+                        .request-cancel-form
+                        .d-none
+                        method=post
+                        action=@{ClientCancelDepositR}
+                        >
+                        <input
+                            type=hidden
+                            name="request-id"
+                            value="#{fromSqlKey ident}"
+                            >
         |]
 
 requestAmounts :: Details -> (Int, Bool, Int, Currency)
