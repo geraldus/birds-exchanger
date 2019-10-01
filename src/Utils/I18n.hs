@@ -8,7 +8,7 @@ import Local.Persist.Currency
 
 
 transferMethodMsg :: TransferMethod -> AppMessage
-transferMethodMsg (CryptoTM _) = MsgTMCryptoTransfer
+transferMethodMsg (CryptoTM c) = MsgTMCryptoTransfer c
 transferMethodMsg (FiatTM m _) = case m of
     SberBankCard2CardFTM -> MsgTMSberBankCard2Card
     AlphaBankCard2CardFTM -> MsgTMAlphaBankCard2Card

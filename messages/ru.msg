@@ -225,7 +225,7 @@ TMTinkoffBankCard2Card: Тинькофф Банк
 TMAlphaBankCard2Card: Альфа Банк
 TMPayPalTransfer: PayPal
 TMQiwi: Qiwi кошелёк
-TMCryptoTransfer: Перевод
+TMCryptoTransfer currency@CryptoCurrency: Перевод #{cCurrencyTLong currency}
 
 WalletAddress: Адрес кошелька
 Addressee: Адресат
