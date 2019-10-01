@@ -4,7 +4,7 @@
 {-# LANGUAGE RecordWildCards   #-}
 module Handler.Client.Deposit where
 
-import           Import                 hiding ( on, (==.) )
+import           Import                 as I hiding ( on, (==.) )
 
 import           Form.Profile.Deposit
 import           Local.Persist.Currency ( Currency (..), currSign )
@@ -15,8 +15,11 @@ import           Utils.App.Common
 import           Utils.Common
 import           Utils.I18n
 import           Utils.Money
+import           Utils.Time             ( renderDateRow,
+                                          timezoneOffsetFromCookie )
 
 import           Data.Aeson             ( encode )
+import           Data.Time.Clock        ( addUTCTime, secondsToDiffTime )
 import           Database.Esqueleto
 import           Database.Persist.Sql   ( fromSqlKey )
 
@@ -95,6 +98,8 @@ data Details
 depositHistory :: Widget
 depositHistory = do
     clientId <- handlerToWidget requireClientId
+    locale <- selectLocale
+    tzoffset <- timezoneOffsetFromCookie
     depositDetails <- liftHandler . runDB . select $
         from $ \(r `LeftOuterJoin` macc `LeftOuterJoin` mrej) -> do
             on (just (r ^. DepositRequestId) ==. mrej ?. DepositRejectRequestId)
@@ -103,17 +108,11 @@ depositHistory = do
             orderBy [desc (r ^. DepositRequestCreated)]
             return (r, macc, mrej)
     let list = map wrapDetails depositDetails
+    let dateGroups = groupByDate depositDetails tzoffset
     let body = concatMap depositHistoryRow list
+    $(widgetFile "client/request/deposit/mobile/list")
     $(widgetFile "client/request/deposit/desktop/table")
-  where
-    wrapDetails (r, Just accepted, _) = AcceptD r accepted
-    wrapDetails (r, _, Just rejected) = RejectD r rejected
-    wrapDetails (r, _, _)             = NoDetails r
 
-unDetailsRequest :: Details -> Entity DepositRequest
-unDetailsRequest (NoDetails r) = r
-unDetailsRequest (AcceptD r _) = r
-unDetailsRequest (RejectD r _) = r
 
 depositHistoryRow :: Details -> Widget
 depositHistoryRow d = do
@@ -132,41 +131,7 @@ depositHistoryRow d = do
 
 genericRow :: Entity DepositRequest -> Widget -> Widget -> Widget
 genericRow (Entity ident r@DepositRequest{..}) expected status =
-    toWidget [whamlet|
-        <tr .data-row #data-row-#{fromSqlKey ident}>
-            <td>^{dateTimeRowW depositRequestCreated}
-            <td .align-middle>
-                #{cents2dblT depositRequestCentsAmount}#
-                <small .text-muted>
-                    #{currSign depositRequestCurrency}
-                <br>
-                <small .text-muted>
-                    _{transferMethodMsg depositRequestTransferMethod}
-            <td .align-middle>
-                ^{expected}
-            <td .align-middle>
-                ^{status}
-            <td .controls .align-middle>
-                $if isNew r
-                    <i
-                        .request-cancel-button
-                        .control
-                        .fas
-                        .fa-times-circle
-                        title=_{MsgCancelRequest}
-                        >
-                    <form
-                        .request-cancel-form
-                        .d-none
-                        method=post
-                        action=@{ClientCancelDepositR}
-                        >
-                        <input
-                            type=hidden
-                            name="request-id"
-                            value="#{fromSqlKey ident}"
-                            >
-        |]
+    $(widgetFile "client/request/deposit/desktop/row")
 
 requestAmounts :: Details -> (Int, Bool, Int, Currency)
 requestAmounts (NoDetails (Entity _ DepositRequest{..})) =
@@ -254,6 +219,58 @@ genericRequestStatus (extra, status, description) =
             ^{description}
         |]
 
+mobileDepositListItem :: DepositDetails -> Widget
+mobileDepositListItem details@(Entity did deposit@DepositRequest{..}, _, _) = do
+    render <- getMessageRender
+    renderUrl <- getUrlRender
+    let statusMessages = requestStatusMessages render deposit
+        status = if null (fst statusMessages)
+            then snd statusMessages
+            else fst statusMessages
+        selectAction = selectAction' renderUrl render
+    let depositAction = selectAction $ wrapDetails details
+    $(widgetFile "client/request/deposit/mobile/item")
+    where
+        selectAction' ur mr (NoDetails _) =
+            case depositRequestStatus of
+                New -> [whamlet|
+                        <a href=#{url}>
+                            #{mr MsgDepositConfirmTransfer}|]
+                _ -> mempty
+            where
+                url = ur $
+                    DepositRequestConfirmationR depositRequestTransactionCode
+        selectAction' _ _ _ = mempty
+
 
 isNew :: DepositRequest -> Bool
 isNew r = depositRequestStatus r == New
+
+groupByDate :: [ DepositDetails ] -> Int -> [(UTCTime, [DepositDetails])]
+groupByDate gs tzoffset = foldr labelGroup [] grouped
+    where
+        labelGroup gs' acc = case gs of
+            (g, _, _):_ -> acc ++ [(depositRequestCreated $ entityVal g, gs')]
+            _ -> error . concat $
+                    [ "This shouldn't happen, "
+                    , "deposit date group must hava at least 1 element"
+                    ]
+
+        grouped = flip I.groupBy gs $ \(g1, _, _) (g2, _, _) ->
+            utcTzo g1 == utcTzo g2
+
+        utcTzo =
+            utctDay . addUTCTime tzoTime . depositRequestCreated . entityVal
+
+        tzoTime = fromRational . toRational . secondsToDiffTime $
+            fromIntegral tzoffset
+
+wrapDetails :: DepositDetails -> Details
+wrapDetails (r, Just accepted, _) = AcceptD r accepted
+wrapDetails (r, _, Just rejected) = RejectD r rejected
+wrapDetails (r, _, _)             = NoDetails r
+
+unDetailsRequest :: Details -> Entity DepositRequest
+unDetailsRequest (NoDetails r) = r
+unDetailsRequest (AcceptD r _) = r
+unDetailsRequest (RejectD r _) = r

@@ -1,4 +1,4 @@
-<table .table .table-striped .mt-5>
+<table .table .table-striped .mt-5 .d-none .d-md-table>
     <thead .thead-light>
         <th .align-top>_{MsgDateCreated}
         <th .align-top>

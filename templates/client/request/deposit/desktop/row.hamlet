@@ -1,0 +1,33 @@
+<tr .data-row #data-row-#{fromSqlKey ident}>
+    <td>^{dateTimeRowW depositRequestCreated}
+    <td .align-middle>
+        #{cents2dblT depositRequestCentsAmount}#
+        <small .text-muted>
+            #{currSign depositRequestCurrency}
+        <br>
+        <small .text-muted>
+            _{transferMethodMsg depositRequestTransferMethod}
+    <td .align-middle>
+        ^{expected}
+    <td .align-middle>
+        ^{status}
+    <td .controls .align-middle>
+        $if isNew r
+            <i
+                .request-cancel-button
+                .control
+                .fas
+                .fa-times-circle
+                title=_{MsgCancelRequest}
+                >
+                <form
+                    .request-cancel-form
+                    .d-none
+                    method=post
+                    action=@{ClientCancelDepositR}
+                    >
+                    <input
+                        type=hidden
+                        name="request-id"
+                        value="#{fromSqlKey ident}"
+                        >

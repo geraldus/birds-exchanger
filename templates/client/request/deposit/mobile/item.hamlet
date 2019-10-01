@@ -1,0 +1,19 @@
+<div
+    .col-12 .deposit-details .mobile .my-2 data-deposit=#{fromSqlKey did}>
+    <div .container-fluid>
+        <div .data .row .py-1>
+            <div .col-5>
+                <small>
+                    #{cents2dblT depositRequestCentsAmount}
+                    <small .text-muted>#{currSign depositRequestCurrency}
+                    <br>
+                    <small .text-muted>
+                        _{transferMethodMsg depositRequestTransferMethod}
+            <div .col-7>
+                <small>
+                    <small .text-lowercase .text-muted>
+                        #{toHtml status}
+                <br>
+                <small>
+                    <small>
+                        ^{depositAction}
