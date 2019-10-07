@@ -2,13 +2,25 @@
         .navbar .sticky-top
         .navbar-dark
         .navbar-expand-lg
-        style="background-color: black;">
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#main-nav-menu" aria-controls="main-nav-menu" aria-expanded="false" aria-label="Показать меню">
+        style="background-color: black;"
+        >
+    <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#main-nav-menu"
+        aria-controls="main-nav-menu"
+        aria-expanded="false"
+        aria-label="Показать меню"
+        >
         <span class="navbar-toggler-icon">
 
     <a class="navbar-brand" href="/">
-        <img src="@{StaticR images_logo_header_png}" style="max-height: 20px;" alt="OutBirds"/>
-
+        <img
+            src="@{StaticR images_logo_header_png}"
+            style="max-height: 20px;"
+            alt="OutBirds"
+            >
     <div #main-nav-menu .collapse.navbar-collapse.justify-content-between>
         <ul .navbar-nav>
             $forall MenuItem label route _ <- navbarLeftFilteredMenuItems
@@ -38,7 +50,8 @@
                     <li ##{navWalletDropdownId} .nav-item .dropdown>
                         <a
                                 ##{navWalletDropdownId}-toggle
-                                .nav-link .dropdown-toggle
+                                .nav-link
+                                .dropdown-toggle
                                 data-toggle="dropdown"
                                 href="#"
                                 role="button"
@@ -135,11 +148,13 @@ $else
                 _{MsgSupport}: #
         <div .col-sm .text-center>
             <a .mx-2 href="mailto:#{supportEmail}" title="_{MsgSendEmail}">
-                <i class="far fa-envelope-open"/>&nbsp;#{supportEmail}
+                <i class="far fa-envelope-open">
+                &nbsp;#{supportEmail}
         <div .col-sm .text-center>
             <a .mx-2 href="https://t.me/outb_support" title="_{MsgToTelegramChat}">
-                <i class="far fa-paper-plane"/>&nbsp;@outb_support
-    <div .row>
+                <i class="far fa-paper-plane">
+                &nbsp;@outb_support
+    <div .row .mt-4>
         <div .col style="background: #e9ecef" .pt-3>
             <p .text-center>
                 _{MsgCurrencyExchangeService} «OutBirds» #
