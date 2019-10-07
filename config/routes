@@ -56,3 +56,6 @@
 /termsofuse                          TermsOfUseR                       GET
 
 /admin/login     AdminLogInR  GET
+
+-- API
+/api/app/config ApiAppConfigR GET

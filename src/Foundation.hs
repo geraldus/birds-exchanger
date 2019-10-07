@@ -323,6 +323,7 @@ instance Yesod App where
     isAuthorized InfoListR _                         = return Authorized
     isAuthorized (InfoViewR _) _                     = return Authorized
     isAuthorized TermsOfUseR _                       = return Authorized
+    isAuthorized ApiAppConfigR _                     = return Authorized
 
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
