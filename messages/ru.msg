@@ -11,8 +11,14 @@ WrongRequest: Неверный запрос
 PleaseLogInText: Пожалуйста, войдите в систему для просмотра этой страницы
 
 
-# PAGE TITLES
+# MENU TITLES
+MenuTitleHome: Главная
+MenuTitleNews: Новости
+MenuTitleTermsOfUse: Правила
+MenuTitleSignUp: Регистрация
+MenuTitleSignIn: Вход
 
+# PAGE TITLES
 TermsOfUseTitle: Правила пользования сервисом
 PrizmBlackListTitle: Список Prizm-кошельков, уличённых в мошенничестве
 
