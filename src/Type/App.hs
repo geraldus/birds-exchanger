@@ -44,7 +44,7 @@ hardcodedPaymentMethods = AppPaymentMethods
         [ FiatPaymentMethod
             (FiatTM SberBankCard2CardFTM RUR)
             0
-            [ PaymentAddress ["5469 7200 1233 4856"] 0 ]
+            [ PaymentAddress ["5469 7200 1130 6541"] 0 ]
         , FiatPaymentMethod
             (FiatTM TinkoffBankCard2CardFTM RUR)
             0
