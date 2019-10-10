@@ -27,14 +27,15 @@
                 <li .nav-item.mx-2 :Just route == mcurrentRoute:.active>
                     <a .nav-link href="@{route}">#{label}
         $maybe userName <- muserName
+            <span .navbar-text .d-block .d-lg-none>
+                <strong>
+                    #{userName}
             <span .navbar-text .d-flex .d-lg-none>
                 <i .fas .fa-wallet .align-self-center>
                 <span .d-block .ml-2> _{MsgBalance}
             $forall (cents, cur) <- wallets
                 <span .navbar-text .font-weight-bold .d-flex .d-lg-none .wallet-balance-val>
                     #{cents2dblT cents}&nbsp;<span class="font-weight-normal">#{currSign cur}</span>
-            <span .navbar-text .d-block .d-lg-none>
-                #{userName}
             <ul .navbar-nav .d-flex .d-lg-none>
                     $forall MenuItem label route _ <- userMenuItems
                         <li .nav-item :Just route == mcurrentRoute:.active>
@@ -45,7 +46,7 @@
                     <li .nav-item.mx-2 :Just route == mcurrentRoute:.active>
                         <a .nav-link href="@{route}">#{label}
         $maybe userName <- muserName
-            <ul .navbar-nav .d-flex>
+            <ul .navbar-nav .d-none .d-lg-flex>
                 $if isClientLoggedIn
                     <li ##{navWalletDropdownId} .nav-item .dropdown>
                         <a
