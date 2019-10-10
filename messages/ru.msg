@@ -17,6 +17,12 @@ MenuTitleNews: Новости
 MenuTitleTermsOfUse: Правила
 MenuTitleSignUp: Регистрация
 MenuTitleSignIn: Вход
+MenuTitleSignOut: Выход
+
+MenuTitleClientHistory: История операций
+MenuTitleClientOrders: Мои ордера
+MenuTitleClientDeposit: Пополнение
+MenuTitleClientWithdrawal: Вывод
 
 # PAGE TITLES
 TermsOfUseTitle: Правила пользования сервисом
