@@ -10,7 +10,7 @@ import           Data.Version         ( showVersion )
 default (Text)
 
 
-guestNav renderUrl renderMessage = array
+guestNav renderUrl renderMessage =
     [ object
         [ "url" .= renderUrl HomeR
         , "label" .= renderMessage MsgMenuTitleHome
@@ -38,6 +38,34 @@ guestNav renderUrl renderMessage = array
         ]
     ]
 
+userNav renderUrl renderMessage =
+    [ object
+        [ "url" .= renderUrl (AuthR LogoutR)
+        , "label" .= renderMessage MsgMenuTitleSignOut
+        , "tags" .= array [ "user", "auth" ]
+        ]
+    , object
+        [ "url" .= renderUrl ProfileR
+        , "label" .= renderMessage MsgMenuTitleClientHistory
+        , "tags" .= array [ "user", "history", "account", "index" ]
+        ]
+    , object
+        [ "url" .= renderUrl ClientOrdersR
+        , "label" .= renderMessage MsgMenuTitleClientOrders
+        , "tags" .= array [ "user", "history", "orders", "index" ]
+        ]
+    , object
+        [ "url" .= renderUrl DepositR
+        , "label" .= renderMessage MsgMenuTitleClientDeposit
+        , "tags" .= array [ "user", "history", "deposit", "index" ]
+        ]
+    , object
+        [ "url" .= renderUrl WithdrawalR
+        , "label" .= renderMessage MsgMenuTitleClientWithdrawal
+        , "tags" .= array [ "user", "history", "withdrawal", "index" ]
+        ]
+    ]
+
 
 getApiAppConfigR :: Handler TypedContent
 getApiAppConfigR = do
@@ -56,5 +84,5 @@ getApiAppConfigR = do
                 , "extraLabel" .= message MsgVerPublicBeta
                 ]
             ]
-        , "nav" .= guestNav url message
+        , "nav" .= array (guestNav url message ++ userNav url message)
         ]
