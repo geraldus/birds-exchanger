@@ -21,7 +21,10 @@ module Application
     ) where
 
 import           Import
+import           Local.Persist.Exchange               ( ExchangePair (..) )
 import           Type.App
+import           Type.Market
+import           Utils.Database.Orders                ( selectActiveOrdersOf )
 
 import           Control.Monad.Logger                 ( liftLoc, runLoggingT )
 import qualified Crypto.Nonce                         as CN
@@ -112,17 +115,20 @@ makeFoundation appSettings = do
             , appChannelsOperatorDepositConfirm = chDepositUserConfirm
             , appChannelsOperatorWithdrawalCreate = chWithdrawalRequest
             }
+    appOperatorsOnline <- newTMVarIO []
 
     -- We need a log function to create a connection pool. We need a connection
     -- pool to create our foundation. And we need our foundation to get a
     -- logging function. To get out of this loop, we initially create a
     -- temporary foundation without a real connection pool, get a log function
     -- from there, and then create the real foundation.
-    let mkFoundation appConnPool = App {..}
+    let mkFoundation appConnPool appDOM = App {..}
         -- The App {..} syntax is an example of record wild cards. For more
         -- information, see:
         -- https://ocharles.org.uk/blog/posts/2014-12-04-record-wildcards.html
-        tempFoundation = mkFoundation $ error "connPool forced in tempFoundation"
+        tempFoundation = mkFoundation
+            (error "connPool forced in tempFoundation")
+            (error "fake DOM stats")
         logFunc = messageLoggerSource tempFoundation appLogger
 
     -- Create the database connection pool
@@ -133,8 +139,15 @@ makeFoundation appSettings = do
     -- Perform database migration using our application's logging settings.
     runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
 
+    orders <- flip runSqlPool pool $ mapM
+        selectActiveOrdersOf
+            [ ExchangePzmRur, ExchangeOurRur, ExchangeOurPzm ]
+    let statsDOM = reduceDomStats [] $ concat orders
+
+    domTVar <- newTMVarIO statsDOM
+
     -- Return the foundation
-    return $ mkFoundation pool
+    return $ mkFoundation pool domTVar
 
 -- | Convert our foundation to a WAI Application by calling @toWaiAppPlain@ and
 -- applying some additional middlewares.

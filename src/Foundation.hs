@@ -24,6 +24,7 @@ import           Local.Auth
 import           Local.Persist.Currency
 import           Local.Persist.UserRole
 import           Type.App
+import           Type.Market             ( DomStats )
 import           Utils.Common
 import           Utils.Form              ( currencyOptionListRaw,
                                            transferOptionsRaw )
@@ -60,14 +61,16 @@ data AppChannels = AppChannels
 -- starts running, such as database connections. Every handler will have
 -- access to the data present here.
 data App = App
-    { appSettings       :: AppSettings
-    , appStatic         :: Static -- ^ Settings for static file serving.
-    , appConnPool       :: ConnectionPool -- ^ Database connection pool.
-    , appHttpManager    :: Manager
-    , appLogger         :: Logger
-    , appNonceGen       :: CN.Generator
-    , appChannels       :: AppChannels
-    , appPaymentMethods :: TMVar AppPaymentMethods
+    { appSettings        :: AppSettings
+    , appStatic          :: Static -- ^ Settings for static file serving.
+    , appConnPool        :: ConnectionPool -- ^ Database connection pool.
+    , appHttpManager     :: Manager
+    , appLogger          :: Logger
+    , appNonceGen        :: CN.Generator
+    , appChannels        :: AppChannels
+    , appPaymentMethods  :: TMVar AppPaymentMethods
+    , appOperatorsOnline :: TMVar [ Text ]
+    , appDOM             :: TMVar DomStats
     }
 
 -- Note that this is really half the story; in Application.hs, mkYesodDispatch
@@ -243,7 +246,6 @@ instance Yesod App where
         -- default-layout-wrapper is the entire page. Since the final
         -- value passed to hamletToRepHtml cannot be a widget, this allows
         -- you to use normal widget features in default-layout.
-
         pc <- widgetToPageContent $ do
             $(widgetFile "form/common")
             $(widgetFile "default-layout")
@@ -867,4 +869,3 @@ matchMethod (FiatTM tm tc) (FiatPaymentMethod (FiatTM pm pc) _ _)
 matchMethod (CryptoTM tc) (CryptoPaymentMethod pc _ _)
     = tc == pc
 matchMethod _ _ = False
-
