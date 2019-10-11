@@ -9,15 +9,16 @@ module Handler.Home where
 import           Import                  hiding ( decodeUtf8, httpLbs )
 
 import           Form.Exchanger.Order
-import           Handler.API.Order.Index
 import           Local.Params
 import           Local.Persist.Currency
 import           Local.Persist.Exchange  ( ExchangePair (..) )
+import           Type.Market
+import           Type.Money              ( oneCoinCents )
+import           Utils.Database.Orders   ( selectActiveOrdersOf )
 import           Utils.Money
 import           Utils.Render
 
 import qualified Data.HashMap.Strict     as HMS
-import           Data.Text.Lazy.Encoding ( decodeUtf8 )
 import           Database.Persist.Sql    ( fromSqlKey )
 import           Text.Julius             ( RawJS (..) )
 
@@ -246,7 +247,8 @@ domRow r t buy d =
         (direction, color) = if buy
             then (leftd, "#47b9002b")
             else (rightd, "#ff23002b")
-        widtht = round $ (fromIntegral outCents) / (fromIntegral t) * 100
+        widtht = round $
+                (fromIntegral (outCents * oneCoinCents)) / (fromIntegral t)
         widthf = 100 - widtht
         style = concat
             [ "background: linear-gradient(to "
@@ -270,8 +272,9 @@ domDivRow r t buy d =
         (direction, color) = if buy
             then (leftd, "#47b9002b")
             else (rightd, "#ff23002b")
-        widtht = round $ (fromIntegral outCents) / (fromIntegral t) * 100
-        widthf = 100 - widtht
+        widtht = round $
+                (fromIntegral (outCents * oneCoinCents)) / (fromIntegral t)
+        widthf = (100 :: Int) - widtht
         style = concat
             [ "background: linear-gradient(to "
             , direction <> ", "
