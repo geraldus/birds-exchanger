@@ -10,59 +10,68 @@ import           Data.Version         ( showVersion )
 default (Text)
 
 
-guestNav renderUrl renderMessage =
+tag_guest :: Text
+tag_guest = "guest" :: Text
+tag_auth :: Text
+tag_auth = "auth" :: Text
+tag_user :: Text
+tag_user = "user" :: Text
+
+guestNav :: (Route App -> Text) -> (AppMessage -> Text) -> [Value]
+guestNav renderUrl message =
     [ object
         [ "url" .= renderUrl HomeR
-        , "label" .= renderMessage MsgMenuTitleHome
-        , "tags" .= array [ "guest" ]
+        , "label" .= message MsgMenuTitleHome
+        , "tags" .= array [ tag_guest ]
         ]
     , object
         [ "url" .= renderUrl InfoListR
-        , "label" .= renderMessage MsgMenuTitleNews
-        , "tags" .= array [ "guest" ]
+        , "label" .= message MsgMenuTitleNews
+        , "tags" .= array [ tag_guest ]
         ]
     , object
         [ "url" .= renderUrl TermsOfUseR
-        , "label" .= renderMessage MsgMenuTitleTermsOfUse
-        , "tags" .= array [ "guest" ]
+        , "label" .= message MsgMenuTitleTermsOfUse
+        , "tags" .= array [ tag_guest ]
         ]
     , object
         [ "url" .= renderUrl SignUpR
-        , "label" .= renderMessage MsgMenuTitleSignUp
-        , "tags" .= array [ "guest", "auth" ]
+        , "label" .= message MsgMenuTitleSignUp
+        , "tags" .= array [ tag_guest, tag_auth ]
         ]
     , object
         [ "url" .= renderUrl (AuthR LoginR)
-        , "label" .= renderMessage MsgMenuTitleSignIn
-        , "tags" .= array [ "guest", "auth" ]
+        , "label" .= message MsgMenuTitleSignIn
+        , "tags" .= array [ tag_guest, tag_auth ]
         ]
     ]
 
-userNav renderUrl renderMessage =
+userNav :: (Route App -> Text) -> (AppMessage -> Text) -> [Value]
+userNav renderUrl message =
     [ object
         [ "url" .= renderUrl (AuthR LogoutR)
-        , "label" .= renderMessage MsgMenuTitleSignOut
-        , "tags" .= array [ "user", "auth" ]
+        , "label" .= message MsgMenuTitleSignOut
+        , "tags" .= array [ tag_user, tag_auth ]
         ]
     , object
         [ "url" .= renderUrl ProfileR
-        , "label" .= renderMessage MsgMenuTitleClientHistory
-        , "tags" .= array [ "user", "history", "account", "index" ]
+        , "label" .= message MsgMenuTitleClientHistory
+        , "tags" .= array [ tag_user, "history", "account", "index" ]
         ]
     , object
         [ "url" .= renderUrl ClientOrdersR
-        , "label" .= renderMessage MsgMenuTitleClientOrders
-        , "tags" .= array [ "user", "history", "orders", "index" ]
+        , "label" .= message MsgMenuTitleClientOrders
+        , "tags" .= array [ tag_user, "history", "orders", "index" ]
         ]
     , object
         [ "url" .= renderUrl DepositR
-        , "label" .= renderMessage MsgMenuTitleClientDeposit
-        , "tags" .= array [ "user", "history", "deposit", "index" ]
+        , "label" .= message MsgMenuTitleClientDeposit
+        , "tags" .= array [ tag_user, "history", "deposit", "index" ]
         ]
     , object
         [ "url" .= renderUrl WithdrawalR
-        , "label" .= renderMessage MsgMenuTitleClientWithdrawal
-        , "tags" .= array [ "user", "history", "withdrawal", "index" ]
+        , "label" .= message MsgMenuTitleClientWithdrawal
+        , "tags" .= array [ tag_user, "history", "withdrawal", "index" ]
         ]
     ]
 

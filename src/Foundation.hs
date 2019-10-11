@@ -69,10 +69,6 @@ data App = App
     , appPaymentMethods :: TMVar AppPaymentMethods
     }
 
--- This is where we define all of the routes in our application. For a full
--- explanation of the syntax, please see:
--- http://www.yesodweb.com/book/routing-and-handlers
---
 -- Note that this is really half the story; in Application.hs, mkYesodDispatch
 -- generates the rest of the code. Please see the following documentation
 -- for an explanation for this split:
@@ -513,6 +509,7 @@ isStaffAuthenticated = do
         Just (_, Left u) -> if userRole u /= Client
             then return Authorized
             else notFound
+        _ -> error "Impossible happened, dual staff and client authorization"
 
 isAdminAuthenticated :: Handler AuthResult
 isAdminAuthenticated = authorizeStaffRoles [ Admin ]
@@ -787,14 +784,14 @@ getNextPaymentGeneric
     -> (PaymentMethod -> (Maybe PaymentAddress, PaymentMethod))
     -> TransferMethod
     -> Handler (Maybe PaymentAddress)
-getNextPaymentGeneric matchMethod selectNext targetTransferMethod = do
+getNextPaymentGeneric matchMethodFn selectNext targetTransferMethod = do
     pasMVar <- appPaymentMethods <$> getYesod
     liftIO . atomically $ do
         v <- takeTMVar pasMVar
         let nothingFound = putTMVar pasMVar v >> return Nothing
         let knownPaymentMethods = selectMethods targetTransferMethod v
         let mayIndex =
-                findIndex (matchMethod targetTransferMethod) knownPaymentMethods
+                findIndex (matchMethodFn targetTransferMethod) knownPaymentMethods
         case mayIndex of
             Nothing -> nothingFound
             Just i -> do
@@ -802,11 +799,11 @@ getNextPaymentGeneric matchMethod selectNext targetTransferMethod = do
                 if noAddrs current
                     then nothingFound
                     else do
-                        let (addr, update) = selectNext current
+                        let (addr, updates) = selectNext current
                         case addr of
                             Nothing -> nothingFound
                             Just paymentAddr -> do
-                                let nextState = prev <> [update] <> rest
+                                let nextState = prev <> [updates] <> rest
                                 putTMVar
                                     pasMVar
                                     -- Make next state via Record update
@@ -827,10 +824,10 @@ getNextPaymentGeneric matchMethod selectNext targetTransferMethod = do
             -> AppPaymentMethods
             -> [PaymentMethod]
             -> AppPaymentMethods
-        updateMethods (FiatTM _ _) app update = app
-                { appDepositFiatMethods = update }
-        updateMethods (CryptoTM _) app update = app
-                { appDepositCryptoMethods = update }
+        updateMethods (FiatTM _ _) app updates = app
+                { appDepositFiatMethods = updates }
+        updateMethods (CryptoTM _) app updates = app
+                { appDepositCryptoMethods = updates }
 
 
 matchMethod :: TransferMethod -> PaymentMethod -> Bool

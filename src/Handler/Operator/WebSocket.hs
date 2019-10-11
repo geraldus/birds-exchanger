@@ -35,6 +35,6 @@ getOperatorWebSocketR = webSockets operatorSocket >> notFound
 
 typedUpdateJson :: (ToJSON j, FromJSON j) => Text -> j -> A.Value
 typedUpdateJson typ n = A.object
-  [ "type" A..= "update"
+  [ "type" A..= ("update" :: Text)
   , "object" A..= typ
   , "value" A..= toJSON n ]

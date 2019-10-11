@@ -1,14 +1,13 @@
+{-# LANGUAGE GADTs             #-}
+{-# LANGUAGE KindSignatures    #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE GADTs #-}
+{-# LANGUAGE RankNTypes        #-}
+{-# LANGUAGE RecordWildCards   #-}
+{-# LANGUAGE TemplateHaskell   #-}
 module Handler.SignUpVerification where
 
-
 import           Import
-import Local.Persist.Currency
+import           Local.Persist.Currency ( Currency )
 
 
 getSignUpVerifyR :: Text -> Text -> Handler Html
@@ -16,15 +15,13 @@ getSignUpVerifyR email verkey = do
     result <- runDB $ do
         mayEmail <- getBy $ UniqueEmail email
         case mayEmail of
-            Just ee@(Entity emailId emailRec) ->
-                if emailVerkey emailRec == Just verkey
-                    then do
+            Just ee@(Entity emailId emailRec)
+                | emailVerkey emailRec == Just verkey -> do
                         update emailId $ [EmailVerkey =. Nothing]
                         createWallets ee
                         return Verified
-                    else if isNothing (emailVerkey emailRec)
-                        then return VerifiedAlready
-                        else return InvalidKey
+                | isNothing (emailVerkey emailRec) -> return VerifiedAlready
+                | otherwise -> return InvalidKey
             Nothing -> return InvalidEmail
     defaultLayout $ case result of
         Verified -> do
@@ -37,8 +34,9 @@ getSignUpVerifyR email verkey = do
 
 
 postSignUpVerifyR :: Text -> Text -> Handler Html
-postSignUpVerifyR email verkey =
-    -- TODO: FIXME: Предоставить возможность повторно отправить письмо для активации
+postSignUpVerifyR _email _verkey =
+    -- TODO: FIXME: Предоставить возможность повторно отправить
+    -- письмо для активации
     return mempty
 
 
@@ -55,18 +53,20 @@ createWallets :: forall (m :: * -> *) backend.
     , HandlerSite m ~ App
     , BaseBackend backend ~ SqlBackend)
     => Entity Email -> ReaderT backend m [Entity UserWallet]
-createWallets (Entity emailId Email{..}) = do
+createWallets (Entity _ Email{..}) = do
     userId <- case emailUserId of
-        Nothing -> notFound
+        Nothing  -> notFound
         Just uid -> return uid
     muser <- get userId
     case muser of
         Nothing -> notFound
-        Just user -> do
-            idents <- mapM (\c -> (,) c <$> liftHandler appNonce128urlT) defaultWalletCurrencies
-            rurid <- liftHandler appNonce128urlT
-            pzmid <- liftHandler appNonce128urlT
+        Just _ -> do
+            idents <- mapM tokenize defaultWalletCurrencies
             time <- liftIO getCurrentTime
             let wallets = map (\(c, i) -> UserWallet userId c 0 i time) idents
             ids <- mapM insert wallets
             return $ zipWith Entity ids wallets
+    where
+        tokenize :: (MonadHandler m, HandlerSite m ~ App)
+                 => Currency -> ReaderT backend m (Currency, Text)
+        tokenize c = (,) c <$> liftHandler appNonce128urlT
