@@ -4,6 +4,7 @@ module Handler.API.App where
 
 import           Import
 import           Paths_prizm_exchange ( version )
+import           Yesod.WebSockets
 
 import           Data.Aeson
 import           Data.Version         ( showVersion )
@@ -100,3 +101,15 @@ getApiAppConfigR = do
         , "dom" .= dom
         ]
 
+
+notificationSocket :: WebSocketsT Handler ()
+notificationSocket =
+    webSocketJsonMessage ("Notification web socket" :: Text)
+
+
+getNotificationSocketR :: Handler ()
+getNotificationSocketR = webSockets notificationSocket
+
+
+webSocketJsonMessage :: ToJSON a => a -> WebSocketsT Handler ()
+webSocketJsonMessage = sendTextData . decodeUtf8 . encode . toJSON
