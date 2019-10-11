@@ -108,13 +108,18 @@ instance Yesod App where
 
     maximumContentLengthIO _ _ = pure $ Just $ 25 * 1024 * 1024
 
-    -- Yesod Middleware allows you to run code before and after each handler function.
-    -- The defaultYesodMiddleware adds the response header "Vary: Accept, Accept-Language" and performs authorization checks.
+    -- Yesod Middleware allows you to run code before and after each
+    -- handler function.
+    -- The defaultYesodMiddleware adds the response header
+    -- "Vary: Accept, Accept-Language" and performs authorization checks.
     -- Some users may also want to add the defaultCsrfMiddleware, which:
     --   a) Sets a cookie with a CSRF token in it.
-    --   b) Validates that incoming write requests include that token in either a header or POST parameter.
-    -- To add it, chain it together with the defaultMiddleware: yesodMiddleware = defaultYesodMiddleware . defaultCsrfMiddleware
-    -- For details, see the CSRF documentation in the Yesod.Core.Handler module of the yesod-core package.
+    --   b) Validates that incoming write requests include that token in
+    --      either a header or POST parameter.
+    -- To add it, chain it together with the defaultMiddleware:
+    -- yesodMiddleware = defaultYesodMiddleware . defaultCsrfMiddleware
+    -- For details, see the CSRF documentation in the Yesod.Core.Handler module
+    -- of the yesod-core package.
     yesodMiddleware :: ToTypedContent res => Handler res -> Handler res
     yesodMiddleware = defaultYesodMiddleware
 
@@ -225,18 +230,20 @@ instance Yesod App where
         let navbarLeftMenuItems = [x | NavbarLeft x <- menuItems]
         let navbarRightMenuItems = [x | NavbarRight x <- menuItems]
 
-        let navbarLeftFilteredMenuItems = [x | x <- navbarLeftMenuItems, menuItemAccessCallback x]
-        let navbarRightFilteredMenuItems = [x | x <- navbarRightMenuItems, menuItemAccessCallback x]
+        let navbarLeftFilteredMenuItems =
+                [x | x <- navbarLeftMenuItems, menuItemAccessCallback x]
+        let navbarRightFilteredMenuItems =
+                [x | x <- navbarRightMenuItems, menuItemAccessCallback x]
 
+        navWalletDropdownId <- newIdent
+        navUserDropdownId   <- newIdent
+        navManageDropdownId <- newIdent
         -- We break up the default layout into two components:
         -- default-layout is the contents of the body tag, and
         -- default-layout-wrapper is the entire page. Since the final
         -- value passed to hamletToRepHtml cannot be a widget, this allows
         -- you to use normal widget features in default-layout.
 
-        navWalletDropdownId <- newIdent
-        navUserDropdownId <- newIdent
-        navManageDropdownId <- newIdent
         pc <- widgetToPageContent $ do
             $(widgetFile "form/common")
             $(widgetFile "default-layout")
@@ -379,9 +386,10 @@ instance YesodBreadcrumbs App where
         breadcrumb' _ SignUpR     = return ("Регистрация", Just HomeR)
         breadcrumb' _ ProfileR    = return ("Портфель", Just HomeR)
         breadcrumb' _ ClientOrdersR = return ("Мои ордера на обмен", Just HomeR)
-        breadcrumb' mr ClientSettingsR = return (mr MsgClientSettingsPageTitle, Just HomeR)
-        breadcrumb' _ (ClientOrderViewR oid) =
-            return ("Ордер #" <> pack (show (fromSqlKey oid)), Just ClientOrdersR)
+        breadcrumb' mr ClientSettingsR =
+            return (mr MsgClientSettingsPageTitle, Just HomeR)
+        breadcrumb' _ (ClientOrderViewR oid) = return
+            ("Ордер #" <> (pack . show  .fromSqlKey) oid, Just ClientOrdersR)
         breadcrumb' _ DepositR    = return ("Внесение средств", Just ProfileR)
         breadcrumb' _ (DepositRequestConfirmationR _) =
             return ("Подтверждение", Just DepositR)
@@ -397,7 +405,8 @@ instance YesodBreadcrumbs App where
             return (mr MsgMaoOperatorsAccounting, Just HomeR)
         breadcrumb' _ SuperUserFinancialReportViewR =
             return ("Финансовая отчётность", Just HomeR)
-        breadcrumb' _ AdminLogInR = return ("Вход для супер-пользователя", Just HomeR)
+        breadcrumb' _ AdminLogInR =
+            return ("Вход для супер-пользователя", Just HomeR)
         breadcrumb' _ BlackListR = return ("Чёрный список", Just HomeR)
         breadcrumb' mr TermsOfUseR = return (mr MsgTermsOfUse, Just HomeR)
         breadcrumb' mr InfoListR = return (mr MsgInfoListTitle, Just HomeR)
@@ -476,13 +485,31 @@ instance YesodAuth App where
                                 <h2 .text-center>_{MsgSignInPageTitle}
                                 <div .form-group>
                                     <label for="input123">_{MsgEmailAddress}
-                                    <input type=email .form-control #input123 placeholder="email@domain.com" name="username">
+                                    <input
+                                        #input123
+                                        type=email
+                                        .form-control
+                                        placeholder="email@domain.com"
+                                        name="username"
+                                        >
                                 <div .form-group>
                                     <label for="input1234">_{MsgPassword}
-                                    <input type=password .form-control #input1234 placeholder="******" name="password">
+                                    <input
+                                        #input1234
+                                        type=password
+                                        .form-control
+                                        placeholder="******"
+                                        name="password">
                                 <div .form-group .row>
                                     <div .col-12 .col-sm-9 col-md-6 .mx-auto>
-                                        <button .btn.btn-lg.btn-block.btn-outline-primary type=submit>войти
+                                        <button
+                                            .btn
+                                            .btn-lg
+                                            .btn-block
+                                            .btn-outline-primary
+                                            type=submit
+                                            >
+                                            войти
                 |]
 
 postOnly :: Handler AuthResult
@@ -689,8 +716,8 @@ getUserWallets = do
             wallets <- runDB $ selectList
                 [UserWalletUserId ==. uid]
                 [Desc UserWalletCurrency]
-            return $
-                map (\(Entity _ w) -> (userWalletAmountCents w, userWalletCurrency w)) wallets
+            return $ flip map wallets $ \(Entity _ w) ->
+                    (userWalletAmountCents w, userWalletCurrency w)
         _ -> return []
 
 
@@ -702,7 +729,8 @@ defaultWalletCurrencies :: [Currency]
 defaultWalletCurrencies = [ FiatC RUR, CryptoC PZM, CryptoC OUR ]
 
 
-getOrCreateWalletDB :: UserId -> Currency -> SqlPersistT Handler (Entity UserWallet)
+getOrCreateWalletDB
+    :: UserId -> Currency -> SqlPersistT Handler (Entity UserWallet)
 getOrCreateWalletDB userId currency = do
     walletTextId <- liftHandler $ appNonce128urlT
     time <- liftIO getCurrentTime
@@ -731,7 +759,8 @@ fsAddClasses settings cs = let
     where
         updateAttrs [] acc classes = acc ++ [ ("class", classes) ]
         updateAttrs (a@(aname, aval):rest) acc classes
-            | aname == "class" = acc ++ [ ("class", aval <> " " <> classes) ] ++ rest
+            | aname == "class" =
+                    acc ++ [ ("class", aval <> " " <> classes) ] ++ rest
             | otherwise = updateAttrs rest (acc ++ [ a ]) classes
 
 fsAddAttrs :: [ ( Text, Text) ] -> FieldSettings App -> FieldSettings App
@@ -791,8 +820,8 @@ getNextPaymentGeneric matchMethodFn selectNext targetTransferMethod = do
         v <- takeTMVar pasMVar
         let nothingFound = putTMVar pasMVar v >> return Nothing
         let knownPaymentMethods = selectMethods targetTransferMethod v
-        let mayIndex =
-                findIndex (matchMethodFn targetTransferMethod) knownPaymentMethods
+        let mayIndex = findIndex
+                (matchMethodFn targetTransferMethod) knownPaymentMethods
         case mayIndex of
             Nothing -> nothingFound
             Just i -> do
@@ -808,7 +837,8 @@ getNextPaymentGeneric matchMethodFn selectNext targetTransferMethod = do
                                 putTMVar
                                     pasMVar
                                     -- Make next state via Record update
-                                    (updateMethods targetTransferMethod v nextState)
+                                    (updateMethods
+                                        targetTransferMethod v nextState)
                                 return (Just paymentAddr)
     where
         noAddrs :: PaymentMethod -> Bool
