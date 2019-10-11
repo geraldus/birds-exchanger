@@ -100,7 +100,7 @@ postDepositConfirmRequestR = do
     -- code <- runInputPost $ ireq textField "transaction-code"
     trid <- fmap toSqlKey $ runInputPost $ ireq intField "transaction-id"
     payer <- runInputPost $ ireq textField "payer-address"
-    ch <- depositUserConfirm . appChannels <$> getYesod
+    ch <- appChannelsOperatorDepositConfirm . appChannels <$> getYesod
     withClientRequest trid $ \request@(Entity tid t) ->
         if clientId == depositRequestUserId t
             then do

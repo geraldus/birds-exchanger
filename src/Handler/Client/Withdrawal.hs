@@ -85,7 +85,7 @@ postWithdrawalCreateR = do
                     redirect WithdrawalR
   where
     notify' r = do
-        ch <- withdrawalRequest . appChannels <$> getYesod
+        ch <- appChannelsOperatorWithdrawalCreate . appChannels <$> getYesod
         liftIO . atomically $ writeTChan ch r
 
 defaultWidget :: Text -> Widget -> Enctype -> Maybe [Text] -> Widget

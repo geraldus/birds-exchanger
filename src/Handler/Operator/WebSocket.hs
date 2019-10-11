@@ -15,8 +15,8 @@ operatorSocket :: WebSocketsT Handler ()
 operatorSocket = do
     sendTextData ("Welcome Operator!" :: Text)
     channels <- appChannels <$> getYesod
-    let bcDepositConfirm = depositUserConfirm channels
-    let bcWithdrawalRequest = withdrawalRequest channels
+    let bcDepositConfirm = appChannelsOperatorDepositConfirm channels
+    let bcWithdrawalRequest = appChannelsOperatorWithdrawalCreate channels
     dcReadChan <- liftIO . atomically $ dupTChan bcDepositConfirm
     wrReadChan <- liftIO . atomically $ dupTChan bcWithdrawalRequest
     forever $ race_

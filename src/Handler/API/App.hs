@@ -81,9 +81,10 @@ getApiAppConfigR = do
     auth <- maybeClient
     url <- getUrlRender
     message <- getMessageRender
-    let authMeta = case auth of
-            Nothing -> object [ "guest" .= True ]
-            Just _  -> object [ "guest" .= False ]
+    let (authMeta, navExtra) = case auth of
+            Nothing -> (object [ "guest" .= True ], [])
+            Just _  -> (object [ "guest" .= False ], userNav url message)
+    let nav = array $ guestNav url message ++ navExtra
     let appVersion = showVersion version
     selectRep . provideRep . pure . toJSON $ object
         [ "auth" .= authMeta
@@ -93,5 +94,6 @@ getApiAppConfigR = do
                 , "extraLabel" .= message MsgVerPublicBeta
                 ]
             ]
-        , "nav" .= array (guestNav url message ++ userNav url message)
+        , "nav" .= nav
         ]
+

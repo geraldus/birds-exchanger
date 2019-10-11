@@ -1,4 +1,3 @@
-{-# LANGUAGE ExplicitForAll        #-}
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE InstanceSigs          #-}
@@ -51,8 +50,10 @@ exchangerHost :: Text
 exchangerHost = "OutBirds (outb.info)"
 
 data AppChannels = AppChannels
-    { depositUserConfirm :: TChan (Entity DepositRequest)
-    , withdrawalRequest  :: TChan (Entity WithdrawalRequest) }
+    { appChannelsClientNotifications      :: TChan Value
+    , appChannelsOperatorNotifications    :: TChan Value
+    , appChannelsOperatorDepositConfirm   :: TChan (Entity DepositRequest)
+    , appChannelsOperatorWithdrawalCreate :: TChan (Entity WithdrawalRequest) }
 
 -- | The foundation datatype for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
