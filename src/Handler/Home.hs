@@ -241,14 +241,16 @@ renderDomTable p buy hidden d = domDivView pair' hidden title body
 
 domRow :: Double -> Int -> Bool -> Dom -> Widget
 domRow r t buy d =
-    let (count, outCents, inCents) = d
+    let (ordersCount, outCents, inCents) = d
         leftd = "left" :: Text
         rightd = "right" :: Text
         (direction, color) = if buy
             then (leftd, "#47b9002b")
             else (rightd, "#ff23002b")
-        widtht = round $
-                (fromIntegral (outCents * oneCoinCents)) / (fromIntegral t)
+        barWidth :: Double
+        barWidth = fromIntegral (outCents * oneCoinCents) / fromIntegral t
+        widtht :: Int
+        widtht = round barWidth
         widthf = 100 - widtht
         style = concat
             [ "background: linear-gradient(to "
@@ -266,15 +268,17 @@ domTable pair' hidden title mbody  =
 
 domDivRow :: Double -> Int -> Bool -> Dom -> Widget
 domDivRow r t buy d =
-    let (count, outCents, inCents) = d
+    let (ordersCount, outCents, inCents) = d
         leftd = "left" :: Text
         rightd = "right" :: Text
         (direction, color) = if buy
             then (leftd, "#47b9002b")
             else (rightd, "#ff23002b")
-        widtht = round $
-                (fromIntegral (outCents * oneCoinCents)) / (fromIntegral t)
-        widthf = (100 :: Int) - widtht
+        barWidth :: Double
+        barWidth = fromIntegral (outCents * oneCoinCents) / fromIntegral t
+        widtht :: Int
+        widtht = round barWidth
+        widthf = 100 - widtht
         style = concat
             [ "background: linear-gradient(to "
             , direction <> ", "

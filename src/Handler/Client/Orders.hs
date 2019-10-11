@@ -187,13 +187,13 @@ renderOrderRemainderExecuted l tzo order =
             #{renderDateTimeRow l tzo t}
         |]
     renderStatusPartial t e = [shamlet|
-        #{cents2dblT left}&nbsp;<small>#{renderPairOut pair}</small> / #
+        #{cents2dblT centsLeft}&nbsp;<small>#{renderPairOut pair}</small> / #
         #{cents2dblT e}&nbsp;<small>#{renderPairOut pair}</small>
         <br>
         <small .text-muted>
             #{renderDateTimeRow l tzo t}
         |]
-    left = exchangeOrderAmountLeft order
+    centsLeft = exchangeOrderAmountLeft order
     pair = exchangeOrderPair order
 
 orderOperationTr :: ExchangePair -> Entity ExchangeOrderExecution -> Widget
@@ -262,7 +262,7 @@ orderStatus' stName stDesc time = do
         |]
 
 renderMobileList :: [ Entity ExchangeOrder ] -> TimeLocale -> Int -> Widget
-renderMobileList os loc off = do
+renderMobileList os _loc _off = do
     locale <- selectLocale
     tzo <- handlerToWidget timezoneOffsetFromCookie
     let groups = labeledGroups $ dateGroups tzo
@@ -296,8 +296,9 @@ renderMobileList os loc off = do
 
         unsafeLabelByHead xs@(Entity _ ExchangeOrder{..} : _) =
             (utctDay exchangeOrderCreated, xs)
+        unsafeLabelByHead [] = error "Impossible happened: date grouped order lists must contain at least one element"
 
-        dateFromDay d = UTCTime d (fromIntegral 0)
+        dateFromDay d = UTCTime d (fromIntegral (0 :: Int))
 
 renderMobileOrderCard :: Entity ExchangeOrder -> Widget
 renderMobileOrderCard (Entity oid o@ExchangeOrder{..}) = [whamlet|
