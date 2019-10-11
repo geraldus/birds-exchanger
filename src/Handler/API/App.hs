@@ -5,6 +5,7 @@ module Handler.API.App where
 import           Import
 import           Paths_prizm_exchange ( version )
 
+import           Data.Aeson
 import           Data.Version         ( showVersion )
 
 default (Text)
@@ -81,6 +82,7 @@ getApiAppConfigR = do
     auth <- maybeClient
     url <- getUrlRender
     message <- getMessageRender
+    dom <- appDOM <$> getYesod >>= atomically . readTMVar
     let (authMeta, navExtra) = case auth of
             Nothing -> (object [ "guest" .= True ], [])
             Just _  -> (object [ "guest" .= False ], userNav url message)
@@ -95,5 +97,6 @@ getApiAppConfigR = do
                 ]
             ]
         , "nav" .= nav
+        , "dom" .= dom
         ]
 
