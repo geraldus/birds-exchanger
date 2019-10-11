@@ -18,8 +18,12 @@ getSuperUserFinancialReportViewR = do
             "production.min"
 #endif
     defaultLayout $ do
-        addScriptRemote $ "https://unpkg.com/react@16/umd/react." <> reactBuild <> ".js"
-        addScriptRemote $ "https://unpkg.com/react-dom@16/umd/react-dom." <> reactBuild <> ".js"
+        addScriptRemote $
+            "https://unpkg.com/react@16/umd/react." <> reactBuild <> ".js"
+        addScriptRemote
+            $  "https://unpkg.com/react-dom@16/umd/react-dom."
+            <> reactBuild
+            <> ".js"
         rootId <- newIdent
         $(widgetFile "su/financial-report")
         addScriptAttrs (StaticR js_bundle_js) []
