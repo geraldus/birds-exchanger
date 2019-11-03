@@ -6,4 +6,4 @@
     <td .expected>
         #{cents2dblT inCents}
     <td .depth>
-        #{show count}
+        #{show ordersCount}

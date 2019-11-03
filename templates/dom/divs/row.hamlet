@@ -6,4 +6,4 @@
     <div .col-4 .expected>
         #{cents2dblT inCents}
     <div .col-2 .depth>
-        #{show count}
+        #{show ordersCount}
