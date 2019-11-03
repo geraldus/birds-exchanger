@@ -41,24 +41,27 @@ Sber
 
 
 getDepositRequestConfirmationR :: Text -> Handler Html
-getDepositRequestConfirmationR code = withClientRequestByCode code $ \(Entity tid t) -> do
-    when (depositRequestStatus t /= New) $ do
-        setMessageI MsgDepositRequestAlreadyConfirmed
-        redirect HomeR
-    let transactionId = tid
-        -- transactionCode = depositRequestTransactionCode t
-        transferMethod = depositRequestTransferMethod t
-        transferAddressee = fromMaybe [] ((decode . fromStrict . encodeUtf8) (depositRequestAddressee t))
-        cents = depositRequestCentsAmount t
-        currency = depositRequestCurrency t
-        paymentGuide = case transferMethod of
-            FiatTM SberBankCard2CardFTM RUR -> paymentGuideCard2Card transferMethod transferAddressee cents currency code
-            FiatTM TinkoffBankCard2CardFTM RUR -> paymentGuideCard2Card transferMethod transferAddressee cents currency code
-            FiatTM QiwiFTM RUR -> paymentGuideQiwi transferMethod transferAddressee cents currency code
-            CryptoTM PZM -> paymentGuideCryptoC transferMethod transferAddressee cents currency code
-            CryptoTM OUR -> paymentGuideCryptoC transferMethod transferAddressee cents currency code
-            _ -> [whamlet|Приём средств временно приостановлен.  Попробуйте позже|]
-    defaultLayout $(widgetFile "client/deposit-proceed")
+getDepositRequestConfirmationR code = withClientRequestByCode code $
+    \(Entity tid t) -> do
+        when (depositRequestStatus t /= New) $ do
+            setMessageI MsgDepositRequestAlreadyConfirmed
+            redirect HomeR
+        let transactionId = tid
+            -- transactionCode = depositRequestTransactionCode t
+            transferMethod = depositRequestTransferMethod t
+            transferAddressee = fromMaybe
+                    []
+                    ((decode . fromStrict . encodeUtf8) (depositRequestAddressee t))
+            cents = depositRequestCentsAmount t
+            currency = depositRequestCurrency t
+            paymentGuide = case transferMethod of
+                FiatTM SberBankCard2CardFTM RUR -> paymentGuideCard2Card transferMethod transferAddressee cents currency code
+                FiatTM TinkoffBankCard2CardFTM RUR -> paymentGuideCard2Card transferMethod transferAddressee cents currency code
+                FiatTM QiwiFTM RUR -> paymentGuideQiwi transferMethod transferAddressee cents currency code
+                CryptoTM PZM -> paymentGuideCryptoC transferMethod transferAddressee cents currency code
+                CryptoTM OUR -> paymentGuideCryptoC transferMethod transferAddressee cents currency code
+                _ -> [whamlet|Приём средств временно приостановлен.  Попробуйте позже|]
+        defaultLayout $(widgetFile "client/deposit-proceed")
   where
     guideTemplate :: Text -> Int -> Currency -> Text -> Html -> Text -> Widget
     guideTemplate title cents curr desc addr _ = $(widgetFile "client/deposit-guide")
@@ -86,10 +89,7 @@ getDepositRequestConfirmationR code = withClientRequestByCode code $ \(Entity ti
                 w':pk':_ -> (w', pk')
                 w':_ -> (w', "")
                 _ -> ("", "")
-        in [shamlet|
-                #{w}
-                <br>
-                <small>#{pk} |]
+        in [shamlet|#{w}|]
     paymentAddr (CryptoTM _) adr = [shamlet|#{concat adr}|]
     cryptoCDesc curr = "на " <> cCurrencyTLong curr <> " кошелёк"
 
