@@ -479,40 +479,7 @@ instance YesodAuth App where
         when (isJust ma) (redirect HomeR)
         authLayout $ do
             setAppPageTitle MsgSignInPageTitle
-            [whamlet|
-                <div .container>
-                    <div .row .justify-content-center>
-                        <div .col-11 .col-md-6>
-                            <form pb-5 action=@{tp Local.Auth.loginR} method=post>
-                                <h2 .text-center>_{MsgSignInPageTitle}
-                                <div .form-group>
-                                    <label for="input123">_{MsgEmailAddress}
-                                    <input
-                                        #input123
-                                        type=email
-                                        .form-control
-                                        placeholder="email@domain.com"
-                                        name="username"
-                                        >
-                                <div .form-group>
-                                    <label for="input1234">_{MsgPassword}
-                                    <input
-                                        #input1234
-                                        type=password
-                                        .form-control
-                                        placeholder="******"
-                                        name="password">
-                                <div .form-group .row>
-                                    <div .col-12 .col-sm-9 col-md-6 .mx-auto>
-                                        <button
-                                            .btn
-                                            .btn-lg
-                                            .btn-block
-                                            .btn-outline-primary
-                                            type=submit
-                                            >
-                                            войти
-                |]
+            $(whamletFile "templates/auth/signin.hamlet")
 
 postOnly :: Handler AuthResult
 postOnly = do
