@@ -2,10 +2,17 @@
     <div .container .mt-2>
         <div .row>
             <div #mainlogo .col-8 .col-sm-6 .mx-auto .my-2>
-                <img #main-promo .mw-100 src=@{StaticR images_logo__sayt_png} alt="OutBirds | Site Logo">
-    $maybe msg <- mmsg
-        <div .container .mt-3>
-            <div .alert.alert-warning #message>#{msg}
+                <img
+                    #main-promo
+                    .mw-100
+                    src=@{StaticR images_logo__sayt_png}
+                    alt="OutBirds | Site Logo"
+                    >
+    $if not (null messages)
+        <div .container .mt-3 #message>
+            $forall (label, msg) <- messages
+                <div .alert.alert-warning data-label=#{label}>
+                    #{msg}
     <div .container .mt-5>
         <div .row>
             <div .col-8 .mx-auto>

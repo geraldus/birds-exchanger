@@ -6,21 +6,21 @@
 {-# LANGUAGE TypeFamilies          #-}
 module Handler.Home where
 
-import           Import                  hiding ( decodeUtf8, httpLbs )
+import           Import                 hiding ( decodeUtf8, httpLbs )
 
 import           Form.Exchanger.Order
 import           Local.Params
 import           Local.Persist.Currency
-import           Local.Persist.Exchange  ( ExchangePair (..) )
 import           Type.Market
-import           Type.Money              ( oneCoinCents )
-import           Utils.Database.Orders   ( selectActiveOrdersOf )
+import           Local.Persist.Exchange ( ExchangePair (..) )
+import           Type.Money             ( oneCoinCents )
+import           Utils.Database.Orders  ( selectActiveOrdersOf )
 import           Utils.Money
 import           Utils.Render
 
-import qualified Data.HashMap.Strict     as HMS
-import           Database.Persist.Sql    ( fromSqlKey )
-import           Text.Julius             ( RawJS (..) )
+import qualified Data.HashMap.Strict    as HMS
+import           Database.Persist.Sql   ( fromSqlKey )
+import           Text.Julius            ( RawJS (..) )
 
 
 -- Define our data that will be used for creating the form.
@@ -38,7 +38,7 @@ getHomeR = do
     paramsFrom <- lookupGetParam "from"
     paramsTo <- lookupGetParam "to"
     let paramsPair = selectPair paramsFrom paramsTo
-    (mmsg, mayClientUser, orderCreateFormW, modalOrderCreateFormW) <-
+    (messages, mayClientUser, orderCreateFormW, modalOrderCreateFormW) <-
             getData wrapId modalWrapId ratioId modalRatioId (flipPair paramsPair)
             -- flipping paramsPair gives right tab (and form) exchange direction
             -- (defPairDir seems to always be opposite form pair in current form
@@ -76,11 +76,11 @@ getData
     -> Text
     -> Text
     -> ExchangePair
-    -> HandlerFor App (Maybe Html, Maybe (Key User), Widget, Widget)
+    -> HandlerFor App ([(Text, Html)], Maybe (Key User), Widget, Widget)
 getData wrapId modalWrapId ratioId modalRatioId exdir = do
     mUser <- maybeClientUser
     (,,,)
-        <$> getMessage
+        <$> getMessages
         <*> pure mUser
         <*> fmap fst (generateFormPost
                 (createOrderForm wrapId ratioId exdir))

@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleContexts  #-}
+{-# LANGUAGE GADTs             #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes       #-}
@@ -14,7 +16,7 @@ import qualified Data.Text.Lazy                as TL
 import           Network.HaskellNet.SMTP
 import           Network.HaskellNet.SMTP.SSL
 import           Text.Blaze.Html.Renderer.Text ( renderHtml )
-
+import           Yesod.Auth.Util.PasswordStore ( makePassword )
 
 
 -- | Your settings
@@ -49,52 +51,59 @@ postSignUpR = do
         FormSuccess (SignUpFormData email pass conf) -> if pass == conf
             then do
                 key          <- appNonce128urlT
-                createResult <- runDB $ do
-                    mayExistingUser <- getBy $ UniqueEmail email
-                    case mayExistingUser of
-                        Just _ ->
-                            return
-                                $ CreateError
-                                      "Пользователь с таким эл.адресом уже существует"
-                        Nothing -> do
-                            let newUser = User email (Just pass) Client
-                            userId <- insert newUser
-                            let newEmail = Email email (Just userId) (Just key)
-                            _ <- insert newEmail
-                            return CreateSuccess
+                createResult <- createUniqueLogin email pass key
                 case createResult of
                     CreateError e -> do
                         let mayError = Just e
                         defaultLayout $(widgetFile "auth/signup")
                     CreateSuccess -> do
-                        urlRender <- getUrlRender
-                        let verUrl = urlRender $ SignUpVerifyR email key
-                        liftIO $ do
-                            conn <- connectSMTPSSLWithSettings
-                                server
-                                (defaultSettingsSMTPSSL { sslPort = smtpPort })
-                            authSuccess <-
-                                Network.HaskellNet.SMTP.SSL.authenticate
-                                    PLAIN
-                                    username
-                                    password
-                                    conn
-                            if authSuccess
-                                then sendMimeMail (T.unpack email)
-                                                  from
-                                                  subject
-                                                  (plainBody email verUrl)
-                                                  (htmlBody email verUrl)
-                                                  []
-                                                  conn
-                                else putStrLn "Authentication failed."
-                            closeSMTP conn
+                        sendEmailActivationMessage email key
                         defaultLayout $(widgetFile "auth/verify-message")
             else defaultLayout $(widgetFile "auth/verify-message")
         _ -> do
             let mayError = Nothing :: Maybe Text
             defaultLayout $(widgetFile "auth/signup")
+  where
 
+    createUniqueLogin :: Text -> Text -> Text -> Handler UserCreateResult
+    createUniqueLogin login pass key = runDB $ do
+        mayExisting <- getBy $ UniqueEmail login
+        case mayExisting of
+            Just _ -> return $ CreateError
+                    "Пользователь с таким эл.адресом уже существует"
+            Nothing -> do
+                saltedPass <- liftIO $
+                        decodeUtf8 <$> makePassword (encodeUtf8 pass) 14
+                let newUser = User login (Just saltedPass) Client
+                userId <- insert newUser
+                let newEmail = Email login (Just userId) (Just key)
+                _ <- insert newEmail
+                return CreateSuccess
+
+    sendEmailActivationMessage :: Text -> Text -> Handler ()
+    sendEmailActivationMessage email key = do
+        urlRender <- getUrlRender
+        let verUrl = urlRender $ SignUpVerifyR email key
+        liftIO $ do
+            conn <- connectSMTPSSLWithSettings
+                server
+                (defaultSettingsSMTPSSL { sslPort = smtpPort })
+            authSuccess <-
+                Network.HaskellNet.SMTP.SSL.authenticate
+                    PLAIN
+                    username
+                    password
+                    conn
+            if authSuccess
+                then sendMimeMail (T.unpack email)
+                                  from
+                                  subject
+                                  (plainBody email verUrl)
+                                  (htmlBody email verUrl)
+                                  []
+                                  conn
+                else putStrLn "Authentication failed."
+            closeSMTP conn
 
 data UserCreateResult
     = CreateError Text
