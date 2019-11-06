@@ -69,6 +69,8 @@ AccessDenied: Недостаточно прав доступа
 NoPaymentMethodAvailable: Нет подходящего способа перевода
 
 ## Submit Messages
+FormSubmitSignIn: войти
+
 OneClickExchange: Обмен в один клик
 
 IAcceptTermsOfUseText: регистрируясь, я принимаю правила и условия использования сервиса
@@ -250,3 +252,5 @@ WebSite: Веб.сайт
 VkComTitle: ВКонтакте
 
 # Messages
+
+APIPleaseChangePassword: Пожалуйста, установите новый пароль.
