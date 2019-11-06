@@ -39,7 +39,7 @@ signUpForm extra = do
             <div .form-check>
                 ^{fvInput termsV}
                 <label .form-check-label for="terms-check">
-                    <small>_{MsgIAcceptTemrsOfUseText}
+                    <small>_{MsgIAcceptTermsOfUseText}
             |]
     let res = SignUpFormData
             <$> email
