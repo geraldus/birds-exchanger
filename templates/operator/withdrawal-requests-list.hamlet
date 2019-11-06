@@ -12,7 +12,7 @@
                 <small>Способ перевода
             <th .align-top>
     <tbody>
-        $forall (Entity reqId req@WithdrawalRequest{..}, Entity _ UserWallet{..}, Entity userId User{..}) <- list
+        $forall (Entity reqId req, Entity _ wallet, Entity userId user) <- list
             <tr
                     .request-data-row
                     title="_{MsgProcessRequest}"
@@ -20,7 +20,10 @@
                 <td .text-muted>
                     <small>#{reqDateT req}
                 <td>
-                    <b>#{cents2dblT withdrawalRequestCentsAmount}&nbsp;#{currSign userWalletCurrency}
+                    <b>
+                        #{cents2dblT (withdrawalRequestCentsAmount req)}
+                        &nbsp;
+                        #{currSign (userWalletCurrency wallet)}
                     <br>
                     <small>
                         <a
@@ -28,16 +31,16 @@
                                 target=_blank
                                 href="/operator/user-history/#{fromSqlKey userId}"
                                 title="Информация о пользователе">
-                            #{userIdent}
+                            #{userIdent user}
                 <td>
-                    <small>#{tmTShort withdrawalRequestMethod}
+                    <small>#{tmTShort (withdrawalRequestMethod req)}
                     <br>
-                    <span>#{renderAddress withdrawalRequestAddressee}
+                    <span>#{renderAddress (withdrawalRequestAddressee req)}
                 <td .align-middle>
                     <i .accept-icon .fas .fa-check>
 
 
-$forall (Entity reqId r@WithdrawalRequest{..}, Entity _ w@UserWallet{..}, Entity userId User{..}) <- list
+$forall (Entity reqId r, Entity _ w, Entity userId u) <- list
     <div #req-modal-#{fromSqlKey reqId} .modal .request-modal .withdrawal-modal tabindex="-1" role=dialog>
         <div .modal-dialog .modal-lg role=document>
             <div .modal-content>
@@ -52,13 +55,13 @@ $forall (Entity reqId r@WithdrawalRequest{..}, Entity _ w@UserWallet{..}, Entity
                             <p .h4 .text-center>АДРЕС ПОЛУЧАТЕЛЯ
                             <div .alert .alert-warning .py-1>
                                 <p .text-center .mt-3>
-                                    #{tmTShort withdrawalRequestMethod}
+                                    #{tmTShort (withdrawalRequestMethod r)}
                                 <p .h3 .text-monospace_ .text-center>
                                     #{renderReqAddress w r}
 
                         <p .lead .text-center>Переведите #
                             <big>#{cents2dblT (reqTransferAmount w r)}#
-                                <small>#{currSign userWalletCurrency}
+                                <small>#{currSign (userWalletCurrency w)}
 
                         <p>
                             <small>_{MsgUser} #
@@ -66,17 +69,17 @@ $forall (Entity reqId r@WithdrawalRequest{..}, Entity _ w@UserWallet{..}, Entity
                                         .user-profile-link
                                         target=_blank
                                         href="/operator/user-history/#{fromSqlKey userId}">
-                                    #{userIdent}
+                                    #{userIdent u}
                             <br>
                             <small>
                                 <span>Удержано средств: #
-                            <span>#{cents2dblT withdrawalRequestFrozenAmount}#
-                                <small>#{currSign userWalletCurrency}#
+                            <span>#{cents2dblT (withdrawalRequestFrozenAmount r)}#
+                                <small>#{currSign (userWalletCurrency w)}#
                             <br>
                             <small>
                                     <span>Комиссия на текущий момент: #{renderWalletCurrentFee w}%
                             <span>= #{renderReqFee w r}
-                                <small>#{currSign userWalletCurrency}#
+                                <small>#{currSign (userWalletCurrency w)}#
                         <input
                             ##{fromSqlKey reqId}-withdrawal-id
                             type=hidden
@@ -86,7 +89,7 @@ $forall (Entity reqId r@WithdrawalRequest{..}, Entity _ w@UserWallet{..}, Entity
                             ##{fromSqlKey reqId}-withdrawal-fee
                             type=hidden
                             name="withdrawal-fee"
-                            value="#{show (withdrawalRequestFrozenAmount - reqTransferAmount w r)}">
+                            value="#{show (withdrawalRequestFrozenAmount r - reqTransferAmount w r)}">
                         <input
                             ##{fromSqlKey reqId}-withdrawal-transfered
                             type=hidden
