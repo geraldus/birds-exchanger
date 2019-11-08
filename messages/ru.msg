@@ -3,7 +3,7 @@ ProjectName: OutBirds
 Info: Инфо
 TermsOfUse: Правила
 BlackList: Чёрный список
-VerPublicBeta: Общетодоступная β
+VerPublicBeta: Общедоступная β
 
 # ACCESS
 
