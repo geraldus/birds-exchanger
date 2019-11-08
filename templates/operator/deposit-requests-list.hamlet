@@ -18,7 +18,7 @@
                 <small .text-muted .text-uppercase>_{MsgDepositTransactionCode}
             <th .align-middle>
     <tbody>
-        $forall ((Entity reqId req@DepositRequest{..}), (Entity _ UserWallet{..}), eUser@(Entity _ User{..}), mayAddr)  <- list
+        $forall ((Entity reqId req), _, eUser, mayAddr)  <- list
             <tr
                     .request-data-row
                     title="_{MsgProcessRequest}"
@@ -28,12 +28,12 @@
                 <td>#{renderSums req}
                 <td>#{renderMethodUser req eUser}
                 <td .text-center .align-middle>
-                    #{maybe depositRequestTransactionCode (depositPayerAddressJson . entityVal) mayAddr}
+                    #{maybe (depositRequestTransactionCode req) (depositPayerAddressJson . entityVal) mayAddr}
                 <td .align-middle>
                     <i .accept-icon .fas .fa-check>
 
 
-$forall ((Entity reqId req@DepositRequest{..}), _, Entity userId User{..}, mayAddr) <- list
+$forall ((Entity reqId req), _, Entity userId u, mayAddr) <- list
     <div #req-modal-#{fromSqlKey reqId} .modal .request-modal tabindex="-1" role=dialog>
         <div .modal-dialog role=document>
             <div .modal-content>
@@ -44,13 +44,13 @@ $forall ((Entity reqId req@DepositRequest{..}), _, Entity userId User{..}, mayAd
                         <span aria-hidden="true">&times;
                 <form method=post action=@{OperatorAcceptDepositRequestR}>
                     <div .modal-body>
-                        $maybe Entity _ DepositPayer{..} <- mayAddr
+                        $maybe Entity _ p <- mayAddr
                             <div .form-group>
                                 <div .input-group>
                                     <input
                                         .form-control
                                         readonly
-                                        value=#{depositPayerAddressJson}>
+                                        value=#{depositPayerAddressJson p}>
                                     <div .input-group-append>
                                         <span .input-group-text onclick="copyAddressAction(this)">
                                             <i .far .fa-clipboard>
@@ -61,7 +61,7 @@ $forall ((Entity reqId req@DepositRequest{..}), _, Entity userId User{..}, mayAd
                                 type=hidden
                                 readonly=readonly
                                 name="deposit-code"
-                                value="#{depositRequestTransactionCode}">
+                                value="#{depositRequestTransactionCode req}">
                             <input
                                 ##{fromSqlKey reqId}-deposit-id
                                 .form-control
@@ -74,20 +74,20 @@ $forall ((Entity reqId req@DepositRequest{..}), _, Entity userId User{..}, mayAd
                             <p>
                                 <small>
                                     _{MsgDepositTransactionCode}: #
-                                    #{depositRequestTransactionCode}
+                                    #{depositRequestTransactionCode req}
                                 <br>
                                 <small>_{MsgTransferMethod} #
-                                #{tmTShort depositRequestTransferMethod}
+                                #{tmTShort (depositRequestTransferMethod req)}
                                 <br>
                                 <small>_{MsgUser} #
                                 <a
                                         .user-profile-link
                                         target=_blank
                                         href="/operator/user-history/#{fromSqlKey userId}">
-                                    #{userIdent}
+                                    #{userIdent u}
                         <div .form-group>
                             <label for="#{fromSqlKey reqId}-deposit-amount">
-                                Полученная сумма (#{currSign depositRequestCurrency})
+                                Полученная сумма (#{currSign (depositRequestCurrency req)})
                                 <small .text-muted>уточните сумму, полученную в переводе
                             <input
                                 ##{fromSqlKey reqId}-deposit-amount
@@ -110,17 +110,18 @@ $forall ((Entity reqId req@DepositRequest{..}), _, Entity userId User{..}, mayAd
                                 <span>(#
                                 <span .income-val>-#
                                 <span .income-cur>
-                                    <small>#{currSign depositRequestCurrency}
+                                    <small>#{currSign (depositRequestCurrency req)}
                                 <span> - #
                                 <span .fee-val>-#
-                                <span .fee-cur><small>#{currSign depositRequestCurrency}</small>#
+                                <span .fee-cur>
+                                    <small>#{currSign (depositRequestCurrency req)}
                                 <span>) #
                                 <small>x
                                     <span .ratio-val>#{renderRequestRatio req}
                                 <span> = #
                                 <span .total-val>-#
                                 <span .total-cur>
-                                    <small>#{currSign depositRequestTargetCurrency}
+                                    <small>#{currSign (depositRequestTargetCurrency req)}
                             <p .text-muted>
                                 <small>Комиссия: #
                                 <span .fee-percent-val>#{renderReqFeeAsPct req}#
@@ -130,12 +131,12 @@ $forall ((Entity reqId req@DepositRequest{..}), _, Entity userId User{..}, mayAd
                                     _{MsgExpectedCalculation}
                             <p .expected .text-muted>
                                     <span>(#
-                                    <span .income-val>#{cents2dblT depositRequestCentsAmount}#
+                                    <span .income-val>#{cents2dblT (depositRequestCentsAmount req)}#
                                     <span .income-cur>
-                                        <small>#{currSign depositRequestCurrency}
+                                        <small>#{currSign (depositRequestCurrency req)}
                                     <span> - #
-                                    <span .fee-val>#{cents2dblT depositRequestExpectedFeeCents}#
-                                    <span .fee-cur><small>#{currSign depositRequestCurrency}</small>#
+                                    <span .fee-val>#{cents2dblT (depositRequestExpectedFeeCents req)}#
+                                    <span .fee-cur><small>#{currSign (depositRequestCurrency req)}</small>#
                                     <span>) #
                                     <small>x
                                         <!-- TODO: We should take ratio from request here
@@ -146,7 +147,7 @@ $forall ((Entity reqId req@DepositRequest{..}), _, Entity userId User{..}, mayAd
                                     <span> = #
                                     <span .total-val>#{renderRequestExpectedTotal req}#
                                     <span .total-cur>
-                                        <small>#{currSign depositRequestTargetCurrency}
+                                        <small>#{currSign (depositRequestTargetCurrency req)}
                     <div .modal-footer>
                         <div .container-fluid>
                             <div .row .justify-content-around>
