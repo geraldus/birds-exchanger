@@ -49,7 +49,7 @@ depositForm formId extra = do
                 in FormFailure [
                     toStrict $ renderHtml [shamlet|
                         $newline never
-                        #{renderMessage MsgFormInvalidMinimalAmount} #
+                        #{renderMessage MsgFormMessageErrorInvalidMinimalAmount} #
                         \#{limits}|]
                 ]
             FormFailure es -> FormFailure es

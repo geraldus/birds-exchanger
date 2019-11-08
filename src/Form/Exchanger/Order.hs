@@ -87,12 +87,12 @@ createOrderForm wrapId ratid defaultPair extra = do
 
     validateByCurrency :: (AppMessage -> Text) -> [Entity UserWallet] -> Currency -> Double -> FormResult Double
     validateByCurrency renderMessage' [] _ _ =
-        FormFailure [ renderMessage' MsgUserWalletNotFound ]
+        FormFailure [ renderMessage' MsgFormMessageErrorUserWalletNotFound ]
     validateByCurrency renderMessage' (Entity _ w:ws) c amt
         | userWalletCurrency w == c
             = if fromIntegral (userWalletAmountCents w) >= amt * 100
                 then FormSuccess amt
-                else FormFailure [ renderMessage' MsgNotEnoughFunds ]
+                else FormFailure [ renderMessage' MsgFormMessageErrorNotEnoughFunds ]
         | otherwise = validateByCurrency renderMessage' ws c amt
 
 data OrderFD = OrderFD

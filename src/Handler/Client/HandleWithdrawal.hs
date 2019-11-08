@@ -29,7 +29,7 @@ postClientCancelWithdrawalR = do
             insert $
                 WalletBalanceTransaction wid (BalanceWithdrawalCancel a) tid b t
             update wid [UserWalletAmountCents +=. a]
-        setMessageI MsgDepoistCancelled
+        setMessageI MsgDepositCancelled
         redirect WithdrawalR
 
 withClientRequest

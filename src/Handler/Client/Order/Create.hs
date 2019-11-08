@@ -125,10 +125,10 @@ orderCreateRenderFormErrors
     -> (AppMessage -> Text)
     -> [ LabeledError ]
 orderCreateRenderFormErrors a r w m =
-    let amount = mkError (a <= 0) "amount" (m MsgPositiveValueRequired)
-        ratio  = mkError (r <= 0) "ratio" (m MsgPositiveValueRequired)
+    let amount = mkError (a <= 0) "amount" (m MsgFormMessageErrorPositiveValueRequired)
+        ratio  = mkError (r <= 0) "ratio" (m MsgFormMessageErrorPositiveValueRequired)
         balance = mkError
-                (userWalletAmountCents w < a) "balance" (m MsgNotEnoughFunds)
+                (userWalletAmountCents w < a) "balance" (m MsgFormMessageErrorNotEnoughFunds)
     in amount <> ratio <> balance
   where mkError cond name e = [ (name, e) | cond ]
 

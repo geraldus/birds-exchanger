@@ -8,7 +8,7 @@
                 <span .font-weight-bold style="word-break: break-all">
                     #{addr}
             <hr>
-            _{MsgDepositPayerAddressPrompt}
+            _{MsgFormPromptDepositPayerAddress}
     <dl .row .justify-content-center>
         <dt .d-none .d-md-block .col-md-3 .text-right>_{MsgTransferMethod}
         <dt .col-12 .d-md-none .text-center>_{MsgTransferMethod}
@@ -38,5 +38,5 @@
                             #{currSign curr}
     <div .row .justify-content-center>
         <div .col-12 .col-md-8 .alert .alert-warning role="alert">
-            _{MsgDepositConfirmPrompt}
+            _{MsgFormPromptDepositConfirm}
 

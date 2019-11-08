@@ -27,6 +27,7 @@ MenuTitleClientWithdrawal: Вывод
 # PAGE TITLES
 TermsOfUseTitle: Правила пользования сервисом
 PrizmBlackListTitle: Список Prizm-кошельков, уличённых в мошенничестве
+PasswordForgetTitle: Восстановление пароля
 
 ## COMMON
 
@@ -45,17 +46,18 @@ ClientSettingsPageTitle: Настройки
 
 # FORMS
 
-FormPayerAddressLabel: Реквизиты перевода
-FormPayerAddressHelp: Номер карты или кошелька, с которого сделан перевод
-DepositConfirmPrompt: После выполнения перевода нажмите кнопку «Перевод подтверждаю»
-DepositPayerAddressPrompt: Для зачисления средств укажите адрес кошелька или номер карты, с которого был сделан перевод.
-FormDepositConfirmSubmit: Перевод подтверждаю
+FormLabelPayerAddress: Реквизиты перевода
+FormHelpPayerAddress: Номер карты или кошелька, с которого сделан перевод
+FormPromptDepositConfirm: После выполнения перевода нажмите кнопку «Перевод подтверждаю»
+FormPromptDepositPayerAddress: Для зачисления средств укажите адрес кошелька или номер карты, с которого был сделан перевод.
+FormHelpPasswordForgetEmail: Для сброса пароля, пожалуйста, введите адрес электронной почты
+FormLabelForgotPassword: Забыли пароль?
 
 ## FORM ERRORS
-PositiveValueRequired: должно быть положительным числом
-NotEnoughFunds: Недостаточно средств
-FormInvalidMinimalAmount: Минимальная сумма пополнения
-UserWalletNotFound: У вас нет подходящего кошелька
+FormMessageErrorPositiveValueRequired: должно быть положительным числом
+FormMessageErrorNotEnoughFunds: Недостаточно средств
+FormMessageErrorInvalidMinimalAmount: Минимальная сумма пополнения
+FormMessageErrorUserWalletNotFound: У вас нет подходящего кошелька
 
 User: Пользователь
 EmailAddress: Адрес эл.почты
@@ -69,7 +71,10 @@ AccessDenied: Недостаточно прав доступа
 NoPaymentMethodAvailable: Нет подходящего способа перевода
 
 ## Submit Messages
+
 FormSubmitSignIn: войти
+FormSubmitDepositConfirm: Перевод подтверждаю
+FormSubmitPasswordResetTitle: Нажмите, чтобы получить инструкции по восстановлению пароля
 
 OneClickExchange: Обмен в один клик
 
@@ -113,7 +118,7 @@ OrderLastOperation: Последняя операция
 OrderActualIncome: С учётом комиссии
 AllOrders: Все ордера
 ActiveOrders: Активные
-ExecutedOrders: Выполненые
+ExecutedOrders: Выполненные
 ViewOrderDetails: Просмотр истории ордера
 CancelOrder: Отменить ордер
 CancelOrderConfirmationText: Вы уверены, что хотите отменить ордер на обмен?
@@ -147,7 +152,7 @@ DepositRequestConfirmedMessage: Заявка подтверждена
 DepositRequestAlreadyConfirmed: Заявка уже подтверждена
 DepositConfirmed: Подтверждён
 DepositConfirmCancellationText: Вы уверены, что хотите отменить заявку на ввод средств?
-DepoistCancelled: Пополнение отменено
+DepositCancelled: Пополнение отменено
 WithdrawalCancelled: Вывод средств отменён
 DepositExecuted: Средства зачислены
 DepositRejected: Отклонён

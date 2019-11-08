@@ -119,7 +119,7 @@ postClientCancelDepositR = do
     withClientRequest requestId $ \(Entity tid _) -> do
         t <- liftIO getCurrentTime
         runDB $ update tid [DepositRequestStatus =. ClientCancelled t]
-        setMessageI MsgDepoistCancelled
+        setMessageI MsgDepositCancelled
         redirect DepositR
 
 withClientRequestByCode
