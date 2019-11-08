@@ -318,9 +318,6 @@ instance Yesod App where
     isAuthorized ManageInfoIndexR _                  = isEditorAuthenticated
     isAuthorized ManageInfoAddR _                    = isEditorAuthenticated
     isAuthorized ManageInfoUpdateR _                 = isEditorAuthenticated
-    -- MAO: Operators
-    isAuthorized MaoAccountingR _
-        = isMaoOperatorAuthenticated
     -- SUPER USERS
     isAuthorized SuperUserFinancialReportViewR _     = isSuperUserAuthenticated
     isAuthorized SuperUserWebSocketR _               = isSuperUserAuthenticated
@@ -403,8 +400,6 @@ instance YesodBreadcrumbs App where
             return ("Заявки на пополнение", Just HomeR)
         breadcrumb' _ OperatorWithdrawalRequestsListR =
             return ("Заявки на вывод", Just HomeR)
-        breadcrumb' mr MaoAccountingR =
-            return (mr MsgMaoOperatorsAccounting, Just HomeR)
         breadcrumb' _ SuperUserFinancialReportViewR =
             return ("Финансовая отчётность", Just HomeR)
         breadcrumb' _ AdminLogInR =
@@ -516,9 +511,6 @@ isEditorAuthenticated = authorizeStaffRoles [ Editor ]
 
 isOperatorAuthenticated :: Handler AuthResult
 isOperatorAuthenticated = authorizeStaffRoles [ Operator ]
-
-isMaoOperatorAuthenticated :: Handler AuthResult
-isMaoOperatorAuthenticated = authorizeStaffRoles [MaoOperator]
 
 isSuperUserAuthenticated :: Handler AuthResult
 isSuperUserAuthenticated = authorizeStaffRoles []
