@@ -22,8 +22,8 @@ module Application
 
 import           Import
 import           Local.Persist.Exchange               ( ExchangePair (..) )
+import           Market.Functions                     ( reduceDomStats )
 import           Type.App
-import           Type.Market
 import           Utils.Database.Orders                ( selectActiveOrdersOf )
 
 import           Control.Monad.Logger                 ( liftLoc, runLoggingT )

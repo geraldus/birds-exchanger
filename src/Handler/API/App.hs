@@ -1,13 +1,24 @@
 {-# LANGUAGE ExtendedDefaultRules #-}
+{-# LANGUAGE FlexibleContexts     #-}
+{-# LANGUAGE GADTs                #-}
 {-# LANGUAGE OverloadedStrings    #-}
+{-# LANGUAGE ScopedTypeVariables  #-}
 module Handler.API.App where
 
+import           Paths_prizm_exchange   ( version )
+
 import           Import
-import           Paths_prizm_exchange ( version )
-import           Yesod.WebSockets
+import           Local.Persist.Currency ( currencyCodeT )
+import           Local.Persist.Exchange ( ExchangePair (..) )
+import           Market.Functions       ( foldMarketOrders )
+import           Market.Type
+import           Utils.Database.Orders  ( selectActiveOrdersOf )
+import           Utils.Money            ( unPairCurrency )
 
 import           Data.Aeson
-import           Data.Version         ( showVersion )
+import qualified Data.HashMap.Strict    as HMS
+import           Data.Version           ( showVersion )
+import           Yesod.WebSockets
 
 default (Text)
 
@@ -84,6 +95,9 @@ getApiAppConfigR = do
     url <- getUrlRender
     message <- getMessageRender
     dom <- appDOM <$> getYesod >>= atomically . readTMVar
+    let defaultPairs = [ ExchangePzmRur, ExchangeOurRur, ExchangeOurPzm ]
+    activePairOrders <- concat <$> runDB (mapM selectActiveOrdersOf defaultPairs)
+    let domStats = foldMarketOrders defaultPairs activePairOrders
     let (authMeta, navExtra) = case auth of
             Nothing -> (object [ "guest" .= True ], [])
             Just _  -> (object [ "guest" .= False ], userNav url message)
@@ -98,9 +112,8 @@ getApiAppConfigR = do
                 ]
             ]
         , "nav" .= nav
-        , "dom" .= dom
+        , "dom" .= toJsonFullMarketDom domStats
         ]
-
 
 notificationSocket :: WebSocketsT Handler ()
 notificationSocket =
@@ -113,3 +126,26 @@ getNotificationSocketR = webSockets notificationSocket
 
 webSocketJsonMessage :: ToJSON a => a -> WebSocketsT Handler ()
 webSocketJsonMessage = sendTextData . decodeUtf8 . encode . toJSON
+
+
+cleanDomJson :: DOMStats -> Value
+cleanDomJson stats = toJSON cleanedDomJson
+    where
+        mappings = HMS.toList stats
+        unpaired = flip map mappings $ \(p, dom) ->
+            let (from, to) = unPairCurrency p
+            in (from, to, dom)
+        cleanedDomJson = flip map unpaired $ \(from, to, dom) ->
+            object [ "from" .= currencyCodeT from
+                   , "to" .= currencyCodeT to
+                   , "dom" .= toJSON (cleanDomRowJson dom) ]
+
+cleanDomRowJson :: DOMStatsRateMap -> Value
+cleanDomRowJson pairDom = toJSON cleanedRowJson
+  where
+    mappings = HMS.toList pairDom
+    cleanedRowJson = flip map mappings $ \(rate, (cnt, outAmt, inAmt)) ->
+        object [ "rate" .= rate
+               , "count" .= cnt
+               , "out" .= outAmt
+               , "in" .= inAmt ]

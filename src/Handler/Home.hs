@@ -11,8 +11,10 @@ import           Import                 hiding ( decodeUtf8, httpLbs )
 import           Form.Exchanger.Order
 import           Local.Params
 import           Local.Persist.Currency
-import           Type.Market
 import           Local.Persist.Exchange ( ExchangePair (..) )
+import           Market.Functions       ( reduceDomStats )
+import           Market.Type            ( DOMRateStats, DOMStats,
+                                          DOMStatsRateMap )
 import           Type.Money             ( oneCoinCents )
 import           Utils.Database.Orders  ( selectActiveOrdersOf )
 import           Utils.Money
@@ -225,7 +227,7 @@ getLastFeaturedNews = do
 
 -- | ** Depth of Market
 
-renderDomTable :: ExchangePair -> Bool -> Bool -> DomStats -> Widget
+renderDomTable :: ExchangePair -> Bool -> Bool -> DOMStats -> Widget
 renderDomTable p buy hidden d = domDivView pair' hidden title body
     where
         pair' = if buy then flipPair p else p
@@ -239,7 +241,7 @@ renderDomTable p buy hidden d = domDivView pair' hidden title body
         body = (concatMap $ \(r, s) -> domDivRow r maxCount buy s) <$> pairStats
         (outc, inc) = unPairCurrency p
 
-domRow :: Double -> Int -> Bool -> Dom -> Widget
+domRow :: Double -> Int -> Bool -> DOMRateStats -> Widget
 domRow r t buy d =
     let (ordersCount, outCents, inCents) = d
         leftd = "left" :: Text
@@ -266,7 +268,7 @@ domTable pair' hidden title mbody  =
         body = fromMaybe (emptyList 10 4) mbody
     in $(widgetFile "dom/table/table")
 
-domDivRow :: Double -> Int -> Bool -> Dom -> Widget
+domDivRow :: Double -> Int -> Bool -> DOMRateStats -> Widget
 domDivRow r t buy d =
     let (ordersCount, outCents, inCents) = d
         leftd = "left" :: Text
@@ -305,11 +307,11 @@ emptyList row col = [whamlet|
 
 genericDomRender
     :: ExchangePair
-    -> DomStats
+    -> DOMStats
     -> (ExchangePair -> ExchangePair)
     -> (ExchangePair -> Text)
     -> (Text -> Maybe Widget -> Widget)
-    -> (ExchangePairDom -> Widget)
+    -> (DOMStatsRateMap -> Widget)
     -> Widget
 genericDomRender p ds direction title wrapper itemRender =
         wrapper (title p) $ itemRender <$> HMS.lookup (direction p) ds

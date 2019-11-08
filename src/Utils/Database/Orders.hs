@@ -2,7 +2,7 @@ module Utils.Database.Orders where
 
 import           Import.NoFoundation    as I hiding ( (==.), (||.) )
 import           Local.Persist.Exchange
-import           Type.Market
+import           Market.Type            ( OrderUserP )
 import           Utils.Money
 
 import           Database.Esqueleto     as E

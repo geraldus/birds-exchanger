@@ -23,8 +23,8 @@ import           Yesod.Form.I18n.Russian
 import           Local.Auth
 import           Local.Persist.Currency
 import           Local.Persist.UserRole
+import           Market.Type             ( DOMStats )
 import           Type.App
-import           Type.Market             ( DomStats )
 import           Utils.Common
 import           Utils.Form              ( currencyOptionListRaw,
                                            transferOptionsRaw )
@@ -70,7 +70,7 @@ data App = App
     , appChannels        :: AppChannels
     , appPaymentMethods  :: TMVar AppPaymentMethods
     , appOperatorsOnline :: TMVar [ Text ]
-    , appDOM             :: TMVar DomStats
+    , appDOM             :: TMVar DOMStats
     }
 
 -- Note that this is really half the story; in Application.hs, mkYesodDispatch
