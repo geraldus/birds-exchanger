@@ -30,6 +30,17 @@ instance FromJSON ProfitType
 derivePersistField "ProfitType"
 
 
+-- | = Exchange Pair
+--   == Also used as exchange direction representation
+--   //TODO://
+--   Abstract this data type over @currency code@ which could be an
+--   'Int' meaning international currency code value or 'String'
+--   meaning international or commonly used currency string code, e.g.
+--   USD, RUB, PZM, OURO
+--   //TODO://
+--   > Split 'ExchangePair' to Exchange Direction and Exchange Pair
+--   > Former holds string CODE from and string code to.
+--   > Latter holds direction from -> to and backward from <- to
 data ExchangePair
     = ExchangePzmRur
     | ExchangeRurPzm
