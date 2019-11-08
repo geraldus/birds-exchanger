@@ -603,8 +603,8 @@ lookupUser username = find (\m -> suName m == username) superUsers
 
 requireClientId :: Handler UserId
 requireClientId = do
-    apair <- requireAuthPair
-    case apair of
+    auth <- requireAuthPair
+    case auth of
         (Right _  , _     ) -> redirect HomeR
         (Left  uid, Left u) -> case userRole u of
             Client -> return uid
@@ -614,8 +614,8 @@ requireClientId = do
 
 maybeClient :: Handler (Maybe (Entity User, [Entity UserWallet]))
 maybeClient = do
-    mauth <- maybeAuthPair
-    case mauth of
+    auth <- maybeAuthPair
+    case auth of
         Nothing -> return Nothing
         Just (Right _, _) -> return Nothing
         Just (Left uid, Left user) -> case userRole user of
@@ -627,8 +627,8 @@ maybeClient = do
 
 requireClientData :: Handler (Entity User, [Entity UserWallet])
 requireClientData = do
-    mclient <- maybeClient
-    case mclient of
+    client <- maybeClient
+    case client of
         Nothing         -> permissionDenied accessErrorClientOnly
         Just clientData -> return clientData
 

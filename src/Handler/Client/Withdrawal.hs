@@ -261,10 +261,10 @@ genericRequestStatus (status, description) =
 requestAmounts :: Details -> (Int, Bool)
 requestAmounts (NoDetails (Entity _ WithdrawalRequest{..}) _) =
     (withdrawalRequestFeeAmount, False)
-requestAmounts (AcceptD (Entity _ r) _ (Entity _ WithdrawalAccept{..})) =
+requestAmounts (AcceptD _ _ (Entity _ WithdrawalAccept{..})) =
     (withdrawalAcceptActualFee, False)
-requestAmounts (RejectD (Entity _ _) _ _) = (0, True)
-requestAmounts (CancelD (Entity _ _) _ _) = (0, True)
+requestAmounts RejectD{} = (0, True)
+requestAmounts CancelD{} = (0, True)
 
 requestStatuses
     :: (Route App -> Text)

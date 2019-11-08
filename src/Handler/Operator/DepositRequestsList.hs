@@ -5,7 +5,7 @@
 {-# LANGUAGE TypeFamilies      #-}
 module Handler.Operator.DepositRequestsList where
 
-import           Import                 as I hiding ( on, (&&.), (==.) )
+import           Import                 as I hiding ( on, (==.) )
 import           Local.Persist.Currency ( currSign, tmTShort )
 import           Local.Persist.Wallet   ( DepositRequestStatus (..) )
 import           Utils.Common           ( selectLocale )
@@ -15,7 +15,7 @@ import           Utils.Render
 import           Utils.Time
 
 import           Database.Esqueleto     as E
-import           Database.Persist.Sql   ( fromSqlKey, rawSql )
+import           Database.Persist.Sql   ( fromSqlKey )
 
 
 getOperatorDepositRequestsListR :: Handler Html
@@ -93,7 +93,10 @@ renderMethodUser req (Entity userId user) = [shamlet|
 renderRequestExpectedTotal :: DepositRequest -> Html
 renderRequestExpectedTotal DepositRequest{..} = [shamlet|#{cents2dblT total}|]
   where
-    total = multiplyCents depositRequestExpectedConversionRatio (depositRequestCentsAmount - depositRequestExpectedFeeCents)
+    total =
+        multiplyCents
+            depositRequestExpectedConversionRatio
+            (depositRequestCentsAmount - depositRequestExpectedFeeCents)
 
 renderReqFeeAsPct :: DepositRequest -> Html
 renderReqFeeAsPct DepositRequest{..} = renderFeeAsPct fee

@@ -16,18 +16,11 @@ import           Text.Julius            ( RawJS (..) )
 
 getProfileR :: Handler Html
 getProfileR = do
-    userName                     <- userNameF . snd <$> requireAuthPair
+    _userName                    <- userNameF . snd <$> requireAuthPair
     (Entity clientId _, wallets) <- requireClientData
     let walletIds  = map entityKey wallets
         walletVals = map entityVal wallets
-        findWallet :: UserWalletId -> Entity UserWallet
-        findWallet wid =
-            fromJust $ find (\(Entity uwid _) -> uwid == wid) wallets
-        findWalletCurrency = userWalletCurrency . entityVal . findWallet
     -- Let JS Front-end take and visualize data
-    walletOps <- runDB $ selectList
-        [WalletBalanceTransactionWalletId <-. walletIds]
-        [Desc WalletBalanceTransactionTime, Desc WalletBalanceTransactionId]
     operations <- runDB $ rawSql s [toPersistValue clientId]
     let ops
             :: [ ( Entity WalletBalanceTransaction

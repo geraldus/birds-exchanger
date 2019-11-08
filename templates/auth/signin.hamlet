@@ -4,21 +4,23 @@
             <form pb-5 action=@{tp Local.Auth.loginR} method=post>
                 <h2 .text-center>_{MsgSignInPageTitle}
                 <div .form-group>
-                    <label for="input123">_{MsgEmailAddress}
+                    <label for="email-input">_{MsgEmailAddress}
                     <input
-                        #input123
+                        #email-input
                         type=email
                         .form-control
                         placeholder="email@domain.com"
                         name="username"
+                        required
                         >
                 <div .form-group>
-                    <label for="input1234">_{MsgPassword}
+                    <label for="password-input">_{MsgPassword}
                     <input
-                        #input1234
+                        #password-input
                         type=password
                         .form-control
                         placeholder="******"
+                        required
                         name="password">
                 <div .form-group .row>
                     <div .col-12 .text-right>

@@ -6,7 +6,11 @@
     <div .row>
         <div .col-11 .col-md-8 .mx-auto>
             <form method=post action=@{DepositConfirmRequestR} .mt-3>
-                <input type=hidden name="transaction-id" value="#{fromSqlKey transactionId}">
+                <input
+                    type=hidden
+                    name="transaction-id"
+                    value="#{fromSqlKey transactionId}"
+                    >
                 <div .form-group .row>
                     <label for="payer-address-input">
                         _{MsgFormLabelPayerAddress}

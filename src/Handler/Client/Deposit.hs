@@ -125,7 +125,7 @@ depositHistoryRow d = do
         (genericRequestAmount (requestAmounts d) (description d))
         (genericRequestStatus (requestStatuses ur mr (fd, ft) d))
   where
-    description d = case d of
+    description details = case details of
         NoDetails _ -> mempty
         _           -> [whamlet|\ (_{MsgInFact})|]
 
@@ -151,7 +151,8 @@ requestStatuses
     -> (UTCTime -> Html, UTCTime -> Html)
     -> Details
     -> (Widget, Widget, Widget)
-requestStatuses ur mr fs (NoDetails (Entity _ r@DepositRequest{..})) =
+requestStatuses
+        ur mr _formatters (NoDetails (Entity _ r@DepositRequest{..})) =
     let (sm, dm) = requestStatusMessages mr r
         code = depositRequestTransactionCode
         (extra, status) = case depositRequestStatus of
