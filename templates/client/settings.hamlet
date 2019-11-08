@@ -1,6 +1,27 @@
 <h3>
     #{userIdent (entityVal user)}
 
-<form .mt-3>
-    <h5>_{MsgPassword}
-    ^{formWidget}
+<h5>_{MsgPassword}
+<dl .my-3 .row>
+    <dt .col-12 .col-md-3>
+    <dd .form-group .col-12 .col-md-9>
+        <input .form-control type="password" aria-describedby="passwordHelp">
+        <small #passwordHelp .form-text .text-muted>
+    <dt .col-12 .col-md-3>
+    <dd .form-group .col-12 .col-md-9>
+        <input
+            .form-control
+            type="password"
+            aria-describedby="newPasswordHelp"
+            >
+        <small #newPasswordHelp .form-text .text-muted>
+    <dt .col-12 .col-md-3>
+    <dd .form-group .col-12 .col-md-9>
+        <input .form-control type="password" aria-describedby="confirmHelp">
+        <small #confirmHelp .form-text .text-muted>
+    <dd .col-12>
+        <button .btn .btn-dark disabled>Изменить пароль
+$if shouldNoticeAboutPasswordChange
+    <div .row .flex>
+        <div .alert .alert-secondary.col-7 .mx-auto>
+            <small>
