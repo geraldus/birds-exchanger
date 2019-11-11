@@ -9,6 +9,10 @@
 
 / HomeR GET
 
+/password-change PasswordChangeR GET
+/password-change/guide PasswordChangeGuideR POST
+!/password-change/#Text PasswordResetR GET
+/api/unsafe/user/password/set ApiUserPasswordChangeR POST
 /signup SignUpR GET POST
 /signup-verification/#Text/#Text SignUpVerifyR GET POST
 

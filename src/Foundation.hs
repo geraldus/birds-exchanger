@@ -283,6 +283,10 @@ instance Yesod App where
     isAuthorized (StaticR _) _                       = return Authorized
     isAuthorized SignUpR _                           = return Authorized
     isAuthorized (SignUpVerifyR _ _) _               = return Authorized
+    isAuthorized PasswordChangeR _                   = return Authorized
+    isAuthorized PasswordChangeGuideR _              = return Authorized
+    isAuthorized (PasswordResetR _) _                = return Authorized
+    isAuthorized ApiUserPasswordChangeR _               = return Authorized
     -- the profile route requires that the user is authenticated, so we
     -- delegate to that function
     isAuthorized ProfileR _                          = isAuthenticated
@@ -384,6 +388,12 @@ instance YesodBreadcrumbs App where
         breadcrumb' _ HomeR       = return ("OutBirds", Nothing)
         breadcrumb' _ (AuthR _)   = return ("Вход", Just HomeR)
         breadcrumb' _ SignUpR     = return ("Регистрация", Just HomeR)
+        breadcrumb' mr PasswordChangeR =
+            return (mr MsgPasswordSetupTitle, Just HomeR)
+        breadcrumb' mr PasswordChangeGuideR =
+            return (mr MsgPasswordChangeGuideTitle, Just HomeR)
+        breadcrumb' mr (PasswordResetR _) =
+            return (mr MsgPasswordSetupTitle, Just HomeR)
         breadcrumb' _ ProfileR    = return ("Портфель", Just HomeR)
         breadcrumb' _ ClientOrdersR = return ("Мои ордера на обмен", Just HomeR)
         breadcrumb' mr ClientSettingsR =
