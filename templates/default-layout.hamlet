@@ -126,16 +126,15 @@ $if not $ Just HomeR == mcurrentRoute
                         <li .breadcrumb-item>
                             <a href="@{fst bc}">#{snd bc}
                     <li .breadcrumb-item.active>#{title}
-
-        $maybe msg <- mmsg
-            <div .row>
-                <div .col-8 .col-lg-6 .mx-auto>
-                    <div .alert.alert-warning #message>#{msg}
-
 $if (Just HomeR == mcurrentRoute)
     ^{widget}
 $else
     <div .container>
+        $forall (label, msg) <- sessionMessages
+            <div .row data-session-message-label=#{label}>
+                <div .col-8 .col-lg-6 .mx-auto>
+                    <div .alert.alert-warning #message>
+                        #{msg}
         <div .row>
             <div .col-md-12>
                 ^{widget}

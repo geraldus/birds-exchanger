@@ -130,7 +130,7 @@ instance Yesod App where
     defaultLayout widget = do
         let appVersion = showVersion version
         master <- getYesod
-        mmsg <- getMessage
+        sessionMessages <- getMessages
         muser <- maybeAuthPair
         mr    <- getMessageRender
         -- ^ @Handler (Maybe (Either UserId Text, Either User SuperUser))@
@@ -196,11 +196,11 @@ instance Yesod App where
                     { menuItemLabel = mr MsgTermsOfUse
                     , menuItemRoute = TermsOfUseR
                     , menuItemAccessCallback = isClientLoggedIn }
-                -- , MenuItem
-                --     { menuItemLabel = mr MsgClientSettingsPageTitle
-                --     , menuItemRoute = ClientSettingsR
-                --     , menuItemAccessCallback = isClientLoggedIn
-                --     }
+                , MenuItem
+                    { menuItemLabel = mr MsgClientSettingsPageTitle
+                    , menuItemRoute = ClientSettingsR
+                    , menuItemAccessCallback = isClientLoggedIn
+                    }
                 , MenuItem
                     { menuItemLabel = "Выход"
                     , menuItemRoute = AuthR LogoutR
@@ -248,6 +248,7 @@ instance Yesod App where
         -- you to use normal widget features in default-layout.
         pc <- widgetToPageContent $ do
             $(widgetFile "form/common")
+            $(widgetFile "default-nav")
             $(widgetFile "default-layout")
         withUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
         where
