@@ -28,57 +28,6 @@ getClientSettingsR = do
     defaultLayout
         $(widgetFile "client/settings")
 
-postApiUserPasswordChangeR :: Handler TypedContent
-postApiUserPasswordChangeR = do
-    -- client <- requireClientId
-    msgRender <- getMessageRender :: Handler (AppMessage -> Text)
-    user <- runInputPostResult $ ireq textField "username"
-    pass <- runInputPostResult $ ireq (minLenPassField msgRender) "password"
-    case (user, pass) of
-        (FormSuccess login, FormSuccess passString) -> do
-        -- TODO: FIXME: Check password length
-            success <- runDB $ do
-                creds <- getCredsByEmail login
-                case creds of
-                    ((Entity _ _), (Entity userid _)):_ -> do
-                        apiUnsafeChangeUserPassword userid passString
-                        return True
-                    _ -> do
-                        return False
-            messageRender <- getMessageRender
-            addMessage "password" $ if success
-                then (toHtml . messageRender)
-                        MsgFormSuccessPasswordSet
-                else (toHtml . messageRender)
-                        MsgFormMessageErrorPasswordChangeError
-            redirectUltDest HomeR
-        (FormFailure loginErrors, FormFailure passwordErrors) ->
-            addErrorsMessageRedirect
-                    (loginErrors <> passwordErrors) PasswordChangeR
-        (FormFailure errors, _) ->
-            addErrorsMessageRedirect errors PasswordChangeR
-        (_, FormFailure errors) ->
-            addErrorsMessageRedirect errors PasswordChangeR
-        (FormMissing, _) -> do
-            addMessageI "form" MsgFormMessageErrorMissingLogin
-            redirect PasswordChangeR
-        (_, FormMissing) -> do
-            addMessageI "form" MsgFormMessageErrorMissingPassword
-            redirect PasswordChangeR
-  where
-    addErrorsMessageRedirect es url = do
-        mapM (addMessageI "form") es
-        redirectUltDest url
-
-    minLenPassField msg = check (validatePass msg) passwordField
-
-    minPassLen = 6 :: Int
-
-    validatePass msg p
-        | length p < minPassLen =
-                (Left . msg) (MsgFormMessageErrorPasswordTooShort minPassLen)
-        | otherwise  = Right p
-
 getPasswordChangeR :: Handler Html
 getPasswordChangeR =
     defaultLayout $ do
@@ -169,7 +118,7 @@ getPasswordResetR token = do
                     let expires = addUTCTime lt created
                     if now > expires
                         then do
-                            removeObsoleteTokens eid
+                            handlerToWidget $ removeObsoleteTokens eid
                             addMessageI
                                 "token"
                                 MsgFormMessageErrorPasswordResetTokenExpired
@@ -192,9 +141,61 @@ getPasswordResetR token = do
             #{urlRender (PasswordResetR token)}
         |]
 
-    removeObsoleteTokens :: EmailId -> Widget
-    removeObsoleteTokens e = handlerToWidget . runDB $
-        deleteWhere [ PasswordResetTokenEmail ==. e ]
+postApiUserPasswordChangeR :: Handler TypedContent
+postApiUserPasswordChangeR = do
+    msgRender <- getMessageRender :: Handler (AppMessage -> Text)
+    user <- runInputPostResult $ ireq textField "username"
+    pass <- runInputPostResult $ ireq (minLenPassField msgRender) "password"
+    case (user, pass) of
+        (FormSuccess login, FormSuccess passString) -> do
+        -- TODO: FIXME: Check password length
+            success <- runDB $ do
+                creds <- getCredsByEmail login
+                case creds of
+                    ((Entity emailId _), (Entity userid _)):_ -> do
+                        apiUnsafeChangeUserPassword userid passString
+                        return $ Just emailId
+                    _ -> do
+                        return Nothing
+            messageRender <- getMessageRender
+            case success of
+                Just emailId -> do
+                    removeObsoleteTokens emailId
+                    addMessage
+                        "password"
+                        (toHtml $ messageRender MsgFormSuccessPasswordSet)
+                    setUltDest HomeR
+                Nothing -> addMessage
+                        "password"
+                        (toHtml $ messageRender MsgFormMessageErrorPasswordChangeError)
+            redirectUltDest HomeR
+        (FormFailure loginErrors, FormFailure passwordErrors) ->
+            addErrorsMessageRedirect
+                    (loginErrors <> passwordErrors) PasswordChangeR
+        (FormFailure errors, _) ->
+            addErrorsMessageRedirect errors PasswordChangeR
+        (_, FormFailure errors) ->
+            addErrorsMessageRedirect errors PasswordChangeR
+        (FormMissing, _) -> do
+            addMessageI "form" MsgFormMessageErrorMissingLogin
+            redirect PasswordChangeR
+        (_, FormMissing) -> do
+            addMessageI "form" MsgFormMessageErrorMissingPassword
+            redirect PasswordChangeR
+  where
+    addErrorsMessageRedirect es url = do
+        mapM (addMessageI "form") es
+        redirectUltDest url
+
+    minLenPassField msg = check (validatePass msg) passwordField
+
+    minPassLen = 6 :: Int
+
+    validatePass msg p
+        | length p < minPassLen =
+                (Left . msg) (MsgFormMessageErrorPasswordTooShort minPassLen)
+        | otherwise  = Right p
+
 
 
 createPasswordChangeToken :: Entity Email -> Handler (Entity PasswordResetToken)
@@ -230,3 +231,8 @@ withExistingLogin email handler = do
 -- | Default password reset token life-time, equals to 120 minutes.
 defaultTokenLifeTime :: Int
 defaultTokenLifeTime = 120
+
+removeObsoleteTokens :: EmailId -> Handler ()
+removeObsoleteTokens e = runDB $
+    deleteWhere [ PasswordResetTokenEmail ==. e ]
+

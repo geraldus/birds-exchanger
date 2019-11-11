@@ -141,7 +141,16 @@ instance Yesod App where
         let isOperatorLoggedIn = isOperatorUser muser
         let isSuLoggedIn = isSU muser
         wallets <- if isClientLoggedIn then getUserWallets else pure []
-        mcurrentRoute <- getCurrentRoute
+
+        currentRoute <- getCurrentRoute
+        case currentRoute of
+            Just ( PasswordResetR _) -> return ()
+            Just url
+                | url `notElem`  [ AuthR LogoutR, AuthR LoginR, SignUpR ] ->
+                        setUltDest url
+                | url `elem` [ AuthR LogoutR ] -> setUltDest HomeR
+                | otherwise -> return ()
+            _ -> return ()
 
         -- Get the breadcrumbs, as defined in the YesodBreadcrumbs instance.
         (title, parents) <- breadcrumbs

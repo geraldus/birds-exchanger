@@ -24,7 +24,7 @@
     <div #main-nav-menu .collapse.navbar-collapse.justify-content-between>
         <ul .navbar-nav>
             $forall MenuItem label route _ <- navbarLeftFilteredMenuItems
-                <li .nav-item.mx-2 :Just route == mcurrentRoute:.active>
+                <li .nav-item.mx-2 :Just route == currentRoute:.active>
                     <a .nav-link href="@{route}">#{label}
         $maybe userName <- muserName
             <span .navbar-text .d-block .d-lg-none>
@@ -38,12 +38,12 @@
                     #{cents2dblT cents}&nbsp;<span class="font-weight-normal">#{currSign cur}</span>
             <ul .navbar-nav .d-flex .d-lg-none>
                     $forall MenuItem label route _ <- userMenuItems
-                        <li .nav-item :Just route == mcurrentRoute:.active>
+                        <li .nav-item :Just route == currentRoute:.active>
                             <a .nav-link href="@{route}">#{label}
         $nothing
             <ul .navbar-nav>
                 $forall MenuItem label route _ <- navbarRightFilteredMenuItems
-                    <li .nav-item.mx-2 :Just route == mcurrentRoute:.active>
+                    <li .nav-item.mx-2 :Just route == currentRoute:.active>
                         <a .nav-link href="@{route}">#{label}
         $maybe userName <- muserName
             <ul .navbar-nav .d-none .d-lg-flex>
@@ -101,7 +101,7 @@
                                 $forall MenuItem label route _ <- editorMenuItems
                                     <a
                                         .dropdown-item
-                                        :Just route == mcurrentRoute:.active
+                                        :Just route == currentRoute:.active
                                         href="@{route}">
                                             #{label}
                             $if isOperatorLoggedIn
@@ -111,14 +111,14 @@
                                 $forall MenuItem label route _ <- operatorRequestsMenuItems
                                     <a
                                         .dropdown-item
-                                        :Just route == mcurrentRoute:.active
+                                        :Just route == currentRoute:.active
                                         href="@{route}">
                                             #{label}
                             $if isSuLoggedIn
                                 $forall MenuItem label route _ <- suMenuItems
                                     <a
                                         .dropdown-item
-                                        :Just route == mcurrentRoute:.active
+                                        :Just route == currentRoute:.active
                                         href="@{route}">
                                             #{label}
                 <li ##{navUserDropdownId} .nav-item .dropdown .mr-5>
@@ -139,7 +139,7 @@
                         $forall MenuItem label route _ <- userMenuItems
                             <a
                                 .dropdown-item
-                                :Just route == mcurrentRoute:.active
+                                :Just route == currentRoute:.active
                                 href="@{route}"
                                 >
                                 #{label}

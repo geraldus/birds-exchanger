@@ -1,4 +1,4 @@
-$if (Just HomeR == mcurrentRoute)
+$if (Just HomeR == currentRoute)
     ^{widget}
 $else
     <div .container .py-3 style="min-height: 100%">
