@@ -18,7 +18,7 @@ getSignUpVerifyR email verkey = do
             Just ee@(Entity emailId emailRec)
                 | emailVerkey emailRec == Just verkey -> do
                         update emailId $ [EmailVerkey =. Nothing]
-                        createWallets ee
+                        _ <- createWallets ee
                         return Verified
                 | isNothing (emailVerkey emailRec) -> return VerifiedAlready
                 | otherwise -> return InvalidKey

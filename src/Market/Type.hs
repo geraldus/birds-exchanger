@@ -171,9 +171,7 @@ type Rate = Double
 
 type OrdersCountTotal = Int
 
-type MinAmountCents = Int
 
-type MaxAmountCents = Int
 
 type IntQuartet = (Int, Int, Int, Int)
 
@@ -221,14 +219,14 @@ blindlyMkDomExchangeDirectionStats =
          -> DOMExchangeDirectionStats
     step o acc = acc
         { domExchangeDirectionStatsMap =
-                updateRateMap r a m acc
+                updateRateMap' r a m acc
         , domExchangeDirectionStatsOrdersCount =
                 domExchangeDirectionStatsOrdersCount acc + 1
         , domExchangeDirectionStatsAmountOut =
                 updateAmountOutStats acc a
         , domExchangeDirectionStatsAmountIn =
                 updateAmountInStats acc m }
-        where (p, a, r, m) = exParams o
+        where (_p, a, r, m) = exParams o
 
     updateAmountOutStats acc = adjustIntAmountStats $
             domExchangeDirectionStatsAmountOut acc
@@ -236,7 +234,7 @@ blindlyMkDomExchangeDirectionStats =
     updateAmountInStats acc = adjustIntAmountStats $
             domExchangeDirectionStatsAmountIn acc
 
-    updateRateMap rate a m acc = HMS.insertWith
+    updateRateMap' rate a m acc = HMS.insertWith
             mappendRateSummaries
             rate
             (singleDomRateStats 1 a m)
@@ -384,11 +382,7 @@ singleDomRateStats cnt outa ina = (cnt, outa, ina)
 emptyDomStatsRateMap :: DOMStatsRateMap
 emptyDomStatsRateMap = HMS.empty
 
-emptyDomRateStatsTriple :: DOMRateStats
-emptyDomRateStatsTriple = (0, 0, 0)
 
-emptyDomRateStats :: DOMRateStats
-emptyDomRateStats = emptyDomRateStatsTriple
 
 -- | *** General Stats
 

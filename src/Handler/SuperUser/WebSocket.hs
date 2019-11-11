@@ -87,13 +87,13 @@ data CountEvent = CountEvent
 
 countEventToJson :: Text -> Int -> A.Value
 countEventToJson typ n = A.object
-  [ "type" A..= "count-event"
+  [ "type" A..= ("count-event" :: Text)
   , "object" A..= typ
   , "value" A..= n ]
 
 countsEventToJson :: Text -> [(Text, Int)] -> A.Value
 countsEventToJson typ vs = A.object
-  [ "type" A..= "count-event"
+  [ "type" A..= ("count-event" :: Text)
   , "object" A..= typ
   , "value" A..= object (map (uncurry (A..=)) vs) ]
 

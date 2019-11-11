@@ -9,7 +9,6 @@ import           Local.Persist.Wallet
 import           Utils.App.Client
 import           Utils.Money
 
-import           Data.Maybe             ( fromJust )
 import           Database.Persist.Sql   ( Single (..), fromSqlKey, rawSql )
 import           Text.Julius            ( RawJS (..) )
 
@@ -18,9 +17,7 @@ getProfileR :: Handler Html
 getProfileR = do
     _userName                    <- userNameF . snd <$> requireAuthPair
     (Entity clientId _, wallets) <- requireClientData
-    let walletIds  = map entityKey wallets
-        walletVals = map entityVal wallets
-    -- Let JS Front-end take and visualize data
+    let walletVals = map entityVal wallets
     operations <- runDB $ rawSql s [toPersistValue clientId]
     let ops
             :: [ ( Entity WalletBalanceTransaction
@@ -75,10 +72,6 @@ getProfileR = do
         = "SELECT ??, ?? FROM withdrawal_request, withdrawal_cancel \
         \ WHERE withdrawal_request.id = withdrawal_cancel.request_id \
         \ AND withdrawal_cancel.transaction_reason_id IN (" <> _in <>")"
-    was _in
-        = "SELECT ??, ?? FROM withdrawal_request, withdrawal_accept \
-        \ WHERE withdrawal_request.id = withdrawal_accept.request_id \
-        \ AND withdrawal_request.wallet_transaction_reason_id IN (" <> _in <>")"
     wrs _in
         = "SELECT ??, ?? FROM withdrawal_request, withdrawal_reject \
         \ WHERE withdrawal_request.id = withdrawal_reject.request_id \
@@ -92,8 +85,6 @@ getProfileR = do
     ecs _in
         = "SELECT ?? FROM exchange_order_cancellation \
         \ WHERE exchange_order_cancellation.reason_id IN (" <> _in <>")"
-    isPosWithdrawal wbt = case walletBalanceTransactionType wbt of
-        BalanceWithdrawal c -> c > 0
         _                   -> False
     thd3 :: (a, b, c) -> c
     thd3 (_, _, x) = x

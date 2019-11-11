@@ -8,7 +8,7 @@ import           Import
 
 getSuperUserFinancialReportViewR :: Handler Html
 getSuperUserFinancialReportViewR = do
-    requireSu
+    _ <- requireSu
     renderUrl <- getUrlRender
     rm <- getMessageRender
     let reactBuild =

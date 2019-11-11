@@ -2,7 +2,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Type.App where
 
-import           Import.NoFoundation
+import           Import.NoFoundation hiding (method, count)
 import           Local.Persist.Currency
 
 

@@ -63,30 +63,9 @@ updateMarketStats dirs o acc
             | isBidOrder = updateBidSummary (a, r, m) oldStats
             | otherwise = oldStats
 
--- | Safe generator with single order as data source
--- singleOrderDOMExchangePairStats ::
---         ExchangePair -> ExchangeOrder -> DOMExchangePairStats
--- singleOrderDOMExchangePairStats exchangePair order = DOMExchangePairStats
---         { domExchangePairStatsKey = exchangePair
---         , domExchangePairStatsAsk = ask
---         , domExchangePairStatsBid = bid }
---   where
---         (ask, bid) = if exchangeOrderPair order == exchangePair
---             then (error "single ask", error "empty")
---             else (error "empty", error "single bid")
-
--- singleOrderDomExchangeDirectionStats :: ExchangeOrder -> DOMExchangeDirectionStats
--- singleOrderDomExchangeDirectionStats o = DOMExchangeDirectionStats
---         { domExchangeDirectionStatsMap =  o }
-
--- singleOrderMarketStats :: ExchangePair -> ExchangeOrder -> FullMarketDepth
--- singleOrderMarketStats dir order
---     | dir == expair = HMS.singleton expair (singleOrderDomStatsRateMap order)
---     where expair = exchangeOrderPair order
-
 singleOrderDomStatsRateMap :: ExchangeOrder -> DOMStatsRateMap
 singleOrderDomStatsRateMap o = HMS.singleton r (1, a, m)
-    where (p, a, r, m) = exParams o
+    where (_p, a, r, m) = exParams o
 
 singleDomRateStats :: ExchangeOrder -> DOMRateStats
 singleDomRateStats o =
