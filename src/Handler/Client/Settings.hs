@@ -40,7 +40,7 @@ postApiUserPasswordChangeR = do
             success <- runDB $ do
                 creds <- getCredsByEmail login
                 case creds of
-                    ((Entity _ emailRecord), (Entity userid _)):_ -> do
+                    ((Entity _ _), (Entity userid _)):_ -> do
                         apiUnsafeChangeUserPassword userid passString
                         return True
                     _ -> do
@@ -164,7 +164,8 @@ getPasswordResetR token = do
         case set of
             (Entity eid e, _, Entity _ t):_ -> do
                     let created = passwordResetTokenCreated t
-                    let lt = passwordResetTokenLifeTimeMinutes t * 60
+                    let lt = fromIntegral $
+                            passwordResetTokenLifeTimeMinutes t * 60
                     let expires = addUTCTime lt created
                     if now > expires
                         then do
