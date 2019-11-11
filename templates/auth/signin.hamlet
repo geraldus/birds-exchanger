@@ -1,38 +1,38 @@
-<div .container>
-    <div .row .justify-content-center>
-        <div .col-11 .col-md-6>
-            <form pb-5 action=@{tp Local.Auth.loginR} method=post>
-                <h2 .text-center>_{MsgSignInPageTitle}
-                <div .form-group>
-                    <label for="email-input">_{MsgEmailAddress}
-                    <input
-                        #email-input
-                        type=email
-                        .form-control
-                        placeholder="email@domain.com"
-                        name="username"
-                        required
+<div .row .justify-content-center>
+    <div .col-11 .col-md-6>
+        <form .pb-5 action=@{tp Local.Auth.loginR} method=post>
+            <h2 .d-block .d-md-none .mt-3>
+                _{MsgSignInPageTitle}
+            <div .form-group>
+                <label for="email-input">_{MsgEmailAddress}
+                <input
+                    #email-input
+                    type=email
+                    .form-control
+                    placeholder="email@domain.com"
+                    name="username"
+                    required
+                    >
+            <div .form-group>
+                <label for="password-input">_{MsgPassword}
+                <input
+                    #password-input
+                    type=password
+                    .form-control
+                    placeholder="******"
+                    required
+                    name="password">
+            <div .form-group .row>
+                <div .col-12 .text-right>
+                    <a href=@{PasswordChangeR}>
+                        _{MsgFormLabelForgotPassword}
+            <div .form-group .row>
+                <div .col-12 .col-sm-9 col-md-6 .mx-auto>
+                    <button
+                        .btn
+                        .btn-lg
+                        .btn-block
+                        .btn-outline-primary
+                        type=submit
                         >
-                <div .form-group>
-                    <label for="password-input">_{MsgPassword}
-                    <input
-                        #password-input
-                        type=password
-                        .form-control
-                        placeholder="******"
-                        required
-                        name="password">
-                <div .form-group .row>
-                    <div .col-12 .text-right>
-                        <a href=@{PasswordForgotR}>
-                            _{MsgFormLabelForgotPassword}
-                <div .form-group .row>
-                    <div .col-12 .col-sm-9 col-md-6 .mx-auto>
-                        <button
-                            .btn
-                            .btn-lg
-                            .btn-block
-                            .btn-outline-primary
-                            type=submit
-                            >
-                            _{MsgFormSubmitSignIn}
+                        _{MsgFormSubmitSignIn}

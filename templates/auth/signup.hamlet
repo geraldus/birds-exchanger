@@ -1,13 +1,23 @@
-<div .container>
-    $maybe error <- mayError
-        <div .row>
-            <div .col-8 .mx-auto>
-                <div .alert.alert-warning>
-                    <h5>Неверные регистрационные данные
-                    #{error}
+$maybe error <- mayError
     <div .row>
-        <div .col-11 .col-md-6 .mx-auto>
-            <form method=post action=@{SignUpR} enctype=#{enctype}>
-                ^{widget}
-                <div .form-group.row .mt-3>
-                    <button .btn.btn-outline-primary.btn-lg .mx-auto type=submit>Регистрация
+        <div .col-8 .mx-auto>
+            <div .alert.alert-warning>
+                <h5>_{MsgFormMessageErrorInvalidSignUpData}
+                #{error}
+
+<div .row .justify-content-center>
+    <div .col-11 .col-md-6>
+        <form .pb-5 action=@{SignUpR} method=post enctype=#{enctype}>
+            <h2 .d-block .d-md-none .mt-3>
+                _{MsgFormTitleSignUp}
+            ^{widget}
+            <div .form-group.row .mt-3>
+                <button
+                    .btn
+                    .btn-lg
+                    .btn-outline-primary
+                    .mx-auto
+                    .text-uppercase
+                    type=submit
+                    >
+                    _{MsgFormSubmitSignUp}
