@@ -28,6 +28,8 @@ MenuTitleClientWithdrawal: Вывод
 TermsOfUseTitle: Правила пользования сервисом
 PrizmBlackListTitle: Список Prizm-кошельков, уличённых в мошенничестве
 PasswordForgetTitle: Восстановление пароля
+PasswordSetupTitle: Установка нового пароля
+PasswordChangeGuideTitle: Инструкции по изменению пароля
 
 ## COMMON
 
@@ -43,8 +45,13 @@ ClientDepositPageTitle: Пополнение счёта
 ClientWithdrawalPageTitle: Вывод средств
 ClientSettingsPageTitle: Настройки
 
+### CLIENT MESSAGES
+MessageClientPasswordResetTitle: Восстановление пароля
+
 
 # FORMS
+
+FormTitleSignUp: Регистрация
 
 FormLabelPayerAddress: Реквизиты перевода
 FormHelpPayerAddress: Номер карты или кошелька, с которого сделан перевод
@@ -52,14 +59,37 @@ FormPromptDepositConfirm: После выполнения перевода на�
 FormPromptDepositPayerAddress: Для зачисления средств укажите адрес кошелька или номер карты, с которого был сделан перевод.
 FormHelpPasswordForgetEmail: Для сброса пароля, пожалуйста, введите адрес электронной почты
 FormLabelForgotPassword: Забыли пароль?
+FormHelpNewPassword: Введите новый пароль, не менее 6 символов
 
-## FORM ERRORS
+## Form Messages
+
+### ERROR
 FormMessageErrorPositiveValueRequired: должно быть положительным числом
 FormMessageErrorNotEnoughFunds: Недостаточно средств
 FormMessageErrorInvalidMinimalAmount: Минимальная сумма пополнения
 FormMessageErrorUserWalletNotFound: У вас нет подходящего кошелька
+FormMessageErrorInvalidLogin: Неверное имя пользователя
+FormMessageErrorInvalidSignUpData: Неверные регистрационные данные
+FormMessageErrorPasswordChangeError: Ошибка смены пароля
+FormMessageErrorMissingLogin: Не указано имя пользователя
+FormMessageErrorMissingPassword: Не указан пароль
+FormMessageErrorPasswordResetTokenExpired: Ссылка для сброса пароля устарела.  Начните процедуру сброса пароля с начала.
+
+### SUCCESS
+FormSuccessPasswordSet: Пароль успешно сохранён
+
+### Submit Messages
+
+FormSubmitSignIn: войти
+FormSubmitSignUp: продолжить
+FormSubmitDepositConfirm: Перевод подтверждаю
+FormSubmitPasswordResetTitle: Нажмите, чтобы получить инструкции по восстановлению пароля
+FormSubmitChangePassword: Изменить пароль
+
+### Other Messages
 
 User: Пользователь
+UserName: Имя пользователя
 EmailAddress: Адрес эл.почты
 Password: Пароль
 PasswordConfirmation: Подтверждение пароля
@@ -69,12 +99,6 @@ Cancel: Отмена
 ChangesSaved: Изменения сохранены
 AccessDenied: Недостаточно прав доступа
 NoPaymentMethodAvailable: Нет подходящего способа перевода
-
-## Submit Messages
-
-FormSubmitSignIn: войти
-FormSubmitDepositConfirm: Перевод подтверждаю
-FormSubmitPasswordResetTitle: Нажмите, чтобы получить инструкции по восстановлению пароля
 
 OneClickExchange: Обмен в один клик
 
@@ -251,4 +275,6 @@ VkComTitle: ВКонтакте
 
 # Messages
 
+APIFailedToSendEmailAuthenticationFailed: Ошибка при отправке письма: неверные данные пользователя.
+APIInvalidPasswordChangeLink: Недействительная ссылка для смены пароля
 APIPleaseChangePassword: Пожалуйста, установите новый пароль.
