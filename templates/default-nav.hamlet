@@ -1,0 +1,145 @@
+<nav
+        .navbar .sticky-top
+        .navbar-dark
+        .navbar-expand-lg
+        style="background-color: black;"
+        >
+    <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#main-nav-menu"
+        aria-controls="main-nav-menu"
+        aria-expanded="false"
+        aria-label="Показать меню"
+        >
+        <span class="navbar-toggler-icon">
+
+    <a class="navbar-brand" href="/">
+        <img
+            src="@{StaticR images_logo_header_png}"
+            style="max-height: 20px;"
+            alt="OutBirds"
+            >
+    <div #main-nav-menu .collapse.navbar-collapse.justify-content-between>
+        <ul .navbar-nav>
+            $forall MenuItem label route _ <- navbarLeftFilteredMenuItems
+                <li .nav-item.mx-2 :Just route == mcurrentRoute:.active>
+                    <a .nav-link href="@{route}">#{label}
+        $maybe userName <- muserName
+            <span .navbar-text .d-block .d-lg-none>
+                <strong>
+                    #{userName}
+            <span .navbar-text .d-flex .d-lg-none>
+                <i .fas .fa-wallet .align-self-center>
+                <span .d-block .ml-2> _{MsgBalance}
+            $forall (cents, cur) <- wallets
+                <span .navbar-text .font-weight-bold .d-flex .d-lg-none .wallet-balance-val>
+                    #{cents2dblT cents}&nbsp;<span class="font-weight-normal">#{currSign cur}</span>
+            <ul .navbar-nav .d-flex .d-lg-none>
+                    $forall MenuItem label route _ <- userMenuItems
+                        <li .nav-item :Just route == mcurrentRoute:.active>
+                            <a .nav-link href="@{route}">#{label}
+        $nothing
+            <ul .navbar-nav>
+                $forall MenuItem label route _ <- navbarRightFilteredMenuItems
+                    <li .nav-item.mx-2 :Just route == mcurrentRoute:.active>
+                        <a .nav-link href="@{route}">#{label}
+        $maybe userName <- muserName
+            <ul .navbar-nav .d-none .d-lg-flex>
+                $if isClientLoggedIn
+                    <li ##{navWalletDropdownId} .nav-item .dropdown>
+                        <a
+                                ##{navWalletDropdownId}-toggle
+                                .nav-link
+                                .dropdown-toggle
+                                data-toggle="dropdown"
+                                href="#"
+                                role="button"
+                                aria-expanded="false"
+                                aria-haspopup="true">
+                            <i .fas .fa-wallet>
+                        <div
+                            .dropdown-menu
+                            aria-labelledby="#{navWalletDropdownId}-toggle"
+                            >
+                            $forall (cents, cur) <- wallets
+                                <a
+                                    .dropdown-item
+                                    .font-weight-bold
+                                    .wallet-balance-val
+                                    href="#"
+                                    >
+                                    #{cents2dblT cents}
+                                    &nbsp;
+                                    <span class="font-weight-normal">
+                                        #{currSign cur}
+                $elseif isStaffLoggedIn
+                    <li ##{navManageDropdownId} .nav-item .dropdown>
+                        <a
+                                ##{navManageDropdownId}-toggle
+                                .nav-link .dropdown-toggle
+                                data-toggle="dropdown"
+                                href="#"
+                                role="button"
+                                aria-expanded="false"
+                                aria-haspopup="true">
+                            _{MsgManage}
+                        <div
+                            .dropdown-menu
+                            aria-labelledby="#{navManageDropdownId}-toggle"
+                            >
+                            $if isEditorLoggedIn
+                                <span
+                                    .navbar-text
+                                    .d-flex
+                                    .px-3
+                                    .text-uppercase
+                                    >
+                                    <i .fas .fa-pen-nib .align-self-center>
+                                    <span .d-block .ml-2> _{MsgEditMenuTitle}
+                                $forall MenuItem label route _ <- editorMenuItems
+                                    <a
+                                        .dropdown-item
+                                        :Just route == mcurrentRoute:.active
+                                        href="@{route}">
+                                            #{label}
+                            $if isOperatorLoggedIn
+                                <span .navbar-text .d-flex .px-3 .text-uppercase>
+                                    <i .fas .fa-donate .align-self-center>
+                                    <span .d-block .ml-2> _{MsgRequestsMenuTitle}
+                                $forall MenuItem label route _ <- operatorRequestsMenuItems
+                                    <a
+                                        .dropdown-item
+                                        :Just route == mcurrentRoute:.active
+                                        href="@{route}">
+                                            #{label}
+                            $if isSuLoggedIn
+                                $forall MenuItem label route _ <- suMenuItems
+                                    <a
+                                        .dropdown-item
+                                        :Just route == mcurrentRoute:.active
+                                        href="@{route}">
+                                            #{label}
+                <li ##{navUserDropdownId} .nav-item .dropdown .mr-5>
+                    <a
+                        ##{navUserDropdownId}-toggle
+                        .nav-link .dropdown-toggle
+                        data-toggle="dropdown"
+                        href="#"
+                        role="button"
+                        aria-expanded="false"
+                        aria-haspopup="true"
+                        >
+                        #{userName}
+                    <div
+                        .dropdown-menu
+                        aria-labelledby="#{navUserDropdownId}-toggle"
+                        >
+                        $forall MenuItem label route _ <- userMenuItems
+                            <a
+                                .dropdown-item
+                                :Just route == mcurrentRoute:.active
+                                href="@{route}"
+                                >
+                                #{label}
