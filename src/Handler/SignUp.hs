@@ -9,6 +9,8 @@ module Handler.SignUp where
 import           Form.Auth.SignUp
 import           Import
 import           Local.Persist.UserRole
+import           Settings.MailRu               ( password, serverName, smtpPort,
+                                                 username )
 import           Type.Auth.SignUp              ( SignUpFormData (..) )
 
 import qualified Data.Text                     as T
@@ -19,13 +21,6 @@ import           Text.Blaze.Html.Renderer.Text ( renderHtml )
 import           Yesod.Auth.Util.PasswordStore ( makePassword )
 
 
--- | Your settings
-server = "smtp.mail.ru"
-smtpPort = toEnum 465
-username = "noreply@outb.info"
-password = "$afi2C3TFBsl"
--- username = "mailer@prizmone.bizml.ru"
--- password = "|DfDlVwB7zg0"
 authType = PLAIN
 from = "noreply@outb.info"
 subject = "Подтвердите ваш электронный ящик"
@@ -86,13 +81,13 @@ postSignUpR = do
         let verUrl = urlRender $ SignUpVerifyR email key
         liftIO $ do
             conn <- connectSMTPSSLWithSettings
-                server
+                (unpack serverName)
                 (defaultSettingsSMTPSSL { sslPort = smtpPort })
             authSuccess <-
                 Network.HaskellNet.SMTP.SSL.authenticate
                     PLAIN
-                    username
-                    password
+                    (unpack username)
+                    (unpack password)
                     conn
             if authSuccess
                 then sendMimeMail (T.unpack email)
