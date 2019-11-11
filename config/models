@@ -14,6 +14,15 @@ Email json
     verkey Text Maybe
     UniqueEmail email
 
+PasswordResetToken json
+    email EmailId
+    token Text
+    created UTCTime
+    lifeTimeMinutes Int default=120  -- 2 hours
+    UniquePasswordResetTokenEmail email
+    UniquePasswordResetToken token
+
+
 UserWallet json
     userId UserId
     currency Currency
