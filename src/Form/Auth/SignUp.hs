@@ -27,13 +27,13 @@ signUpForm extra = do
             Nothing
     let widget = [whamlet|
             #{extra}
-            <div .form-group.row>
+            <div .form-group>
                 <label for=#{eid}>_{MsgEmailAddress}
                 ^{fvInput emailV}
-            <div .form-group.row>
+            <div .form-group>
                 <label for=#{pid}>_{MsgPassword}
                 ^{fvInput passwV}
-            <div .form-group.row>
+            <div .form-group>
                 <label for=#{cid}>_{MsgPasswordConfirmation}
                 ^{fvInput confiV}
             <div .form-check>
