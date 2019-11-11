@@ -1,27 +1,23 @@
-<h3>
-    #{userIdent (entityVal user)}
-
-<h5>_{MsgPassword}
+<h1 .d-block .d-md-none>_{MsgClientSettingsPageTitle}
 <dl .my-3 .row>
     <dt .col-12 .col-md-3>
+        _{MsgUserName}
     <dd .form-group .col-12 .col-md-9>
-        <input .form-control type="password" aria-describedby="passwordHelp">
-        <small #passwordHelp .form-text .text-muted>
+        #{userIdent (entityVal user)}
     <dt .col-12 .col-md-3>
+        _{MsgPassword}
     <dd .form-group .col-12 .col-md-9>
-        <input
-            .form-control
-            type="password"
-            aria-describedby="newPasswordHelp"
-            >
-        <small #newPasswordHelp .form-text .text-muted>
-    <dt .col-12 .col-md-3>
-    <dd .form-group .col-12 .col-md-9>
-        <input .form-control type="password" aria-describedby="confirmHelp">
-        <small #confirmHelp .form-text .text-muted>
-    <dd .col-12>
-        <button .btn .btn-dark disabled>Изменить пароль
+        <a href=@{PasswordChangeR}>
+            _{MsgFormSubmitChangePassword}
+
 $if shouldNoticeAboutPasswordChange
     <div .row .flex>
-        <div .alert .alert-secondary.col-7 .mx-auto>
+        <div .alert .alert-warning .col-11 .col-md-6 .mx-auto .mx-md-0>
             <small>
+                Ваш пароль недостаточно защищён.
+                <hr>
+                Мы улучшили механику создания и хранения паролей. Теперь
+                все пароли хранятся в хэшированном виде.
+                <hr>
+                Предлагаем Вам установить новый пароль.  Новый пароль будет
+                сохранён более надёжным способом, чем прежний.
