@@ -33,8 +33,12 @@ getOperatorDepositRequestsListR = do
             "production.min"
 #endif
     defaultLayout $ do
-        addScriptRemote $ "https://unpkg.com/react@16/umd/react." <> reactBuild <> ".js"
-        addScriptRemote $ "https://unpkg.com/react-dom@16/umd/react-dom." <> reactBuild <> ".js"
+        addScriptRemote $
+            "https://unpkg.com/react@16/umd/react." <> reactBuild <> ".js"
+        addScriptRemote $
+            "https://unpkg.com/react-dom@16/umd/react-dom."
+            <> reactBuild
+            <> ".js"
         $(widgetFile "operator/common")
         $(widgetFile "operator/request-list-common")
         $(widgetFile "operator/deposit-requests-list")
