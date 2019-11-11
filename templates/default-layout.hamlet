@@ -115,21 +115,19 @@
                     <div .dropdown-menu aria-labelledby="#{navUserDropdownId}-toggle">
                         $forall MenuItem label route _ <- userMenuItems
                             <a .dropdown-item :Just route == mcurrentRoute:.active href="@{route}">#{label}
-<!-- Page Contents -->
-
-$if not $ Just HomeR == mcurrentRoute
-    <div .container-fluid .my-3>
-        <div .row>
-            <div .col-11 .mx-auto>
-                <ul .breadcrumb>
-                    $forall bc <- parents
-                        <li .breadcrumb-item>
-                            <a href="@{fst bc}">#{snd bc}
-                    <li .breadcrumb-item.active>#{title}
 $if (Just HomeR == mcurrentRoute)
     ^{widget}
 $else
-    <div .container>
+    <div .container .py-3 style="min-height: 100%">
+        <div .row .d-none .d-md-block .mb-3>
+            <div .col-12 .mx-auto>
+                <ul .breadcrumb>
+                    $forall (link, label) <- parents
+                        <li .breadcrumb-item>
+                            <a href="@{link}">
+                                #{label}
+                    <li .breadcrumb-item.active>
+                        #{title}
         $forall (label, msg) <- sessionMessages
             <div .row data-session-message-label=#{label}>
                 <div .col-8 .col-lg-6 .mx-auto>
@@ -138,8 +136,6 @@ $else
         <div .row>
             <div .col-md-12>
                 ^{widget}
-
-        <!-- Footer -->
 
 <footer .footer .mt-2 .pt-3 .container-fluid>
     <div .row .mb-2>
