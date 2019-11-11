@@ -26,7 +26,7 @@ import           Database.Persist.Sql   ( fromSqlKey )
 
 getDepositR :: Handler Html
 getDepositR = do
-    requireClientId
+    _ <- requireClientId
     formId <- newIdent
     (widget, enctype) <- generateFormPost $ depositForm formId
     defaultLayout $ defaultWidget formId widget enctype Nothing

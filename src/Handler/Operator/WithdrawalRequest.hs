@@ -20,7 +20,7 @@ import           Text.Blaze.Html        ( preEscapedToHtml )
 
 getOperatorWithdrawalRequestsListR :: Handler Html
 getOperatorWithdrawalRequestsListR = do
-    requireOperatorId
+    _ <- requireOperatorId
     loc <- selectLocale
     tzo <- timezoneOffsetFromCookie
     let reqDateT = renderTimeDateCol loc tzo . withdrawalRequestCreated
