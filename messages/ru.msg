@@ -73,6 +73,7 @@ FormMessageErrorInvalidSignUpData: Неверные регистрационны
 FormMessageErrorPasswordChangeError: Ошибка смены пароля
 FormMessageErrorMissingLogin: Не указано имя пользователя
 FormMessageErrorMissingPassword: Не указан пароль
+FormMessageErrorPasswordTooShort minLen@Int: Пароль слишком короткий, введите не менее #{show minLen} символов.
 FormMessageErrorPasswordResetTokenExpired: Ссылка для сброса пароля устарела.  Начните процедуру сброса пароля с начала.
 
 ### SUCCESS
