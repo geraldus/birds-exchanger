@@ -85,7 +85,6 @@ getProfileR = do
     ecs _in
         = "SELECT ?? FROM exchange_order_cancellation \
         \ WHERE exchange_order_cancellation.reason_id IN (" <> _in <>")"
-        _                   -> False
     thd3 :: (a, b, c) -> c
     thd3 (_, _, x) = x
 
