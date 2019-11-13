@@ -1,0 +1,3 @@
+.deposit-list.mobile .deposit-details .data.row
+    background: #e9ecef
+    border-radius: 0.2em

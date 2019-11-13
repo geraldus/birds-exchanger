@@ -5,7 +5,7 @@
 {-# LANGUAGE RecordWildCards   #-}
 module Handler.Client.Withdrawal where
 
-import           Import
+import           Import                  as I hiding ( on, (==.) )
 
 import           Form.Profile.Withdrawal
 import           Local.Persist.Currency  ( Currency (..), currSign )
@@ -17,8 +17,12 @@ import           Utils.App.Common
 import           Utils.Common
 import           Utils.I18n
 import           Utils.Money
+import           Utils.Time              ( renderDateRow,
+                                           timezoneOffsetFromCookie,
+                                           utcDayWithTimeZoneAdded )
 
-import qualified Database.Esqueleto      as E
+import           Database.Esqueleto
+import qualified Database.Esqueleto      as Esqueleto
 import           Database.Persist.Sql    ( fromSqlKey )
 
 
@@ -78,7 +82,7 @@ postWithdrawalCreateR = do
                     (recId, _) <- runDB $ do
                         r <- insert record
                         t <- insert transaction
-                        update wid [UserWalletAmountCents -=. amount2Freeze]
+                        I.update wid [UserWalletAmountCents I.-=. amount2Freeze]
                         return (r, t)
                     notify' (Entity recId record)
                     setMessage "Заявка на вывод успешно создана"
@@ -94,29 +98,11 @@ defaultWidget formId widget enctype mayError = do
     messageRender <- liftHandler getMessageRender
         :: WidgetFor App (AppMessage -> Text)
     $(widgetFile "client/request/common")
-    [whamlet|
-        $maybe error <- mayError
-            <div .row>
-                <div .col-10 .mx-auto>
-                    <div .alert.alert-warning>
-                        $forall e <- error
-                            <div .error>#{e}
-        <form
-                ##{formId}
-                method=post
-                enctype=#{enctype}
-                action=@{WithdrawalCreateR}
-                .col-12 .col-sm-10 .col-md-8
-                .mx-auto>
-            ^{widget}
-            <div .form-group .row .justify-content-center>
-                <button .btn.btn-lg.btn-outline-primary .mt-2 type=submit>вывод
-        ^{withdrawalHistory}
-        |]
-
+    $(widgetFile "client/request/withdrawal/index")
 
 type WithdrawalDetails =
     ( Entity WithdrawalRequest
+    , Esqueleto.Value Currency
     , Maybe (Entity WithdrawalCancel)
     , Maybe (Entity WithdrawalAccept)
     , Maybe (Entity WithdrawalReject)
@@ -129,43 +115,27 @@ data Details
     | CancelD (Entity WithdrawalRequest) Currency (Entity WithdrawalCancel)
     deriving Show
 
-
 withdrawalHistory :: Widget
 withdrawalHistory = do
     clientId <- liftHandler requireClientId
-    withdrawalDetails <- liftHandler . runDB . E.select $
-        E.from $ \(u `E.InnerJoin` w `E.InnerJoin` r `E.LeftOuterJoin` mcan `E.LeftOuterJoin` macc `E.LeftOuterJoin` mrej) -> do
-            E.on (E.just (r E.^. WithdrawalRequestId) E.==. mrej E.?. WithdrawalRejectRequestId)
-            E.on (E.just (r E.^. WithdrawalRequestId) E.==. macc E.?. WithdrawalAcceptRequestId)
-            E.on (E.just (r E.^. WithdrawalRequestId) E.==. mcan E.?. WithdrawalCancelRequestId)
-            E.on (w E.^. UserWalletId E.==. r E.^. WithdrawalRequestWalletId)
-            E.on (u E.^. UserId E.==. w E.^. UserWalletUserId)
-            E.where_ (u E.^. UserId E.==. E.val clientId)
-            E.orderBy [E.desc (r E.^. WithdrawalRequestCreated)]
-            return (r, w E.^. UserWalletCurrency, mcan, macc, mrej)
+    locale <- selectLocale
+    tzoffset <- timezoneOffsetFromCookie
+    withdrawalDetails <- liftHandler . runDB . select $
+        from $ \(u `InnerJoin` w `InnerJoin` r `LeftOuterJoin` mcan `LeftOuterJoin` macc `LeftOuterJoin` mrej) -> do
+            on (just (r ^. WithdrawalRequestId) ==. mrej ?. WithdrawalRejectRequestId)
+            on (just (r ^. WithdrawalRequestId) ==. macc ?. WithdrawalAcceptRequestId)
+            on (just (r ^. WithdrawalRequestId) ==. mcan ?. WithdrawalCancelRequestId)
+            on (w ^. UserWalletId ==. r ^. WithdrawalRequestWalletId)
+            on (u ^. UserId ==. w ^. UserWalletUserId)
+            where_ (u ^. UserId ==. val clientId)
+            orderBy [desc (r ^. WithdrawalRequestCreated)]
+            return (r, w ^. UserWalletCurrency, mcan, macc, mrej)
     let list = map wrapDetails withdrawalDetails
-    toWidget [whamlet|
-        <table .table .table-striped .mt-5>
-            <thead .thead-light>
-                <th .align-top>_{MsgDateCreated}
-                <th .align-top>
-                    _{MsgAmount}
-                    <br>
-                    <small .text-muted>
-                        _{MsgTransferMethod}
-                <th .align-top>
-                    _{MsgFee}
-                <th colspan=2 .align-top>
-                    _{MsgDetails}
-            <tbody>
-                $forall i <- list
-                    ^{withdrawalHistoryRow i}
-        |]
-  where
-    wrapDetails (r, c, Just cancelled, _, _) = CancelD r (E.unValue c) cancelled
-    wrapDetails (r, c, _, Just accepted, _)  = AcceptD r (E.unValue c) accepted
-    wrapDetails (r, c, _, _, Just rejected)  = RejectD r (E.unValue c) rejected
-    wrapDetails (r, c, _, _, _)              = NoDetails r (E.unValue c)
+    let dateGroups = reverse (groupByDate withdrawalDetails tzoffset)
+    let body = concatMap withdrawalHistoryRow list
+    $(widgetFile "client/request/withdrawal/desktop/table")
+    $(widgetFile "client/request/withdrawal/mobile/list")
+
 
 unDetailsRequest :: Details -> Entity WithdrawalRequest
 unDetailsRequest (NoDetails r _) = r
@@ -193,7 +163,7 @@ withdrawalHistoryRow d = do
         (genericRequestAmount (requestAmounts d) c (description d))
         (genericRequestStatus (requestStatuses ur mr (fd, ft) d))
   where
-    description d = case d of
+    description dsc = case dsc of
         NoDetails _ _ -> mempty
         _             -> [whamlet|\ (_{MsgInFact})|]
 
@@ -206,29 +176,7 @@ genericRow
     -> Widget
     -> Widget
 genericRow (Entity ident r@WithdrawalRequest{..}) c strikeout expected status =
-    toWidget [whamlet|
-        <tr .data-row #data-row-#{fromSqlKey ident}>
-            <td>^{dateTimeRowW withdrawalRequestCreated}
-            <td .align-middle>
-                $if strikeout
-                    <s>^{valueW}
-                $elseif isNew r
-                    <b>^{valueW}
-                $else
-                    <span>^{valueW}
-                <br>
-                <small .text-muted>
-                    _{transferMethodMsg withdrawalRequestMethod}
-            <td .align-middle>
-                ^{expected}
-            <td .align-middle>
-                ^{status}
-            <td .controls .align-middle>
-                $if isNew r
-                    <i .request-cancel-button .control .fas .fa-times-circle title=_{MsgCancelRequest}>
-                    <form .request-cancel-form .d-none method=post action=@{ClientCancelWithdrawalR}>
-                        <input type=hidden name="request-id" value="#{fromSqlKey ident}">
-        |]
+    $(widgetFile "client/request/withdrawal/desktop/row")
   where
     valueW :: Widget
     valueW = [whamlet|
@@ -296,6 +244,22 @@ requestStatuses
                 #{withdrawalRejectReason}|]
         in (status, description)
 
+mobileWithdrawalListItem :: WithdrawalDetails -> Widget
+mobileWithdrawalListItem
+        details@(Entity wid _w@WithdrawalRequest{..}, c, _, _, _) = do
+    render <- getMessageRender
+    renderUrl <- getUrlRender
+    fd <- getFormatDateRender
+    ft <- getFormatTimeRender
+    let wrappedDetails = wrapDetails details
+    let statusMessages =
+                requestStatuses renderUrl render (fd, ft) wrappedDetails
+        status = fst statusMessages
+    let action = mempty :: Html -- selectAction $ wrapDetails details
+    let withdrawalCurrency = unValue c
+    $(widgetFile "client/request/withdrawal/mobile/item")
+    where
+
 
 isNew :: WithdrawalRequest -> Bool
 isNew r = withdrawalRequestStatus r == WsNew
@@ -304,3 +268,28 @@ isCancelledOrRejected :: Details -> Bool
 isCancelledOrRejected CancelD{} = True
 isCancelledOrRejected RejectD{} = True
 isCancelledOrRejected _         = False
+
+groupByDate :: [ WithdrawalDetails ] -> Int -> [(UTCTime, [WithdrawalDetails])]
+groupByDate gs tzoffset = foldr labelGroup [] grouped
+    where
+        labelGroup gs' acc = case gs' of
+            (g, _, _, _, _):_ ->
+                    acc
+                    <> [(withdrawalRequestCreated $ entityVal g, gs')]
+            _ -> error . concat $
+                    [ "This shouldn't happen, "
+                    , "withdrawal date group must have at least 1 element"
+                    ]
+
+        grouped = flip I.groupBy gs $ \(g1, _, _, _, _) (g2, _, _, _, _) ->
+            utcTzoDay g1 == utcTzoDay g2
+
+        utcTzoDay = utcDayWithTimeZoneAdded tzoTime withdrawalRequestCreated
+
+        tzoTime = fromIntegral tzoffset
+
+wrapDetails :: WithdrawalDetails -> Details
+wrapDetails (r, c, Just cancelled, _, _) = CancelD r (unValue c) cancelled
+wrapDetails (r, c, _, Just accepted, _)  = AcceptD r (unValue c) accepted
+wrapDetails (r, c, _, _, Just rejected)  = RejectD r (unValue c) rejected
+wrapDetails (r, c, _, _, _)              = NoDetails r (unValue c)

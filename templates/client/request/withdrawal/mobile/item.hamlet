@@ -1,0 +1,19 @@
+<div
+    .col-12 .deposit-details .mobile .my-2 data-withdrawal=#{fromSqlKey wid}>
+    <div .container-fluid>
+        <div .data .row .py-1>
+            <div .col-5>
+                <small>
+                    #{cents2dblT withdrawalRequestCentsAmount}
+                    <small .text-muted>#{currSign withdrawalCurrency}
+                    <br>
+                    <small .text-muted>
+                        _{transferMethodMsg withdrawalRequestMethod}
+            <div .col-7>
+                <small>
+                    <small .text-lowercase .text-muted>
+                        ^{status}
+                <br>
+                <small>
+                    <small>
+                        ^{action}

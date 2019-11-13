@@ -1,0 +1,11 @@
+<div .deposit-list .mobile .d-md-none>
+    $forall (date, group) <- dateGroups
+        <div .row .group-date>
+            <div
+                .col .date .text-center .text-lowercase .text-muted .mb-2 .mt-4
+                >
+                <small>
+                    ^{renderDateRow locale tzoffset date}
+        <div .row .group-list>
+            $forall details <- group
+                ^{mobileWithdrawalListItem details}

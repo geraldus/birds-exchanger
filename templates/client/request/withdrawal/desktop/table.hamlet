@@ -1,0 +1,14 @@
+<table .table .table-striped .mt-5 .d-none .d-md-table>
+    <thead .thead-light>
+        <th .align-top>_{MsgDateCreated}
+        <th .align-top>
+            _{MsgAmount}
+            <br>
+            <small .text-muted>
+                _{MsgTransferMethod}
+        <th .align-top>
+            _{MsgFee}
+        <th colspan=2 .align-top>
+            _{MsgDetails}
+    <tbody>
+       ^{body}
