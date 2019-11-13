@@ -16,10 +16,10 @@ import           Utils.Common
 import           Utils.I18n
 import           Utils.Money
 import           Utils.Time             ( renderDateRow,
-                                          timezoneOffsetFromCookie )
+                                          timezoneOffsetFromCookie,
+                                          utcDayWithTimeZoneAdded )
 
 import           Data.Aeson             ( encode )
-import           Data.Time.Clock        ( addUTCTime, secondsToDiffTime )
 import           Database.Esqueleto
 import           Database.Persist.Sql   ( fromSqlKey )
 
@@ -108,7 +108,7 @@ depositHistory = do
             orderBy [desc (r ^. DepositRequestCreated)]
             return (r, macc, mrej)
     let list = map wrapDetails depositDetails
-    let dateGroups = groupByDate depositDetails tzoffset
+    let dateGroups = reverse (groupByDate depositDetails tzoffset)
     let body = concatMap depositHistoryRow list
     $(widgetFile "client/request/deposit/mobile/list")
     $(widgetFile "client/request/deposit/desktop/table")
@@ -250,21 +250,19 @@ isNew r = depositRequestStatus r == New
 groupByDate :: [ DepositDetails ] -> Int -> [(UTCTime, [DepositDetails])]
 groupByDate gs tzoffset = foldr labelGroup [] grouped
     where
-        labelGroup gs' acc = case gs of
+        labelGroup gs' acc = case gs' of
             (g, _, _):_ -> acc ++ [(depositRequestCreated $ entityVal g, gs')]
             _ -> error . concat $
                     [ "This shouldn't happen, "
-                    , "deposit date group must hava at least 1 element"
+                    , "deposit date group must have at least 1 element"
                     ]
 
         grouped = flip I.groupBy gs $ \(g1, _, _) (g2, _, _) ->
-            utcTzo g1 == utcTzo g2
+            utcTzoDay g1 == utcTzoDay g2
 
-        utcTzo =
-            utctDay . addUTCTime tzoTime . depositRequestCreated . entityVal
+        utcTzoDay = utcDayWithTimeZoneAdded tzoTime depositRequestCreated
 
-        tzoTime = fromRational . toRational . secondsToDiffTime $
-            fromIntegral tzoffset
+        tzoTime = fromIntegral tzoffset
 
 wrapDetails :: DepositDetails -> Details
 wrapDetails (r, Just accepted, _) = AcceptD r accepted

@@ -35,7 +35,7 @@ renderDateRow loc moff utc = [shamlet|
     |]
   where utc' = offsetTime moff utc
         ft = formatTime loc "%e %B %Y" utc'
-        gencase = unwords . map genetiveCase $ words ft
+        gencase = unwords . map genitiveCase $ words ft
 
 renderDateTimeRow :: TimeLocale -> Int -> UTCTime -> Html
 renderDateTimeRow loc moff utc = [shamlet|
@@ -109,8 +109,8 @@ localeFormatDate l = toHtml . formatTime l dateFormatMNH
 offsetTime :: Int -> UTCTime -> UTCTime
 offsetTime minutesOffset = addUTCTime (negate . fromIntegral $ minutesOffset * 60)
 
-genetiveCase :: String -> String
-genetiveCase t
+genitiveCase :: String -> String
+genitiveCase t
     | t == "Январь"   = "Января"
     | t == "Февраль"  = "Февраля"
     | t == "Март"     = "Марта"
@@ -124,3 +124,10 @@ genetiveCase t
     | t == "Ноябрь"   = "Ноября"
     | t == "Декабрь"  = "Декабря"
     | otherwise = t
+
+utcDayWithTimeZoneAdded :: NominalDiffTime -> (a -> UTCTime) -> Entity a -> Day
+utcDayWithTimeZoneAdded offsetSeconds getDate =
+    utctDay
+    . addUTCTime offsetSeconds
+    . getDate
+    . entityVal
