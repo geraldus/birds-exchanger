@@ -1,21 +1,22 @@
 const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1)
 
-const currenctySign = (c) => {
+const currencySymbol = (c) => {
+    const ret = c.toUpperCase()
     switch (true) {
         case c == 'rur' || c == 'rub':
-            return '₽'
+            ret = '₽'; break
         case c == 'pzm':
-            return 'PZM'
+            ret = 'PZM'; break
         case c == 'our':
-            return 'OUR'
-        default:
-            return c
+            ret = 'OUR'; break
+        default: break
     }
+    return ret
 }
 
 const updateTextalData = (wrapid, currency) => {
     const cap = capitalize
-    const cur = currenctySign
+    const cur = currencySymbol
     const hiddenPairInput = $(`#${wrapid}-hidden-pair`);
     const formAppendOutCurrency = $(`#${wrapid}-out-currency-append`)
     const formAppendRate = $(`#${wrapid}-rate-append`)
