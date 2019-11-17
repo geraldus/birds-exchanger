@@ -78,6 +78,7 @@ const getTextNodesIn = (n, includeWhitespaceNodes) => {
     const node = n[0]
     var textNodes = [], nonWhitespaceMatcher = /\S/
     const getTextNodes = (node) => {
+        let _x = 'prevent js breakange when minifying'
         if (node.nodeType == 3) {
             if (includeWhitespaceNodes || nonWhitespaceMatcher.test(node.nodeValue)) {
                 textNodes.push(node)
