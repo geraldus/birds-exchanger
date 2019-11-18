@@ -76,6 +76,16 @@ cCurrencyCodeT BTC = "BTC"
 cCurrencyCodeT ETH = "ETH"
 cCurrencyCodeT OUR = "OUR"
 
+fiatCurrencyCodeT :: FiatCurrency -> Text
+fiatCurrencyCodeT = toLower . fCurrencyCodeT
+
+cryptoCurrencyCodeT :: CryptoCurrency -> Text
+cryptoCurrencyCodeT OUR = "ouro"
+cryptoCurrencyCodeT x   = toLower $ cCurrencyCodeT x
+
+currencyCodeT' :: Currency -> Text
+currencyCodeT' (FiatC c) = fiatCurrencyCodeT c
+currencyCodeT' (CryptoC c) = cryptoCurrencyCodeT c
 
 fCurrencyTShort :: FiatCurrency -> Text
 fCurrencyTShort USD = "$"
