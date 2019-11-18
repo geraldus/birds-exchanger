@@ -302,7 +302,8 @@ orderExecutionDesc wbt cents c ees = toWidget
     reason = walletBalanceTransactionWalletTransactionReasonId wbt
     mRequestE = find (\(Entity _ ee) -> exchangeOrderExecutionInWalletTransactionReasonId ee == reason) ees
     requestIdStr :: Entity ExchangeOrderExecution -> Text
-    requestIdStr = pack . show . fromSqlKey . entityKey
+    requestIdStr =
+            pack . show . fromSqlKey . exchangeOrderExecutionOrderId . entityVal
 
 
 
