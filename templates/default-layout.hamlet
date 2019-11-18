@@ -1,24 +1,26 @@
-$if (Just HomeR == currentRoute)
-    ^{widget}
-$else
-    <div .container .py-3 style="min-height: 100%">
-        <div .row .d-none .d-md-block .mb-3>
-            <div .col-12 .mx-auto>
-                <ul .breadcrumb>
-                    $forall (link, label) <- parents
-                        <li .breadcrumb-item>
-                            <a href="@{link}">
-                                #{label}
-                    <li .breadcrumb-item.active>
-                        #{title}
-        $forall (label, msg) <- sessionMessages
-            <div .row data-session-message-label=#{label}>
-                <div .col-8 .col-lg-6 .mx-auto>
-                    <div .alert.alert-warning #message>
-                        #{msg}
-        <div .row>
-            <div .col-md-12>
-                ^{widget}
+<main role="main">
+    $if (Just HomeR == currentRoute)
+        ^{widget}
+    $else
+        <section>
+            <div .container .py-3 style="min-height: 100%">
+                <div .row .d-none .d-md-block .mb-3>
+                    <div .col-12 .mx-auto>
+                        <ul .breadcrumb>
+                            $forall (link, label) <- parents
+                                <li .breadcrumb-item>
+                                    <a href="@{link}">
+                                        #{label}
+                            <li .breadcrumb-item.active>
+                                #{title}
+                $forall (label, msg) <- sessionMessages
+                    <div .row data-session-message-label=#{label}>
+                        <div .col-8 .col-lg-6 .mx-auto>
+                            <div .alert.alert-warning #message>
+                                #{msg}
+                <div .row>
+                    <div .col-md-12>
+                        ^{widget}
 
 <footer .footer .mt-2 .pt-3 .container-fluid>
     <div .row .mb-2>
