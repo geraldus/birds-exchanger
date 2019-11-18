@@ -1,4 +1,6 @@
-<ul ##{pageId}-nav .nav .nav-pills .mt-2 .mb-3 .justify-content-center>
+<h1 .h5 .d-md-none>_{MsgClientOrdersPageTitle}
+
+<ul ##{pageId}-nav .nav .nav-pills .mt-3 .justify-content-center>
     <li .nav-item data-target="active">
         <a .nav-link .active href="#active-orders">
             <small>_{MsgActiveOrders}
@@ -9,7 +11,7 @@
         <a .nav-link href="#all-orders">
             <small>_{MsgAll}
 
-<table ##{pageId}-table .table .active .d-none .d-md-table>
+<table ##{pageId}-table .table .active .d-none .d-md-table .mt-2>
     <thead .text-center .thead-light>
         <th scope="row">
             <small>_{MsgDateCreated}

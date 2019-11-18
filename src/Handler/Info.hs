@@ -24,9 +24,10 @@ getInfoListR = do
     [whamlet|
             $case infoItems
                 $of []
-                    <h5>_{MsgNoPublicationsYet}
+                    <div>
+                        <i>_{MsgNoPublicationsYet}
                 $of list
-                    <h5>_{MsgInfoListTitle}
+                    <h1 .h5 .d-md-none>_{MsgInfoListTitle}
                     ^{renderList list}
             |]
  where
@@ -92,7 +93,7 @@ getInfoViewR alias = do
             <div>
         $else
             <div ##{titleIdent}>
-                <h1>#{infoTitle info}
+                <h1 .h5>#{infoTitle info}
                 ^{dateRow l tzo (infoCreated info)}
             $maybe t <- infoThumbUrl info
                 <div ##{thumbIdent} .info-thumb .text-center .mb-5>

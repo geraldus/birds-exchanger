@@ -1,3 +1,5 @@
+<h1 .h5 .d-md-none>_{MsgClientDepositPageTitle}
+
 <form
     ##{formId}
     method=post
