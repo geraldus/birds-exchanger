@@ -6,7 +6,11 @@ import           Import
 import           Local.Persist.Currency
 import           Local.Persist.Wallet
 import           Utils.App.Client
+import           Utils.Common           ( selectLocale )
 import           Utils.Money
+import           Utils.Time             ( renderDateRow,
+                                          timezoneOffsetFromCookie )
+
 
 import           Data.Maybe             ( fromJust )
 import           Database.Persist.Sql   ( Single (..), fromSqlKey, rawSql )
@@ -62,9 +66,14 @@ getOperatorUserHistoryR clientId = do
                     :: Handler [ Entity ExchangeOrderCancellation ]
                 return (dos, wos, wcos, wros, eoos, eoes, eocs)
     dataTableId <- newIdent
+    tzo <- timezoneOffsetFromCookie
+    locale <- selectLocale
     defaultLayout $ do
         setAppPageTitle MsgClientProfilePageTitle
         [whamlet|<h3>#{userName}|]
+        walletTotals <- return ("" :: Text)
+        let labeledDateGroupedOps :: [(UTCTime, [(Entity WalletBalanceTransaction, Single Currency, Entity WalletTransactionReason)])]
+            labeledDateGroupedOps = []
         $(widgetFile "profile")
   where
     s

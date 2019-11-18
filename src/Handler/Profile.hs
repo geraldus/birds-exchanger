@@ -4,18 +4,27 @@
 module Handler.Profile where
 
 import           Import
-import           Local.Persist.Currency ( Currency, currSign, currencyCodeT )
+import           Local.Persist.Currency ( Currency, currSign, currencyCodeT,
+                                          currencyCodeT', currencyNameT, ouroC,
+                                          pzmC )
 import           Local.Persist.Wallet
 import           Utils.App.Client
+import           Utils.Common           ( selectLocale )
 import           Utils.Money
+import           Utils.Time             ( renderDateRow,
+                                          timezoneOffsetFromCookie )
 
+import           Data.Time.Clock        ( addUTCTime, diffUTCTime )
+import           Data.Time.Clock.POSIX  ( utcTimeToPOSIXSeconds )
 import           Database.Persist.Sql   ( Single (..), fromSqlKey, rawSql )
 import           Text.Julius            ( RawJS (..) )
 
 
 getProfileR :: Handler Html
 getProfileR = do
-    _userName                    <- userNameF . snd <$> requireAuthPair
+    _userName <- userNameF . snd <$> requireAuthPair
+    locale <- selectLocale
+    tzo <- timezoneOffsetFromCookie
     (Entity clientId _, wallets) <- requireClientData
     let walletVals = map entityVal wallets
     operations <- runDB $ rawSql s [toPersistValue clientId]
@@ -26,6 +35,8 @@ getProfileR = do
                  )
                ]
         ops = operations
+    let dateGroupedOps = groupBy (transactionDay tzo) ops
+    let labeledDateGroupedOps = map (labelGroupUnsafe tzo) dateGroupedOps
     let reasonIds :: [WalletTransactionReasonId]
         reasonIds = map (entityKey . thd3) operations
         reasonIds' = intercalate "," $ map (show . fromSqlKey) reasonIds
@@ -85,9 +96,27 @@ getProfileR = do
     ecs _in
         = "SELECT ?? FROM exchange_order_cancellation \
         \ WHERE exchange_order_cancellation.reason_id IN (" <> _in <>")"
+    transactionByWallet wid =
+            (== wid) . walletBalanceTransactionWalletId . entityVal. fst3
+    fst3 :: (a, b, c) -> a
+    fst3 (x, _, _) = x
     thd3 :: (a, b, c) -> c
     thd3 (_, _, x) = x
 
+    labelGroupUnsafe _ [] = (error "Shouldn't happen.  No items in group", [])
+    labelGroupUnsafe timezoneSeconds gs@((Entity _ t, _, _) : _) = let
+        trTime = addUTCTime
+                (realToFrac timezoneSeconds) (walletBalanceTransactionTime t)
+        d = utctDay trTime
+        in (UTCTime d (fromRational 0), gs)
+
+    utcDayTZ pico = utctDay . addUTCTime pico . walletBalanceTransactionTime
+
+    transactionDay timezoneSeconds (Entity _ t1, _, _) (Entity _ t2, _, _) = let
+            tzoPico = realToFrac timezoneSeconds
+            d1 = utcDayTZ tzoPico t1
+            d2 = utcDayTZ tzoPico t2
+        in d1 == d2
 
 
 transactionTr

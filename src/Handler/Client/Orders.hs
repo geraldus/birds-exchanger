@@ -14,7 +14,7 @@ import           Utils.Common           ( selectLocale )
 import           Utils.Money
 import           Utils.Time
 
-import           Data.Time.Clock        ( addUTCTime, secondsToDiffTime )
+import           Data.Time.Clock        ( addUTCTime )
 import           Data.Time.Format       ( TimeLocale (..) )
 import           Database.Persist.Sql   ( fromSqlKey, toSqlKey )
 import           Formatting
@@ -369,7 +369,6 @@ isOrderCancelled o = case exchangeOrderStatus o of
 equalOrderEntityDate
     :: Int ->  Entity ExchangeOrder -> Entity ExchangeOrder -> Bool
 equalOrderEntityDate tzo (Entity _ o1) (Entity _ o2) =
-    let tzoPico = fromRational . toRational . secondsToDiffTime $
-            fromIntegral tzo
+    let tzoPico = realToFrac tzo
         t = utctDay . addUTCTime tzoPico . exchangeOrderCreated
     in t o1 == t o2
