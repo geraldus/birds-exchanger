@@ -1,4 +1,5 @@
 $(document).ready(() => {
+    if (!window.CKEDITOR) return;
     const { ClassicEditor, InlineEditor } = CKEDITOR
     const contentHostId = '#content-html-editor'
     const contentData = $('#content-html-data')

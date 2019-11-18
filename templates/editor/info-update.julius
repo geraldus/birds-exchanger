@@ -1,4 +1,5 @@
 $(document).ready(() => {
+    if (!window.CKEDITOR) return;
     const titleHostId = '##{rawJS titleIdent}'
     const aliasHostId = '##{rawJS aliasIdent}'
     const thumbHostId = '##{rawJS thumbIdent}'
