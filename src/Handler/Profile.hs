@@ -104,7 +104,7 @@ transactionTr
 transactionTr (Entity wbtId wbt) wbtCurrency drsAdrs wos wcos wros eos ees ecs =
     toWidget [whamlet|
         <tr #data-row-#{fromSqlKey wbtId} .data-row .deposit .#{wbtCC} .#{trType}>
-            <td>
+            <td .d-none .d-md-table-cell>
                 ^{dateTimeRowW wbtTime}
             ^{wbtDesc}
         |]
