@@ -57,8 +57,13 @@ pzmC = CryptoC PZM
 rurC :: Currency
 rurC = FiatC RUR
 
+{-# DEPRECATED ourC "Since 0.6.9.  Please use `ouroC` instead." #-}
 ourC :: Currency
-ourC = CryptoC OUR
+ourC = ouroC
+
+ouroC :: Currency
+ouroC = CryptoC OUR
+
 
 
 fCurrencyCodeT :: FiatCurrency -> Text
@@ -80,6 +85,10 @@ fCurrencyTLong :: FiatCurrency -> Text
 fCurrencyTLong USD = "доллар США"
 fCurrencyTLong RUR = "российский рубль"
 
+currencyNameT :: Currency -> Text
+currencyNameT (FiatC fc) = fCurrencyTLong fc
+currencyNameT (CryptoC cc) = cCurrencyTLong cc
+
 cCurrencyTShort :: CryptoCurrency -> Text
 cCurrencyTShort = cCurrencyCodeT
 
@@ -88,6 +97,8 @@ cCurrencyTLong PZM = "Prizm"
 cCurrencyTLong BTC = "Bitcoin"
 cCurrencyTLong ETH = "Etherium"
 cCurrencyTLong OUR = "Ouroboros"
+
+
 
 currSign :: Currency -> Text
 currSign (FiatC   USD) = "$"
