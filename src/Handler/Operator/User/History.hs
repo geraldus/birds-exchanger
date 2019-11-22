@@ -3,6 +3,7 @@ module Handler.Operator.User.History where
 
 import           Import
 
+import           Local.Params           ( defaultWalletCurrencies )
 import           Local.Persist.Currency
 import           Local.Persist.Wallet
 import           Utils.App.Client
@@ -12,7 +13,6 @@ import           Utils.Time             ( renderDateRow,
                                           timezoneOffsetFromCookie )
 
 
-import           Data.Maybe             ( fromJust )
 import           Database.Persist.Sql   ( Single (..), fromSqlKey, rawSql )
 import           Text.Julius            ( RawJS (..) )
 
@@ -25,16 +25,16 @@ getOperatorUserHistoryR clientId = do
     client <-  runDB $ get404 clientId
     let userName = userIdent client
     wallets <- mapM (getOrCreateWallet clientId) defaultWalletCurrencies
-    let walletIds  = map entityKey wallets
-        walletVals = map entityVal wallets
-        findWallet :: UserWalletId -> Entity UserWallet
-        findWallet wid =
-            fromJust $ find (\(Entity uwid _) -> uwid == wid) wallets
-        findWalletCurrency = userWalletCurrency . entityVal . findWallet
-    -- Let JS Front-end take and visualize data
-    walletOps <- runDB $ selectList
-        [WalletBalanceTransactionWalletId <-. walletIds]
-        [Desc WalletBalanceTransactionTime, Desc WalletBalanceTransactionId]
+    -- let walletIds  = map entityKey wallets
+    let walletVals = map entityVal wallets
+    --     findWallet :: UserWalletId -> Entity UserWallet
+    --     findWallet wid =
+    --         fromJust $ find (\(Entity uwid _) -> uwid == wid) wallets
+    --     findWalletCurrency = userWalletCurrency . entityVal . findWallet
+    -- -- Let JS Front-end take and visualize data
+    -- walletOps <- runDB $ selectList
+    --     [WalletBalanceTransactionWalletId <-. walletIds]
+    --     [Desc WalletBalanceTransactionTime, Desc WalletBalanceTransactionId]
     operations <- runDB $ rawSql s [toPersistValue clientId]
     let ops
             :: [ ( Entity WalletBalanceTransaction
@@ -72,7 +72,13 @@ getOperatorUserHistoryR clientId = do
         setAppPageTitle MsgClientProfilePageTitle
         [whamlet|<h3>#{userName}|]
         walletTotals <- return ("" :: Text)
-        let labeledDateGroupedOps :: [(UTCTime, [(Entity WalletBalanceTransaction, Single Currency, Entity WalletTransactionReason)])]
+        let labeledDateGroupedOps ::
+                [( UTCTime
+                 , [( Entity WalletBalanceTransaction
+                   , Single Currency
+                   , Entity WalletTransactionReason
+                   )]
+                 )]
             labeledDateGroupedOps = []
         $(widgetFile "profile")
   where
@@ -95,10 +101,10 @@ getOperatorUserHistoryR clientId = do
         = "SELECT ??, ?? FROM withdrawal_request, withdrawal_cancel \
         \ WHERE withdrawal_request.id = withdrawal_cancel.request_id \
         \ AND withdrawal_cancel.transaction_reason_id IN (" <> _in <>")"
-    was _in
-        = "SELECT ??, ?? FROM withdrawal_request, withdrawal_accept \
-        \ WHERE withdrawal_request.id = withdrawal_accept.request_id \
-        \ AND withdrawal_request.wallet_transaction_reason_id IN (" <> _in <>")"
+    -- was _in
+    --     = "SELECT ??, ?? FROM withdrawal_request, withdrawal_accept \
+    --     \ WHERE withdrawal_request.id = withdrawal_accept.request_id \
+    --     \ AND withdrawal_request.wallet_transaction_reason_id IN (" <> _in <>")"
     wrs _in
         = "SELECT ??, ?? FROM withdrawal_request, withdrawal_reject \
         \ WHERE withdrawal_request.id = withdrawal_reject.request_id \
@@ -112,9 +118,7 @@ getOperatorUserHistoryR clientId = do
     ecs _in
         = "SELECT ?? FROM exchange_order_cancellation \
         \ WHERE exchange_order_cancellation.reason_id IN (" <> _in <>")"
-    isPosWithdrawal wbt = case walletBalanceTransactionType wbt of
-        BalanceWithdrawal c -> c > 0
-        _                   -> False
+
     thd3 :: (a, b, c) -> c
     thd3 (_, _, x) = x
 
@@ -177,13 +181,21 @@ depositDesc wbt cents c rsAws = toWidget
             <span>_{MsgBalanceDeposit}#
             $maybe eRequest <- mDepositRequestE
                 <span>: #
-                <a href="@{DepositR}/#data-row-#{requestIdStr eRequest}" title="_{MsgViewRequestDetails}">
+                <a
+                    href="@{DepositR}/#data-row-#{requestIdStr eRequest}"
+                    title="_{MsgViewRequestDetails}"
+                    >
                     \_{MsgRequest} ##{requestIdStr eRequest}
         |]
   where
     reason = walletBalanceTransactionWalletTransactionReasonId wbt
-    mbRsAs = find (\(_, Entity _ ad) -> acceptedDepositWalletTransactionReasonId ad == reason) rsAws
+    mbRsAs = find
+        (\(_, Entity _ ad) ->
+                acceptedDepositWalletTransactionReasonId ad == reason)
+        rsAws
+
     mDepositRequestE = fmap fst mbRsAs
+
     requestIdStr :: Entity DepositRequest -> Text
     requestIdStr = pack . show . fromSqlKey . entityKey
 
@@ -203,12 +215,20 @@ withdrawalDesc wbt cents c rsAs =
                 <span>_{MsgBalanceWithdrawal}#
                 $maybe eRequest <- mbr
                     <span>: #
-                    <a href="@{WithdrawalR}/#data-row-#{requestIdStr eRequest}" title="_{MsgViewRequestDetails}">
+                    <a
+                        href="@{WithdrawalR}/#data-row-#{requestIdStr eRequest}"
+                        title="_{MsgViewRequestDetails}"
+                        >
                         \_{MsgRequest} ##{requestIdStr eRequest}
             |]
   where
     reason = walletBalanceTransactionWalletTransactionReasonId wbt
-    mbr = find (\(Entity _ wr) -> withdrawalRequestWalletTransactionReasonId wr == reason) rsAs
+
+    mbr = find
+        (\(Entity _ wr) ->
+                withdrawalRequestWalletTransactionReasonId wr == reason)
+        rsAs
+
     requestIdStr :: Entity WithdrawalRequest -> Text
     requestIdStr = pack . show . fromSqlKey . entityKey
 
@@ -227,12 +247,18 @@ withdrawalRejectDesc wbt cents c rs =
                 <span>_{MsgBalanceReturn}#
                 $maybe eRequest <- fmap fst mbr
                     <span>: #
-                    <a href="@{WithdrawalR}/#data-row-#{requestIdStr eRequest}" title="_{MsgViewRequestDetails}">
+                    <a
+                        href="@{WithdrawalR}/#data-row-#{requestIdStr eRequest}"
+                        title="_{MsgViewRequestDetails}"
+                        >
                         \_{MsgRequest} ##{requestIdStr eRequest}
             |]
   where
     reason = walletBalanceTransactionWalletTransactionReasonId wbt
-    mbr = find (\(_, Entity _ wr) -> withdrawalRejectTransactionReasonId wr == reason) rs
+
+    mbr = find
+        (\(_, Entity _ wr) -> withdrawalRejectTransactionReasonId wr == reason)
+        rs
     requestIdStr :: Entity WithdrawalRequest -> Text
     requestIdStr = pack . show . fromSqlKey . entityKey
 
@@ -251,12 +277,17 @@ withdrawalCancelDesc wbt cents c rs =
                 <span>_{MsgBalanceReturn}#
                 $maybe eRequest <- fmap fst mbr
                     <span>: #
-                    <a href="@{WithdrawalR}/#data-row-#{requestIdStr eRequest}" title="_{MsgViewRequestDetails}">
+                    <a
+                        href="@{WithdrawalR}/#data-row-#{requestIdStr eRequest}"
+                        title="_{MsgViewRequestDetails}"
+                        >
                         \_{MsgRequest} ##{requestIdStr eRequest}
             |]
   where
     reason = walletBalanceTransactionWalletTransactionReasonId wbt
-    mbr = find (\(_, Entity _ wc) -> withdrawalCancelTransactionReasonId wc == reason) rs
+    mbr = find
+        (\(_, Entity _ wc) -> withdrawalCancelTransactionReasonId wc == reason)
+        rs
     requestIdStr :: Entity WithdrawalRequest -> Text
     requestIdStr = pack . show . fromSqlKey . entityKey
 
@@ -276,12 +307,19 @@ orderCreationDesc wbt cents c eos = toWidget
 
             $maybe eRequest@(Entity eid _) <- mRequestE
                 <span>: #
-                <a href="@{ClientOrderViewR eid}" title="_{MsgViewOrderDetails}">
+                <a
+                    href="@{ClientOrderViewR eid}"
+                    title="_{MsgViewOrderDetails}"
+                    >
                     \_{MsgOrder} ##{requestIdStr eRequest}
         |]
   where
     reason = walletBalanceTransactionWalletTransactionReasonId wbt
-    mRequestE = find (\(Entity _ eo) -> exchangeOrderWalletTransactionReasonId eo == reason) eos
+
+    mRequestE = find
+        (\(Entity _ eo) -> exchangeOrderWalletTransactionReasonId eo == reason)
+        eos
+
     requestIdStr :: Entity ExchangeOrder -> Text
     requestIdStr = pack . show . fromSqlKey . entityKey
 
@@ -301,14 +339,26 @@ orderCancelDesc wbt cents c ecs =
 
                 $maybe eRequest@(Entity _ ec) <- mRequestE
                     <span>: #
-                    <a href="@{ClientOrderViewR (exchangeOrderCancellationOrderId ec)}" title="_{MsgViewOrderDetails}">
+                    <a
+                        href="@{ClientOrderViewR (exchangeOrderCancellationOrderId ec)}"
+                        title="_{MsgViewOrderDetails}"
+                        >
                         \_{MsgOrder} ##{requestIdStr eRequest}
             |]
   where
     reason = walletBalanceTransactionWalletTransactionReasonId wbt
-    mRequestE = find (\(Entity _ eo) -> exchangeOrderCancellationReasonId eo == reason) ecs
+
+    mRequestE = find
+        (\(Entity _ eo) -> exchangeOrderCancellationReasonId eo == reason)
+        ecs
+
     requestIdStr :: Entity ExchangeOrderCancellation -> Text
-    requestIdStr = pack . show . fromSqlKey . exchangeOrderCancellationOrderId . entityVal
+    requestIdStr =
+        pack
+        . show
+        . fromSqlKey
+        . exchangeOrderCancellationOrderId
+        . entityVal
 
 orderExecutionDesc
     :: WalletBalanceTransaction
@@ -325,7 +375,10 @@ orderExecutionDesc wbt cents c ees = toWidget
 
             $maybe eRequest@(Entity _ e) <- mRequestE
                 <span>: #
-                <a href="@{ClientOrderViewR (exchangeOrderExecutionOrderId e)}" title="_{MsgViewOrderDetails}">
+                <a
+                    href="@{ClientOrderViewR (exchangeOrderExecutionOrderId e)}"
+                    title="_{MsgViewOrderDetails}"
+                    >
                     \_{MsgOrder} ##{requestIdStr eRequest}
         |]
   where
