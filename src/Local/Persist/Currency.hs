@@ -54,8 +54,12 @@ instance FromJSON Currency
 pzmC :: Currency
 pzmC = CryptoC PZM
 
+{-# DEPRECATED rurC "Since 0.6.13.  Please use `rubC` instead." #-}
 rurC :: Currency
-rurC = FiatC RUR
+rurC = rubC
+
+rubC :: Currency
+rubC = FiatC RUR
 
 {-# DEPRECATED ourC "Since 0.6.9.  Please use `ouroC` instead." #-}
 ourC :: Currency
@@ -63,7 +67,6 @@ ourC = ouroC
 
 ouroC :: Currency
 ouroC = CryptoC OUR
-
 
 
 fCurrencyCodeT :: FiatCurrency -> Text
