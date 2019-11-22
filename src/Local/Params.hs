@@ -1,9 +1,10 @@
 module Local.Params where
 
-import           Local.Persist.Currency ( Currency (..), ourC, pzmC, rurC )
+import           Local.Persist.Currency ( Currency (..), ouroC, pzmC, rubC )
 import           Prelude                ( Int, otherwise, (*), (==) )
 import           Type.Fee               ( Fee (..) )
 import           Type.Money             ( oneCoinCents )
+
 
 -- TODO: FIXME: Make an MVar or something and expand as app property.
 -- Allow possibility to change this value on the fly
@@ -41,9 +42,12 @@ depositOurMinCentsAmount = 10 * oneCoinCents
 
 currencyDefaultMinimalDeposit :: Currency -> Int
 currencyDefaultMinimalDeposit c
-    | c == pzmC = depositPzmMinCentsAmount
-    | c == ourC = depositOurMinCentsAmount
-    | c == rurC = depositRurMinCentsAmount
-    | otherwise = 199999999990
+    | c == pzmC  = depositPzmMinCentsAmount
+    | c == ouroC = depositOurMinCentsAmount
+    | c == rubC  = depositRurMinCentsAmount
+    | otherwise  = 199999999990
+
+defaultWalletCurrencies :: [Currency]
+defaultWalletCurrencies = [ rubC, pzmC, ouroC ]
 
 -- TODO: FIXME: Configure minimum withdrawal bounds

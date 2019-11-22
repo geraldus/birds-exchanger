@@ -21,6 +21,7 @@ import           Yesod.Default.Util      ( addStaticContentExternal )
 import           Yesod.Form.I18n.Russian
 
 import           Local.Auth
+import           Local.Params            ( defaultWalletCurrencies )
 import           Local.Persist.Currency
 import           Local.Persist.UserRole
 import           Market.Type             ( DOMStats )
@@ -705,9 +706,6 @@ getUserWallets = do
 accessErrorClientOnly :: Text
 accessErrorClientOnly = "Доступно только для аккаунтов уровня \"Клиент\""
 
-
-defaultWalletCurrencies :: [Currency]
-defaultWalletCurrencies = [ FiatC RUR, CryptoC PZM, CryptoC OUR ]
 
 
 getOrCreateWalletDB
