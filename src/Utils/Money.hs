@@ -69,9 +69,11 @@ multiplyCents r a =
     let x = truncate $ fromIntegral a * r * fromIntegral oneCoinCents :: Int
     in truncate (fromIntegral x / fromIntegral oneCoinCents :: Double)
 
+centsToCoins :: Int -> Double
+centsToCoins n = fromIntegral n / fromIntegral oneCoinCents
 
 cents2dblT :: Int -> Text
-cents2dblT n = dbl2MoneyT (fromIntegral n / fromIntegral oneCoinCents)
+cents2dblT = dbl2MoneyT . centsToCoins
 
 -- | Render 'Double' as 'Text' with two fractional digits
 dbl2MoneyT :: Double -> Text
