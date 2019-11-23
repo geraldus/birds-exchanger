@@ -1,18 +1,21 @@
+{-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
 module Utils.Database.User where
 
-import           Import.NoFoundation    hiding ( isNothing, on, (==.), (\\) )
+import           Import.NoFoundation    hiding ( isNothing, on, (==.), (>=.),
+                                          (\\) )
 import           Local.Params           ( defaultWalletCurrencies )
-import           Local.Persist.Currency ( currencyCodeT', Currency )
-import           Local.Persist.Exchange ( exchangePairUnsafe, ExchangePair )
-import           Local.Persist.Wallet   ( WithdrawalStatus (WsNew) )
+import           Local.Persist.Currency ( Currency, currencyCodeT' )
+import           Local.Persist.Exchange ( ExchangePair, exchangePairUnsafe )
+import           Local.Persist.Wallet   ( DepositRequestStatus (OperatorAccepted),
+                                          TransactionTypePlain (ParaMiningAccrual),
+                                          WithdrawalStatus (WsNew) )
 
 import           Data.Aeson             ( ToJSON (..) )
 import           Data.List              ( (\\) )
 import           Data.Time.Clock.POSIX  ( utcTimeToPOSIXSeconds )
 import           Database.Esqueleto
-import           Database.Esqueleto as E (groupBy)
 
 
 -- * Database Queries
@@ -80,23 +83,27 @@ data UserWalletStatsResponse
 
 -- | Represent wallet balance statistics
 data WalletData = WalletData
-    { walletDataWallet          :: Entity UserWallet
-    , walletDataOrdersCents     :: Int
+    { walletDataWallet              :: Entity UserWallet
+    , walletDataOrdersCents         :: Int
     -- ^ actual amount of cents held within active orders, in other words
     -- how many available cents left in orders
-    , walletDataWithdrawalCents :: Int
+    , walletDataWithdrawalCents     :: Int
     -- ^ actual amount of cents help within yet unexecuted withdrawals requests,
     -- in other words how many cents could be returned to balance if all
     -- of withdrawal requests will be cencelled
+    , walletDataLastParaTransaction :: Maybe (Entity WalletBalanceTransaction)
+    -- ^ last found balance transaction lead to paramining accounting
     }
     deriving Show
 
 -- | Marshal database results to 'WalletData'.
-foldUserWalletStats :: Ent Wal -> [Ent ExOrd] -> [Ent WReq] -> WalletData
-foldUserWalletStats wallet os rs = WalletData
+foldUserWalletStats ::
+        Ent Wal -> [Ent ExOrd] -> [Ent WReq] -> Maybe (Ent BTrans) -> WalletData
+foldUserWalletStats wallet os rs trans = WalletData
     { walletDataWallet = wallet
     , walletDataOrdersCents = foldOrders os
     , walletDataWithdrawalCents = foldReqs rs
+    , walletDataLastParaTransaction = trans
     }
   where
         foldOrders :: [Ent ExOrd] -> Int
@@ -110,7 +117,8 @@ instance ToJSON WalletData where
     toJSON WalletData{..} = object
         [ "wallet" .= walletJSON
         , "orders" .= toJSON walletDataOrdersCents
-        , "withdrawal" .= toJSON walletDataWithdrawalCents ]
+        , "withdrawal" .= toJSON walletDataWithdrawalCents
+        , "lastParaTransactionTime" .= utcTimestampJSON lastParaTime ]
       where
         walletId = entityKey walletDataWallet
 
@@ -122,9 +130,16 @@ instance ToJSON WalletData where
                     (toLower . currencyCodeT' . userWalletCurrency $ wallet)
             , "balance" .= toJSON (userWalletAmountCents wallet)
             , "lastParaTransactionTime" .= toJSON (
-                        toDouble . utcTimeToPOSIXSeconds
+                        toUnixTimestampDouble
                         <$> userWalletLastParaTransaction wallet )
             ]
+
+        lastParaTime = (walletBalanceTransactionTime . entityVal)
+                <$> walletDataLastParaTransaction
+
+        utcTimestampJSON = toJSON . (toUnixTimestampDouble <$>)
+
+        toUnixTimestampDouble = toDouble . utcTimeToPOSIXSeconds
 
         toDouble :: Real a => a -> Double
         toDouble = realToFrac
