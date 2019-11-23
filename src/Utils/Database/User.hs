@@ -29,6 +29,86 @@ getUserWallets userId = select . from $ \w -> do
         where_ (w ^. UserWalletUserId ==. val userId)
         return w
 
+-- | Get last wallet transaction which lead to paramining transfer
+-- if present.
+-- Return type is a list, which is empty when no para-transaction present
+-- and exactly last para-transaction otherwise.  Uses `LIMIT 1` internally
+-- (via `esqueleto`\'s 'limit' function).
+getUserWalletLastParaTransaction ::
+       (MonadIO m) => Ent Wal -> SqlPersistT m (Maybe (Ent BTrans))
+getUserWalletLastParaTransaction (Entity wid w) = do
+    extr <- selectLastExchangeTransaction (limit 1)
+    wreqtr <- selectLastActiveWithdrawalRequestTransaction (limit 1)
+    dreqtr <- selectLastAcceptedDepositRequestTransaction (limit 1)
+    let ts = extr <> wreqtr <> dreqtr
+    return $ case ts of
+        []  -> Nothing
+        t:_ -> Just (foldr maxUTCTime t ts)
+  where
+    selectLastExchangeTransaction limitQ = select . from $
+        \(o, exec, r, t) -> do
+            let pairs = defaultExchangePairsOf (userWalletCurrency w)
+            where_ (
+                -- order constraints
+                (o ^. ExchangeOrderUserId ==. val (userWalletUserId w))
+                &&. (o ^. ExchangeOrderPair `in_` valList pairs)
+                -- order execution constraints
+                &&. (o ^. ExchangeOrderId
+                    ==. exec ^. ExchangeOrderExecutionOrderId)
+                --  transaction reason constraints
+                &&. (exec ^. ExchangeOrderExecutionOutWalletTransactionReasonId
+                    ==. r ^. WalletTransactionReasonId)
+                &&. (r ^. WalletTransactionReasonId
+                    ==. t ^. WalletBalanceTransactionWalletTransactionReasonId)
+                )
+            orderBy [desc (t ^. WalletBalanceTransactionTime)]
+            limitQ
+            return t
+
+    selectLastActiveWithdrawalRequestTransaction limitQ = select . from $
+        \(wr, r, t) -> do
+            where_ (
+                (wr ^. WithdrawalRequestWalletId ==. val wid)
+                &&. (wr ^. WithdrawalRequestStatus ==. val WsNew)
+                &&. (wr ^. WithdrawalRequestAccepted ==. nothing)
+                &&. (wr ^. WithdrawalRequestWalletTransactionReasonId
+                        ==. r ^. WalletTransactionReasonId )
+                &&. (r ^. WalletTransactionReasonId
+                        ==. t ^. WalletBalanceTransactionWalletTransactionReasonId)
+                )
+            orderBy [desc (t ^. WalletBalanceTransactionTime)]
+            limitQ
+            return t
+
+    selectLastAcceptedDepositRequestTransaction limitQ = do
+        res <- select . from $
+            \(acd, dr, r, t) -> do
+                where_ (
+                    (acd ^. AcceptedDepositDepositRequestId
+                            ==. dr ^. DepositRequestId)
+                    &&. (dr ^. DepositRequestUserId ==. val (userWalletUserId w))
+                    &&. (dr ^. DepositRequestCurrency
+                            ==. val (userWalletCurrency w))
+                    &&. (dr ^. DepositRequestArchived ==. val False)
+                    -- reason constraints
+                    &&. (acd ^. AcceptedDepositWalletTransactionReasonId
+                            ==. r ^. WalletTransactionReasonId )
+                    &&. (r ^. WalletTransactionReasonId
+                            ==. t ^. WalletBalanceTransactionWalletTransactionReasonId)
+                    )
+                orderBy [desc (t ^. WalletBalanceTransactionTime)]
+                limitQ
+                return (t, dr)
+        return $ fst <$> filter isAcceptedDeposit res
+
+    maxUTCTime t1 t2 = if transTime t1 > transTime t2 then t1 else t2
+
+    transTime = walletBalanceTransactionTime . entityVal
+
+    isAcceptedDeposit (_, Entity _ depreq) = case depositRequestStatus depreq of
+        OperatorAccepted _ -> True
+        _                  -> False
+
 -- | Get active exchange orders for given wallet.
 -- Useful for calculating amount cents being held within orders.
 getUserWalletActiveOrders ::
@@ -143,6 +223,7 @@ instance ToJSON WalletData where
 
         toDouble :: Real a => a -> Double
         toDouble = realToFrac
+
 
 
 -- let currency = userWalletCurrency wallet
