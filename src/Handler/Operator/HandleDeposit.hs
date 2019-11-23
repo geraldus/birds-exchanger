@@ -55,17 +55,17 @@ postOperatorAcceptDepositRequestR = do
                                 _        -> Nothing
                         let time = now
                         _ <- insert $ AcceptedDeposit
-                            drId
-                            depositRequestCurrency
-                            depositRequestTargetCurrency
-                            realAmountCents
-                            ratio
-                            fee
-                            userWalletId
-                            (pack . show $ staffId)
-                            mStaffUserId
-                            time
-                            wtrId
+                                drId
+                                depositRequestCurrency
+                                depositRequestTargetCurrency
+                                realAmountCents
+                                ratio
+                                fee
+                                userWalletId
+                                (pack . show $ staffId)
+                                mStaffUserId
+                                time
+                                wtrId
                         when (fee > 0) $ void . insert $
                             InnerProfitRecord
                                 wtrId
@@ -73,11 +73,11 @@ postOperatorAcceptDepositRequestR = do
                                 fee
                                 DepositFee
                         _ <- insert $ WalletBalanceTransaction
-                            userWalletId
-                            (BalanceDeposit realWalletIncome)
-                            wtrId
-                            (userWalletAmountCents userWallet)
-                            time
+                                userWalletId
+                                (BalanceDeposit realWalletIncome)
+                                wtrId
+                                (userWalletAmountCents userWallet)
+                                time
                         update userWalletId
                                [UserWalletAmountCents +=. realWalletIncome]
                     redirect OperatorDepositRequestsListR

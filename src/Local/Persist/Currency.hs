@@ -111,12 +111,15 @@ cCurrencyTLong BTC = "Bitcoin"
 cCurrencyTLong ETH = "Etherium"
 cCurrencyTLong OUR = "Ouroboros"
 
-
-
+{-# DEPRECATED currSign "Since 0.6.13.  Please use `currencySymbol` to get correct crypto currency shortand codes." #-}
 currSign :: Currency -> Text
-currSign (FiatC   USD) = "$"
-currSign (FiatC   RUR) = "₽"
-currSign (CryptoC c  ) = cCurrencyCodeT c
+currSign (CryptoC c) = cCurrencyCodeT c
+currSign c = currencySymbol c
+
+currencySymbol :: Currency -> Text
+currencySymbol (FiatC USD) = "$"
+currencySymbol (FiatC RUR) = "₽"
+currencySymbol c = (toUpper . currencyCodeT') c
 
 currencyCodeT :: Currency -> Text
 currencyCodeT (FiatC c)   = fCurrencyCodeT c
