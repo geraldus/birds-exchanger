@@ -152,40 +152,9 @@ getUserWalletActiveWithdrawal (Entity wid _) = select $ from $
             )
         return w
 
-
--- * Useful type name shortands.
-
-type Ent = Entity
-
-type Wal = UserWallet
-
-type ExOrd = ExchangeOrder
-
-type WReq = WithdrawalRequest
-
-type BTrans = WalletBalanceTransaction
-
-
 -- * Statistics
 
-data UserWalletStatsResponse
-    = NoSuchUser UserId
-    | UserWalletData [WalletData]
 
--- | Represent wallet balance statistics
-data WalletData = WalletData
-    { walletDataWallet              :: Entity UserWallet
-    , walletDataOrdersCents         :: Int
-    -- ^ actual amount of cents held within active orders, in other words
-    -- how many available cents left in orders
-    , walletDataWithdrawalCents     :: Int
-    -- ^ actual amount of cents help within yet unexecuted withdrawals requests,
-    -- in other words how many cents could be returned to balance if all
-    -- of withdrawal requests will be cencelled
-    , walletDataLastParaTransaction :: Maybe (Entity WalletBalanceTransaction)
-    -- ^ last found balance transaction lead to paramining accounting
-    }
-    deriving Show
 
 -- | Marshal database results to 'WalletData'.
 foldUserWalletStats ::
@@ -203,41 +172,6 @@ foldUserWalletStats wallet os rs trans = WalletData
         foldReqs :: [Ent WReq] -> Int
         foldReqs = sum . map (withdrawalRequestFrozenAmount . entityVal)
 
--- | JSON Representation
-instance ToJSON WalletData where
-    toJSON WalletData{..} = object
-        [ "wallet" .= walletJSON
-        , "orders" .= toJSON walletDataOrdersCents
-        , "withdrawal" .= toJSON walletDataWithdrawalCents
-        , "lastParaTransactionTime" .= utcTimestampJSON lastParaTime ]
-      where
-        walletId = entityKey walletDataWallet
-
-        wallet = entityVal walletDataWallet
-
-        walletJSON = object
-            [ "id" .= toJSON walletId
-            , "currency" .= toJSON
-                    (toLower . currencyCodeT' . userWalletCurrency $ wallet)
-            , "balance" .= toJSON (userWalletAmountCents wallet)
-            , "lastParaTransactionTime" .= toJSON (
-                        toUnixTimestampDouble
-                        <$> userWalletLastParaTransaction wallet )
-            ]
-
-        lastParaTime = (walletBalanceTransactionTime . entityVal)
-                <$> walletDataLastParaTransaction
-
-        utcTimestampJSON = toJSON . (toUnixTimestampDouble <$>)
-
-        toUnixTimestampDouble = toDouble . utcTimeToPOSIXSeconds
-
-        toDouble :: Real a => a -> Double
-        toDouble = realToFrac
-
-
-
--- let currency = userWalletCurrency wallet
 
 defaultExchangePairsOf :: Currency -> [ExchangePair]
 defaultExchangePairsOf currency = map (exchangePairUnsafe currency) candidates
