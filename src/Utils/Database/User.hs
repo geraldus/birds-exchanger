@@ -6,15 +6,15 @@ module Utils.Database.User where
 import           Import.NoFoundation    hiding ( isNothing, on, (==.), (>=.),
                                           (\\) )
 import           Local.Params           ( defaultWalletCurrencies )
-import           Local.Persist.Currency ( Currency, currencyCodeT' )
+import           Local.Persist.Currency ( Currency )
 import           Local.Persist.Exchange ( ExchangePair, exchangePairUnsafe )
 import           Local.Persist.Wallet   ( DepositRequestStatus (OperatorAccepted),
                                           TransactionTypePlain (ParaMiningAccrual),
                                           WithdrawalStatus (WsNew) )
+import           Type.Wallet            ( WalletData (..) )
+import           Utils.Type
 
-import           Data.Aeson             ( ToJSON (..) )
 import           Data.List              ( (\\) )
-import           Data.Time.Clock.POSIX  ( utcTimeToPOSIXSeconds )
 import           Database.Esqueleto
 
 
@@ -37,14 +37,25 @@ getUserWallets userId = select . from $ \w -> do
 getUserWalletLastParaTransaction ::
        (MonadIO m) => Ent Wal -> SqlPersistT m (Maybe (Ent BTrans))
 getUserWalletLastParaTransaction (Entity wid w) = do
+    partr <- selectLastParaTransaction (limit 1)
     extr <- selectLastExchangeTransaction (limit 1)
     wreqtr <- selectLastActiveWithdrawalRequestTransaction (limit 1)
     dreqtr <- selectLastAcceptedDepositRequestTransaction (limit 1)
-    let ts = extr <> wreqtr <> dreqtr
+    let ts = partr <> extr <> wreqtr <> dreqtr
     return $ case ts of
         []  -> Nothing
         t:_ -> Just (foldr maxUTCTime t ts)
   where
+    selectLastParaTransaction limitQ = select . from $ \t -> do
+        where_ (
+            (t ^. WalletBalanceTransactionWalletId ==. val wid)
+            &&. (t ^. WalletBalanceTransactionPlainType
+                    ==. val (Just ParaMiningAccrual))
+            )
+        orderBy [desc (t ^. WalletBalanceTransactionTime)]
+        limitQ
+        return t
+
     selectLastExchangeTransaction limitQ = select . from $
         \(o, exec, r, t) -> do
             let pairs = defaultExchangePairsOf (userWalletCurrency w)
