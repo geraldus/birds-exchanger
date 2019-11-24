@@ -9,7 +9,8 @@ import           Import
 import           Local.Persist.Currency ( currSign )
 import           Local.Persist.Exchange ( ExchangeOrderStatus (..),
                                           ExchangePair (..) )
-import           Local.Persist.Wallet   ( WalletTransactionType (..) )
+import           Local.Persist.Wallet   ( TransactionTypePlain (..),
+                                          WalletTransactionType (..) )
 import           Utils.Common           ( selectLocale )
 import           Utils.Money
 import           Utils.Time
@@ -60,7 +61,7 @@ getClientOrderViewR orderId = do
                     _expectedFee
                     created
                     status
-                    _isActivel
+                    _isActive
                     _wtr =
                         order
                 r = normalizeRatio ratioN pair ratio
@@ -105,7 +106,7 @@ postClientOrderCancelR = do
             , ExchangeOrderStatus =. Cancelled time ]
         reasonId <- insert $ WalletTransactionReason walletId
         insert $ WalletBalanceTransaction
-            walletId (ExchangeReturn income) reasonId before time
+                walletId (ExchangeReturn income) reasonId before time (Just OrderCancellation)
         insert $ ExchangeOrderCancellation
             orderId
             clientId

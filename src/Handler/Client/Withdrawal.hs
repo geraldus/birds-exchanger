@@ -79,6 +79,7 @@ postWithdrawalCreateR = do
                             reasonId
                             walletCents
                             time
+                            (Just WithdrawalCreation)
                     (recId, _) <- runDB $ do
                         r <- insert record
                         t <- insert transaction

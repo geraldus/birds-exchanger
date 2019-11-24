@@ -43,6 +43,7 @@ WalletBalanceTransaction json
     walletTransactionReasonId WalletTransactionReasonId
     amountCentsBefore Int
     time UTCTime
+    plainType TransactionTypePlain Maybe default=null
     deriving Show
 
 

@@ -15,15 +15,35 @@ data WalletTransactionType
     | ExchangeFreeze Int          -- ^ - negative
     | ExchangeReturn Int          -- ^ + positive
     | ExchangeExchange Int        -- ^ + positive
-    | Penality Int                -- ^ - negative
+    | Penalty Int                 -- ^ - negative
     | Bonus Int                   -- ^ + positive
+    | ParaMining Int              -- ^ + positive
     deriving (Generic, Show, Read, Eq)
 derivePersistField "WalletTransactionType"
 
 instance ToJSON WalletTransactionType where
     toEncoding = genericToEncoding defaultOptions
+
 instance FromJSON WalletTransactionType
 
+data TransactionTypePlain
+    = DepositAccept          -- ^ positive
+    | WithdrawalCreation     -- ^ negative
+    | WithdrawalCancellation -- ^ positive
+    | WithdrawalRejection    -- ^ positive
+    | OrderCreation          -- ^ negative
+    | OrderCancellation      -- ^ positive
+    | OrderExchange          -- ^ positive
+    | BalancePenalty         -- ^ negative
+    | BalanceBonus           -- ^ positive
+    | ParaMiningAccrual      -- ^ positive
+    deriving (Generic, Show, Read, Eq)
+derivePersistField "TransactionTypePlain"
+
+instance ToJSON TransactionTypePlain where
+    toEncoding = genericToEncoding defaultOptions
+
+instance FromJSON TransactionTypePlain
 
 data DepositRequestStatus
     = New

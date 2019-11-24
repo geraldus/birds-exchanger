@@ -5,11 +5,13 @@ module Handler.Client.HandleWithdrawal where
 import           Import
 
 import           Local.Persist.Currency
-import           Local.Persist.Wallet   ( WalletTransactionType (..),
+import           Local.Persist.Wallet   ( TransactionTypePlain (..),
+                                          WalletTransactionType (..),
                                           WithdrawalStatus (..) )
 import           Utils.Money
 
 import           Database.Persist.Sql   ( toSqlKey )
+
 
 postClientCancelWithdrawalR :: Handler Html
 postClientCancelWithdrawalR = do
@@ -26,8 +28,8 @@ postClientCancelWithdrawalR = do
             let b = userWalletAmountCents wallet
             let tid = transactionReasonId
             insert $ WithdrawalCancel rid tid t
-            insert $
-                WalletBalanceTransaction wid (BalanceWithdrawalCancel a) tid b t
+            insert $ WalletBalanceTransaction
+                    wid (BalanceWithdrawalCancel a) tid b t (Just WithdrawalCancellation)
             update wid [UserWalletAmountCents +=. a]
         setMessageI MsgDepositCancelled
         redirect WithdrawalR

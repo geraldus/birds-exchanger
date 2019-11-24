@@ -8,7 +8,8 @@ import           Local.Params           ( defaultExchangeFee )
 import           Local.Persist.Currency ( Currency (..) )
 import           Local.Persist.Exchange ( ExchangeOrderStatus (..),
                                           ExchangePair (..), ProfitType (..) )
-import           Local.Persist.Wallet   ( WalletTransactionType (..) )
+import           Local.Persist.Wallet   ( TransactionTypePlain (..),
+                                          WalletTransactionType (..) )
 import           Utils.Money
 
 
@@ -50,10 +51,11 @@ saveOrder
     -> ReaderT backend m (TransactionD, Entity ExchangeOrder)
 saveOrder w a time withReasonOrder = do
     r <- newWalletReason (entityKey w)
-    t <- decreaseUserWalletBalance w r a ExchangeFreeze time
+    t <- decreaseUserWalletBalance w r a mkType time
     let o = withReasonOrder r
     oid <- insert o
     return (TransactionD t r, Entity oid o)
+  where mkType t = (ExchangeFreeze t, OrderCreation)
 
 executeSavedOrder
     ::  ( MonadIO m
@@ -186,9 +188,10 @@ executeExchange target (match:rest) time acc' = do
 
     increaseBalances
         ((w1, r1), in1) ((w2, r2), in2) = do
-            t1 <- addUserWalletBalance w1 r1 in1 ExchangeExchange time
-            t2 <- addUserWalletBalance w2 r2 in2 ExchangeExchange time
+            t1 <- addUserWalletBalance w1 r1 in1 mkType time
+            t2 <- addUserWalletBalance w2 r2 in2 mkType time
             return (t1, t2)
+      where mkType t = (ExchangeExchange t, OrderExchange)
 
     saveDiffProfit r c dp
         | dp < 0 =
@@ -226,40 +229,39 @@ findMatchingOrders order = do
         , ExchangeOrderNormalizedRatio `cond` ratio ]
         [ ord ExchangeOrderNormalizedRatio, Asc ExchangeOrderCreated ]
 
--- | Same as 'addUserWalletBalance' but expected to be used when
--- it is required to extract from wallet POSITIVE values.  Negates amount @a@
--- under the hood
-decreaseUserWalletBalance
-    :: ( MonadIO m
-    , PersistStoreWrite backend
-    , BaseBackend backend ~ SqlBackend)
-    => Entity UserWallet
-    -> WalletTransactionReasonId
-    -> PositiveAmount
-    -> (Int -> WalletTransactionType)
-    -> UTCTime
-    -> ReaderT backend m (Entity WalletBalanceTransaction)
-decreaseUserWalletBalance w t a = addUserWalletBalance w t (negate a)
-
--- | Add @amount@ to @wallet@, saving 'WalletBalanceTransaction'
-addUserWalletBalance
-    :: ( MonadIO m
-    , PersistStoreWrite backend
-    , BaseBackend backend ~ SqlBackend)
+-- | Add @amount@ to @wallet@ query.
+-- Creates and stores 'WalletBalanceTransaction'.
+addUserWalletBalance ::
+       (MonadIO m)
     => Entity UserWallet
     -> WalletTransactionReasonId
     -> Int
-    -> (Int -> WalletTransactionType)
+    -> (Int -> (WalletTransactionType, TransactionTypePlain))
     -> UTCTime
-    -> ReaderT backend m (Entity WalletBalanceTransaction)
+    -> SqlPersistT m (Entity WalletBalanceTransaction)
 addUserWalletBalance wallet reason amount mkType time = do
     let (Entity wid w) = wallet
         before = userWalletAmountCents w
+        (typ, typPlain) = mkType amount
         t = WalletBalanceTransaction
-                wid (mkType amount) reason before time
+                wid typ reason before time (Just typPlain)
     update wid [ UserWalletAmountCents +=. amount ]
     tid <- insert t
     return (Entity tid t)
+
+-- | Same as 'addUserWalletBalance' but expected to be used when
+-- it is required to extract from wallet POSITIVE values.  Negates amount @a@
+-- under the hood
+decreaseUserWalletBalance ::
+       (MonadIO m)
+    => Entity UserWallet
+    -> WalletTransactionReasonId
+    -> PositiveAmount
+    -> (Int -> (WalletTransactionType, TransactionTypePlain))
+    -> UTCTime
+    -> SqlPersistT m (Entity WalletBalanceTransaction)
+decreaseUserWalletBalance w t a = addUserWalletBalance w t (negate a)
+
 
 newWalletReason
     :: ( MonadIO m
