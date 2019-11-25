@@ -754,8 +754,8 @@ fsBs4WithId :: Text -> FieldSettings App
 fsBs4WithId ident = fsWithClasses
     [ "form-control" ] "" Nothing (Just ident) Nothing []
 
-fsWithClasses
-    :: [ Text ]
+fsWithClasses ::
+       [ Text ]
     -> SomeMessage App
     -> Maybe (SomeMessage App)
     -> Maybe Text
@@ -782,14 +782,14 @@ setAppTitle = setCompositeTitle . (:) MsgProjectName
 setAppPageTitle :: AppMessage -> Widget
 setAppPageTitle = setAppTitle . (: [])
 
-getNextPaymentAddressee
-    :: (PaymentMethod -> (Maybe PaymentAddress, PaymentMethod))
+getNextPaymentAddressee ::
+       (PaymentMethod -> (Maybe PaymentAddress, PaymentMethod))
     -> TransferMethod
     -> Handler (Maybe PaymentAddress)
 getNextPaymentAddressee = getNextPaymentGeneric matchMethod
 
-getNextPaymentGeneric
-    :: (TransferMethod -> PaymentMethod -> Bool)
+getNextPaymentGeneric ::
+       (TransferMethod -> PaymentMethod -> Bool)
     -> (PaymentMethod -> (Maybe PaymentAddress, PaymentMethod))
     -> TransferMethod
     -> Handler (Maybe PaymentAddress)

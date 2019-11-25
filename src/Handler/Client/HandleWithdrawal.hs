@@ -4,11 +4,9 @@ module Handler.Client.HandleWithdrawal where
 
 import           Import
 
-import           Local.Persist.Currency
 import           Local.Persist.Wallet   ( TransactionTypePlain (..),
                                           WalletTransactionType (..),
                                           WithdrawalStatus (..) )
-import           Utils.Money
 
 import           Database.Persist.Sql   ( toSqlKey )
 
@@ -17,13 +15,12 @@ postClientCancelWithdrawalR :: Handler Html
 postClientCancelWithdrawalR = do
     requestId <- fmap toSqlKey $ runInputPost $ ireq intField "request-id"
     withClientRequest requestId $ \(Entity rid WithdrawalRequest{..}) -> do
-        t <- liftIO getCurrentTime
         runDB $ do
             let wid = withdrawalRequestWalletId
             let a = withdrawalRequestFrozenAmount
             wallet <- get404 wid
-            user <- get404 (userWalletUserId wallet)
             transactionReasonId <- insert $ WalletTransactionReason wid
+            t <- liftIO getCurrentTime
             update rid [WithdrawalRequestStatus =. WsClientCancelled t]
             let b = userWalletAmountCents wallet
             let tid = transactionReasonId
@@ -34,8 +31,8 @@ postClientCancelWithdrawalR = do
         setMessageI MsgDepositCancelled
         redirect WithdrawalR
 
-withClientRequest
-    :: WithdrawalRequestId
+withClientRequest ::
+       WithdrawalRequestId
     -> (Entity WithdrawalRequest -> Handler Html)
     -> Handler Html
 withClientRequest rid action = do

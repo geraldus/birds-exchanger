@@ -96,10 +96,7 @@ getProfileR = do
     ecs _in
         = "SELECT ?? FROM exchange_order_cancellation \
         \ WHERE exchange_order_cancellation.reason_id IN (" <> _in <>")"
-    transactionByWallet wid =
-            (== wid) . walletBalanceTransactionWalletId . entityVal. fst3
-    fst3 :: (a, b, c) -> a
-    fst3 (x, _, _) = x
+
     thd3 :: (a, b, c) -> c
     thd3 (_, _, x) = x
 
@@ -119,8 +116,8 @@ getProfileR = do
         in d1 == d2
 
 
-transactionTr
-    :: Entity WalletBalanceTransaction
+transactionTr ::
+       Entity WalletBalanceTransaction
     -> Currency
     -> [ (Entity DepositRequest, Entity AcceptedDeposit) ]
     -> [ Entity WithdrawalRequest ]
@@ -162,8 +159,8 @@ transactionTr (Entity wbtId wbt) wbtCurrency drsAdrs wos wcos wros eos ees ecs =
         ExchangeExchange _        -> "exchange-exchange"
         _                         -> mempty
 
-depositDesc
-    :: WalletBalanceTransaction
+depositDesc ::
+       WalletBalanceTransaction
     -> Int
     -> Currency
     -> [ (Entity DepositRequest, Entity AcceptedDeposit) ]
@@ -187,8 +184,8 @@ depositDesc wbt cents c rsAws = toWidget
     requestIdStr = pack . show . fromSqlKey . entityKey
 
 
-withdrawalDesc
-    :: WalletBalanceTransaction
+withdrawalDesc ::
+       WalletBalanceTransaction
     -> Int
     -> Currency
     -> [ Entity WithdrawalRequest ]
@@ -235,12 +232,12 @@ withdrawalRejectDesc wbt cents c rs =
     requestIdStr :: Entity WithdrawalRequest -> Text
     requestIdStr = pack . show . fromSqlKey . entityKey
 
-withdrawalCancelDesc
-    :: WalletBalanceTransaction
-    -> Int
-    -> Currency
-    -> [ ( Entity WithdrawalRequest, Entity WithdrawalCancel ) ]
-    -> Widget
+withdrawalCancelDesc ::
+        WalletBalanceTransaction
+        -> Int
+        -> Currency
+        -> [ ( Entity WithdrawalRequest, Entity WithdrawalCancel ) ]
+        -> Widget
 withdrawalCancelDesc wbt cents c rs =
     toWidget
         [whamlet|
@@ -259,9 +256,8 @@ withdrawalCancelDesc wbt cents c rs =
     requestIdStr :: Entity WithdrawalRequest -> Text
     requestIdStr = pack . show . fromSqlKey . entityKey
 
-
-orderCreationDesc
-    :: WalletBalanceTransaction
+orderCreationDesc ::
+       WalletBalanceTransaction
     -> Int
     -> Currency
     -> [ Entity ExchangeOrder ]
@@ -284,8 +280,8 @@ orderCreationDesc wbt cents c eos = toWidget
     requestIdStr :: Entity ExchangeOrder -> Text
     requestIdStr = pack . show . fromSqlKey . entityKey
 
-orderCancelDesc
-    :: WalletBalanceTransaction
+orderCancelDesc ::
+       WalletBalanceTransaction
     -> Int
     -> Currency
     -> [ Entity ExchangeOrderCancellation ]
@@ -300,7 +296,10 @@ orderCancelDesc wbt cents c ecs =
 
                 $maybe eRequest@(Entity _ ec) <- mRequestE
                     <span>: #
-                    <a href="@{ClientOrderViewR (exchangeOrderCancellationOrderId ec)}" title="_{MsgViewOrderDetails}">
+                    <a
+                        href="@{ClientOrderViewR (exchangeOrderCancellationOrderId ec)}"
+                        title="_{MsgViewOrderDetails}"
+                        >
                         \_{MsgOrder} ##{requestIdStr eRequest}
             |]
   where
@@ -309,8 +308,8 @@ orderCancelDesc wbt cents c ecs =
     requestIdStr :: Entity ExchangeOrderCancellation -> Text
     requestIdStr = pack . show . fromSqlKey . exchangeOrderCancellationOrderId . entityVal
 
-orderExecutionDesc
-    :: WalletBalanceTransaction
+orderExecutionDesc ::
+       WalletBalanceTransaction
     -> Int
     -> Currency
     -> [ Entity ExchangeOrderExecution ]

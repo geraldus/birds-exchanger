@@ -85,7 +85,7 @@ getDepositRequestConfirmationR code = withClientRequestByCode code $
     paymentAddr (FiatTM AlphaBankCard2CardFTM _) _ = [shamlet|Нет адреса для перевода|]
     paymentAddr (FiatTM _ _) adr = [shamlet|#{concat adr}|]
     paymentAddr (CryptoTM PZM) adr =
-        let (w, pk) = case adr of
+        let (w, _) = case adr of
                 w':pk':_ -> (w', pk')
                 w':_ -> (w', "")
                 _ -> ("", "")

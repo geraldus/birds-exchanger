@@ -15,7 +15,7 @@ signUpForm extra = do
     (email, emailV) <- mreq emailField (fsAddPlaceholder (fsBs4WithId eid) "Ваш эл.ящик") Nothing
     (passw, passwV) <- mreq passwordField (fsBs4WithId pid) Nothing
     (confi, confiV) <- mreq passwordField (fsBs4WithId cid) Nothing
-    (terms, termsV) <- mreq
+    (_, termsV) <- mreq
             checkBoxField
             (fsWithClasses
                 [ "form-check-input" ]

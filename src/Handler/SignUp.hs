@@ -21,10 +21,19 @@ import           Text.Blaze.Html.Renderer.Text ( renderHtml )
 import           Yesod.Auth.Util.PasswordStore ( makePassword )
 
 
+authType :: AuthType
 authType = PLAIN
+
+from :: String
 from = "noreply@outb.info"
+
+subject :: String
 subject = "Подтвердите ваш электронный ящик"
+
+plainBody :: Text -> Text -> TL.Text
 plainBody = textContent
+
+htmlBody :: Text -> Text -> TL.Text
 htmlBody = htmlContent
 
 
@@ -105,7 +114,7 @@ data UserCreateResult
     | CreateSuccess
 
 textContent :: Text -> Text -> TL.Text
-textContent email url = renderHtml [shamlet|
+textContent _email url = renderHtml [shamlet|
     Необходимо подтверждение электронной почты.
 
     Для завершения регистрации на сайте #{exchangerHost} пройдите по ссылке:
@@ -118,7 +127,7 @@ textContent email url = renderHtml [shamlet|
     |]
 
 htmlContent :: Text -> Text -> TL.Text
-htmlContent email url = renderHtml [shamlet|
+htmlContent _email url = renderHtml [shamlet|
     <html>
         <head>
         <body>

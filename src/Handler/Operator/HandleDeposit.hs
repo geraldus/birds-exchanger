@@ -27,7 +27,7 @@ postOperatorAcceptDepositRequestR = do
             mue <- runDB . get $ depositRequestUserId
             case mue of
                 Nothing -> notFound
-                Just u  -> do
+                Just _  -> do
                     walletEntity <- getOrCreateWallet
                         depositRequestUserId
                         depositRequestTargetCurrency

@@ -98,10 +98,10 @@ getApiAppConfigR = do
     let defaultPairs = [ ExchangePzmRur, ExchangeOurRur, ExchangeOurPzm ]
     activePairOrders <- concat <$> runDB (mapM selectActiveOrdersOf defaultPairs)
     let domStats = foldMarketOrders defaultPairs activePairOrders
-    let (authMeta, navExtra) = case auth of
-            Nothing -> (object [ "guest" .= True ], [])
-            Just _  -> (object [ "guest" .= False ], userNav url message)
-    let nav = array $ guestNav url message ++ navExtra
+    let authMeta = maybe
+            (object [ "guest" .= True ])
+            (const . object $ [ "guest" .= False ])
+            auth
     let appVersion = showVersion version
     selectRep . provideRep . pure . toJSON $ object
         [ "auth" .= authMeta
