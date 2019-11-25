@@ -164,6 +164,7 @@ Withdraw: Вывод
 Deposit: Пополнение
 Amount: Сумма
 QuantityShort: Кол-во
+ParaMining: Парамайнинг
 
 
 # DEPOSIT / WITHDRAWAL
