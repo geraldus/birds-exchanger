@@ -15,34 +15,36 @@ module Foundation where
 import           Import.NoFoundation
 import           Yesod.Auth.Hardcoded
 import           Yesod.Auth.Message
-import           Yesod.Core.Types        ( Logger )
-import qualified Yesod.Core.Unsafe       as Unsafe
-import           Yesod.Default.Util      ( addStaticContentExternal )
+import           Yesod.Core.Types           ( Logger )
+import qualified Yesod.Core.Unsafe          as Unsafe
+import           Yesod.Default.Util         ( addStaticContentExternal )
 import           Yesod.Form.I18n.Russian
 
 import           Local.Auth
-import           Local.Params            ( defaultWalletCurrencies )
+import           Local.Params               ( defaultWalletCurrencies )
 import           Local.Persist.Currency
 import           Local.Persist.UserRole
-import           Market.Type             ( DOMStats )
+import           Market.Type                ( DOMStats )
 import           Type.App
 import           Utils.Common
-import           Utils.Form              ( currencyOptionListRaw,
-                                           transferOptionsRaw )
+import           Utils.Database.User.Wallet ( getOrCreateWalletDB,
+                                              getUserWallets )
+import           Utils.Form                 ( currencyOptionListRaw,
+                                              transferOptionsRaw )
 import           Utils.Money
 
-import           Control.Monad.Logger    ( LogSource )
-import qualified Crypto.Nonce            as CN
-import qualified Data.CaseInsensitive    as CI
-import           Data.List               ( findIndex )
-import qualified Data.Text.Encoding      as TE
-import           Data.Version            ( showVersion )
-import           Database.Persist.Sql    ( ConnectionPool, fromSqlKey,
-                                           runSqlPool )
-import           Paths_prizm_exchange    ( version )
-import           Text.Hamlet             ( hamletFile )
-import           Text.Jasmine            ( minifym )
-import           Text.Read               ( readMaybe )
+import           Control.Monad.Logger       ( LogSource )
+import qualified Crypto.Nonce               as CN
+import qualified Data.CaseInsensitive       as CI
+import           Data.List                  ( findIndex )
+import qualified Data.Text.Encoding         as TE
+import           Data.Version               ( showVersion )
+import           Database.Persist.Sql       ( ConnectionPool, fromSqlKey,
+                                              runSqlPool )
+import           Paths_prizm_exchange       ( version )
+import           Text.Hamlet                ( hamletFile )
+import           Text.Jasmine               ( minifym )
+import           Text.Read                  ( readMaybe )
 
 
 exchangerName :: Text
@@ -141,7 +143,7 @@ instance Yesod App where
         let isEditorLoggedIn = isEditorUser muser
         let isOperatorLoggedIn = isOperatorUser muser
         let isSuLoggedIn = isSU muser
-        wallets <- if isClientLoggedIn then getUserWallets else pure []
+        wallets <- if isClientLoggedIn then getUserBalnaces else pure []
 
         currentRoute <- getCurrentRoute
         case currentRoute of
@@ -612,7 +614,6 @@ instance PathPiece (Either UserId Text) where
     fromPathPiece = readMaybe . unpack
     toPathPiece = pack . show
 
-
 appNonce128urlT :: Handler Text
 appNonce128urlT = do
     g <- appNonceGen <$> getYesod
@@ -689,15 +690,12 @@ userNameF :: Either User SuperUser -> Text
 userNameF (Left  u) = userIdent u
 userNameF (Right u) = suName u
 
-
-getUserWallets :: Handler [(Int, Currency)]
-getUserWallets = do
+getUserBalnaces ::Handler [(Int, Currency)]
+getUserBalnaces = do
     mAuthPair <- maybeAuthPair
     case mAuthPair of
         Just (Left uid, Left _) -> do
-            wallets <- runDB $ selectList
-                [UserWalletUserId ==. uid]
-                [Desc UserWalletCurrency]
+            wallets <- runDB $ getUserWallets uid
             return $ flip map wallets $ \(Entity _ w) ->
                     (userWalletAmountCents w, userWalletCurrency w)
         _ -> return []
@@ -706,23 +704,10 @@ getUserWallets = do
 accessErrorClientOnly :: Text
 accessErrorClientOnly = "Доступно только для аккаунтов уровня \"Клиент\""
 
-
-
-getOrCreateWalletDB
-    :: UserId -> Currency -> SqlPersistT Handler (Entity UserWallet)
-getOrCreateWalletDB userId currency = do
-    walletTextId <- liftHandler $ appNonce128urlT
-    time <- liftIO getCurrentTime
-    let newWallet = UserWallet userId currency 0 walletTextId time
-    eitherWallet <- insertBy newWallet
-    return $ case eitherWallet of
-        Left entity -> entity
-        Right wid   -> Entity wid newWallet
-
-
 getOrCreateWallet :: UserId -> Currency -> Handler (Entity UserWallet)
-getOrCreateWallet uid = runDB . getOrCreateWalletDB uid
-
+getOrCreateWallet u c = do
+    token <- appNonce128urlT
+    runDB $ getOrCreateWalletDB u token c
 
 fsAddPlaceholder :: FieldSettings App -> Text -> FieldSettings App
 fsAddPlaceholder settings p = let
@@ -838,7 +823,6 @@ getNextPaymentGeneric matchMethodFn selectNext targetTransferMethod = do
                 { appDepositFiatMethods = updates }
         updateMethods (CryptoTM _) app updates = app
                 { appDepositCryptoMethods = updates }
-
 
 matchMethod :: TransferMethod -> PaymentMethod -> Bool
 matchMethod (FiatTM tm tc) (FiatPaymentMethod (FiatTM pm pc) _ _)
