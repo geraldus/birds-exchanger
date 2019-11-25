@@ -9,7 +9,7 @@ where
 
 
 import           Import.NoFoundation
-import           Local.Persist.Currency ( Currency, currSign, currencyCodeT',
+import           Local.Persist.Currency ( Currency, currencyCodeT',
                                           currencySymbol )
 import           Type.Fee               ( Fee (..) )
 import           Type.Money             ( oneCoinCents )
@@ -27,10 +27,10 @@ renderFeeAsDbl (CentsFixed _) = error "no fixed fee logics"
 renderFeeAsDbl (Percent p) = [shamlet|#{show $ p / fromIntegral oneCoinCents}|]
 
 renderCurrencyAmount ::
-        TimeLocale -> [Text] -> [Text] -> Currency -> Int -> Html
-renderCurrencyAmount _loc currencyClasses' valueClasses' c n = [shamlet|
+        TimeLocale -> [Text] -> [Text] -> Bool -> Currency -> Int -> Html
+renderCurrencyAmount _loc currencyClasses' valueClasses' forceSignRender c n = [shamlet|
     <span class=#{valueClasses}>
-        #{amount}
+        #{sign}#{amount}
     <small class=#{currencyClasses}>
         #{symbol}
     |]
@@ -42,13 +42,17 @@ renderCurrencyAmount _loc currencyClasses' valueClasses' c n = [shamlet|
     code = currencyCodeT' c
 
     valueClasses
-        | null valueClasses' = intercalate
-            " "
-            ["value", "font-weight-bold", "text-primary", code]
-        | otherwise = intercalate " " valueClasses'
+        | null valueClasses' =
+                unwordsT ["value", code]
+        | otherwise = unwordsT valueClasses'
 
     currencyClasses
-        | null currencyClasses' = intercalate
-            " "
-            ["currency-symbol", "text-muted", code]
-        | otherwise = intercalate " " currencyClasses'
+        | null currencyClasses' =
+                unwordsT ["currency-symbol", "text-muted", code]
+        | otherwise = unwordsT currencyClasses'
+
+    sign
+        | forceSignRender && n > 0 = "+" :: Html
+        | otherwise = ""
+
+    unwordsT = intercalate " "
