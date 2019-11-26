@@ -20,7 +20,7 @@ import qualified Data.Map                   as M
 
 
 saveAndExecuteOrder ::
-       MonadIO m
+       (MonadIO m, MonadLogger m)
     => UserId
     -> AmountCents
     -> Currency
