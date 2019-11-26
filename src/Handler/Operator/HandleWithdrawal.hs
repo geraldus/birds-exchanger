@@ -70,7 +70,7 @@ postOperatorDeclineWithdrawalRequestR = do
             transactionReasonId
             before
             time
-            (Just WithdrawalRejection)
+            WithdrawalRejection
         update
             walletId
             [ UserWalletAmountCents +=. amount ]

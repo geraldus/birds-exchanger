@@ -23,6 +23,18 @@ PasswordResetToken json
     UniquePasswordResetToken token
 
 
+Referrer json
+    user UserId
+    token Text
+    UniqueReferrer user
+    UniqueReferrerToken token
+
+Referral json
+    user UserId
+    referrer ReferrerId
+    UniqueReferral user referrer
+
+
 UserWallet json
     userId UserId
     currency Currency
@@ -44,7 +56,7 @@ WalletBalanceTransaction json
     walletTransactionReasonId WalletTransactionReasonId
     amountCentsBefore Int
     time UTCTime
-    plainType TransactionTypePlain Maybe default=null
+    plainType TransactionTypePlain
     deriving Show
 
 

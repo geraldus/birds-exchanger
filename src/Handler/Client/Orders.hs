@@ -105,8 +105,10 @@ postClientOrderCancelR = do
             [ ExchangeOrderIsActive =. False
             , ExchangeOrderStatus =. Cancelled time ]
         reasonId <- insert $ WalletTransactionReason walletId
+        let typ = ExchangeReturn income
+            typPlain = OrderCancellation
         insert $ WalletBalanceTransaction
-                walletId (ExchangeReturn income) reasonId before time (Just OrderCancellation)
+                walletId typ reasonId before time typPlain
         insert $ ExchangeOrderCancellation
             orderId
             clientId

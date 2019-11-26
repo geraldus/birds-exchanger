@@ -78,7 +78,7 @@ postOperatorAcceptDepositRequestR = do
                                 wtrId
                                 (userWalletAmountCents userWallet)
                                 time
-                                (Just DepositAccept)
+                                DepositAccept
                         update userWalletId
                                [UserWalletAmountCents +=. realWalletIncome]
                     redirect OperatorDepositRequestsListR

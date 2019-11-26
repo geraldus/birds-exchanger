@@ -25,8 +25,10 @@ postClientCancelWithdrawalR = do
             let b = userWalletAmountCents wallet
             let tid = transactionReasonId
             insert $ WithdrawalCancel rid tid t
+            let typ = BalanceWithdrawalCancel a
+                typPlain = WithdrawalCancellation
             insert $ WalletBalanceTransaction
-                    wid (BalanceWithdrawalCancel a) tid b t (Just WithdrawalCancellation)
+                    wid typ tid b t typPlain
             update wid [UserWalletAmountCents +=. a]
         setMessageI MsgDepositCancelled
         redirect WithdrawalR

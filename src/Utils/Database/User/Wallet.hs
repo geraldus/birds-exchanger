@@ -261,7 +261,7 @@ addUserWalletBalance wallet reason amount mkType time = do
         before = userWalletAmountCents w
         (typ, typPlain) = mkType amount
         t = WalletBalanceTransaction
-                wid typ reason before time (Just typPlain)
+                wid typ reason before time typPlain
         -- update last para-time when needed
         -- update time even if no actual paramining will be accrued
         -- in such scenario un-accrued value will be lost

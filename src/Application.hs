@@ -22,17 +22,13 @@ module Application
 
 import           Import                               hiding ( isNothing,
                                                         update, (=.), (==.) )
-import qualified Import                               as I ( (=.) )
 import           Local.Persist.Exchange               ( ExchangePair (..) )
-import           Local.Persist.Wallet                 ( TransactionTypePlain (..),
-                                                        WalletTransactionType (..) )
 import           Market.Functions                     ( reduceDomStats )
 import           Type.App
 import           Utils.Database.Orders                ( selectActiveOrdersOf )
 
 import           Control.Monad.Logger                 ( liftLoc, runLoggingT )
 import qualified Crypto.Nonce                         as CN
-import           Database.Esqueleto
 import           Database.Persist.Postgresql          ( createPostgresqlPool,
                                                         pgConnStr, pgPoolSize,
                                                         runSqlPool )
@@ -144,8 +140,6 @@ makeFoundation appSettings = do
     runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
 
     -- Perform manual migraions
-    flip runSqlPool pool $
-        migrateHelper_WalletBalanceTransactions
 
     orders <- flip runSqlPool pool $ mapM
         selectActiveOrdersOf
@@ -260,38 +254,6 @@ db :: ReaderT SqlBackend Handler a -> IO a
 db = handler . runDB
 
 
-migrateHelper_WalletBalanceTransactions :: (MonadIO m) =>
-        SqlPersistT m [Entity WalletBalanceTransaction]
-migrateHelper_WalletBalanceTransactions = do
-    trs <- select . from $ \ t -> do
-        where_ (isNothing (t ^. WalletBalanceTransactionPlainType))
-        return t
-    if not (null trs)
-        then do
-            putStrLn $
-                   "Updating "
-                <> (pack . show . length) trs
-                <> " wallet transactions"
-            let updates = map prepUpdate trs
-            mapM updateSetPlainType updates
-            -- return []
-        else return []
-  where
-    updateSetPlainType (t, typ) =
-        Entity t <$> updateGet t [ WalletBalanceTransactionPlainType I.=. Just typ ]
 
-    prepUpdate (Entity tid tr) = (tid, upd)
-      where
-        upd = case walletBalanceTransactionType tr of
-            BalanceDeposit _          -> DepositAccept
-            BalanceWithdrawal _       -> WithdrawalCreation
-            BalanceWithdrawalCancel _ -> WithdrawalCancellation
-            BalanceWithdrawalReject _ -> WithdrawalRejection
-            ExchangeFreeze _          -> OrderCreation
-            ExchangeReturn _          -> OrderCancellation
-            ExchangeExchange _        -> OrderExchange
-            Penalty _                 -> BalancePenalty
-            Bonus _                   -> BalanceBonus
-            ParaMining _              -> ParaMiningAccrual
 
 
