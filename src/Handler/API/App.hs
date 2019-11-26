@@ -111,7 +111,6 @@ getApiAppConfigR = do
                 , "extraLabel" .= message MsgVerPublicBeta
                 ]
             ]
-        , "nav" .= nav
         , "dom" .= toJsonFullMarketDom domStats
         ]
 
