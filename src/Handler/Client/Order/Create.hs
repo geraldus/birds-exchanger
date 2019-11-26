@@ -67,7 +67,7 @@ postExchangeOrderCreateR = do
                 Insertion _ paraMap _ -> do
                     runHandler <- handlerToIO
                     liftIO . forkIO $ do
-                        putStrLn $ pShow paraMap
+                        putStrLn . toStrict . pShow $ paraMap
                     return ()
                 _ -> return ()
             return . flipPair . defPairDir $ p
