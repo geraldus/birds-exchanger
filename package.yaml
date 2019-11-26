@@ -57,6 +57,7 @@ dependencies:
 - yesod-websockets
 - aeson-pretty
 - network
+- pretty-simple
 
 default-extensions:
 - TemplateHaskell

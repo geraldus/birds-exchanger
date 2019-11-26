@@ -50,4 +50,8 @@ currencyDefaultMinimalDeposit c
 defaultWalletCurrencies :: [Currency]
 defaultWalletCurrencies = [ rubC, pzmC, ouroC ]
 
+defaultParaMiningDelaySeconds :: Int
+defaultParaMiningDelaySeconds = 10
+
+
 -- TODO: FIXME: Configure minimum withdrawal bounds

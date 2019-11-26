@@ -4,20 +4,23 @@
 module Handler.Profile where
 
 import           Import
-import           Local.Persist.Currency ( Currency, currSign, currencyCodeT,
-                                          currencyCodeT', currencyNameT, ouroC,
-                                          pzmC )
+import           Local.Persist.Currency     ( Currency, currSign, currencyCodeT,
+                                              currencyCodeT', currencyNameT,
+                                              currencySymbol )
 import           Local.Persist.Wallet
+import           Type.Wallet                ( WalletData (..) )
 import           Utils.App.Client
-import           Utils.Common           ( selectLocale )
+import           Utils.Common               ( selectLocale )
+import           Utils.Database.User.Wallet
 import           Utils.Money
-import           Utils.Time             ( renderDateRow,
-                                          timezoneOffsetFromCookie )
+import           Utils.Render               ( renderCurrencyAmount )
+import           Utils.Time                 ( renderDateRow,
+                                              timezoneOffsetFromCookie )
 
-import           Data.Time.Clock        ( addUTCTime, diffUTCTime )
-import           Data.Time.Clock.POSIX  ( utcTimeToPOSIXSeconds )
-import           Database.Persist.Sql   ( Single (..), fromSqlKey, rawSql )
-import           Text.Julius            ( RawJS (..) )
+import           Data.Time.Clock            ( addUTCTime )
+import           Data.Time.Clock.POSIX      ( utcTimeToPOSIXSeconds )
+import           Database.Persist.Sql       ( Single (..), fromSqlKey, rawSql )
+import           Text.Julius                ( RawJS (..) )
 
 
 getProfileR :: Handler Html
@@ -148,7 +151,7 @@ transactionTr (Entity wbtId wbt) wbtCurrency drsAdrs wos wcos wros eos ees ecs =
         ExchangeFreeze cents -> orderCreationDesc wbt cents wbtCurrency eos
         ExchangeExchange cents -> orderExecutionDesc wbt cents wbtCurrency ees
         ExchangeReturn cents -> orderCancelDesc wbt cents wbtCurrency ecs
-        _ -> toWidget (mempty :: Html)
+        ParaMining cents -> paraMiningDesc wbt cents wbtCurrency
     trType :: Html
     trType = case wbtType of
         BalanceDeposit _          -> "deposit"
@@ -333,18 +336,18 @@ orderExecutionDesc wbt cents c ees = toWidget
     requestIdStr =
             pack . show . fromSqlKey . exchangeOrderExecutionOrderId . entityVal
 
+paraMiningDesc ::
+       WalletBalanceTransaction
+    -> Int
+    -> Currency
+    -> Widget
+paraMiningDesc wbt cents c = toWidget
+    [whamlet|
+        <td>#{renderAmount cents c}
+        <td><span>_{MsgParaMining}
+        |]
 
 
 renderAmount :: Int -> Currency -> Html
-renderAmount amt cur = [shamlet|
-    <span>
-        <big>
-            #{centsT}#
-            <small .text-muted>
-                \#{sign} |]
-  where
-    centsT' = cents2dblT amt
-    prefix = if amt > 0 then "+" else ""
-    centsT = prefix <> centsT'
-    sign = currSign cur
-
+renderAmount amt cur =
+    renderCurrencyAmount (error "no locale") [] ["value"] True cur amt

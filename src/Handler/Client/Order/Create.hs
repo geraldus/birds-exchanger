@@ -8,11 +8,17 @@ module Handler.Client.Order.Create where
 import           Import
 
 import           Form.Exchanger.Order
-import           Local.Params                    ( defaultExchangeFee )
+import           Local.Params              ( defaultExchangeFee,
+                                             defaultParaMiningDelaySeconds )
 import           Local.Persist.Currency
 import           Local.Persist.Exchange
 import           Utils.Database.Operations
 import           Utils.Money
+
+import           Control.Concurrent        ( forkIO, threadDelay )
+import qualified Data.Map                  as M
+
+import           Text.Pretty.Simple ( pShow )
 
 
 data ProcessForm
@@ -26,10 +32,10 @@ postExchangeOrderCreateR = do
     client <- requireClientId
     rid <- newIdent
     wid <- newIdent
-    ((res, _), _) <- runFormPost $ createOrderForm wid rid
+    ((formResult, _), _) <- runFormPost $ createOrderForm wid rid
         ExchangePzmRur -- This is not actually used here, will be
         -- valueable when rendering form widget takes place
-    proceessResult <- case res of
+    processResult <- case formResult of
         FormMissing    -> return ProcessFormNoData
         FormFailure es -> return $
                 ProcessFormErrors $ zip (repeat "form") es
@@ -46,18 +52,26 @@ postExchangeOrderCreateR = do
             mr <- getMessageRender
             t <- liftIO getCurrentTime
             return $ processNewOrder client d a r t mr
-    pair' <- case proceessResult of
+    pair' <- case processResult of
         ProcessFormErrors es -> do
             -- TODO: FIXME: Add JSON response capabilities
             let msg = [shamlet|
                     $forall (_, message) <- es
                         <div>#{message}|]
             setMessage msg
-            return ExchangePzmRur
+            return ExchangeOurRur
         ProcessFormSuccess a c t p checkOrder -> do
-            runDB (saveAndExecuteOrder client a c t checkOrder)
+            res <- runDB $
+                 saveAndExecuteOrder client a c t checkOrder
+            case res of
+                Insertion _ paraMap _ -> do
+                    runHandler <- handlerToIO
+                    liftIO . forkIO $ do
+                        putStrLn $ pShow paraMap
+                    return ()
+                _ -> return ()
             return . flipPair . defPairDir $ p
-        _ -> return ExchangePzmRur
+        _ -> return ExchangeOurRur
     let (c1', c2') = unPairCurrency pair'
         c1 = toLower $ currencyCodeT c1'
         c2 = toLower $ currencyCodeT c2'

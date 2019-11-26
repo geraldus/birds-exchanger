@@ -4,28 +4,29 @@ module Utils.Database.Operations where
 
 import           Import.NoFoundation
 
-import           Local.Params           ( defaultExchangeFee )
-import           Local.Persist.Currency ( Currency (..) )
-import           Local.Persist.Exchange ( ExchangeOrderStatus (..),
-                                          ExchangePair (..), ProfitType (..) )
-import           Local.Persist.Wallet   ( TransactionTypePlain (..),
-                                          WalletTransactionType (..) )
+import           Local.Params               ( defaultExchangeFee )
+import           Local.Persist.Currency     ( Currency (..) )
+
+import           Local.Persist.Exchange     ( ExchangeOrderStatus (..),
+                                              ExchangePair (..),
+                                              ProfitType (..) )
+import           Local.Persist.Wallet       ( TransactionTypePlain (..),
+                                              WalletTransactionType (..) )
+import           Type.Wallet                ( WalletData (..) )
+import           Utils.Database.User.Wallet
 import           Utils.Money
 
+import qualified Data.Map                   as M
 
-saveAndExecuteOrder
-    ::  ( MonadIO m
-        , MonadLogger m
-        , PersistStoreWrite backend
-        , PersistQueryRead backend
-        , PersistUniqueRead backend
-        , BaseBackend backend ~ SqlBackend )
+
+saveAndExecuteOrder ::
+       MonadIO m
     => UserId
     -> AmountCents
     -> Currency
     -> UTCTime
     -> (UserWallet -> OrderCheck)
-    -> ReaderT backend m OrderInsertionDbData
+    -> SqlPersistT m OrderInsertionDbData
 saveAndExecuteOrder client a c t withWalletCheck = do
     wallet <- getBy404 $ UniqueWallet client c
     let orderCheck = withWalletCheck (entityVal wallet)
@@ -33,22 +34,17 @@ saveAndExecuteOrder client a c t withWalletCheck = do
         OrderCheckErrors es -> return $ NoInsertion es
         OrderCheckSuccess withReasonOrder -> do
             (orderSaveTransactionD, o) <- saveOrder wallet a t withReasonOrder
-            let saveData = (o, orderSaveTransactionD)
-            exeData <- executeSavedOrder o t
-            return $ Insertion saveData exeData
+            let savedData = (o, orderSaveTransactionD)
+            (paraMap, exeData) <- executeSavedOrder wallet o t
+            return $ Insertion savedData paraMap exeData
 
-saveOrder
-    ::  ( MonadIO m
-        , MonadLogger m
-        , PersistStoreWrite backend
-        , PersistQueryRead backend
-        , PersistUniqueRead backend
-        , BaseBackend backend ~ SqlBackend )
+saveOrder ::
+       (MonadIO m , MonadLogger m)
     => Entity UserWallet
     -> AmountCents
     -> UTCTime
     -> (WalletTransactionReasonId -> ExchangeOrder)
-    -> ReaderT backend m (TransactionD, Entity ExchangeOrder)
+    -> SqlPersistT m (TransactionD, Entity ExchangeOrder)
 saveOrder w a time withReasonOrder = do
     r <- newWalletReason (entityKey w)
     t <- decreaseUserWalletBalance w r a mkType time
@@ -57,33 +53,40 @@ saveOrder w a time withReasonOrder = do
     return (TransactionD t r, Entity oid o)
   where mkType t = (ExchangeFreeze t, OrderCreation)
 
-executeSavedOrder
-    ::  ( MonadIO m
-        , MonadLogger m
-        , PersistStoreWrite backend
-        , PersistQueryRead backend
-        , PersistUniqueRead backend
-        , BaseBackend backend ~ SqlBackend )
-    => Entity ExchangeOrder
+executeSavedOrder ::
+       (MonadIO m , MonadLogger m)
+    => Entity UserWallet
+    -> Entity ExchangeOrder
     -> UTCTime
-    -> ReaderT backend m [ OrderExecutionData ]
-executeSavedOrder o t = do
-    ms <- findMatchingOrders o
-    executeExchange o ms t []
+    -> SqlPersistT m (WalletParaMap, [ OrderExecutionData ])
+executeSavedOrder targetOutWallet@(Entity targetOutWalletId _) o t = do
+    matches <- findMatchingOrders o
+    if null matches
+        then return (M.empty, [])
+        else do
+            let savedOrder = entityVal o
+            let targetUser = exchangeOrderUserId savedOrder
+            let (_, cIn) = unPairCurrency (exchangeOrderPair savedOrder)
+            targetInWallet@(Entity targetInWalletId _) <-
+                    getWallet404 targetUser cIn
+            tOutStats <- getUserWalletStats targetOutWallet
+            tInStats  <- getUserWalletStats targetInWallet
+            let initialMap = M.fromList
+                    [ (targetOutWalletId, tOutStats)
+                    , (targetInWalletId, tInStats) ]
+            (walMap, exchangeResults) <-
+                    executeExchange o matches t (initialMap, [])
+            return (walMap, exchangeResults)
 
-executeExchange
-    ::  ( MonadIO m
-        , MonadLogger m
-        , PersistStoreWrite backend
-        , PersistQueryRead backend
-        , PersistUniqueRead backend
-        , BaseBackend backend ~ SqlBackend )
+executeExchange ::
+       (MonadIO m , MonadLogger m)
     => Entity ExchangeOrder
-    -> [ Entity ExchangeOrder ]
+    -- -> [ (Entity ExchangeOrder, Entity UserWallet, Entity UserWallet) ]
+    -> [Entity ExchangeOrder]
     -> UTCTime
-    -> [ OrderExecutionData ]
-    -> ReaderT backend m [ OrderExecutionData ]
-executeExchange _ [] _ a = pure a
+    -> (WalletParaMap, [ OrderExecutionData ])
+    -> SqlPersistT m (WalletParaMap, [ OrderExecutionData ])
+executeExchange _ [] _ acc = pure acc
 executeExchange target (match:rest) time acc' = do
     let (Entity tId t) = target
     let (Entity _ m) = match
@@ -93,13 +96,17 @@ executeExchange target (match:rest) time acc' = do
         error "Impossible happened!  Order pairs not match"
     when (wrongRatioCase tK mK tPair) $
         error "Impossible happened!  Wrong ratio condition"
+    let (matchOutC, matchInC) = unPairCurrency mPair
+    let matchOwner = exchangeOrderUserId m
+    matchWallets <- getUserWalletsByCurrency matchOwner [matchOutC, matchInC]
+    let (wpm, exd) = acc'
+    newMap <- updateParaMapFromList matchWallets wpm
     (targetClosed, ed, tUpdated) <- execute
-    let acc = ed : acc'
+    let acc = (newMap, ed : exd)
     if targetClosed
         then return acc
         else executeExchange (Entity tId tUpdated) rest time acc
   where
-
     execute = do
         let (Entity tid t) = target
         let (Entity mid m) = match
@@ -136,11 +143,6 @@ executeExchange target (match:rest) time acc' = do
                 , exchangeOrderIsActive = tClosed
                 }
         return (tClosed, (tData, mData), tUpdated)
-
-    getWallets404 (c1, cur1) (c2, cur2)= do
-        w1 <- getBy404 $ UniqueWallet c1 cur1
-        w2 <- getBy404 $ UniqueWallet c2 cur2
-        return (w1, w2)
 
     mkReasons (w1, w2) = (,)
         <$> newWalletReason (entityKey w1)
@@ -201,15 +203,16 @@ executeExchange target (match:rest) time acc' = do
             insert tr >>= \x -> pure . Just . Entity x  $ tr
         | otherwise = pure Nothing
 
+    updateParaMap walMap w1 w2 = do
+        walMap' <- updateParaMapWith w1 walMap
+        updateParaMapWith w2 walMap'
+
     wrongRatioCase tk mk = dirPairMatch (mk > tk) (mk < tk)
 
-findMatchingOrders
-    ::  ( MonadIO m
-        , PersistStoreWrite backend
-        , PersistQueryRead backend
-        , BaseBackend backend ~ SqlBackend )
+findMatchingOrders ::
+       (MonadIO m)
     => Entity ExchangeOrder
-    -> ReaderT backend m [ Entity ExchangeOrder ]
+    -> SqlPersistT m [Entity ExchangeOrder]
 findMatchingOrders order = do
     let (Entity orderId o) = order
     let opair = exchangeOrderPair o
@@ -229,52 +232,54 @@ findMatchingOrders order = do
         , ExchangeOrderNormalizedRatio `cond` ratio ]
         [ ord ExchangeOrderNormalizedRatio, Asc ExchangeOrderCreated ]
 
--- | Add @amount@ to @wallet@ query.
--- Creates and stores 'WalletBalanceTransaction'.
-addUserWalletBalance ::
-       (MonadIO m)
-    => Entity UserWallet
-    -> WalletTransactionReasonId
-    -> Int
-    -> (Int -> (WalletTransactionType, TransactionTypePlain))
+mkNewOrderData ::
+       UserId
+    -> AmountCents
+    -> NormalizedRatio
+    -> ExchangePair
+    -> FeeCents
     -> UTCTime
-    -> SqlPersistT m (Entity WalletBalanceTransaction)
-addUserWalletBalance wallet reason amount mkType time = do
-    let (Entity wid w) = wallet
-        before = userWalletAmountCents w
-        (typ, typPlain) = mkType amount
-        t = WalletBalanceTransaction
-                wid typ reason before time (Just typPlain)
-    update wid [ UserWalletAmountCents +=. amount ]
-    tid <- insert t
-    return (Entity tid t)
-
--- | Same as 'addUserWalletBalance' but expected to be used when
--- it is required to extract from wallet POSITIVE values.  Negates amount @a@
--- under the hood
-decreaseUserWalletBalance ::
-       (MonadIO m)
-    => Entity UserWallet
     -> WalletTransactionReasonId
-    -> PositiveAmount
-    -> (Int -> (WalletTransactionType, TransactionTypePlain))
-    -> UTCTime
-    -> SqlPersistT m (Entity WalletBalanceTransaction)
-decreaseUserWalletBalance w t a = addUserWalletBalance w t (negate a)
+    -> ExchangeOrder
+mkNewOrderData u a r p f time =
+    ExchangeOrder u p a a (defPairDir p) r f time (Created time) True
 
 
-newWalletReason
-    :: ( MonadIO m
-       , PersistStoreWrite backend
-       , BaseBackend backend ~ SqlBackend)
-    => Key UserWallet
-    -> ReaderT backend m (Key WalletTransactionReason)
-newWalletReason w = insert $ WalletTransactionReason w
+accrueParaMining ::
+        MonadIO m => WalletData -> SqlPersistT m [Entity WalletBalanceTransaction]
+accrueParaMining d = do
+    nowUTC <- liftIO getCurrentTime
+    let wallet@(Entity walletId w) = walletDataWallet d
+        currency = userWalletCurrency w
+        walletBalance = userWalletAmountCents w
+        ordersActives = walletDataOrdersCents d
+        withdrawalActives = walletDataWithdrawalCents d
+        paraBase = walletBalance + ordersActives + withdrawalActives
+        lastTransTime =
+                (walletBalanceTransactionTime . entityVal)
+                <$> walletDataLastParaTransaction d
+        lastTime = userWalletLastParaTransaction w <|> lastTransTime
+        paraCents = fst <$>
+            (lastTime >>= (\t -> currencyAmountPara nowUTC t currency paraBase))
+    case paraCents of
+        Nothing -> return []
+        Just doubleCents -> do
+            reason <- newWalletReason walletId
+            let cents = ceiling doubleCents
+            x <- addUserWalletBalance
+                    wallet reason cents (\x -> (ParaMining x, ParaMiningAccrual)) nowUTC
+            return [x]
 
+-- * Utilities
+
+-- | Select first option if default exchnage direction matches pair @p@.
+dirPairMatch :: a -> a -> ExchangePair -> a
+dirPairMatch equals notEquals p =
+    if defPairDir p == p then equals else notEquals
 
 -- | Calculate exchange results for given orders
-exchangeParams
-    :: ExchangeOrder
+exchangeParams ::
+       ExchangeOrder
     -> ExchangeOrder
     -> (TargetParams, MatchParams, DiffProfit)
 exchangeParams target match =
@@ -298,8 +303,8 @@ exchangeParams target match =
 
 
 -- | Extract order parameters meaningful for exchange calculation
-orderParams
-    :: ExchangeOrder
+orderParams ::
+       ExchangeOrder
     -> (AmountLeft, ExchangePair, NormalizedRatio, DirectRatio, AmountExpected)
 orderParams ExchangeOrder{..} =
     let l = exchangeOrderAmountLeft
@@ -309,25 +314,22 @@ orderParams ExchangeOrder{..} =
         e = multiplyCents r l
     in (l, p, k, r, e)
 
-mkNewOrderData
-    :: UserId
-    -> AmountCents
-    -> NormalizedRatio
-    -> ExchangePair
-    -> FeeCents
-    -> UTCTime
-    -> WalletTransactionReasonId
-    -> ExchangeOrder
-mkNewOrderData u a r p f time =
-    ExchangeOrder u p a a (defPairDir p) r f time (Created time) True
+updateParaMapFromList ::
+       MonadIO m
+    => [Entity UserWallet] -> WalletParaMap -> SqlPersistT m WalletParaMap
+updateParaMapFromList [] acc = return acc
+updateParaMapFromList (wallet : rest) acc = do
+    newMap <- updateParaMapWith wallet acc
+    updateParaMapFromList rest newMap
 
--- | Select first option if default exchnage direction matches pair @p@.
-dirPairMatch :: a -> a -> ExchangePair -> a
-dirPairMatch equals notEquals p =
-    if defPairDir p == p then equals else notEquals
+updateParaMapWith :: MonadIO m => Entity UserWallet -> WalletParaMap -> SqlPersistT m WalletParaMap
+updateParaMapWith w@(Entity k _) m =
+    if k `M.member` m
+        then pure m
+        else getUserWalletStats w >>= insertWalletStats k m
+  where insertWalletStats k m x = return (M.insert k x m)
 
-
--- ## Helper Types
+-- * Helper Types
 
 data OrderCheck
     = OrderCheckErrors [ LabeledError ]
@@ -350,11 +352,13 @@ data ExecutionD = ExecutionD
 
 data OrderInsertionDbData
     = NoInsertion [ LabeledError ]
-    | Insertion OrderSaveData [ OrderExecutionData ]
+    | Insertion OrderSaveData WalletParaMap [ OrderExecutionData ]
 
 type OrderSaveData = (Entity ExchangeOrder, TransactionD)
 
 type OrderExecutionData = (ExecutionD, ExecutionD)
+
+type WalletParaMap = M.Map UserWalletId WalletData
 
 type AmountCents = Int
 

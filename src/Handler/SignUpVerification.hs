@@ -7,6 +7,7 @@
 module Handler.SignUpVerification where
 
 import           Import
+import           Local.Params           ( defaultWalletCurrencies )
 import           Local.Persist.Currency ( Currency )
 
 
@@ -63,7 +64,7 @@ createWallets (Entity _ Email{..}) = do
         Just _ -> do
             idents <- mapM tokenize defaultWalletCurrencies
             time <- liftIO getCurrentTime
-            let wallets = map (\(c, i) -> UserWallet userId c 0 i time) idents
+            let wallets = map (\(c, i) -> UserWallet userId c 0 i time Nothing) idents
             ids <- mapM insert wallets
             return $ zipWith Entity ids wallets
     where
