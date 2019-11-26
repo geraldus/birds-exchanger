@@ -65,7 +65,6 @@ postExchangeOrderCreateR = do
                  saveAndExecuteOrder client a c t checkOrder
             case res of
                 Insertion _ paraMap _ -> do
-                    runHandler <- handlerToIO
                     liftIO . forkIO $ do
                         putStrLn . toStrict . pShow $ paraMap
                     return ()
