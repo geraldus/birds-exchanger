@@ -44,6 +44,9 @@ ClientOrdersPageTitle: Мои ордера
 ClientDepositPageTitle: Пополнение счёта
 ClientWithdrawalPageTitle: Вывод средств
 ClientSettingsPageTitle: Настройки
+ClientWalletStatsBalanceSectionTitle: На балансе
+ClientWalletStatsOrdersSectionTitle: В активных ордерах
+ClientWalletStatsWithdrawalSectionTitle: В неисполненных заявках на вывод
 
 ### CLIENT MESSAGES
 MessageClientPasswordResetTitle: Восстановление пароля
