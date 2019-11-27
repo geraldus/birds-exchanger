@@ -1,0 +1,4 @@
+.wallet-stats .stats-icon
+    color: rgba(0, 0, 0, 0.36)
+    width: 12px
+    text-align: center

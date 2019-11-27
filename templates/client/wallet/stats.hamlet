@@ -1,0 +1,14 @@
+<div .wallet-stats .#{currencyCode} .col-6 .col-md-4 .col-lg-3 .my-1>
+    <div>
+        <span .text-uppercase .text-primary>
+            #{currencyName}
+    <div title="_{MsgClientWalletStatsBalanceSectionTitle}">
+        <i .fas .fa-dollar-sign .stats-icon>
+        #{walletCents}
+    <div title="_{MsgClientWalletStatsOrdersSectionTitle}">
+        <i .fas .fa-file-invoice-dollar .stats-icon>
+        #{orderCents}
+    <div title="_{MsgClientWalletStatsWithdrawalSectionTitle}">
+        <i .fas .fa-hand-holding-usd .stats-icon>
+        #{withdrawalCents}
+    ^{paraStats}

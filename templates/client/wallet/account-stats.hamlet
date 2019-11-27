@@ -1,0 +1,17 @@
+<div #wallet-stats .container-fluid style="font-size: 0.8rem">
+    <div .wallet-stats .data .row .mt-2>
+        $forall w <- ws
+            ^{walletStats w}
+    <div .wallet-stats .legend .row .mt-2 .text-muted>
+        <div .col-12 .col-md-6 .col-lg-3>
+            <i .fas .fa-dollar-sign .stats-icon>
+            _{MsgClientWalletStatsBalanceSectionTitle}
+        <div .col-12 .col-md-6 .col-lg-3>
+            <i .fas .fa-file-invoice-dollar .stats-icon>
+            _{MsgClientWalletStatsOrdersSectionTitle}
+        <div .col-12 .col-md-6 .col-lg-3>
+            <i .fas .fa-hand-holding-usd .stats-icon>
+            _{MsgClientWalletStatsWithdrawalSectionTitle}
+        <div .col-12 .col-md-6 .col-lg-3>
+            <i .fas .fa-angle-double-up .stats-icon>
+            _{MsgParaMining}

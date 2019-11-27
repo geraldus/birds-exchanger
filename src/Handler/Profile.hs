@@ -65,6 +65,7 @@ getProfileR = do
     dataTableId <- newIdent
     defaultLayout $ do
         setAppPageTitle MsgClientProfilePageTitle
+        let walletTotals = accountWalletStats wallets
         $(widgetFile "profile")
   where
     s
@@ -346,6 +347,59 @@ paraMiningDesc wbt cents c = toWidget
         <td>#{renderAmount cents c}
         <td><span>_{MsgParaMining}
         |]
+
+accountWalletStats :: [Entity UserWallet] -> Widget
+accountWalletStats ws = $(widgetFile "client/wallet/account-stats")
+
+walletStats :: Entity UserWallet -> Widget
+walletStats wal@(Entity _ w) = do
+    now <- liftIO getCurrentTime
+    (os, rs, pt) <- handlerToWidget . runDB $ do
+        os'   <- getUserWalletActiveOrders wal
+        rs'   <- getUserWalletActiveWithdrawal wal
+        paraTime' <- lastWalletStrictParaTimeDB wal
+        return (os', rs', paraTime')
+    let wc = userWalletCurrency w
+        stats = foldUserWalletStats wal os rs pt
+        walCents = userWalletAmountCents w
+        ordCents = walletDataOrdersCents stats
+        wreqCents = walletDataWithdrawalCents stats
+        cents = walCents + ordCents + wreqCents
+        currencyCode = (toLower . currencyCodeT') wc
+        currencyName = currencyNameT wc
+        walletCents =
+            renderCurrencyAmount (error "no locale") [] [] False wc walCents
+        orderCents =
+            renderCurrencyAmount (error "no locale") [] [] False wc ordCents
+        withdrawalCents =
+            renderCurrencyAmount (error "no locale") [] [] False wc wreqCents
+        lastParaTime = pt
+        paraCents = lastParaTime >>= \t ->
+            if cents < 1
+            then
+                Just (0, 0, t)
+            else
+                (\(v, k) -> (v, k, t)) <$> currencyAmountPara now t wc cents
+
+        paraStats :: Widget
+        paraStats = maybe
+                mempty
+                (\(v, k, time) -> [whamlet|
+                    <div title="_{MsgParaMining}">
+                        <i .fas .fa-angle-double-up .stats-icon>
+                        <span .value .para .#{currencyCodeT' wc}>
+                            #{fixedDoubleT 7 (v / 100)}
+                        <small .currency .para .#{currencyCodeT' wc} .text-muted>
+                            #{currencySymbol wc}
+                    <script>
+                        window['para_#{currencyCodeT' wc}'] = {
+                            timestamp: #{fixedDoubleT 12 (realToFrac (utcTimeToPOSIXSeconds time) * 1000)},
+                            amount: #{show cents},
+                            k_s: #{fixedDoubleT 12 (realToFrac k)}
+                        };
+                    |])
+                paraCents
+    $(widgetFile "client/wallet/stats")
 
 
 renderAmount :: Int -> Currency -> Html
