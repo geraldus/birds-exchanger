@@ -245,9 +245,10 @@ mkNewOrderData u a r p f time =
     ExchangeOrder u p a a (defPairDir p) r f time (Created time) True
 
 
-accrueParaMining ::
-        MonadIO m => WalletData -> SqlPersistT m [Entity WalletBalanceTransaction]
-accrueParaMining d = do
+accrueParaminingDB ::
+        MonadIO m
+        => WalletData -> SqlPersistT m [Entity WalletBalanceTransaction]
+accrueParaminingDB d = do
     nowUTC <- liftIO getCurrentTime
     let wallet@(Entity walletId w) = walletDataWallet d
         currency = userWalletCurrency w
@@ -255,17 +256,15 @@ accrueParaMining d = do
         ordersActives = walletDataOrdersCents d
         withdrawalActives = walletDataWithdrawalCents d
         paraBase = walletBalance + ordersActives + withdrawalActives
-        lastTransTime =
-                (walletBalanceTransactionTime . entityVal)
-                <$> walletDataLastParaTransaction d
-        lastTime = userWalletLastParaTransaction w <|> lastTransTime
+        lastTransTime = walletDataLastParaTime d
+        lastTime = lastTransTime
         paraCents = fst <$>
             (lastTime >>= (\t -> currencyAmountPara nowUTC t currency paraBase))
     case paraCents of
         Nothing -> return []
         Just doubleCents -> do
             reason <- newWalletReason walletId
-            let cents = ceiling doubleCents
+            let cents = truncate doubleCents
             x <- addUserWalletBalance
                     wallet reason cents (\x -> (ParaMining x, ParaMiningAccrual)) nowUTC
             return [x]
