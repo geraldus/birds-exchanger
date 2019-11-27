@@ -3,13 +3,16 @@
 module Handler.Operator.HandleDeposit where
 
 import           Import
-import           Local.Persist.Exchange ( ProfitType (..) )
+
+import           Handler.Client.Paramining  ( scheduleParaminingAccrual )
+import           Local.Persist.Exchange     ( ProfitType (..) )
 import           Local.Persist.Wallet
-import           Type.Money             ( oneCoinCents )
+import           Type.Money                 ( oneCoinCents )
+import           Utils.Database.User.Wallet ( getUserWalletStats )
 import           Utils.Deposit
 import           Utils.Money
 
-import           Database.Persist.Sql   ( toSqlKey )
+import           Database.Persist.Sql       ( toSqlKey )
 
 
 postOperatorAcceptDepositRequestR :: Handler Html
@@ -32,7 +35,7 @@ postOperatorAcceptDepositRequestR = do
                         depositRequestUserId
                         depositRequestTargetCurrency
                     let (Entity userWalletId userWallet) = walletEntity
-                    runDB $ do
+                    stats <- runDB $ do
                         wtrId <- insert $ WalletTransactionReason userWalletId
                         update
                             drId
@@ -49,11 +52,11 @@ postOperatorAcceptDepositRequestR = do
                         let realWalletIncome = truncate
                                 $ fromIntegral realAmountToConvert
                                 * ratio
-
                         let mStaffUserId = case staffId of
                                 Left uid -> Just uid
                                 _        -> Nothing
                         let time = now
+                        stats' <- getUserWalletStats walletEntity
                         _ <- insert $ AcceptedDeposit
                                 drId
                                 depositRequestCurrency
@@ -80,7 +83,10 @@ postOperatorAcceptDepositRequestR = do
                                 time
                                 DepositAccept
                         update userWalletId
-                               [UserWalletAmountCents +=. realWalletIncome]
+                               [ UserWalletAmountCents +=. realWalletIncome
+                               , UserWalletLastParaTime =. Just time]
+                        return stats'
+                    scheduleParaminingAccrual stats
                     redirect OperatorDepositRequestsListR
 
 

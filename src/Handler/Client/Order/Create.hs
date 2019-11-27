@@ -8,6 +8,7 @@ module Handler.Client.Order.Create where
 import           Import
 
 import           Form.Exchanger.Order
+import           Handler.Client.Paramining ( scheduleParaminingMapAccrual )
 import           Local.Params              ( defaultExchangeFee,
                                              defaultParaMiningDelaySeconds )
 import           Local.Persist.Currency
@@ -17,8 +18,7 @@ import           Utils.Money
 
 import           Control.Concurrent        ( forkIO, threadDelay )
 import qualified Data.Map                  as M
-
-import           Text.Pretty.Simple ( pShow )
+import           Text.Pretty.Simple        ( pShow )
 
 
 data ProcessForm
@@ -64,11 +64,8 @@ postExchangeOrderCreateR = do
             res <- runDB $
                  saveAndExecuteOrder client a c t checkOrder
             case res of
-                Insertion _ paraMap _ -> do
-                    liftIO . forkIO $ do
-                        putStrLn . toStrict . pShow $ paraMap
-                    return ()
-                _ -> return ()
+                Insertion _ paraMap _ -> scheduleParaminingMapAccrual paraMap
+                _                     -> return ()
             return . flipPair . defPairDir $ p
         _ -> return ExchangeOurRur
     let (c1', c2') = unPairCurrency pair'

@@ -2,10 +2,12 @@
 module Handler.Operator.HandleWithdrawal where
 
 import           Import
-import           Local.Persist.Exchange ( ProfitType (..) )
+import           Local.Persist.Exchange     ( ProfitType (..) )
 import           Local.Persist.Wallet
+import           Handler.Client.Paramining  ( scheduleParaminingAccrual )
+import           Utils.Database.User.Wallet ( getUserWalletStats )
 
-import           Database.Persist.Sql   ( toSqlKey )
+import           Database.Persist.Sql       ( toSqlKey )
 
 
 postOperatorAcceptWithdrawalRequestR :: Handler Html
@@ -21,7 +23,9 @@ postOperatorAcceptWithdrawalRequestR = do
     fee <- runInputPost (ireq intField "withdrawal-fee")
     trans <- runInputPost (ireq intField "withdrawal-transfered")
     time <- liftIO getCurrentTime
-    runDB $ do
+    stats <- runDB $ do
+        let walletId = withdrawalRequestWalletId request
+        stats' <- getUserWalletStats (Entity walletId wallet)
         insert $ WithdrawalAccept
             wid
             trans
@@ -33,11 +37,14 @@ postOperatorAcceptWithdrawalRequestR = do
             wid
             [ WithdrawalRequestAccepted =. Just time
             , WithdrawalRequestStatus =. WsOperatorExecuted staff ]
+        update walletId [ UserWalletLastParaTime =. Just time]
         insert $ InnerProfitRecord
             (withdrawalRequestWalletTransactionReasonId request)
             (userWalletCurrency wallet)
             fee
             WithdrawalFee
+        return stats'
+    scheduleParaminingAccrual stats
     redirect OperatorWithdrawalRequestsListR
 
 
@@ -74,4 +81,5 @@ postOperatorDeclineWithdrawalRequestR = do
         update
             walletId
             [ UserWalletAmountCents +=. amount ]
+
     redirect OperatorDepositRequestsListR
