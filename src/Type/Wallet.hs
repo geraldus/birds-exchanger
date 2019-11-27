@@ -10,16 +10,17 @@ import           Data.Time.Clock.POSIX  ( utcTimeToPOSIXSeconds )
 
 -- | Represents wallet balance statistics
 data WalletData = WalletData
-    { walletDataWallet              :: Entity UserWallet
-    , walletDataOrdersCents         :: Int
+    { walletDataWallet          :: Entity UserWallet
+    , walletDataOrdersCents     :: Int
     -- ^ actual amount of cents held within active orders, in other words
     -- how many available cents left in orders
-    , walletDataWithdrawalCents     :: Int
+    , walletDataWithdrawalCents :: Int
     -- ^ actual amount of cents help within yet unexecuted withdrawals requests,
     -- in other words how many cents could be returned to balance if all
     -- of withdrawal requests will be cencelled
-    , walletDataLastParaTransaction :: Maybe (Entity WalletBalanceTransaction)
-    -- ^ last found balance transaction lead to paramining accounting
+    , walletDataLastParaTime    :: Maybe UTCTime
+    -- ^ last operation lead to paramining time or paramining accrual time
+    -- strictly queried from database
     }
     deriving Show
 
@@ -29,7 +30,7 @@ instance ToJSON WalletData where
         [ "wallet" .= walletJSON
         , "orders" .= toJSON walletDataOrdersCents
         , "withdrawal" .= toJSON walletDataWithdrawalCents
-        , "lastParaTransactionTime" .= utcTimestampJSON lastParaTime ]
+        , "lastParaTime" .= utcTimestampJSON lastParaTime ]
       where
         walletId = entityKey walletDataWallet
 
@@ -42,11 +43,10 @@ instance ToJSON WalletData where
             , "balance" .= toJSON (userWalletAmountCents wallet)
             , "lastParaTransactionTime" .= toJSON (
                         toUnixTimestampDouble
-                        <$> userWalletLastParaTransaction wallet )
+                        <$> userWalletLastParaTime wallet )
             ]
 
-        lastParaTime = (walletBalanceTransactionTime . entityVal)
-                <$> walletDataLastParaTransaction
+        lastParaTime = walletDataLastParaTime
 
         utcTimestampJSON = toJSON . (toUnixTimestampDouble <$>)
 

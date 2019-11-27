@@ -18,11 +18,11 @@ import           Type.Wallet            ( WalletData (..) )
 import           Utils.Type
 
 import           Data.List              ( (\\) )
+import           Data.Maybe             ( listToMaybe )
 import           Data.Time.Clock        ( NominalDiffTime, addUTCTime,
                                           diffUTCTime )
 import           Database.Esqueleto
 import           Database.Persist       as P ( update, (+=.), (=.) )
-
 
 -- * Database Queries
 --
@@ -76,77 +76,11 @@ getOrCreateWalletDB userId walletTextId currency = do
         Left entity -> entity
         Right wid   -> Entity wid newWallet
 
-
--- | Get last wallet transaction which lead to paramining transfer
--- if present.
--- Return type is a list, which is empty when no para-transaction present
--- and exactly last para-transaction otherwise.  Uses `LIMIT 1` internally
--- (via `esqueleto`\'s 'limit' function).
-getUserWalletLastParaTransaction ::
-       (MonadIO m) => Ent Wal -> SqlPersistT m (Maybe (Ent BTrans))
-getUserWalletLastParaTransaction (Entity wid w) = do
-    -- partr <- selectLastParaTransaction (limit 1)
-    -- we omit paraming transactions to be able delay paraming accrual
-    -- so last para time is not updated when paraming actually accrued
-    extr <- selectLastExchangeTransaction (limit 1)
-    wreqtr <- selectLastActiveWithdrawalRequestTransaction (limit 1)
-    dreqtr <- selectLastAcceptedDepositRequestTransaction (limit 1)
-    let ts = extr <> wreqtr <> dreqtr
-    -- let ts = partr <> extr <> wreqtr <> dreqtr
-    return $ case ts of
-        []  -> Nothing
-        t:_ -> Just (foldr maxUTCTime t ts)
-  where
-    -- selectLastParaTransaction limitQ = select . from $ \t -> do
-    --     where_ (
-    --         (t ^. WalletBalanceTransactionWalletId ==. val wid)
-    --         &&. (t ^. WalletBalanceTransactionPlainType
-    --                 ==. val (Just ParaMiningAccrual))
-    --         )
-    --     orderBy [desc (t ^. WalletBalanceTransactionTime)]
-    --     limitQ
-    --     return t
-
-    -- | Query for last valuable order exchange.
-    selectLastExchangeTransaction limitQ = select . from $
-        \(o, exec, r, t) -> do
-            let pairsIn = defaultExchangePairsOf (userWalletCurrency w)
-            let pairsOut = defaultOppositeExchangePairsOf (userWalletCurrency w)
-            let pairs = pairsIn <> pairsOut
-            where_ (
-                -- order constraints
-                (o ^. ExchangeOrderUserId ==. val (userWalletUserId w))
-                &&. (o ^. ExchangeOrderPair `in_` valList pairs)
-                -- order execution constraints
-                &&. (o ^. ExchangeOrderId
-                    ==. exec ^. ExchangeOrderExecutionOrderId)
-                --  transaction reason constraints
-                &&. (exec ^. ExchangeOrderExecutionOutWalletTransactionReasonId
-                    ==. r ^. WalletTransactionReasonId)
-                &&. (r ^. WalletTransactionReasonId
-                    ==. t ^. WalletBalanceTransactionWalletTransactionReasonId)
-                )
-            orderBy [desc (t ^. WalletBalanceTransactionTime)]
-            limitQ
-            return t
-
-    selectLastActiveWithdrawalRequestTransaction limitQ = select . from $
-        \(wr, r, t) -> do
-            where_ (
-                (wr ^. WithdrawalRequestWalletId ==. val wid)
-                &&. (wr ^. WithdrawalRequestStatus ==. val WsNew)
-                &&. (wr ^. WithdrawalRequestAccepted ==. nothing)
-                &&. (wr ^. WithdrawalRequestWalletTransactionReasonId
-                        ==. r ^. WalletTransactionReasonId )
-                &&. (r ^. WalletTransactionReasonId
-                        ==. t ^. WalletBalanceTransactionWalletTransactionReasonId)
-                )
-            orderBy [desc (t ^. WalletBalanceTransactionTime)]
-            limitQ
-            return t
-
-    selectLastAcceptedDepositRequestTransaction limitQ = do
-        res <- select . from $
+-- | Query for last accepted deposit time
+walletLastDepositParaTimeDB ::
+       (MonadIO m) => Ent Wal -> SqlPersistT m (Maybe UTCTime)
+walletLastDepositParaTimeDB (Entity wid w) = do
+        accept <- select $ from $
             \(acd, dr, r, t) -> do
                 where_ (
                     (acd ^. AcceptedDepositDepositRequestId
@@ -162,17 +96,86 @@ getUserWalletLastParaTransaction (Entity wid w) = do
                             ==. t ^. WalletBalanceTransactionWalletTransactionReasonId)
                     )
                 orderBy [desc (t ^. WalletBalanceTransactionTime)]
-                limitQ
-                return (t, dr)
-        return $ fst <$> filter isAcceptedDeposit res
+                limit 1
+                return  t
+        return . listToMaybe $
+            fmap (walletBalanceTransactionTime . entityVal) accept
 
-    maxUTCTime t1 t2 = if transTime t1 > transTime t2 then t1 else t2
+-- | Query for last executed withdrawal time
+walletLastWithdrawalParaTimeDB ::
+       (MonadIO m) => Ent Wal -> SqlPersistT m (Maybe UTCTime)
+walletLastWithdrawalParaTimeDB (Entity wid w) = do
+    exec <- select $ from $
+        \(acw, wr) -> do
+            where_ (
+                (acw ^. WithdrawalAcceptRequestId
+                        ==. wr ^. WithdrawalRequestId)
+                &&. (wr ^. WithdrawalRequestWalletId ==. val wid)
+                )
+            orderBy [desc (acw ^. WithdrawalAcceptTime)]
+            limit 1
+            return  acw
+    return . listToMaybe $
+        fmap (withdrawalAcceptTime . entityVal) exec
 
-    transTime = walletBalanceTransactionTime . entityVal
 
-    isAcceptedDeposit (_, Entity _ depreq) = case depositRequestStatus depreq of
-        OperatorAccepted _ -> True
-        _                  -> False
+walletLastExchangeParaTimeDB ::
+       (MonadIO m) => Ent Wal -> SqlPersistT m (Maybe UTCTime)
+walletLastExchangeParaTimeDB (Entity wid w) = do
+    let pairsIn = defaultExchangePairsOf (userWalletCurrency w)
+    let pairsOut = defaultOppositeExchangePairsOf (userWalletCurrency w)
+    let pairs = pairsIn <> pairsOut
+    tr <- select . from $ \(o, exec, r, t) -> do
+        where_ (
+            -- order constraints
+            (o ^. ExchangeOrderUserId ==. val (userWalletUserId w))
+            &&. (o ^. ExchangeOrderPair `in_` valList pairs)
+            -- order execution constraints
+            &&. (o ^. ExchangeOrderId
+                ==. exec ^. ExchangeOrderExecutionOrderId)
+            --  transaction reason constraints
+            &&. (exec ^. ExchangeOrderExecutionOutWalletTransactionReasonId
+                ==. r ^. WalletTransactionReasonId)
+            &&. (r ^. WalletTransactionReasonId
+                ==. t ^. WalletBalanceTransactionWalletTransactionReasonId)
+            )
+        orderBy [desc (t ^. WalletBalanceTransactionTime)]
+        limit 1
+        return t
+    return . listToMaybe $
+        fmap (walletBalanceTransactionTime . entityVal) tr
+
+
+walletLastParaTransactionTimeDB ::
+       (MonadIO m) => Ent Wal -> SqlPersistT m (Maybe UTCTime)
+walletLastParaTransactionTimeDB (Entity wid w) = do
+    ptr <- select . from $ \t -> do
+        where_ (
+            (t ^. WalletBalanceTransactionWalletId ==. val wid)
+            &&. (t ^. WalletBalanceTransactionPlainType
+                    ==. val ParaMiningAccrual)
+            )
+        orderBy [desc (t ^. WalletBalanceTransactionTime)]
+        limit 1
+        return t
+    return . listToMaybe $
+        fmap (walletBalanceTransactionTime . entityVal) ptr
+
+
+-- | Get wallet's lasts paraming time by quering for actual database
+-- entities responsible to paramining accrual or paramining accrual
+-- operation time
+lastWalletStrictParaTimeDB ::
+       (MonadIO m) => Ent Wal -> SqlPersistT m (Maybe UTCTime)
+lastWalletStrictParaTimeDB wallet = do
+    paraTime <- walletLastParaTransactionTimeDB wallet
+    depTime <- walletLastDepositParaTimeDB wallet
+    witTime <- walletLastWithdrawalParaTimeDB wallet
+    exTime <- walletLastExchangeParaTimeDB wallet
+    let times = [paraTime, depTime, witTime, exTime]
+    return . listToMaybe $ sortBy descTime (catMaybes times)
+  where
+    descTime t1 t2 = if t1 < t2 then GT else LT
 
 -- | Get active exchange orders for given wallet.
 -- Useful for calculating amount cents being held within orders.
@@ -214,17 +217,17 @@ getUserWalletStats :: MonadIO m => Entity UserWallet -> SqlPersistT m WalletData
 getUserWalletStats wal = do
     os   <- getUserWalletActiveOrders wal
     rs   <- getUserWalletActiveWithdrawal wal
-    ltrs <- getUserWalletLastParaTransaction wal
-    return $ foldUserWalletStats wal os rs ltrs
+    ptime <- lastWalletStrictParaTimeDB wal
+    return $ foldUserWalletStats wal os rs ptime
 
 -- | Marshal database results to 'WalletData'.
 foldUserWalletStats ::
-        Ent Wal -> [Ent ExOrd] -> [Ent WReq] -> Maybe (Ent BTrans) -> WalletData
-foldUserWalletStats wallet os rs trans = WalletData
+        Ent Wal -> [Ent ExOrd] -> [Ent WReq] -> Maybe UTCTime -> WalletData
+foldUserWalletStats wallet os rs t = WalletData
     { walletDataWallet = wallet
     , walletDataOrdersCents = foldOrders os
     , walletDataWithdrawalCents = foldReqs rs
-    , walletDataLastParaTransaction = trans
+    , walletDataLastParaTime = t
     }
   where
         foldOrders :: [Ent ExOrd] -> Int
@@ -270,7 +273,7 @@ addUserWalletBalance wallet reason amount mkType time = do
     let paraOpsTypes = [ DepositAccept, OrderExchange ]
         isParaOp = typPlain `elem` paraOpsTypes
         paraTimeUpdate =
-            [ UserWalletLastParaTransaction P.=. Just time | isParaOp ]
+            [ UserWalletLastParaTime P.=. Just time | isParaOp ]
         amountUpdate =
             [ UserWalletAmountCents P.+=. amount ]
     let updates = amountUpdate <> paraTimeUpdate
@@ -315,6 +318,9 @@ getWallet404 ::
         MonadIO m => UserId -> Currency -> SqlPersistT m (Entity UserWallet)
 getWallet404 user = getBy404 . UniqueWallet user
 
+
+newtype Percent = Percent { percentToDouble :: Double }
+
 mkPercent :: Int -> Percent
 mkPercent n
     | n > -1 && n < 101 = Percent { percentToDouble = fromIntegral n }
@@ -329,7 +335,8 @@ currencyAmountPara tnow t' c a =
         Just p' ->
             let p100 = percentToDouble p'
                 p = p100 / 100
-                t = addUTCTime (realToFrac (fromIntegral defaultParaMiningDelaySeconds)) t'
+                delay = fromIntegral defaultParaMiningDelaySeconds :: Double
+                t = addUTCTime (realToFrac delay) t'
                 -- take in account paramining delay
                 s = diffUTCTime tnow t
                 v' = fromIntegral  a
@@ -352,8 +359,11 @@ monthSeconds = 30 * 24 * 60 * 60
 secondsParaminingRate :: Double -> Double
 secondsParaminingRate p = (p + 1) ** (1 / monthSeconds)
 
-
 nominalDiffTimeToSeconds :: NominalDiffTime -> Double
 nominalDiffTimeToSeconds = realToFrac
 
-newtype Percent = Percent { percentToDouble :: Double }
+
+isAcceptedDeposit :: Entity DepositRequest -> Bool
+isAcceptedDeposit (Entity _ r) = case depositRequestStatus r of
+    OperatorAccepted _ -> True
+    _                  -> False
