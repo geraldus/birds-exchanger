@@ -41,7 +41,7 @@ UserWallet json
     amountCents Int
     walletId Text
     created UTCTime
-    lastParaTransaction UTCTime Maybe default=NULL
+    lastParaTime UTCTime Maybe default=NULL
     UniqueWallet userId currency
     deriving Show
 
