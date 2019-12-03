@@ -100,7 +100,11 @@ getApiAppConfigR = do
     let domStats = foldMarketOrders defaultPairs activePairOrders
     let authMeta = maybe
             (object [ "guest" .= True ])
-            (const . object $ [ "guest" .= False ])
+            (\(Entity uid user, _) -> object $
+                [ "guest" .= False
+                , "ident" .= userIdent user
+                , "id" .= toJSON uid
+                ])
             auth
     let appVersion = showVersion version
     selectRep . provideRep . pure . toJSON $ object
