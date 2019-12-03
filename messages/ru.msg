@@ -36,6 +36,8 @@ PasswordChangeGuideTitle: Инструкции по изменению паро�
 HomePageTitle: Главная страница
 SignInPageTitle: Вход
 SignUpPageTitle: Регистрация
+NavShowMenu: Показать меню
+NavHostNameGoHome host@Text: #{host} - главная страница
 
 ## CLIENT
 
@@ -233,6 +235,7 @@ EditMenuTitle: Редактирование
 
 # SUPER USERS
 
+SuperUser: Финансы
 FinancialReport: Финансовый отчёт
 ClientUsersCount: Пользоватлей (Клиентов)
 FeeStats: Комиссионные сборы

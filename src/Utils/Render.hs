@@ -29,12 +29,14 @@ renderFeeAsDbl (Percent p) = [shamlet|#{show $ p / fromIntegral oneCoinCents}|]
 
 renderCurrencyAmount ::
         TimeLocale -> [Text] -> [Text] -> Bool -> Currency -> Int -> Html
-renderCurrencyAmount _loc currencyClasses' valueClasses' forceSignRender c n = [shamlet|
-    <span class=#{valueClasses}>
-        #{sign}#{amount}
-    <small class=#{currencyClasses}>
-        #{symbol}
-    |]
+renderCurrencyAmount _loc currencyClasses' valueClasses' forceSignRender c n =
+    [shamlet|
+        <span style="whitespace: no-wrap;">
+            <span class=#{valueClasses}>
+                #{sign}#{amount}
+            <small class=#{currencyClasses}>
+                #{symbol}
+        |]
   where
     amount = fixedDoubleT 2 (centsToCoins n)
 

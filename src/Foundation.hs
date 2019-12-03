@@ -164,63 +164,50 @@ instance Yesod App where
         -- Define the menu items of the header.
         let menuItems =
                 [ NavbarLeft $ MenuItem
-                    { menuItemLabel = "Главная"
-                    , menuItemRoute = HomeR
-                    , menuItemAccessCallback = True
-                    }
-                , NavbarLeft $ MenuItem
-                    { menuItemLabel = "Портфель"
-                    , menuItemRoute = ProfileR
-                    , menuItemAccessCallback = isClientLoggedIn
-                    }
-                , NavbarLeft $ MenuItem
-                    { menuItemLabel = "Мои ордера"
-                    , menuItemRoute = ClientOrdersR
-                    , menuItemAccessCallback = isClientLoggedIn
-                    }
-                , NavbarLeft $ MenuItem
-                    { menuItemLabel = mr MsgDeposit
-                    , menuItemRoute = DepositR
-                    , menuItemAccessCallback = isClientLoggedIn }
-                , NavbarLeft $ MenuItem
-                    { menuItemLabel = mr MsgWithdraw
-                    , menuItemRoute = WithdrawalR
-                    , menuItemAccessCallback = isClientLoggedIn }
-                , NavbarLeft $ MenuItem
-                    { menuItemLabel = "Новости"
+                    { menuItemLabel = mr MsgMenuTitleNews
                     , menuItemRoute = InfoListR
                     , menuItemAccessCallback = True }
                 , NavbarLeft $ MenuItem
                     { menuItemLabel = mr MsgTermsOfUse
                     , menuItemRoute = TermsOfUseR
-                    , menuItemAccessCallback = isNothing muser }
+                    , menuItemAccessCallback = True }
                 , NavbarRight $ MenuItem
-                    { menuItemLabel = "Регистрация"
+                    { menuItemLabel = mr MsgMenuTitleSignUp
                     , menuItemRoute = SignUpR
                     , menuItemAccessCallback = isNothing muser
                     }
                 , NavbarRight $ MenuItem
-                    { menuItemLabel = "Вход"
+                    { menuItemLabel = mr MsgMenuTitleSignIn
                     , menuItemRoute = AuthR LoginR
                     , menuItemAccessCallback = isNothing muser
                     }
                 ]
 
-        let userMenuItems =
-                [  MenuItem
-                    { menuItemLabel = mr MsgTermsOfUse
-                    , menuItemRoute = TermsOfUseR
+        let clientMenuItems =
+                [ MenuItem
+                    { menuItemLabel = mr MsgClientProfilePageTitle
+                    , menuItemRoute = ProfileR
+                    , menuItemAccessCallback = isClientLoggedIn
+                    }
+                , MenuItem
+                    { menuItemLabel = mr MsgClientOrdersPageTitle
+                    , menuItemRoute = ClientOrdersR
+                    , menuItemAccessCallback = isClientLoggedIn
+                    }
+                , MenuItem
+                    { menuItemLabel = mr MsgDeposit
+                    , menuItemRoute = DepositR
+                    , menuItemAccessCallback = isClientLoggedIn }
+                , MenuItem
+                    { menuItemLabel = mr MsgWithdraw
+                    , menuItemRoute = WithdrawalR
                     , menuItemAccessCallback = isClientLoggedIn }
                 , MenuItem
                     { menuItemLabel = mr MsgClientSettingsPageTitle
                     , menuItemRoute = ClientSettingsR
                     , menuItemAccessCallback = isClientLoggedIn
                     }
-                , MenuItem
-                    { menuItemLabel = "Выход"
-                    , menuItemRoute = AuthR LogoutR
-                    , menuItemAccessCallback = isJust muser
-                    } ]
+                ]
 
         let operatorRequestsMenuItems =
                 [ MenuItem
@@ -261,6 +248,8 @@ instance Yesod App where
         -- default-layout-wrapper is the entire page. Since the final
         -- value passed to hamletToRepHtml cannot be a widget, this allows
         -- you to use normal widget features in default-layout.
+        let defaultMobileNav = $(widgetFile "default-nav-mobile")
+        let defaultDesktopNav = $(widgetFile "default-nav-desktop")
         pc <- widgetToPageContent $ do
             $(widgetFile "form/common")
             $(widgetFile "default-nav")
@@ -693,14 +682,13 @@ userNameF :: Either User SuperUser -> Text
 userNameF (Left  u) = userIdent u
 userNameF (Right u) = suName u
 
-getUserBalnaces ::Handler [(Int, Currency)]
+getUserBalnaces ::Handler [WalletData]
 getUserBalnaces = do
     mAuthPair <- maybeAuthPair
     case mAuthPair of
-        Just (Left uid, Left _) -> do
-            wallets <- runDB $ getUserWallets uid
-            return $ flip map wallets $ \(Entity _ w) ->
-                    (userWalletAmountCents w, userWalletCurrency w)
+        Just (Left uid, Left _) -> runDB $ do
+            wallets <- getUserWallets uid
+            mapM getUserWalletStatsDB wallets
         _ -> return []
 
 
@@ -833,6 +821,25 @@ matchMethod (FiatTM tm tc) (FiatPaymentMethod (FiatTM pm pc) _ _)
 matchMethod (CryptoTM tc) (CryptoPaymentMethod pc _ _)
     = tc == pc
 matchMethod _ _ = False
+
+renderWalletBalanceW :: Yesod site => WalletData -> [Text] -> WidgetFor site ()
+renderWalletBalanceW stats listClasses = do
+    let wallet@(Entity _ w) = walletDataWallet stats
+        c = userWalletCurrency w
+        a = userWalletAmountCents w
+        paraming = walletDataParaminingRate stats
+    amountRender <-
+        handlerToWidget $ selectLocale >>= (return . renderCurrencyAmount)
+    [whamlet|
+        <span .ml-2 .navbar-text .d-flex .wallet .balance>
+            #{amountRender currencyClassNames amountClassNames False c a}
+        <!-- $ maybe paraStats <- paraming
+            # { paraStats} -->
+        |]
+  where
+    amountClassNames = ["font-weight-bold", "wallet-balance-val"]
+    currencyClassNames = ["wallet-balance-currency"]
+
 setReferrerHttpOnlyCookie :: Handler ()
 setReferrerHttpOnlyCookie = do
     token <- referrerQueryString

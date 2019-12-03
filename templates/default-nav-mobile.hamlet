@@ -1,0 +1,80 @@
+<nav
+    .navbar .sticky-top
+    .navbar-dark
+    .navbar-expand-lg
+    .d-flex
+    .d-lg-none
+    style="background-color: black;"
+    >
+    <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#main-nav-mobile-menu"
+        aria-controls="main-nav-mobile-menu"
+        aria-expanded="false"
+        aria-label="_{MsgNavShowMenu}"
+        >
+        <span class="navbar-toggler-icon">
+    <a class="navbar-brand" href="/">
+        <img
+            src="@{StaticR images_logo_header_png}"
+            style="max-height: 20px;"
+            alt='_{MsgNavHostNameGoHome "OutBirds"}'
+            >
+    <div #main-nav-mobile-menu .main-nav .collapse .navbar-collapse .justify-content-between>
+        <ul .navbar-nav>
+            $maybe userName <- muserName
+                <span .navbar-text>
+                    <strong .text-uppercase>
+                        #{userName}
+                $if isClientLoggedIn
+                    <span .navbar-text .d-flex .pb-1 .text-uppercase>
+                        <i .fas .fa-wallet .align-self-center>
+                        <span .d-block .ml-1>
+                            _{MsgBalance}
+                    $forall stats <- wallets
+                        ^{renderWalletBalanceW stats ["ml-2"]}
+                    $forall MenuItem label route _ <- clientMenuItems
+                        <li .ml-2 .nav-item :Just route == currentRoute:.active>
+                            <a .nav-link href="@{route}">#{label}
+                $if isStaffLoggedIn
+                    $if isEditorLoggedIn
+                        <span .navbar-text .d-flex .pt-2 .pb-1 .text-uppercase>
+                            <i .fas .fa-pen-nib .align-self-center>
+                            <span .d-block .ml-1>
+                                _{MsgEditMenuTitle}
+                        $forall MenuItem label route _ <- editorMenuItems
+                            <li .ml-2 .nav-item :Just route == currentRoute:.active>
+                                <a .nav-link href="@{route}"> #{label}
+                    $if isOperatorLoggedIn
+                        <span .navbar-text .d-flex .pt-2 .pb-1 .text-uppercase>
+                            <i .fas .fa-donate .align-self-center>
+                            <span .d-block .ml-1>
+                                _{MsgRequestsMenuTitle}
+                        $forall MenuItem label route _ <- operatorRequestsMenuItems
+                            <li .ml-2 .nav-item :Just route == currentRoute:.active>
+                                <a .nav-link href="@{route}">#{label}
+                    $if isSuLoggedIn
+                        <span .navbar-text .d-flex .pt-2 .pb-1 .text-uppercase>
+                            <i .fas .fa-jedi .align-self-center>
+                            <span .d-block .ml-1>
+                                _{MsgSuperUser}
+                        $forall MenuItem label route _ <- suMenuItems
+                            <li .ml-2 .nav-item :Just route == currentRoute:.active>
+                                <a .nav-link href="@{route}">#{label}
+                $forall MenuItem label route _ <- navbarLeftFilteredMenuItems
+                    <li .nav-item :Just route == currentRoute:.active>
+                        <a .nav-link href="@{route}">#{label}
+                $forall MenuItem label route _ <- navbarRightFilteredMenuItems
+                    <li .nav-item :Just route == currentRoute:.active>
+                        <a .nav-link href="@{route}">#{label}
+                <li .nav-item>
+                    <a .nav-link href="@{AuthR LogoutR}">_{MsgMenuTitleSignOut}
+            $nothing
+                $forall MenuItem label route _ <- navbarLeftFilteredMenuItems
+                    <li .nav-item :Just route == currentRoute:.active>
+                        <a .nav-link href="@{route}">#{label}
+                $forall MenuItem label route _ <- navbarRightFilteredMenuItems
+                    <li .nav-item :Just route == currentRoute:.active>
+                        <a .nav-link href="@{route}">#{label}
