@@ -4,9 +4,12 @@ module Utils.App.Common where
 
 import           Import
 
+import           Local.Persist.Currency ( Currency )
+import           Utils.Common           ( selectLocale )
+import           Utils.Render           ( renderCurrencyAmount )
 import           Utils.Time
 
-import           Data.Time.Format ( TimeLocale (..) )
+import           Data.Time.Format       ( TimeLocale (..) )
 
 
 {- YESOD.  APP -}
@@ -14,9 +17,12 @@ import           Data.Time.Format ( TimeLocale (..) )
 getRenders :: WidgetFor App (Route App -> Text, AppMessage -> Text)
 getRenders = (,) <$> liftHandler getUrlRender <*> liftHandler getMessageRender
 
+getAmountRenderer ::
+        Handler ([Text] -> [Text] -> Bool -> Currency -> Int -> Html)
+getAmountRenderer = selectLocale >>= return . renderCurrencyAmount
 
-setCompositeTitle
-    :: (MonadWidget m, HandlerFor site ~ m, RenderMessage site msg)
+setCompositeTitle ::
+       (MonadWidget m, HandlerFor site ~ m, RenderMessage site msg)
     => [ msg ] -> m ()
 setCompositeTitle ms = do
     r <- getMessageRender

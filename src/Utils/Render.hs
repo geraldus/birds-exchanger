@@ -4,6 +4,7 @@ module Utils.Render
     ( renderFeeAsDbl
     , renderFeeAsPct
     , renderCurrencyAmount
+    , renderCurrencyAmount'
     )
 where
 
@@ -56,3 +57,6 @@ renderCurrencyAmount _loc currencyClasses' valueClasses' forceSignRender c n = [
         | otherwise = ""
 
     unwordsT = intercalate " "
+
+renderCurrencyAmount' :: Currency -> Int -> Html
+renderCurrencyAmount' = renderCurrencyAmount (error "no locale") [] [] False
