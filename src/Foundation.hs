@@ -26,12 +26,14 @@ import           Local.Persist.Currency
 import           Local.Persist.UserRole
 import           Market.Type                ( DOMStats )
 import           Type.App
+import           Type.Wallet                ( WalletData (..) )
 import           Utils.Common
 import           Utils.Database.User.Wallet ( getOrCreateWalletDB,
+                                              getUserWalletStatsDB,
                                               getUserWallets )
 import           Utils.Form                 ( currencyOptionListRaw,
                                               transferOptionsRaw )
-import           Utils.Money
+import           Utils.Render               ( renderCurrencyAmount )
 
 import           Control.Monad.Logger       ( LogSource )
 import qualified Crypto.Nonce               as CN
@@ -136,6 +138,7 @@ instance Yesod App where
         sessionMessages <- getMessages
         muser <- maybeAuthPair
         mr    <- getMessageRender
+        setReferrerHttpOnlyCookie
         -- ^ @Handler (Maybe (Either UserId Text, Either User SuperUser))@
         let muserName = userNameF . snd <$> muser
         let isClientLoggedIn = isClientUser muser
@@ -144,7 +147,6 @@ instance Yesod App where
         let isOperatorLoggedIn = isOperatorUser muser
         let isSuLoggedIn = isSU muser
         wallets <- if isClientLoggedIn then getUserBalnaces else pure []
-
         currentRoute <- getCurrentRoute
         case currentRoute of
             Just ( PasswordResetR _) -> return ()
@@ -830,3 +832,25 @@ matchMethod (FiatTM tm tc) (FiatPaymentMethod (FiatTM pm pc) _ _)
 matchMethod (CryptoTM tc) (CryptoPaymentMethod pc _ _)
     = tc == pc
 matchMethod _ _ = False
+setReferrerHttpOnlyCookie :: Handler ()
+setReferrerHttpOnlyCookie = do
+    token <- referrerQueryString
+    case token of
+        Nothing -> return ()
+        Just refToken -> do
+            referrer <- runDB . getBy $ UniqueReferrerToken refToken
+            case referrer of
+                Nothing -> return ()
+                Just _ -> do
+                    name <- appRefTokenCookieName . appSettings <$> getYesod
+                    addHeader "Set-Cookie" $
+                        concat [ name, "=" , refToken , "; HttpOnly" ]
+
+-- | Read referrer cookie.
+referrerCookie :: Handler (Maybe Text)
+referrerCookie = getYesod >>= lookupCookie . appRefTokenCookieName . appSettings
+
+referrerQueryString :: Handler (Maybe Text)
+referrerQueryString = do
+    name <- appRefTokenParamName . appSettings <$> getYesod
+    lookupGetParam name

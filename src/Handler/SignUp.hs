@@ -20,7 +20,6 @@ import           Network.HaskellNet.SMTP.SSL
 import           Text.Blaze.Html.Renderer.Text ( renderHtml )
 import           Yesod.Auth.Util.PasswordStore ( makePassword )
 
-
 authType :: AuthType
 authType = PLAIN
 
@@ -61,6 +60,7 @@ postSignUpR = do
                         let mayError = Just e
                         defaultLayout $(widgetFile "auth/signup")
                     CreateSuccess -> do
+                        cleanUpRefCookie
                         sendEmailActivationMessage email key
                         defaultLayout $(widgetFile "auth/verify-message")
             else defaultLayout $(widgetFile "auth/verify-message")
@@ -71,6 +71,7 @@ postSignUpR = do
 
     createUniqueLogin :: Text -> Text -> Text -> Handler UserCreateResult
     createUniqueLogin login pass key = do
+        ref <- maybeReferrer
         token <- appNonce128urlT
         runDB $ do
             mayExisting <- getBy $ UniqueEmail login
@@ -84,6 +85,9 @@ postSignUpR = do
                     userId <- insert newUser
                     let newEmail = Email login (Just userId) (Just key)
                     _ <- insert newEmail
+                    case ref of
+                        Nothing -> return []
+                        Just r -> (:[]) <$> addReferral r userId
                     let refTok = Referrer userId token
                     _ <- insert refTok
                     return CreateSuccess
@@ -144,3 +148,24 @@ htmlContent _email url = renderHtml [shamlet|
             <p>
             <p>Если это письмо пришло Вам по ошибке, просто проигнорируйте его.
     |]
+
+
+maybeReferrer :: Handler (Maybe (Entity Referrer))
+maybeReferrer = do
+    token <- referrerCookie
+    case token of
+        Nothing -> return Nothing
+        Just t -> runDB $
+            getBy (UniqueReferrerToken t) -- >>= maybe
+                -- (return Nothing) (getEntity . referrerUser . entityVal)
+
+addReferral ::
+    MonadIO m => Entity Referrer -> UserId -> SqlPersistT m (Entity Referral)
+addReferral (Entity ref _) user = insertEntity (Referral user ref)
+
+cleanUpRefCookie :: Handler ()
+cleanUpRefCookie = do
+    name <- appRefTokenCookieName . appSettings <$> getYesod
+    let deletedRef = name <> "=deleted"
+    addHeader "Set-Cookie" $
+        deletedRef <> "; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
