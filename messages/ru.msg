@@ -102,6 +102,9 @@ Save: Сохранить
 Cancel: Отмена
 ChangesSaved: Изменения сохранены
 AccessDenied: Недостаточно прав доступа
+ReferralLink: Ваша реферальная ссылка
+ReferralStats: Объём структуры рефералов
+ReferralLevel n@Int: #{show n} уровень
 NoPaymentMethodAvailable: Нет подходящего способа перевода
 
 OneClickExchange: Обмен в один клик
