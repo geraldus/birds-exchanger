@@ -40,3 +40,7 @@ database:
 
 copyright: © 2018-2019 «OutBirds»
 #analytics: UA-YOURCODE
+
+ref-token-cookie-name: "_outb_ref"
+ref-token-param-name: "ref"
+ref-max-levels: 10

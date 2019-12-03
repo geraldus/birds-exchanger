@@ -12,17 +12,18 @@ module Settings where
 
 import           ClassyPrelude.Yesod
 import qualified Control.Exception           as Exception
-import           Data.Aeson                  (Result (..), fromJSON, withObject,
-                                              (.!=), (.:?))
-import           Data.FileEmbed              (embedFile)
-import           Data.Yaml                   (decodeEither')
-import           Database.Persist.Postgresql (PostgresConf)
-import           Language.Haskell.TH.Syntax  (Exp, Name, Q)
-import           Network.Wai.Handler.Warp    (HostPreference)
-import           Yesod.Default.Config2       (applyEnvValue, configSettingsYml)
-import           Yesod.Default.Util          (WidgetFileSettings,
-                                              widgetFileNoReload,
-                                              widgetFileReload)
+import           Data.Aeson                  ( Result (..), fromJSON,
+                                               withObject, (.!=), (.:?) )
+import           Data.FileEmbed              ( embedFile )
+import           Data.Yaml                   ( decodeEither' )
+import           Database.Persist.Postgresql ( PostgresConf )
+import           Language.Haskell.TH.Syntax  ( Exp, Name, Q )
+import           Network.Wai.Handler.Warp    ( HostPreference )
+import           Yesod.Default.Config2       ( applyEnvValue,
+                                               configSettingsYml )
+import           Yesod.Default.Util          ( WidgetFileSettings,
+                                               widgetFileNoReload,
+                                               widgetFileReload )
 
 -- | Runtime settings to configure this application. These settings can be
 -- loaded from various sources: defaults, environment variables, config files,
@@ -62,6 +63,10 @@ data AppSettings = AppSettings
 
     , appAuthDummyLogin         :: Bool
     -- ^ Indicate if auth dummy login should be enabled.
+
+    , appRefTokenCookieName     :: Text
+    , appRefTokenParamName      :: Text
+    , appRefMaxLevels           :: Int
     }
 
 instance FromJSON AppSettings where
@@ -86,11 +91,15 @@ instance FromJSON AppSettings where
         appReloadTemplates        <- o .:? "reload-templates" .!= dev
         appMutableStatic          <- o .:? "mutable-static"   .!= dev
         appSkipCombining          <- o .:? "skip-combining"   .!= dev
+        appAuthDummyLogin         <- o .:? "auth-dummy-login" .!= dev
 
         appCopyright              <- o .:  "copyright"
         appAnalytics              <- o .:? "analytics"
-
-        appAuthDummyLogin         <- o .:? "auth-dummy-login"      .!= dev
+        appRefTokenCookieName     <- o .:? "ref-token-cookie-name"
+                                        .!= "_birds_exchange_ref"
+        appRefTokenParamName      <- o .:? "ref-token-param-name"
+                                        .!= "ref"
+        appRefMaxLevels           <- o .:? "ref-max-levels" .!= 10
 
         return AppSettings {..}
 
@@ -129,7 +138,7 @@ configSettingsYmlValue = either Exception.throw id
 compileTimeAppSettings :: AppSettings
 compileTimeAppSettings =
     case fromJSON $ applyEnvValue False mempty configSettingsYmlValue of
-        Error e -> error e
+        Error e          -> error e
         Success settings -> settings
 
 -- The following two functions can be used to combine multiple CSS or JS files
