@@ -6,7 +6,9 @@
 {-# LANGUAGE TypeFamilies      #-}
 module Local.Auth.Plugin
     ( PrizmAuthPlugin
+    , PrizmPluginAuthResult(..)
     , authPrizm
+    , checkCredsDB
     , loginR ) where
 
 
@@ -39,7 +41,9 @@ class ( YesodAuth site
       => PrizmAuthPlugin site
 
 
-authPrizm :: PrizmAuthPlugin m => AuthPlugin m
+authPrizm ::
+       (PrizmAuthPlugin site, YesodPersistBackend site ~ SqlBackend)
+    => AuthPlugin site
 authPrizm =
     AuthPlugin "prizm auth plugin" dispatch loginWidget
   where
@@ -69,12 +73,19 @@ authPrizm =
             |]
 
 
-postLoginR :: (PrizmAuthPlugin site)
-           => AuthHandler site TypedContent
+postLoginR ::
+       (PrizmAuthPlugin site, YesodPersistBackend site ~ SqlBackend)
+    => AuthHandler site TypedContent
 postLoginR = do
     (username, password) <- runInputPost
         ((,) Control.Applicative.<$> ireq textField "username"
              Control.Applicative.<*> ireq textField "password")
+    genericPostLoginR username password
+
+genericPostLoginR ::
+       (PrizmAuthPlugin site, YesodPersistBackend site ~ SqlBackend)
+        => Text -> Text -> AuthHandler site TypedContent
+genericPostLoginR username password = do
     authRes <- checkCreds username password
     let pluginCreds = (Creds "prizm auth plugin" username [])
     -- TODO: FIXME: Check if user have verified email address
@@ -96,8 +107,16 @@ postLoginR = do
     msgUpdatePasswordTpl =  $(shamletFile
             "templates/messages/please-update-password.hamlet")
 
-checkCreds :: (PrizmAuthPlugin site) => Text -> Text -> AuthHandler site AuthResult'
-checkCreds username password = liftHandler . runDB $ do
+checkCreds ::
+       (PrizmAuthPlugin site, YesodPersistBackend site ~ SqlBackend)
+    => Text -> Text -> AuthHandler site PrizmPluginAuthResult
+checkCreds username password = liftHandler . runDB $ checkCredsDB username password
+
+
+checkCredsDB ::
+       MonadIO m
+    => Text -> Text -> SqlPersistT m PrizmPluginAuthResult
+checkCredsDB username password  = do
     mayUser <- getBy $ UniqueUser username
     return $ case mayUser of
         -- @TODO @FIXME: Make this it possible to control if we should
@@ -106,21 +125,18 @@ checkCreds username password = liftHandler . runDB $ do
         Nothing   -> NoSuchUser
         Just user -> do
             let mayPassword = userPassword (entityVal user)
+                bsPass = encodeUtf8 password
             case mayPassword of
                 Nothing -> AuthRejectPasswordNotSet
-                Just storedPassword -> if (take 6 storedPassword) == "sha256"
-                    then
-                        if verifyPassword
-                                    (encodeUtf8 password)
-                                    (encodeUtf8 storedPassword)
-                        then AuthSuccess
-                        else InvalidAuthPair
-                    else
-                        if storedPassword == password
-                        then AuthSuccessNeedReset
-                        else InvalidAuthPair
+                Just storedPassword
+                    | take 6 storedPassword == "sha256"
+                        -> if verifyPassword bsPass (encodeUtf8 storedPassword)
+                            then AuthSuccess
+                            else InvalidAuthPair
+                    | storedPassword == password -> AuthSuccessNeedReset
+                    | otherwise -> InvalidAuthPair
 
-data AuthResult'
+data PrizmPluginAuthResult
     = AuthSuccess
     | NoSuchUser
     | InvalidAuthPair
