@@ -29,6 +29,7 @@ import           Utils.Database.Orders                ( selectActiveOrdersOf )
 
 import           Control.Monad.Logger                 ( liftLoc, runLoggingT )
 import qualified Crypto.Nonce                         as CN
+import           Database.Esqueleto
 import           Database.Persist.Postgresql          ( createPostgresqlPool,
                                                         pgConnStr, pgPoolSize,
                                                         runSqlPool )
@@ -140,6 +141,9 @@ makeFoundation appSettings = do
     runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
 
     -- Perform manual migraions
+    let genToken = CN.nonce128urlT appNonceGen
+    flip runSqlPool pool $
+        migrateHelper_RefTokens genToken
 
     orders <- flip runSqlPool pool $ mapM
         selectActiveOrdersOf
@@ -254,6 +258,15 @@ db :: ReaderT SqlBackend Handler a -> IO a
 db = handler . runDB
 
 
+migrateHelper_RefTokens :: (MonadIO m) => IO Text -> SqlPersistT m ()
+migrateHelper_RefTokens genToken = do
+    noRefs <- select . from $ \ u -> do
+        where_ . notExists . from $ \r ->
+            where_ (r ^. ReferrerUser ==. u ^. UserId)
+        return u
+    mapM_ makeReferrer noRefs
+  where
+    makeReferrer (Entity u _) = liftIO genToken >>= insert_ . Referrer u
 
 
 

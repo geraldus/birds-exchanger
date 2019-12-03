@@ -70,19 +70,23 @@ postSignUpR = do
   where
 
     createUniqueLogin :: Text -> Text -> Text -> Handler UserCreateResult
-    createUniqueLogin login pass key = runDB $ do
-        mayExisting <- getBy $ UniqueEmail login
-        case mayExisting of
-            Just _ -> return $ CreateError
-                    "Пользователь с таким эл.адресом уже существует"
-            Nothing -> do
-                saltedPass <- liftIO $
-                        decodeUtf8 <$> makePassword (encodeUtf8 pass) 14
-                let newUser = User login (Just saltedPass) Client
-                userId <- insert newUser
-                let newEmail = Email login (Just userId) (Just key)
-                _ <- insert newEmail
-                return CreateSuccess
+    createUniqueLogin login pass key = do
+        token <- appNonce128urlT
+        runDB $ do
+            mayExisting <- getBy $ UniqueEmail login
+            case mayExisting of
+                Just _ -> return $ CreateError
+                        "Пользователь с таким эл.адресом уже существует"
+                Nothing -> do
+                    saltedPass <- liftIO $
+                            decodeUtf8 <$> makePassword (encodeUtf8 pass) 14
+                    let newUser = User login (Just saltedPass) Client
+                    userId <- insert newUser
+                    let newEmail = Email login (Just userId) (Just key)
+                    _ <- insert newEmail
+                    let refTok = Referrer userId token
+                    _ <- insert refTok
+                    return CreateSuccess
 
     sendEmailActivationMessage :: Text -> Text -> Handler ()
     sendEmailActivationMessage email key = do
