@@ -8,7 +8,7 @@ import           Handler.Client.Paramining  ( scheduleParaminingAccrual )
 import           Local.Persist.Exchange     ( ProfitType (..) )
 import           Local.Persist.Wallet
 import           Type.Money                 ( oneCoinCents )
-import           Utils.Database.User.Wallet ( getUserWalletStats )
+import           Utils.Database.User.Wallet ( getUserWalletStatsDB )
 import           Utils.Deposit
 import           Utils.Money
 
@@ -56,7 +56,7 @@ postOperatorAcceptDepositRequestR = do
                                 Left uid -> Just uid
                                 _        -> Nothing
                         let time = now
-                        stats' <- getUserWalletStats walletEntity
+                        stats' <- getUserWalletStatsDB walletEntity
                         _ <- insert $ AcceptedDeposit
                                 drId
                                 depositRequestCurrency

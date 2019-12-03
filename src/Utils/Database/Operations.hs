@@ -69,8 +69,8 @@ executeSavedOrder targetOutWallet@(Entity targetOutWalletId _) o t = do
             let (_, cIn) = unPairCurrency (exchangeOrderPair savedOrder)
             targetInWallet@(Entity targetInWalletId _) <-
                     getWallet404 targetUser cIn
-            tOutStats <- getUserWalletStats targetOutWallet
-            tInStats  <- getUserWalletStats targetInWallet
+            tOutStats <- getUserWalletStatsDB targetOutWallet
+            tInStats  <- getUserWalletStatsDB targetInWallet
             let initialMap = M.fromList
                     [ (targetOutWalletId, tOutStats)
                     , (targetInWalletId, tInStats) ]
@@ -321,11 +321,13 @@ updateParaMapFromList (wallet : rest) acc = do
     newMap <- updateParaMapWith wallet acc
     updateParaMapFromList rest newMap
 
-updateParaMapWith :: MonadIO m => Entity UserWallet -> WalletParaMap -> SqlPersistT m WalletParaMap
+updateParaMapWith ::
+       MonadIO m
+    => Entity UserWallet -> WalletParaMap -> SqlPersistT m WalletParaMap
 updateParaMapWith w@(Entity k _) m =
     if k `M.member` m
         then pure m
-        else getUserWalletStats w >>= insertWalletStats k m
+        else getUserWalletStatsDB w >>= insertWalletStats k m
   where insertWalletStats k m x = return (M.insert k x m)
 
 -- * Helper Types

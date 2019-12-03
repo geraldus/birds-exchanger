@@ -5,7 +5,7 @@ import           Import
 import           Local.Persist.Exchange     ( ProfitType (..) )
 import           Local.Persist.Wallet
 import           Handler.Client.Paramining  ( scheduleParaminingAccrual )
-import           Utils.Database.User.Wallet ( getUserWalletStats )
+import           Utils.Database.User.Wallet ( getUserWalletStatsDB )
 
 import           Database.Persist.Sql       ( toSqlKey )
 
@@ -25,7 +25,7 @@ postOperatorAcceptWithdrawalRequestR = do
     time <- liftIO getCurrentTime
     stats <- runDB $ do
         let walletId = withdrawalRequestWalletId request
-        stats' <- getUserWalletStats (Entity walletId wallet)
+        stats' <- getUserWalletStatsDB (Entity walletId wallet)
         insert $ WithdrawalAccept
             wid
             trans
