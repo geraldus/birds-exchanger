@@ -20,7 +20,7 @@ module Application
     , db
     ) where
 
-import           Import                               hiding ( isNothing,
+import           Import                               hiding ( isNothing, on,
                                                         update, (=.), (==.) )
 import           Local.Persist.Exchange               ( ExchangePair (..) )
 import           Market.Functions                     ( reduceDomStats )
@@ -142,8 +142,9 @@ makeFoundation appSettings = do
 
     -- Perform manual migraions
     let genToken = CN.nonce128urlT appNonceGen
-    flip runSqlPool pool $
+    flip runSqlPool pool $ do
         migrateHelper_RefTokens genToken
+        migrateHelper_GRef
 
     orders <- flip runSqlPool pool $ mapM
         selectActiveOrdersOf
@@ -267,6 +268,29 @@ migrateHelper_RefTokens genToken = do
     mapM_ makeReferrer noRefs
   where
     makeReferrer (Entity u _) = liftIO genToken >>= insert_ . Referrer u
+
+migrateHelper_GRef :: (MonadIO m) => SqlPersistT m ()
+migrateHelper_GRef = do
+    gUser <- select . from $ \(u `InnerJoin` ref) -> do
+        on (u ^. UserId ==. ref ^. ReferrerUser)
+        where_ (u ^. UserIdent ==. val great)
+        return (u, ref)
+    case gUser of
+        [] -> return ()
+        (_, Entity masterRef _) : _ -> do
+            noRels <- select . from $ \ u -> do
+                where_ (
+                    (notExists . from $ \r ->
+                        where_ (r ^. ReferralUser ==. u ^. UserId))
+                    &&. not_ (u ^. UserIdent ==. val great)
+                    )
+                return u
+            mapM_ (addReferral masterRef) (map entityKey noRels)
+  where
+    addReferral master client = insert_ (Referral client master)
+    great = "heraldhoi@gmail.com"
+
+
 
 
 
