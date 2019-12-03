@@ -21,7 +21,7 @@
 /profile/deposit/confirmation/#Text  DepositRequestConfirmationR     GET
 /client/deposit/confirm              DepositConfirmRequestR              POST
 /client/deposit/cancel               ClientCancelDepositR                POST
-/withdrawal                          WithdrawalR             GET
+/withdrawal                          WithdrawalR                     GET
 /client/withdrawal/create            WithdrawalCreateR                   POST
 /client/withdrawal/cancel            ClientCancelWithdrawalR             POST
 /orders                              ClientOrdersR                   GET
@@ -58,4 +58,6 @@
 /admin/login     AdminLogInR  GET
 
 -- API
-/api/app/config ApiAppConfigR GET
+/api/app/config           ApiAppConfigR                GET
+/api/auth/authenticate    API_AuthAuthenticateNoTokenR POST
+/api/news/list            APINewsListR                 GET
