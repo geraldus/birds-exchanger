@@ -254,6 +254,7 @@ refStatsW u = do
                 ^{refLevelStats lvl s}
         |]
   where
+    refLevelStats _ [] = mempty
     refLevelStats n s = [whamlet|<div>
         _{MsgReferralLevel n}: #{show (length s)}|]
 
