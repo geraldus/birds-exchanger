@@ -5,7 +5,7 @@ import           ClassyPrelude.Yesod
 
 import           Local.Persist.Currency
 import           Local.Persist.Exchange
-import           Type.Fee
+import qualified Type.Fee as T (Fee(..))
 import           Type.Money
 
 import           Formatting             ( sformat )
@@ -16,9 +16,9 @@ truncCoins2Cents :: Double -> Int
 truncCoins2Cents x = truncate $ x * fromIntegral oneCoinCents
 
 -- | Calculate fee
-calcFeeCents :: Fee -> Int -> Int
-calcFeeCents (Percent p) c = ceiling $ fromIntegral c * p / fromIntegral oneCoinCents
-calcFeeCents (CentsFixed f) c = c - f
+calcFeeCents :: T.Fee -> Int -> Int
+calcFeeCents (T.Percent p) c = ceiling $ fromIntegral c * p / fromIntegral oneCoinCents
+calcFeeCents (T.CentsFixed f) c = c - f
 
 
 -- | Defines devisor and qoutient when specifying exchange ratio for

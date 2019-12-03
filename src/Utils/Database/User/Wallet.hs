@@ -14,6 +14,7 @@ import           Local.Persist.Wallet   ( DepositRequestStatus (OperatorAccepted
                                           TransactionTypePlain (..),
                                           WalletTransactionType,
                                           WithdrawalStatus (WsNew) )
+import           Type.Money             ( Percent, mkPercent, percentToDouble )
 import           Type.Wallet            ( WalletData (..) )
 import           Utils.Type
 
@@ -213,8 +214,8 @@ getUserWalletActiveWithdrawal (Entity wid _) = select $ from $
 
 -- | Query database and collect user's wallet stats returning them
 -- as 'WalletData'.
-getUserWalletStats :: MonadIO m => Entity UserWallet -> SqlPersistT m WalletData
-getUserWalletStats wal = do
+getUserWalletStatsDB :: MonadIO m => Entity UserWallet -> SqlPersistT m WalletData
+getUserWalletStatsDB wal = do
     os   <- getUserWalletActiveOrders wal
     rs   <- getUserWalletActiveWithdrawal wal
     ptime <- lastWalletStrictParaTimeDB wal
@@ -228,6 +229,8 @@ foldUserWalletStats wallet os rs t = WalletData
     , walletDataOrdersCents = foldOrders os
     , walletDataWithdrawalCents = foldReqs rs
     , walletDataLastParaTime = t
+    , walletDataParaminingRate = defMonthlyParamine $
+        (userWalletCurrency . entityVal) wallet
     }
   where
         foldOrders :: [Ent ExOrd] -> Int
@@ -318,13 +321,6 @@ getWallet404 ::
         MonadIO m => UserId -> Currency -> SqlPersistT m (Entity UserWallet)
 getWallet404 user = getBy404 . UniqueWallet user
 
-
-newtype Percent = Percent { percentToDouble :: Double }
-
-mkPercent :: Int -> Percent
-mkPercent n
-    | n > -1 && n < 101 = Percent { percentToDouble = fromIntegral n }
-    | otherwise = Percent 0
 
 -- | Calculate paramining if conditions are met.
 -- Takes in account 3 seconds paramining accrual delay.

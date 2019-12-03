@@ -4,6 +4,8 @@ module Type.Wallet where
 
 import           Import.NoFoundation
 import           Local.Persist.Currency ( currencyCodeT' )
+import           Type.Money             ( Percent, percentToDouble,
+                                          percentToJSON )
 
 import           Data.Time.Clock.POSIX  ( utcTimeToPOSIXSeconds )
 
@@ -21,6 +23,8 @@ data WalletData = WalletData
     , walletDataLastParaTime    :: Maybe UTCTime
     -- ^ last operation lead to paramining time or paramining accrual time
     -- strictly queried from database
+    , walletDataParaminingRate  :: Maybe Percent
+    -- ^ monthly paramining rate for current wallet
     }
     deriving Show
 
@@ -30,8 +34,12 @@ instance ToJSON WalletData where
         [ "wallet" .= walletJSON
         , "orders" .= toJSON walletDataOrdersCents
         , "withdrawal" .= toJSON walletDataWithdrawalCents
-        , "lastParaTime" .= utcTimestampJSON lastParaTime ]
+        , "lastParaTime" .= utcTimestampJSON lastParaTime
+        , "monthlyParaminingRate" .= percentToJSON' walletDataParaminingRate ]
       where
+        percentToJSON' x = case x of
+            Nothing -> Null
+            Just p -> percentToJSON p
         walletId = entityKey walletDataWallet
 
         wallet = entityVal walletDataWallet
