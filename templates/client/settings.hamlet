@@ -10,6 +10,14 @@
     <dd .form-group .col-12 .col-md-9>
         <a href=@{PasswordChangeR}>
             _{MsgFormSubmitChangePassword}
+    <dt .col-12 .col-md-3>
+        _{MsgReferralLink}
+    <dd .form-group .col-12 .col-md-9>
+        #{refLink}
+    <dt .col-12 .col-md-3>
+        _{MsgReferralStats}
+    <dd  .form-group .col-12 .col-md-9>
+        ^{refStatsW (entityKey user)}
 
 $if shouldNoticeAboutPasswordChange
     <div .row .flex>

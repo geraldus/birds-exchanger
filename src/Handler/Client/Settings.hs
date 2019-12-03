@@ -9,6 +9,8 @@ import           Settings.MailRu               ( password, serverName, smtpPort,
                                                  username )
 import           Utils.Database.Password       ( getCredsByEmail,
                                                  getCredsByToken )
+import           Utils.Database.User.Referral  ( getCreateRefTokenDB,
+                                                 getReferralsOfDB )
 import           Utils.QQ                      ( stFile )
 
 import qualified Data.Text.Lazy                as TL
@@ -22,9 +24,15 @@ import           Text.Hamlet                   ( shamletFile )
 getClientSettingsR :: Handler Html
 getClientSettingsR = do
     (user, _) <- requireClientData
-    -- changePasswordElementRoot <- newIdent
     let passwordPrefix = take 6 <$> (userPassword . entityVal) user
     let shouldNoticeAboutPasswordChange = passwordPrefix /= Just "sha256"
+    token <- appNonce128urlT
+    refToken <- runDB $ getCreateRefTokenDB (entityKey user) token
+    urlRender <- getUrlRenderParams
+    s <- appSettings <$> getYesod
+    let refLink = urlRender
+            HomeR
+            [(appRefTokenParamName s, (referrerToken (entityVal refToken)))]
     defaultLayout
         $(widgetFile "client/settings")
 
@@ -236,3 +244,35 @@ removeObsoleteTokens :: EmailId -> Handler ()
 removeObsoleteTokens e = runDB $
     deleteWhere [ PasswordResetTokenEmail ==. e ]
 
+refStatsW :: UserId -> Widget
+refStatsW u = do
+    stats' <- handlerToWidget . getUserReferrals $ u
+    let stats = zip [1..] stats'
+    [whamlet|
+        <div .referral-stats>
+            $forall (lvl, s) <- stats
+                ^{refLevelStats lvl s}
+        |]
+  where
+    refLevelStats n s = [whamlet|<div>
+        _{MsgReferralLevel n}: #{show (length s)}|]
+
+getUserReferrals :: UserId -> Handler [[Entity Referral]]
+getUserReferrals user = do
+    token <- appNonce128urlT
+    ref <- runDB $ getCreateRefTokenDB user token
+    getReferralsOf [entityKey ref]
+
+getReferralsOf :: [ReferrerId] -> Handler [[Entity Referral]]
+getReferralsOf refs = do
+    maxLevels <- appRefMaxLevels . appSettings <$> getYesod
+    foldReferrals maxLevels [] refs
+  where
+    foldReferrals n acc' refIds = do
+        referrals <- runDB . getReferralsOfDB $ refIds
+        let rels = map (\(rel, _, _) -> rel) referrals
+            relRefs = map (\(_, _, Entity relRef _) -> relRef) referrals
+        let acc = acc' <> [rels]
+        if n == 0 || null rels
+            then return acc
+            else foldReferrals (n - 1) acc relRefs
