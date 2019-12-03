@@ -1,7 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes       #-}
-module Utils.Time
-where
+module Utils.Time where
 
 import           ClassyPrelude.Yesod
 
@@ -18,7 +17,7 @@ mayCookie name defaultVal = fromMaybe defaultVal <$> lookupCookie name
 -- Return offset value in minutes.
 timezoneOffsetFromCookie :: MonadHandler m => m Int
 timezoneOffsetFromCookie =
-    fromMaybe 0 . readMaybe . unpack <$> mayCookie "timezoneOffset" ""
+    fromMaybe 0 . (readMaybe . unpack =<<) <$> lookupCookie "timezoneOffset"
 
 
 renderTimeDateCol :: TimeLocale -> Int -> UTCTime -> Html
