@@ -33,6 +33,7 @@ import           Utils.Database.User.Wallet ( getOrCreateWalletDB,
                                               getUserWallets )
 import           Utils.Form                 ( currencyOptionListRaw,
                                               transferOptionsRaw )
+import           Utils.Money                ( cents2dblT )
 import           Utils.Render               ( renderCurrencyAmount )
 
 import           Control.Monad.Logger       ( LogSource )
