@@ -17,10 +17,6 @@ import           Data.Time.Format       ( TimeLocale (..) )
 getRenders :: WidgetFor App (Route App -> Text, AppMessage -> Text)
 getRenders = (,) <$> liftHandler getUrlRender <*> liftHandler getMessageRender
 
-getAmountRenderer ::
-        Handler ([Text] -> [Text] -> Bool -> Currency -> Int -> Html)
-getAmountRenderer = selectLocale >>= return . renderCurrencyAmount
-
 setCompositeTitle ::
        (MonadWidget m, HandlerFor site ~ m, RenderMessage site msg)
     => [ msg ] -> m ()

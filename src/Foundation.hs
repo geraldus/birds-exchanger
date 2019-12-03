@@ -26,14 +26,16 @@ import           Local.Persist.Currency
 import           Local.Persist.UserRole
 import           Market.Type                ( DOMStats )
 import           Type.App
+import           Type.Money                 ( Percent (..) )
 import           Type.Wallet                ( WalletData (..) )
 import           Utils.Common
-import           Utils.Database.User.Wallet ( getOrCreateWalletDB,
+import           Utils.Database.User.Wallet ( currencyAmountPara,
+                                              getOrCreateWalletDB,
                                               getUserWalletStatsDB,
                                               getUserWallets )
 import           Utils.Form                 ( currencyOptionListRaw,
                                               transferOptionsRaw )
-import           Utils.Money                ( cents2dblT )
+import           Utils.Money                ( cents2dblT, fixedDoubleT )
 import           Utils.Render               ( renderCurrencyAmount )
 
 import           Control.Monad.Logger       ( LogSource )
@@ -41,6 +43,8 @@ import qualified Crypto.Nonce               as CN
 import qualified Data.CaseInsensitive       as CI
 import           Data.List                  ( findIndex )
 import qualified Data.Text.Encoding         as TE
+import           Data.Time.Clock            ( addUTCTime )
+import           Data.Time.Clock.POSIX      ( utcTimeToPOSIXSeconds )
 import           Data.Version               ( showVersion )
 import           Database.Persist.Sql       ( ConnectionPool, fromSqlKey,
                                               runSqlPool )
@@ -335,7 +339,10 @@ instance Yesod App where
     isAuthorized InfoListR _                         = return Authorized
     isAuthorized (InfoViewR _) _                     = return Authorized
     isAuthorized TermsOfUseR _                       = return Authorized
+    -- API
     isAuthorized ApiAppConfigR _                     = return Authorized
+    isAuthorized API_AuthAuthenticateNoTokenR _      = return Authorized
+    isAuthorized APINewsListR _                      = return Authorized
 
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
@@ -822,23 +829,57 @@ matchMethod (CryptoTM tc) (CryptoPaymentMethod pc _ _)
     = tc == pc
 matchMethod _ _ = False
 
-renderWalletBalanceW :: Yesod site => WalletData -> [Text] -> WidgetFor site ()
+renderWalletBalanceW :: WalletData -> [Text] -> Widget
 renderWalletBalanceW stats listClasses = do
     let wallet@(Entity _ w) = walletDataWallet stats
         c = userWalletCurrency w
         a = userWalletAmountCents w
-        paraming = walletDataParaminingRate stats
-    amountRender <-
-        handlerToWidget $ selectLocale >>= (return . renderCurrencyAmount)
+        o = walletDataOrdersCents stats
+        r = walletDataWithdrawalCents stats
+        cents = a + o + r
+        currencyCode = (toLower . currencyCodeT') c
+        paraminingRate = walletDataParaminingRate stats
+        lastParaTime = walletDataLastParaTime stats
+        paraVals = (,) <$> paraminingRate <*> lastParaTime
+    amountRender <- handlerToWidget getAmountRenderer
     [whamlet|
-        <span .ml-2 .navbar-text .d-flex .wallet .balance>
+        <span .ml-2 .navbar-text .wallet .balance>
             #{amountRender currencyClassNames amountClassNames False c a}
-        <!-- $ maybe paraStats <- paraming
-            # { paraStats} -->
+            <br>
+            $maybe (r, t) <- paraVals
+                ^{renderParaminingW t r cents c}
         |]
   where
     amountClassNames = ["font-weight-bold", "wallet-balance-val"]
     currencyClassNames = ["wallet-balance-currency"]
+
+renderParaminingW :: UTCTime -> Percent -> Int -> Currency -> Widget
+renderParaminingW t' r n c = do
+    now <- liftIO getCurrentTime
+    let paraCents = if n < 1
+            then Just (0, 0, t')
+            else (\(v, k) -> (v, k, t')) <$> currencyAmountPara now t' c n
+    case paraCents of
+        Nothing -> mempty
+        Just (p, k, t) -> [whamlet|
+            <small .wallet .paramining>
+                <i .fas .fa-angle-double-up .stats-icon style="font-size: 0.65rem">
+                <span .value .para .#{currencyCode} style="font-size: 0.9rem">
+                    #{fixedDoubleT 7 (p / 100)}
+                <small .currency .para .#{currencyCode}>
+                    #{symbol}
+            <script>
+                window['para_#{currencyCode}'] = {
+                    timestamp: #{fixedDoubleT 12 (realToFrac (utcTimeToPOSIXSeconds t) * 1000)},
+                    amount: #{show n},
+                    k_s: #{fixedDoubleT 12 (realToFrac k)}
+                };
+            |]
+  where
+    symbol = currencySymbol c
+
+    currencyCode = (toLower . currencyCodeT') c
+
 
 setReferrerHttpOnlyCookie :: Handler ()
 setReferrerHttpOnlyCookie = do
@@ -862,3 +903,7 @@ referrerQueryString :: Handler (Maybe Text)
 referrerQueryString = do
     name <- appRefTokenParamName . appSettings <$> getYesod
     lookupGetParam name
+
+getAmountRenderer ::
+        Handler ([Text] -> [Text] -> Bool -> Currency -> Int -> Html)
+getAmountRenderer = selectLocale >>= return . renderCurrencyAmount

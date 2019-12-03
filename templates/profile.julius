@@ -40,15 +40,16 @@ $(document).ready(() => {
         }
     }
 
-    navLinks
-        .click(updateCurrencyFilter)
-        .first()
-        .addClass('active')
-
     if (window.para_pzm) {
         renderPara('pzm', para_pzm)
     }
     if (window.para_ouro) {
         renderPara('ouro', para_ouro)
     }
+
+    navLinks
+        .click(updateCurrencyFilter)
+        .first()
+        .addClass('active')
+
 })

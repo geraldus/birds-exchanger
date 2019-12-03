@@ -26,7 +26,8 @@
 }
 
 .main-nav .wallet-balance-val,
-.main-nav .wallet-balance-currency {
+.main-nav .wallet-balance-currency,
+.main-nav .wallet.paramining {
     color: #ffc107!important;
 }
 

@@ -359,6 +359,7 @@ walletStats wal@(Entity _ w) = do
         rs'   <- getUserWalletActiveWithdrawal wal
         paraTime' <- lastWalletStrictParaTimeDB wal
         return (os', rs', paraTime')
+    currencyRender <- handlerToWidget getAmountRenderer
     let wc = userWalletCurrency w
         stats = foldUserWalletStats wal os rs pt
         walCents = userWalletAmountCents w
@@ -368,11 +369,11 @@ walletStats wal@(Entity _ w) = do
         currencyCode = (toLower . currencyCodeT') wc
         currencyName = currencyNameT wc
         walletCents =
-            renderCurrencyAmount (error "no locale") [] [] False wc walCents
+            currencyRender [] [] False wc walCents
         orderCents =
-            renderCurrencyAmount (error "no locale") [] [] False wc ordCents
+            currencyRender [] [] False wc ordCents
         withdrawalCents =
-            renderCurrencyAmount (error "no locale") [] [] False wc wreqCents
+            currencyRender [] [] False wc wreqCents
         lastParaTime = pt
         paraCents = lastParaTime >>= \t ->
             if cents < 1
@@ -385,7 +386,7 @@ walletStats wal@(Entity _ w) = do
         paraStats = maybe
                 mempty
                 (\(v, k, time) -> [whamlet|
-                    <div title="_{MsgParaMining}">
+                    <div title="_{MsgParaMining}" .wallet .paramining .#{currencyCode}>
                         <i .fas .fa-angle-double-up .stats-icon>
                         <span .value .para .#{currencyCodeT' wc}>
                             #{fixedDoubleT 7 (v / 100)}

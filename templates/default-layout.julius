@@ -5,5 +5,35 @@ document.cookie = "timezoneOffset=" + _date.getTimezoneOffset()
 $(document).ready(() => {
     setTimeout(() => {
         $('#message').slideUp()
-    }, 10*1000)
+    }, 10 * 1000)
+
+    const calcParamining = (a, k_s, timestamp) => {
+        const d = new Date()
+        const t_now = d.getTime()
+        const t_delta = t_now - timestamp
+        const v = a * Math.pow(k_s, t_delta / 1000) - a
+        return v
+    }
+
+    const renderPara = (ccode, data) => {
+        const placeholder = $('.wallet.paramining .para.value.' + ccode)
+        if (placeholder.length > 0) {
+            const render = (t) => {
+                const v = calcParamining(
+                    data.amount, data.k_s, data.timestamp
+                )
+                placeholder.text((v / 100).toFixed(6))
+                window.requestAnimationFrame(render)
+            }
+            window.requestAnimationFrame(render)
+        }
+    }
+
+    if (window.para_pzm) {
+        renderPara('pzm', para_pzm)
+    }
+    if (window.para_ouro) {
+        renderPara('ouro', para_ouro)
+    }
+
 })
