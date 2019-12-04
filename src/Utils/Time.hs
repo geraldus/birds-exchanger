@@ -19,30 +19,35 @@ timezoneOffsetFromCookie :: MonadHandler m => m Int
 timezoneOffsetFromCookie =
     fromMaybe 0 . (readMaybe . unpack =<<) <$> lookupCookie "timezoneOffset"
 
-
 renderTimeDateCol :: TimeLocale -> Int -> UTCTime -> Html
-renderTimeDateCol loc moff utc = [shamlet|
-    #{localeFormatTime loc utc'}<br>
-    <small>#{localeFormatDate loc utc'}
+renderTimeDateCol loc tz t = [shamlet|
+    #{renderTime loc tz t}
+    <br>
+    <small>
+        #{renderDate loc tz t}
     |]
-  where utc' = offsetTime moff utc
 
 renderDateRow :: TimeLocale -> Int -> UTCTime -> Html
-renderDateRow loc moff utc = [shamlet|
+renderDateRow loc tz t = [shamlet|
     <span>
         #{toHtml gencase}
     |]
-  where utc' = offsetTime moff utc
-        ft = formatTime loc "%e %B %Y" utc'
+  where utc = offsetTime tz t
+        ft = formatTime loc "%e %B %Y" utc
         gencase = unwords . map genitiveCase $ words ft
 
 renderDateTimeRow :: TimeLocale -> Int -> UTCTime -> Html
-renderDateTimeRow loc moff utc = [shamlet|
+renderDateTimeRow loc tz t = [shamlet|
     <span .text-uppercase>
-        #{localeFormatDate loc utc'}#
-        &#32;&#32;#{localeFormatTime loc utc'}
+        #{renderDate loc tz t}#
+        &#32;&#32;#{renderTime loc tz t}
     |]
-  where utc' = offsetTime moff utc
+
+renderTime :: TimeLocale -> Int -> UTCTime -> Html
+renderTime l tz t = localeFormatTime l (offsetTime tz t)
+
+renderDate :: TimeLocale -> Int -> UTCTime -> Html
+renderDate l tz t = localeFormatDate l (offsetTime tz t)
 
 
 -- | Locale representing Russian free-form usage.
