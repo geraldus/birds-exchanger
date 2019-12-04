@@ -157,6 +157,12 @@ CancelOrder: Отменить ордер
 CancelOrderConfirmationText: Вы уверены, что хотите отменить ордер на обмен?
 DomNoOrders: Ордеров на обмен ещё нет
 DomCreateNewOrderOffer: Станьте первым, кто создаст новый ордер
+ExchangeAsk: Продажа
+ExchangeBid: Покупка
+ExchangeTime: Время
+ExchangeType: Тип
+ExchangeRate: Курс
+ExchangePairHistory outc@Text inc@Text: Последние операции #{outc} / #{inc}
 
 
 Balance: Баланс
