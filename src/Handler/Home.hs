@@ -11,7 +11,8 @@ import           Import                 hiding ( decodeUtf8, httpLbs, on )
 import           Form.Exchanger.Order
 import           Local.Params
 import           Local.Persist.Currency
-import           Local.Persist.Exchange ( ExchangePair (..) )
+import           Local.Persist.Exchange ( ExchangePair (..),
+                                          exchangePairUnsafe )
 import           Market.Functions       ( reduceDomStats )
 import           Market.Type            ( DOMRateStats, DOMStats,
                                           DOMStatsRateMap )
@@ -24,7 +25,7 @@ import           Utils.Time             ( renderDate, renderTime,
                                           timezoneOffsetFromCookie )
 
 import qualified Data.HashMap.Strict    as HMS
-import           Database.Esqueleto     ( InnerJoin (..), desc, from, in_,
+import           Database.Esqueleto     ( InnerJoin (..), asc, desc, from, in_,
                                           limit, on, orderBy, valList, where_,
                                           (^.) )
 import qualified Database.Esqueleto     as E
@@ -55,7 +56,11 @@ getHomeR = do
     let featured = featuredModal
     let defaultPairs = [ ExchangePzmRur, ExchangeOurRur, ExchangeOurPzm ]
     orders <- runDB $ mapM selectActiveOrdersOf defaultPairs
-    exchanges <- mapM getLastExchangesOf defaultPairs
+    let dropEverySecond []             = []
+        dropEverySecond (x : [])       = [x]
+        dropEverySecond (x : y : [])   = [x]
+        dropEverySecond (x : _ : rest) = x : dropEverySecond rest
+    exchanges <- mapM ((dropEverySecond <$>) <$> getLastExchangesOf) defaultPairs
     let exHistory = exchangeHistoryW (zip defaultPairs exchanges)
     let statsDOM = reduceDomStats [] $ concat orders
     messageRender <- getMessageRender
@@ -331,8 +336,8 @@ getLastExchangesOf ::
 getLastExchangesOf p = runDB . E.select . from $ \(o `InnerJoin` e) -> do
     on (o ^. ExchangeOrderId E.==. e ^. ExchangeOrderExecutionOrderId)
     where_ (o ^. ExchangeOrderPair `in_` valList [ p, flipPair p ])
-    orderBy [desc (e ^. ExchangeOrderExecutionTime)]
-    limit 10
+    orderBy [desc (e ^. ExchangeOrderExecutionTime), asc (o ^. ExchangeOrderCreated)]
+    limit 20
     return (e, o)
   where
     (cOut, cIn) = unPairCurrency p
@@ -402,10 +407,15 @@ lastExchangesW cOut cIn exs visible = [whamlet|
             |]
       where
         exTime = exchangeOrderExecutionTime ex
+        defPair = exchangePairUnsafe cOut cIn
         orderPair = exchangeOrderPair o
         isAsk = unPairCurrency orderPair == (cOut, cIn)
         transfer = exchangeOrderExecutionTransferAmountCents ex
-        income = exchangeOrderExecutionIncomeAmountCents ex
+        ratio' = exchangeOrderNormalizedRatio o
+        ratio = if isAsk then ratio' else 1 / ratio'
+        income = multiplyCents
+                    ratio
+                    transfer
         rate = fixedDoubleT 2 (exchangeOrderNormalizedRatio o)
         (outCents, inCents) = if isAsk
             then (transfer, income)
