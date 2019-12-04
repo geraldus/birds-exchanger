@@ -1,8 +1,9 @@
 .dom-view .header.row
     background-color: #333a40
     color: white
-    padding: 0.5rem
-    font-weight: bold
+    padding-top: 0.3rem
+    padding-bottom: 0.3rem
+    white-space: nowrap
 
 .dom-view .header.row .text-muted
     color: #ffffffb5 !important
