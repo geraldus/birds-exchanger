@@ -6,7 +6,7 @@
 {-# LANGUAGE TypeFamilies          #-}
 module Handler.Home where
 
-import           Import                 hiding ( decodeUtf8, httpLbs )
+import           Import                 hiding ( decodeUtf8, httpLbs, on )
 
 import           Form.Exchanger.Order
 import           Local.Params
@@ -16,11 +16,18 @@ import           Market.Functions       ( reduceDomStats )
 import           Market.Type            ( DOMRateStats, DOMStats,
                                           DOMStatsRateMap )
 import           Type.Money             ( oneCoinCents )
+import           Utils.Common           ( selectLocale )
 import           Utils.Database.Orders  ( selectActiveOrdersOf )
 import           Utils.Money
 import           Utils.Render
+import           Utils.Time             ( renderDate, renderTime,
+                                          timezoneOffsetFromCookie )
 
 import qualified Data.HashMap.Strict    as HMS
+import           Database.Esqueleto     ( InnerJoin (..), desc, from, in_,
+                                          limit, on, orderBy, valList, where_,
+                                          (^.) )
+import qualified Database.Esqueleto     as E
 import           Database.Persist.Sql   ( fromSqlKey )
 import           Text.Julius            ( RawJS (..) )
 
@@ -46,9 +53,10 @@ getHomeR = do
             -- (defPairDir seems to always be opposite form pair in current form
             -- implementation)
     let featured = featuredModal
-    orders <- runDB $ mapM
-        selectActiveOrdersOf
-        [ ExchangePzmRur, ExchangeOurRur, ExchangeOurPzm ]
+    let defaultPairs = [ ExchangePzmRur, ExchangeOurRur, ExchangeOurPzm ]
+    orders <- runDB $ mapM selectActiveOrdersOf defaultPairs
+    exchanges <- mapM getLastExchangesOf defaultPairs
+    let exHistory = exchangeHistoryW (zip defaultPairs exchanges)
     let statsDOM = reduceDomStats [] $ concat orders
     messageRender <- getMessageRender
     defaultLayout $ do
@@ -72,8 +80,8 @@ getHomeR = do
 
 -- | == Utils
 
-getData
-    :: Text
+getData ::
+       Text
     -> Text
     -> Text
     -> Text
@@ -305,8 +313,8 @@ emptyList row col = [whamlet|
                 _{MsgDomCreateNewOrderOffer}
         |]
 
-genericDomRender
-    :: ExchangePair
+genericDomRender ::
+       ExchangePair
     -> DOMStats
     -> (ExchangePair -> ExchangePair)
     -> (ExchangePair -> Text)
@@ -315,3 +323,93 @@ genericDomRender
     -> Widget
 genericDomRender p ds direction title wrapper itemRender =
         wrapper (title p) $ itemRender <$> HMS.lookup (direction p) ds
+
+
+getLastExchangesOf ::
+       ExchangePair
+    -> Handler [(Entity ExchangeOrderExecution, Entity ExchangeOrder)]
+getLastExchangesOf p = runDB . E.select . from $ \(o `InnerJoin` e) -> do
+    on (o ^. ExchangeOrderId E.==. e ^. ExchangeOrderExecutionOrderId)
+    where_ (o ^. ExchangeOrderPair `in_` valList [ p, flipPair p ])
+    orderBy [desc (e ^. ExchangeOrderExecutionTime)]
+    limit 10
+    return (e, o)
+  where
+    (cOut, cIn) = unPairCurrency p
+
+exchangeHistoryW ::
+       [(ExchangePair, [(Entity ExchangeOrderExecution, Entity ExchangeOrder)])]
+    -> ExchangePair
+    -> Widget
+exchangeHistoryW groups activePair = do
+    mapM_ lastExchangesW' groups
+  where
+    lastExchangesW' (p, exs) =
+        let (cOut, cIn) = unPairCurrency p
+            isVisible = p == activePair
+        in lastExchangesW cOut cIn exs isVisible
+
+lastExchangesW ::
+       Currency
+    -> Currency
+    -> [(Entity ExchangeOrderExecution, Entity ExchangeOrder)]
+    -> Bool
+    -> Widget
+lastExchangesW cOut cIn exs visible = [whamlet|
+    <div
+        .exchange-history
+        .container-fluid
+        data-from=#{outCurrencyCode}
+        data-to=#{inCurrencyCode}
+        :visible:.show
+        :not visible:.hide
+        >
+        <h5 .text-center>
+            _{MsgExchangePairHistory (toUpper outCurrencyCode) (toUpper inCurrencyCode)}
+        <div .header .row>
+            <div .col-2>_{MsgExchangeTime}
+            <div .col-2>_{MsgExchangeType}
+            <div .col-2>_{MsgExchangeRate}
+            <div .col-3>#{toUpper outCurrencyCode}
+            <div .col-3>#{toUpper inCurrencyCode}
+        ^{body}
+    |]
+  where
+    outCurrencyCode = currencyCodeT' cOut
+    inCurrencyCode  = currencyCodeT' cIn
+    body = mapM_ exchangeW exs
+    exchangeW (Entity _ ex, Entity _ o)= do
+        (render, l, tz) <- handlerToWidget $ (,,)
+            <$> getAmountRenderer
+            <*> selectLocale
+            <*> timezoneOffsetFromCookie
+        let outAmount = render [] [] False cOut outCents
+            inAmount  = render [] [] False cIn  inCents
+            time = renderTime l tz exTime
+            date = renderDate l tz exTime
+        [whamlet|<div .row .exchange>
+            <div .col-2 title="#{date}">
+                <small>
+                    #{time}
+            <div .col-2 .text-lowercase>
+                ^{typW}
+            <div .col-2>
+                #{rate}
+            <div .col-3>
+                #{outAmount}
+            <div .col-3>
+                #{inAmount}
+            |]
+      where
+        exTime = exchangeOrderExecutionTime ex
+        orderPair = exchangeOrderPair o
+        isAsk = unPairCurrency orderPair == (cOut, cIn)
+        transfer = exchangeOrderExecutionTransferAmountCents ex
+        income = exchangeOrderExecutionIncomeAmountCents ex
+        rate = fixedDoubleT 2 (exchangeOrderNormalizedRatio o)
+        (outCents, inCents) = if isAsk
+            then (transfer, income)
+            else (income, transfer)
+        typW = if isAsk
+                then [whamlet|<span .ask>_{MsgExchangeAsk}|]
+                else [whamlet|<span .bid>_{MsgExchangeBid}|]

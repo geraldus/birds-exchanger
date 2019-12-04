@@ -28,3 +28,26 @@
 
 #clickable-order-modal .title
     color: #e9ecef
+
+.exchange-history .header.row
+    background-color: #333a40
+    color: white
+    padding-top: 0.3rem
+    padding-bottom: 0.3rem
+    white-space: nowrap
+    text-align: center
+
+.exchange-history.hide
+    display: none
+
+.exchange-history .exchange
+    white-space: nowrap
+
+.exchange-history.show
+    display: block
+
+.exchange-history .ask
+    color: #ff2300a9
+
+.exchange-history .bid
+    color: #47b900a9
