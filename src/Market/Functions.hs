@@ -79,8 +79,8 @@ singleDomRateStats' (o, i) = (1, o, i)
 -- First argument is used to filter data source.  If it is non empty
 -- it defines pairs filter.
 -- When first argument is empty no filtering applies.
-reduceDomStats
-    :: [ExchangePair] -- list of desired exchange directions
+reduceDomStats ::
+       [ExchangePair] -- list of desired exchange directions
     -> [OrderUserP]
     -> DOMStats
 reduceDomStats pairFilter = P.foldr reducePair emptyDomStats
