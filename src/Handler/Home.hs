@@ -186,42 +186,38 @@ getLastFeaturedNews = do
         []  -> return Nothing
         x:_ -> return (Just x)
 
--- | ** Depth of Market
+-- * Depth of Market
 
 renderDomTable :: ExchangePair -> Bool -> Bool -> DOMStats -> Widget
 renderDomTable p buy hidden d = domDivView pair' hidden title body
-    where
-        pair' = if buy then flipPair p else p
-        pairStats =
-            sortBy (flip (comparing fst)) . HMS.toList <$> HMS.lookup pair' d
-        maxCount =
-            maybe 0 (foldr max 0 . map ((\(_, b, _) -> b) . snd)) pairStats
-        title = if buy
-            then [shamlet|#{currSign inc} ⇢ #{currSign outc}|]
-            else [shamlet|#{currSign outc} ⇢ #{currSign inc}|]
-        body = (concatMap $ \(r, s) -> domDivRow r maxCount buy s) <$> pairStats
-        (outc, inc) = unPairCurrency p
+  where
+    pair' = if buy then flipPair p else p
 
+    pairStats =
+        sortRateAsc . HMS.toList <$> HMS.lookup pair' d
 
-domDivRow :: Double -> Int -> Bool -> DOMRateStats -> Widget
-domDivRow r t buy d =
-    let (ordersCount, outCents, inCents) = d
-        leftd = "left" :: Text
-        rightd = "right" :: Text
-        (direction, color) = if buy
-            then (leftd, "#47b9002b")
-            else (rightd, "#ff23002b")
-        barWidth :: Double
-        barWidth = fromIntegral (outCents * oneCoinCents) / fromIntegral t
-        widtht :: Int
-        widtht = round barWidth
-        widthf = 100 - widtht
-        style = concat
-            [ "background: linear-gradient(to "
-            , direction <> ", "
-            , "#fff0 " <> (pack . show $ widthf) <> "%, "
-            , color <> " " <> (pack . show $ widthf) <> "%);" ]
-    in $(widgetFile "dom/divs/row")
+    maxCount =
+        maybe 0 (foldr max 0 . map ((\(_, b, _) -> b) . snd)) pairStats
+    -- pairSummaries =
+
+    title = if buy
+        then [shamlet|#{currencySymbol inc} ⇢ #{currencySymbol outc}|]
+        else [shamlet|#{currencySymbol outc} ⇢ #{currencySymbol inc}|]
+    -- body = concatMap (\(r, s) -> domDivRow r maxCount buy s) <$> pairStats
+    body = fmap (\(total, widget) -> widget total) rows
+
+    rows = foldRows <$> pairStats
+
+    (outc, inc) = unPairCurrency p
+
+    foldRows :: [(Double, (Int, Int, Int))] -> (Int, Int -> Widget)
+    foldRows = foldr step (0, (\t -> mempty))
+
+    step (r, s@(_, sOut, sIn)) (n, w) =
+        let n' = n + if buy then sIn else sOut
+        in (n', (\t -> domDivRow r n' t buy s >> w t))
+
+    sortRateAsc = sortBy (flip (comparing fst))
 
 domDivView :: ExchangePair -> Bool -> Html -> Maybe Widget -> Widget
 domDivView pair' hidden title mbody  =
@@ -229,6 +225,27 @@ domDivView pair' hidden title mbody  =
         expair = intercalate "_" . map (toLower . currencyCodeT) $ [outc, inc]
         body = fromMaybe (emptyList 10 4) mbody
     in $(widgetFile "dom/divs/view")
+
+domDivRow :: Double -> Int -> Int -> Bool -> DOMRateStats -> Widget
+domDivRow r depth t buy d =
+    let (ordersCount, outCents, inCents) = d
+        dLeft = "left" :: Text
+        dRight = "right" :: Text
+        (direction, color) = if buy
+            then (dLeft, "#47b9002b")
+            else (dRight, "#ff23002b")
+        barWidth :: Double
+        barWidth = fromIntegral (depth * oneCoinCents) / fromIntegral t
+        tWidth :: Int
+        tWidth = round barWidth
+        fWidth = 100 - tWidth
+        style = concat
+            [ "background: linear-gradient(to "
+            , direction <> ", "
+            , "#fff0 " <> (pack . show $ fWidth) <> "%, "
+            , color <> " " <> (pack . show $ fWidth) <> "%);" ]
+    in $(widgetFile "dom/divs/row")
+
 
 emptyList :: Int -> Int -> Widget
 emptyList row col = [whamlet|
