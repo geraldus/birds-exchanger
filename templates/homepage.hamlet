@@ -40,7 +40,7 @@
                             href="#"
                             title="#{messageRender MsgExchange} Ouroboros на Prizm"
                             >
-                                OUR / PZM
+                                OURO / PZM
                     <li .nav-item .mx-1>
                         <a
                             #our-rur-pair
@@ -52,7 +52,7 @@
                             href="#"
                             title="#{messageRender MsgExchange} Ouroboros на рубли"
                             >
-                                OUR / RUB (₽)
+                                OURO / RUB (₽)
         <div .row .mt-3>
             <div .col>
                 <form method=post action=@{ExchangeOrderCreateR} enctype="">
@@ -67,9 +67,9 @@
                             type=submit >
                             _{MsgCreateRequest}
                     $nothing
-                        <div .text-muted .mb-3>
-                            <small>
-                                авторизуйтесь для обмена
+                        <div .mb-4>
+                            <a .text-muted href="@{AuthR LoginR}">
+                                _{MsgFormMessageSignInToTrade}
 
 <div .container .mt-3>
     <div .row>
