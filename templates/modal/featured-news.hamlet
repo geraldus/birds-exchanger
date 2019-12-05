@@ -1,0 +1,31 @@
+<div
+    #featured-modal
+    .news
+    .featured
+    .modal
+    .fade
+    tabindex="-1"
+    role="dialog"
+    data-newsid="#{fromSqlKey iid}"
+    >
+    <div .modal-dialog .modal-dialog-centered role="document">
+        <div .modal-content .text-white style="background-color: #0e0e0e">
+            <div .container-fluid>
+                $maybe thumb <- infoThumbUrl info
+                    <div .row>
+                        <div .col-12>
+                            <img
+                                style="max-width: 100%"
+                                src="#{thumb}"
+                                alt="_{MsgNewsThumbImageAlt}"
+                                >
+                <div .row>
+                    <div .col-10 .mx-auto .py-3>
+                        #{preEscapedToMarkup desc}
+                        <div .dont-show-again>
+                            <span .checkmark>✓
+                            <span ##{wrapId}-remember-trigger .text-muted>
+                                _{MsgDoNotShowAgain}
+                        <div .read-more>
+                            <a href="@{InfoViewR (infoAlias info)}">
+                                _{MsgReadMore}

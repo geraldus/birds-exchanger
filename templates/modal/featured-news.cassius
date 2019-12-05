@@ -1,0 +1,7 @@
+.news.featured.modal
+    .dont-show-again
+        float: left
+        cursor: pointer
+        user-select: none
+    .read-more
+        float: right
