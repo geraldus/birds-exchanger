@@ -162,7 +162,7 @@ ExchangeBid: Покупка
 ExchangeTime: Время
 ExchangeType: Тип
 ExchangeRate: Курс
-ExchangePairHistory outc@Text inc@Text: Последние операции #{outc} / #{inc}
+ExchangePairHistory outc@Text inc@Text: Последние операции #{outc} / #{inc}
 
 
 Balance: Баланс
