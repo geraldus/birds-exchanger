@@ -80,6 +80,7 @@ FormMessageErrorMissingLogin: Не указано имя пользовател�
 FormMessageErrorMissingPassword: Не указан пароль
 FormMessageErrorPasswordTooShort minLen@Int: Пароль слишком короткий, введите не менее #{show minLen} символов.
 FormMessageErrorPasswordResetTokenExpired: Ссылка для сброса пароля устарела.  Начните процедуру сброса пароля с начала.
+FormMessageSignInToTrade: войдите в систему для обмена
 
 ### SUCCESS
 FormSuccessPasswordSet: Пароль успешно сохранён
@@ -257,6 +258,10 @@ WithdrawalFrozenTotal: Удержано средств со счетов
 WithdrawalAcceptedCount: Выполнено операций вывода
 WithdrawalTransferedTotal: Всего переведено пользователям
 WithdrawalFeeTotal: Удержанная комиссия с вывода
+
+# NEWS
+
+NewsThumbImageAlt: иконка новости
 
 # MISC COMMON PHRASES
 
