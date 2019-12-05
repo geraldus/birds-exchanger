@@ -202,32 +202,6 @@ renderDomTable p buy hidden d = domDivView pair' hidden title body
         body = (concatMap $ \(r, s) -> domDivRow r maxCount buy s) <$> pairStats
         (outc, inc) = unPairCurrency p
 
-domRow :: Double -> Int -> Bool -> DOMRateStats -> Widget
-domRow r t buy d =
-    let (ordersCount, outCents, inCents) = d
-        leftd = "left" :: Text
-        rightd = "right" :: Text
-        (direction, color) = if buy
-            then (leftd, "#47b9002b")
-            else (rightd, "#ff23002b")
-        barWidth :: Double
-        barWidth = fromIntegral (outCents * oneCoinCents) / fromIntegral t
-        widtht :: Int
-        widtht = round barWidth
-        widthf = 100 - widtht
-        style = concat
-            [ "background: linear-gradient(to "
-            , direction <> ", "
-            , "#fff0 " <> (pack . show $ widthf) <> "%, "
-            , color <> " " <> (pack . show $ widthf) <> "%);" ]
-    in $(widgetFile "dom/table/row")
-
-domTable :: ExchangePair -> Bool -> Html -> Maybe Widget -> Widget
-domTable pair' hidden title mbody  =
-    let (outc, inc) = unPairCurrency pair'
-        expair = intercalate "_" . map (toLower . currencyCodeT) $ [outc, inc]
-        body = fromMaybe (emptyList 10 4) mbody
-    in $(widgetFile "dom/table/table")
 
 domDivRow :: Double -> Int -> Bool -> DOMRateStats -> Widget
 domDivRow r t buy d =
