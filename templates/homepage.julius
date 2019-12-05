@@ -75,7 +75,6 @@ const switchTab = (e, pair, tabs, { orderCols, historyCols, }) => {
         const matchPair =
             targetPair == normalizedPair
             || targetPair == flipPairId(normalizedPair)
-        console.log('X', c, from, to, normalizedPair, flipPairId(normalizedPair), matchPair)
         toggleVisibility(c, matchPair)
     })
     updateTextualData('#{rawJS wrapId}', currency)

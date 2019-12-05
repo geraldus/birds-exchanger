@@ -83,11 +83,11 @@
         ^{clickableOrderW modalWrapId}
         <div .exchange-history-view .col-12 .col-lg-4 .order-4 .order-lg-1>
             ^{exHistory (flipPair paramsPair)}
-        <div .col-12 .col-lg-4 .mb-3 .order-col style="font-size: 0.81rem;" .order-2>
+        <div .col-12 .col-lg-4 .mb-3 .order-col .order-2>
             ^{renderDomTable ExchangePzmRur False (paramsPair /= defPairDir ExchangePzmRur) statsDOM}
             ^{renderDomTable ExchangeOurPzm False (paramsPair /= defPairDir ExchangeOurPzm) statsDOM}
             ^{renderDomTable ExchangeOurRur False (paramsPair /= defPairDir ExchangeOurRur) statsDOM}
-        <div .col-12 .col-lg-4 .mb-3 .order-col style="font-size: 0.81rem;" .order-3>
+        <div .col-12 .col-lg-4 .mb-3 .order-col .order-3>
             ^{renderDomTable ExchangePzmRur True (paramsPair /= defPairDir ExchangePzmRur) statsDOM}
             ^{renderDomTable ExchangeOurPzm True (paramsPair /= defPairDir ExchangeOurPzm) statsDOM}
             ^{renderDomTable ExchangeOurRur True (paramsPair /= defPairDir ExchangeOurRur) statsDOM}
