@@ -83,7 +83,7 @@ getHomeR = do
         | otherwise = defPairDir ExchangePzmRur
 
 
--- | == Utils
+-- * Utils
 
 getData ::
        Text
@@ -116,54 +116,6 @@ getActiveOrders mu = do
     return $ partition (isPzmRurOrder . entityVal) os
     where isPzmRurOrder = (== ExchangePzmRur) . exchangeOrderPair
 
-clickableOrderW :: Text -> Widget
-clickableOrderW wrapId = toWidget [julius|
-    const handleOrderClick = (e) => {
-        const row = $(e.currentTarget)
-        const parent = row.parents('.dom-view').first()
-        const form = $('##{rawJS wrapId}')
-        const ratioInput = $('.ratio-input', form)
-        const amountInput = $('.amount-input', form)
-        const actionInput = $('.exchange-action-input', form)
-        const actions = $('option', actionInput)
-        const ratio = $('.ratio', row).text()
-        const amountLeft = $('.amount-left', row).text()
-        const expected = $('.expected', row).text()
-        const action = parent.data('pair')
-        ratioInput.val(ratio)
-        actions.removeAttr('selected')
-        switch (action) {
-            case 'rub_pzm':
-            case 'pzm_our':
-            case 'rub_our':
-                $(actions[0]).attr('selected', 'selected')
-                form.removeClass('action-give').addClass('action-take')
-                amountInput.val(expected)
-                break
-            default:
-                amountInput.val(amountLeft)
-                form.removeClass('action-take').addClass('action-give')
-                $(actions[1]).attr('selected', 'selected')
-                break
-        }
-        amountInput.change()
-        $('#clickable-order-modal').modal('show')
-    }
-    $(document).ready(() => {
-        const orders = $('.clickable-order')
-        orders.click(handleOrderClick)
-        // fix input sizes within modal
-        const divs = $('#clickable-order-modal .form-group.row').first().find('div')
-        divs.each((i, el) => {
-            el.className = el.className.replace(/col-\d/g, '')
-            el.className = el.className.replace(/col-lg-\d/g, '')
-            el.className = el.className.replace(/  /g, ' ')
-        })
-        const form = $('##{rawJS wrapId}')
-        const actionInput = $('.exchange-action-input', form)
-        actionInput.attr('readonly', 'readonly')
-    })
-    |]
 -- * News
 
 featuredModal :: Widget
@@ -246,6 +198,8 @@ domDivRow r depth t buy d =
             , color <> " " <> (pack . show $ fWidth) <> "%);" ]
     in $(widgetFile "dom/divs/row")
 
+clickableOrderW :: Text -> Widget
+clickableOrderW wrapId = $(widgetFile "dom/one-click-order")
 
 emptyList :: Int -> Int -> Widget
 emptyList row col = [whamlet|
