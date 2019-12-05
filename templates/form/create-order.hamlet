@@ -2,7 +2,7 @@
     #{extra}
     ^{fvInput hiddenPairView}
     ^{fvInput hiddenFeeView}
-    <div .form-group .row .justify-content-center .no-gutters>
+    <div .form-group .row .justify-content-center .no-gutters .mb-0>
         <div .col-8 .col-sm-7 .col-md-3 .col-lg-2 .mx-1>
             ^{fvInput actionView}
         <div
@@ -34,7 +34,7 @@
                 <span .input-group-text ##{wrapid}-rate-append>
                     #{currSign currencyIn}/#{currSign currencyOut}
     <div .row .justify-content-center .order-form-stats>
-        <table .col-11 .col-sm-6 .table.table-borderless .text-white-50>
+        <table .col-11 .col-sm-6 .table.table-borderless .text-white-50 .mb-0>
             <thead>
                 <tr>
                     <td .text-right .#{sumid}-take>ПОЛУЧАЮ
