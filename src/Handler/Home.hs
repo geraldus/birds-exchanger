@@ -11,8 +11,7 @@ import           Import                 hiding ( decodeUtf8, httpLbs, on )
 import           Form.Exchanger.Order
 import           Local.Params
 import           Local.Persist.Currency
-import           Local.Persist.Exchange ( ExchangePair (..),
-                                          exchangePairUnsafe )
+import           Local.Persist.Exchange ( ExchangePair (..) )
 import           Market.Functions       ( reduceDomStats )
 import           Market.Type            ( DOMRateStats, DOMStats,
                                           DOMStatsRateMap )
@@ -58,7 +57,7 @@ getHomeR = do
     orders <- runDB $ mapM selectActiveOrdersOf defaultPairs
     let dropEverySecond []             = []
         dropEverySecond (x : [])       = [x]
-        dropEverySecond (x : y : [])   = [x]
+        dropEverySecond (x : _ : [])   = [x]
         dropEverySecond (x : _ : rest) = x : dropEverySecond rest
     exchanges <- mapM ((dropEverySecond <$>) <$> getLastExchangesOf) defaultPairs
     let exHistory = exchangeHistoryW (zip defaultPairs exchanges)
@@ -223,6 +222,8 @@ genericDomRender p ds direction title wrapper itemRender =
         wrapper (title p) $ itemRender <$> HMS.lookup (direction p) ds
 
 
+-- * Exchange History
+
 getLastExchangesOf ::
        ExchangePair
     -> Handler [(Entity ExchangeOrderExecution, Entity ExchangeOrder)]
@@ -232,17 +233,14 @@ getLastExchangesOf p = runDB . E.select . from $ \(o `InnerJoin` e) -> do
     orderBy [desc (e ^. ExchangeOrderExecutionTime), asc (o ^. ExchangeOrderCreated)]
     limit 20
     return (e, o)
-  where
-    (cOut, cIn) = unPairCurrency p
 
 exchangeHistoryW ::
        [(ExchangePair, [(Entity ExchangeOrderExecution, Entity ExchangeOrder)])]
     -> ExchangePair
     -> Widget
-exchangeHistoryW groups activePair = do
-    mapM_ lastExchangesW' groups
+exchangeHistoryW groups activePair = mapM_ itemWidget groups
   where
-    lastExchangesW' (p, exs) =
+    itemWidget (p, exs) =
         let (cOut, cIn) = unPairCurrency p
             isVisible = p == activePair
         in lastExchangesW cOut cIn exs isVisible
@@ -274,45 +272,63 @@ lastExchangesW cOut cIn exs visible = [whamlet|
     |]
   where
     outCurrencyCode = currencyCodeT' cOut
+
     inCurrencyCode  = currencyCodeT' cIn
-    body = mapM_ exchangeW exs
-    exchangeW (Entity _ ex, Entity _ o)= do
-        (render, l, tz) <- handlerToWidget $ (,,)
-            <$> getAmountRenderer
-            <*> selectLocale
-            <*> timezoneOffsetFromCookie
-        let outAmount = render [] [] False cOut outCents
-            inAmount  = render [] [] False cIn  inCents
-            time = renderTime l tz exTime
-            date = renderDate l tz exTime
-        [whamlet|<div .row .exchange>
-            <div .col-2 title="#{date}">
-                <small>
-                    #{time}
-            <div .col-2 .text-lowercase>
-                ^{typW}
-            <div .col-2>
-                #{rate}
-            <div .col-3>
-                #{outAmount}
-            <div .col-3>
-                #{inAmount}
-            |]
-      where
-        exTime = exchangeOrderExecutionTime ex
-        defPair = exchangePairUnsafe cOut cIn
-        orderPair = exchangeOrderPair o
-        isAsk = unPairCurrency orderPair == (cOut, cIn)
-        transfer = exchangeOrderExecutionTransferAmountCents ex
-        ratio' = exchangeOrderNormalizedRatio o
-        ratio = if isAsk then ratio' else 1 / ratio'
-        income = multiplyCents
-                    ratio
-                    transfer
-        rate = fixedDoubleT 2 (exchangeOrderNormalizedRatio o)
-        (outCents, inCents) = if isAsk
-            then (transfer, income)
-            else (income, transfer)
-        typW = if isAsk
-                then [whamlet|<span .ask>_{MsgExchangeAsk}|]
-                else [whamlet|<span .bid>_{MsgExchangeBid}|]
+
+    body = mapM_ (exchangeW cOut cIn) exs
+
+exchangeW ::
+       Currency
+    -> Currency
+    -> (Entity ExchangeOrderExecution, Entity ExchangeOrder)
+    -> Widget
+exchangeW cOut cIn (Entity _ ex, Entity _ o) = do
+    (render, l, tz) <- handlerToWidget $ (,,)
+        <$> getAmountRenderer
+        <*> selectLocale
+        <*> timezoneOffsetFromCookie
+    let outAmount = render [] [] False cOut outCents
+        inAmount  = render [] [] False cIn  inCents
+        time = renderTime l tz exTime
+        date = renderDate l tz exTime
+    [whamlet|<div .row .exchange>
+        <div .col-2 title="#{date}">
+            <small>
+                #{time}
+        <div .col-2 .text-lowercase>
+            ^{typW}
+        <div .col-2>
+            #{rate}
+        <div .col-3>
+            #{outAmount}
+        <div .col-3>
+            #{inAmount}
+        |]
+  where
+    exTime = exchangeOrderExecutionTime ex
+
+    orderPair = exchangeOrderPair o
+
+    isAsk = unPairCurrency orderPair == (cOut, cIn)
+
+    transfer = exchangeOrderExecutionTransferAmountCents ex
+
+    ratio' = exchangeOrderNormalizedRatio o
+
+    r = if isAsk then ratio' else 1 / ratio'
+
+    income = multiplyCents r transfer
+
+    rate = fixedDoubleT 2 (exchangeOrderNormalizedRatio o)
+
+    (outCents, inCents) = if isAsk
+        then (transfer, income)
+        else (income, transfer)
+
+    typW = [whamlet|
+        <span :isAsk:.ask :not isAsk:.bid>
+            $if isAsk
+                _{MsgExchangeAsk}
+            $else
+                _{MsgExchangeBid}
+        |]
