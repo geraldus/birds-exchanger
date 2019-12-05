@@ -31,8 +31,6 @@
     color: #ffc107!important;
 }
 
-
-
 .navbar-default .navbar-nav > .active > a {
     background-color: transparent;
     border-bottom: 2px solid white;
@@ -43,7 +41,6 @@
     margin-top: -21px;
     color: white;
     text-align: center;
-    min-height: 500px;
 }
 
 .masthead .header {

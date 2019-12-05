@@ -1,5 +1,5 @@
-<div .masthead .pt-5>
-    <div .container .mt-2>
+<div .masthead .pt-3>
+    <div .container>
         <div .row>
             <div #mainlogo .col-8 .col-sm-6 .mx-auto .my-2>
                 <img
@@ -13,7 +13,7 @@
             $forall (label, msg) <- messages
                 <div .alert.alert-warning data-label=#{label}>
                     #{msg}
-    <div .container .mt-5>
+    <div .container .mt-3>
         <div .row>
             <div .col-8 .mx-auto>
                 <ul .nav .nav-tabs .justify-content-center>
@@ -71,14 +71,14 @@
                             <small>
                                 авторизуйтесь для обмена
 
-<div .container .mt-5>
+<div .container .mt-3>
     <div .row>
         <div .col-8 .mx-auto>
             <div>
                 <p .text-center .text-muted>
                     _{MsgScheduleDesc}
 
-<div .container-fluid .mt-5 style="font-size: 0.7rem;">
+<div .container-fluid .mt-3 style="font-size: 0.7rem;">
     <div .row>
         ^{clickableOrderW modalWrapId}
         <div .exchange-history-view .col-12 .col-lg-4 .order-4 .order-lg-1>
