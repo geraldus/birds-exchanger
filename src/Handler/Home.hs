@@ -155,18 +155,23 @@ renderDomTable p buy hidden d = domDivView pair' hidden title body
         then [shamlet|#{currencySymbol inc} ⇢ #{currencySymbol outc}|]
         else [shamlet|#{currencySymbol outc} ⇢ #{currencySymbol inc}|]
     -- body = concatMap (\(r, s) -> domDivRow r maxCount buy s) <$> pairStats
-    body = fmap (\(total, widget) -> widget total) rows
+    body = fmap (\(buyTotal, sellTotal, widget) -> widget buyTotal sellTotal) rows
 
     rows = foldRows <$> pairStats
 
     (outc, inc) = unPairCurrency p
 
-    foldRows :: [(Double, (Int, Int, Int))] -> (Int, Int -> Widget)
-    foldRows = foldr step (0, (\t -> mempty))
+    foldRows :: [(Double, (Int, Int, Int))] -> (Int, Int, Int -> Int -> Widget)
+    foldRows = foldr step (0, 0, (\_ _ -> mempty))
 
-    step (r, s@(_, sOut, sIn)) (n, w) =
-        let n' = n + if buy then sIn else sOut
-        in (n', (\t -> domDivRow r n' t buy s >> w t))
+    step (r, s@(_, sOut, sIn)) (n_buy, n_sell, w) =
+        let n_buy' = n_buy + sIn
+            n_sell' = n_sell + sOut
+        in (n_buy', n_sell', (\tb ts ->
+                let depth = if buy then tb - n_buy else n_sell'
+                    total = if buy then tb else ts
+                in domDivRow r depth total buy s >> w tb ts)
+                )
 
     sortRateAsc = sortBy (flip (comparing fst))
 
