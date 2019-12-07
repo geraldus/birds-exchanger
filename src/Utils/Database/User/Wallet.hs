@@ -346,7 +346,6 @@ currencyAmountPara tnow t' c a =
 defMonthlyParamine :: Currency -> Maybe Percent
 defMonthlyParamine c
     | c == pzmC = Just (mkPercent 12)
-    | c == ouroC = Just (mkPercent 12)
     | otherwise = Nothing
 
 monthSeconds :: Double
