@@ -262,12 +262,14 @@ accrueParaminingDB d = do
             (lastTime >>= (\t -> currencyAmountPara nowUTC t currency paraBase))
     case paraCents of
         Nothing -> return []
-        Just doubleCents -> do
-            reason <- newWalletReason walletId
-            let cents = truncate doubleCents
-            x <- addUserWalletBalance
-                    wallet reason cents (\x -> (ParaMining x, ParaMiningAccrual)) nowUTC
-            return [x]
+        Just doubleCents -> if doubleCents >= 1.0
+            then do
+                reason <- newWalletReason walletId
+                let cents = truncate doubleCents
+                x <- addUserWalletBalance wallet reason cents mkTransTyp nowUTC
+                return [x]
+            else return []
+  where mkTransTyp x = (ParaMining x, ParaMiningAccrual)
 
 -- * Utilities
 
