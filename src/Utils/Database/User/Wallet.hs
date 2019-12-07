@@ -323,7 +323,7 @@ getWallet404 user = getBy404 . UniqueWallet user
 
 
 -- | Calculate paramining if conditions are met.
--- Takes in account 3 seconds paramining accrual delay.
+-- Takes in account paramining accrual delay (in seconds).
 currencyAmountPara :: UTCTime -> UTCTime -> Currency -> Int -> Maybe (Double, Double)
 currencyAmountPara tnow t' c a =
     case defMonthlyParamine c of

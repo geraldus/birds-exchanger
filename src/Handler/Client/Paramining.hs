@@ -10,6 +10,7 @@ import           Utils.Database.Operations ( accrueParaminingDB )
 import           Control.Concurrent        ( forkIO, threadDelay )
 import qualified Data.Map                  as M
 import           Text.Pretty.Simple        ( pShow )
+import Control.Monad (void)
 
 
 accrueParamining ::
@@ -23,7 +24,7 @@ scheduleParaminingAccrual stats = do
     liftIO . forkIO $ do
         threadDelay $
             defaultParaMiningDelaySeconds * 1000 * 1000
-        runHandler (accrueParamining stats >> return ())
+        runHandler . void $ accrueParamining stats
     return ()
 
 scheduleParaminingMapAccrual ::
