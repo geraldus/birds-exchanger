@@ -17,6 +17,9 @@ data Money = Money Int Currency deriving Show
 newtype Percent = Percent { percentToDouble :: Double }
     deriving (Show)
 
+instance ToJSON Percent where
+    toJSON = toJSON . percentToDouble
+
 percentToJSON :: Percent -> Value
 percentToJSON = toJSON . percentToDouble
 
