@@ -43,6 +43,7 @@ UserWallet json
     created UTCTime
     lastParaTime UTCTime Maybe default=NULL
     UniqueWallet userId currency
+    UniqueWalletToken walletId
     deriving Show
 
 
@@ -200,3 +201,13 @@ Info json
     descHtml Text Maybe default=null
     UniqueInfoAlias alias
     deriving Show
+
+Notice json
+    type NoticeType
+    addressee Text
+    content Text
+    created UTCTime
+    sent UTCTime Maybe
+    trials Int default=0
+    lastTrial UTCTime Maybe
+    nextTrial UTCTime Maybe
