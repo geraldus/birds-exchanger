@@ -61,7 +61,7 @@ function handleWalletParamingDataPageResponse(ws, pageSize, d) {
     app.wallets = [...app.wallets, ...d.data]
     if (d['next-page'] && d.data.length > 0) {
         // wallet is second element id data row and we need its id
-        lastId = d.data[d.data.length - 1][1].id
+        lastId = d.data[d.data.length - 1].wallet.id
         setTimeout(() => {
             fetchWalletParaminingDataPage(ws, {
                 perPage: pageSize,
