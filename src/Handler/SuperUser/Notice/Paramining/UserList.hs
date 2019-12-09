@@ -5,15 +5,13 @@ import           Import                 hiding ( Value, on, (==.), (>.) )
 
 import           Local.Params           ( defaultCurrencyMonthlyParamining,
                                           defaultWalletCurrencies )
-import           Local.Persist.Currency ( Currency )
+import           Local.Persist.Currency ( Currency, currencyCodeT' )
 import           Type.Money             ( Percent, mkPercent )
 import           Type.Wallet            ( WalletData )
 
 import           Database.Esqueleto
 import           Text.Hamlet            ( shamletFile )
 import           Yesod.WebSockets
-
-import           Text.Pretty.Simple     ( pShowNoColor )
 
 
 getSUNoticeParaminingUserListR :: Double -> Handler Html
