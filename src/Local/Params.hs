@@ -1,9 +1,10 @@
 module Local.Params where
 
 import           Local.Persist.Currency ( Currency (..), ouroC, pzmC, rubC )
-import           Prelude                ( Int, otherwise, (*), (==) )
+import           Prelude                ( Int, Maybe (..), otherwise, (*),
+                                          (==) )
 import           Type.Fee               ( Fee (..) )
-import           Type.Money             ( oneCoinCents )
+import           Type.Money             ( Percent, mkPercent, oneCoinCents )
 
 
 -- TODO: FIXME: Make an MVar or something and expand as app property.
@@ -53,5 +54,9 @@ defaultWalletCurrencies = [ rubC, pzmC, ouroC ]
 defaultParaMiningDelaySeconds :: Int
 defaultParaMiningDelaySeconds = 10
 
+defaultCurrencyMonthlyParamining :: Currency -> Maybe Percent
+defaultCurrencyMonthlyParamining c
+    | c == pzmC = Just (mkPercent 12)
+    | otherwise = Nothing
 
 -- TODO: FIXME: Configure minimum withdrawal bounds

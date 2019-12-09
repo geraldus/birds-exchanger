@@ -1,20 +1,20 @@
 {-# LANGUAGE GADTs           #-}
-{-# LANGUAGE RecordWildCards #-}
 module Utils.Database.User.Wallet where
 
 import           Import.NoFoundation    hiding ( isNothing, on, update, (+=.),
                                           (==.), (>=.), (\\) )
 
-import           Local.Params           ( defaultParaMiningDelaySeconds,
+import           Local.Params           ( defaultCurrencyMonthlyParamining,
+                                          defaultParaMiningDelaySeconds,
                                           defaultWalletCurrencies )
-import           Local.Persist.Currency ( Currency, ouroC, pzmC )
+import           Local.Persist.Currency ( Currency )
 import           Local.Persist.Exchange ( ExchangePair (..),
                                           exchangePairUnsafe )
 import           Local.Persist.Wallet   ( DepositRequestStatus (OperatorAccepted),
                                           TransactionTypePlain (..),
                                           WalletTransactionType,
                                           WithdrawalStatus (WsNew) )
-import           Type.Money             ( Percent, mkPercent, percentToDouble )
+import           Type.Money             ( percentToDouble )
 import           Type.Wallet            ( WalletData (..) )
 import           Utils.Type
 
@@ -229,7 +229,7 @@ foldUserWalletStats wallet os rs t = WalletData
     , walletDataOrdersCents = foldOrders os
     , walletDataWithdrawalCents = foldReqs rs
     , walletDataLastParaTime = t
-    , walletDataParaminingRate = defMonthlyParamine $
+    , walletDataParaminingRate = defaultCurrencyMonthlyParamining $
         (userWalletCurrency . entityVal) wallet
     }
   where
@@ -326,7 +326,7 @@ getWallet404 user = getBy404 . UniqueWallet user
 -- Takes in account paramining accrual delay (in seconds).
 currencyAmountPara :: UTCTime -> UTCTime -> Currency -> Int -> Maybe (Double, Double)
 currencyAmountPara tnow t' c a =
-    case defMonthlyParamine c of
+    case defaultCurrencyMonthlyParamining c of
         Nothing -> Nothing
         Just p' ->
             let p100 = percentToDouble p'
@@ -342,11 +342,6 @@ currencyAmountPara tnow t' c a =
                         then 0
                         else v' * (k - 1)
             in Just (v, k_s)
-
-defMonthlyParamine :: Currency -> Maybe Percent
-defMonthlyParamine c
-    | c == pzmC = Just (mkPercent 12)
-    | otherwise = Nothing
 
 monthSeconds :: Double
 monthSeconds = 30 * 24 * 60 * 60
