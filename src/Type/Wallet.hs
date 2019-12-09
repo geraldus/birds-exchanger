@@ -4,8 +4,7 @@ module Type.Wallet where
 
 import           Import.NoFoundation
 import           Local.Persist.Currency ( currencyCodeT' )
-import           Type.Money             ( Percent, percentToDouble,
-                                          percentToJSON )
+import           Type.Money             ( Percent, percentToJSON )
 
 import           Data.Time.Clock.POSIX  ( utcTimeToPOSIXSeconds )
 
@@ -46,6 +45,7 @@ instance ToJSON WalletData where
 
         walletJSON = object
             [ "id" .= toJSON walletId
+            , "token" .= userWalletWalletId wallet
             , "currency" .= toJSON
                     (toLower . currencyCodeT' . userWalletCurrency $ wallet)
             , "balance" .= toJSON (userWalletAmountCents wallet)
