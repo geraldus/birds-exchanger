@@ -403,6 +403,7 @@ walletStats wal@(Entity _ w) = do
     $(widgetFile "client/wallet/stats")
 
 
+-- TODO: Use getAmountRender from Foundation
 renderAmount :: Int -> Currency -> Html
 renderAmount amt cur =
     renderCurrencyAmount (error "no locale") [] ["value"] True cur amt

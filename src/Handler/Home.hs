@@ -147,15 +147,12 @@ renderDomTable p buy hidden d = domDivView pair' hidden title body
     pairStats =
         sortRateAsc . HMS.toList <$> HMS.lookup pair' d
 
-    maxCount =
-        maybe 0 (foldr max 0 . map ((\(_, b, _) -> b) . snd)) pairStats
-    -- pairSummaries =
-
     title = if buy
         then [shamlet|#{currencySymbol inc} ⇢ #{currencySymbol outc}|]
         else [shamlet|#{currencySymbol outc} ⇢ #{currencySymbol inc}|]
-    -- body = concatMap (\(r, s) -> domDivRow r maxCount buy s) <$> pairStats
-    body = fmap (\(buyTotal, sellTotal, widget) -> widget buyTotal sellTotal) rows
+
+    body =
+        fmap (\(buyTotal, sellTotal, widget) -> widget buyTotal sellTotal) rows
 
     rows = foldRows <$> pairStats
 

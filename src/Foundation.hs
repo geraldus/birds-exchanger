@@ -35,7 +35,7 @@ import           Utils.Database.User.Wallet ( currencyAmountPara,
                                               getUserWallets )
 import           Utils.Form                 ( currencyOptionListRaw,
                                               transferOptionsRaw )
-import           Utils.Money                ( cents2dblT, fixedDoubleT )
+import           Utils.Money                ( fixedDoubleT )
 import           Utils.Render               ( renderCurrencyAmount )
 
 import           Control.Monad.Logger       ( LogSource )
@@ -43,7 +43,6 @@ import qualified Crypto.Nonce               as CN
 import qualified Data.CaseInsensitive       as CI
 import           Data.List                  ( findIndex )
 import qualified Data.Text.Encoding         as TE
-import           Data.Time.Clock            ( addUTCTime )
 import           Data.Time.Clock.POSIX      ( utcTimeToPOSIXSeconds )
 import           Data.Version               ( showVersion )
 import           Database.Persist.Sql       ( ConnectionPool, fromSqlKey,
@@ -830,14 +829,13 @@ matchMethod (CryptoTM tc) (CryptoPaymentMethod pc _ _)
 matchMethod _ _ = False
 
 renderWalletBalanceW :: WalletData -> [Text] -> Widget
-renderWalletBalanceW stats listClasses = do
-    let wallet@(Entity _ w) = walletDataWallet stats
+renderWalletBalanceW stats _listClasses = do
+    let (Entity _ w) = walletDataWallet stats
         c = userWalletCurrency w
         a = userWalletAmountCents w
         o = walletDataOrdersCents stats
         r = walletDataWithdrawalCents stats
         cents = a + o + r
-        currencyCode = (toLower . currencyCodeT') c
         paraminingRate = walletDataParaminingRate stats
         lastParaTime = walletDataLastParaTime stats
         paraVals = (,) <$> paraminingRate <*> lastParaTime
