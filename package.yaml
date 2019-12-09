@@ -58,6 +58,7 @@ dependencies:
 - aeson-pretty
 - network
 - pretty-simple
+- blaze-markup
 
 default-extensions:
 - TemplateHaskell

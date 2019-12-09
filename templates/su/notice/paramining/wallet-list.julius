@@ -79,17 +79,26 @@ function handleWalletParamingDataPageResponse(ws, pageSize, d) {
 }
 
 function handleWalletParamingDataResponse(ws, d) {
+    function fixed(x, c, n) {
+        const v = (x / 100).toFixed(n)
+        const cs = c.toUpperCase()
+        const vm = $('<span class="value amount">' + v + '</span>')
+        const cm = $('<small class="currency text-muted">' + cs + '</small>')
+        const ret = $('<span/>')
+        ret.append(vm).append('&nbsp;').append(cm)
+        return ret
+    }
     window.app.walletDataFetching = false
     window.app.unFetchedWalletsData = window.app.unFetchedWalletsData.filter(
         tok => tok != d.stats.wallet.token
     )
     setTimeout(() => checkWalletDataFetch(ws))
+    const c = d.stats.wallet.currency
     const i = $(`.wallet-stats[data-wallet-token="${d.stats.wallet.token}"]`)
-    i.find('.orders').text(d.stats.orders)
-    i.find('.withdrawal').text(d.stats.withdrawal)
+    i.find('.orders').html(fixed(d.stats.orders, c, 2))
+    i.find('.withdrawal').html(fixed(d.stats.withdrawal, c, 2))
     if (d.paramining) {
-        let px = d.paramining.amount / 100
-        i.find('.paramining').text(px.toFixed(7))
+        i.find('.paramining').html(fixed(d.paramining.amount, c, 7))
     }
 }
 

@@ -1,5 +1,5 @@
 <div .container-fluid>
-    <div .row .no-gutters>
+    <div .row>
         <div .col-4 .user-ident>
             <a href="/su/user-view/#{fromSqlKey uid}">
                 #{userIdent u}
@@ -8,10 +8,13 @@
                 #{renderAmount [] [] False c (userWalletAmountCents w)}
         <div .col-2 .text-right>
             <div .orders .text-monospace>
-                -.-------
+                -.--
+                <small .text-muted .text-uppercase>#{currencyCodeT' c}
         <div .col-2 .text-right>
             <div .withdrawal .text-monospace>
-                -.-------
+                -.--
+                <small .text-muted .text-uppercase>#{currencyCodeT' c}
         <div .col-2 .text-right>
             <div .paramining .text-monospace>
-                            -.-------
+                -.-------
+                <small .text-muted .text-uppercase>#{currencyCodeT' c}
