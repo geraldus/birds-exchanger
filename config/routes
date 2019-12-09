@@ -53,9 +53,9 @@
 /su/financial-report                 SuperUserFinancialReportViewR     GET
 
 /blacklist                           BlackListR                        GET
-/info                                InfoListR                         GET
-/info/view/#Text                     InfoViewR                         GET
-/termsofuse                          TermsOfUseR                       GET
+/news                                InfoListR                         GET
+/news/#Text                          InfoViewR                         GET
+/terms                               TermsOfUseR                       GET
 
 /admin/login     AdminLogInR  GET
 
