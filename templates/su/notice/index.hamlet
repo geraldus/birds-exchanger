@@ -1,0 +1,12 @@
+<h1>Почтовые уведомления
+
+<h5>Парамайнинг
+<div .container>
+    <div .row>
+        <form method="POST" action=@{SUNoticeParaminingUserListR defaultLimit}>
+            <div .form-group>
+                <label .form-label>
+                    Минимальный парамайнинг
+                <input name="limit" .form-control value="#{show defaultLimit}">
+            <button .btn>Поиск
+

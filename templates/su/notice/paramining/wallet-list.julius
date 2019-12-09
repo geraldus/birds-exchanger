@@ -1,0 +1,132 @@
+if (!window.app) {
+    window.app = {}
+}
+if (!window.app.wallets) {
+    window.app.wallets = []
+}
+if (!window.app.unFetchedWalletsData) {
+    window.app.unFetchedWalletsData = []
+}
+if (!window.app.walletDataFetching) {
+    window.app.walletDataFetching == false
+}
+if (!window.app.config) {
+    window.app.config = {}
+}
+if (!window.app.config.SU_WPD_PER_PAGE) {
+    window.app.config.SU_WPD_PER_PAGE = 12
+}
+
+function mkCmdWalletParaminingDataPage(opts) {
+    const cmd = {
+        'type': 'command',
+        'name': 'wallet-paramining-data-page',
+        'per-page': opts.perPage || window.app.config.SU_WPD_PER_PAGE,
+        'offset-id': opts.offsetId || 0,
+        'include-html': opts.includeHtml || true
+    }
+    return cmd
+}
+
+function mkCmdWalletParaminingData(opts) {
+    const cmd = {
+        'type': 'command',
+        'name': 'wallet-paramining-data',
+        'wallet': opts.walletToken,
+        'include-html': opts.includeHtml || true
+    }
+    return cmd
+}
+
+function fetchWalletParaminingDataPage(ws, params) {
+    const cmd = mkCmdWalletParaminingDataPage(params)
+    ws.send(JSON.stringify(cmd))
+}
+
+function fetchWalletParaminingData(ws, params) {
+    const cmd = mkCmdWalletParaminingData(params)
+    ws.send(JSON.stringify(cmd))
+}
+
+function checkWalletDataFetch(ws) {
+    if (!window.app.walletDataFetching && window.app.unFetchedWalletsData.length > 0) {
+        window.app.walletDataFetching = true
+        wid = window.app.unFetchedWalletsData[0]
+        fetchWalletParaminingData(ws, { walletToken: wid })
+    }
+}
+
+function handleWalletParamingDataPageResponse(ws, pageSize, d) {
+    let lastId = 0
+    app.wallets = [...app.wallets, ...d.data]
+    if (d['next-page'] && d.data.length > 0) {
+        // wallet is second element id data row and we need its id
+        lastId = d.data[d.data.length - 1][1].id
+        setTimeout(() => {
+            fetchWalletParaminingDataPage(ws, {
+                perPage: pageSize,
+                offsetId: lastId
+            })
+        })
+    }
+    if (d.data.length) {
+        window.app.unFetchedWalletsData = window.app.unFetchedWalletsData
+            .concat(d.data.map(({ wallet }) => wallet.walletId))
+        setTimeout(() => {
+            checkWalletDataFetch(ws)
+        })
+    }
+}
+
+function handleWalletParamingDataResponse(ws, d) {
+    window.app.walletDataFetching = false
+    window.app.unFetchedWalletsData = window.app.unFetchedWalletsData.filter(
+        tok => tok != d.stats.wallet.token
+    )
+    setTimeout(() => checkWalletDataFetch(ws))
+    const i = $(`.wallet-stats[data-wallet-token="${d.stats.wallet.token}"]`)
+    i.find('.orders').text(d.stats.orders)
+    i.find('.withdrawal').text(d.stats.withdrawal)
+    if (d.paramining) {
+        let px = d.paramining.amount / 100
+        i.find('.paramining').text(px.toFixed(7))
+    }
+}
+
+$(document).ready(() => {
+    const url = "@{SuperUserWebSocketR}".replace(/^http(s?)/, 'ws$1')
+    const ws = new WebSocket(url)
+    function onMessage(ev) {
+        try {
+            const d = JSON.parse(ev.data)
+            if (d && d.type && d.command) {
+                if (d.type == 'response') {
+                    switch (d.command) {
+                        case 'wallet-paramining-data-page':
+                            handleWalletParamingDataPageResponse(
+                                ws, app.config.SU_WPD_PER_PAGE, d
+                            )
+                            break
+                        case 'wallet-paramining-data':
+                            handleWalletParamingDataResponse(ws, d.data)
+                            break
+                        default:
+                            console.groupCollapsed('Unrecognized socket JSON response')
+                            console.log(d)
+                            console.groupEnd()
+                            break
+                    }
+                }
+            }
+        } catch (e) {
+            console.groupCollapsed('Not a JSON response')
+            console.log('Response data:', ev.data)
+            console.log('Error:', e)
+            console.groupEnd()
+        }
+    }
+    ws.onmessage = onMessage
+    ws.onopen = () => {
+        fetchWalletParaminingDataPage(ws, { perPage: app.config.SU_WPD_PER_PAGE })
+    }
+})

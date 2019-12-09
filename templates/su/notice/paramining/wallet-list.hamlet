@@ -1,0 +1,16 @@
+<h1>Почтовые уведомления
+
+<h5>Пользователи с парамайнингом
+<div .container>
+    <div .row>
+        <form method="POST" action=@{SUNoticeParaminingUserListR amountLimit} .col>
+            <div .form-group>
+                <label .form-label>
+                    Минимальный парамайнинг
+                <input name="limit" .form-control value="#{amountLimit}">
+            <button .btn>Поиск
+    <div .row>
+        $forall i@(_, Entity wid wallet, _, _) <- items
+            <div .wallet-stats .col-12 style="font-size: 0.7rem" data-wallet-id=#{fromSqlKey wid} data-wallet-token=#{userWalletWalletId wallet}>
+                ^{render i}
+

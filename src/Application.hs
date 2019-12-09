@@ -84,6 +84,7 @@ import           Handler.Profile
 import           Handler.SignUp                       hiding ( from )
 import           Handler.SignUpVerification
 import           Handler.SuperUser.FinancialReport
+import           Handler.SuperUser.Notice
 import           Handler.SuperUser.WebSocket
 import           Handler.TermsOfUse
 

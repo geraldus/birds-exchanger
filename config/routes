@@ -47,6 +47,8 @@
 
 -- SUPER USERS
 /su/websocket                        SuperUserWebSocketR               GET
+/su/notices                          SUNoticeIndexR                    GET
+/su/notices/paramining/users/#Double SUNoticeParaminingUserListR       GET POST
 
 /su/financial-report                 SuperUserFinancialReportViewR     GET
 

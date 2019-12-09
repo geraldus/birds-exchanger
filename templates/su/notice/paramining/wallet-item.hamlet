@@ -1,0 +1,17 @@
+<div .container-fluid>
+    <div .row .no-gutters>
+        <div .col-4 .user-ident>
+            <a href="/su/user-view/#{fromSqlKey uid}">
+                #{userIdent u}
+        <div .col-2 .user-wallet data-token="#{userWalletWalletId w}">
+            <div .amount .text-monospace .text-right>
+                #{renderAmount [] [] False c (userWalletAmountCents w)}
+        <div .col-2 .text-right>
+            <div .orders .text-monospace>
+                -.-------
+        <div .col-2 .text-right>
+            <div .withdrawal .text-monospace>
+                -.-------
+        <div .col-2 .text-right>
+            <div .paramining .text-monospace>
+                            -.-------

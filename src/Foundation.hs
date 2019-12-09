@@ -331,6 +331,8 @@ instance Yesod App where
     isAuthorized ManageInfoAddR _                    = isEditorAuthenticated
     isAuthorized ManageInfoUpdateR _                 = isEditorAuthenticated
     -- SUPER USERS
+    isAuthorized SUNoticeIndexR _                    = isSuperUserAuthenticated
+    isAuthorized (SUNoticeParaminingUserListR _) _   = isSuperUserAuthenticated
     isAuthorized SuperUserFinancialReportViewR _     = isSuperUserAuthenticated
     isAuthorized SuperUserWebSocketR _               = isSuperUserAuthenticated
     -- ALL: Common routes (guests including)
@@ -611,6 +613,11 @@ unsafeHandler = Unsafe.fakeHandlerGetLogger appLogger
 instance PathPiece (Either UserId Text) where
     fromPathPiece = readMaybe . unpack
     toPathPiece = pack . show
+
+instance PathPiece Double where
+    fromPathPiece = readMaybe . unpack
+    toPathPiece = pack . show
+
 
 appNonce128urlT :: Handler Text
 appNonce128urlT = do

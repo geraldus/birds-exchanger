@@ -1,19 +1,30 @@
 {-# LANGUAGE ExtendedDefaultRules #-}
+{-# LANGUAGE GADTs                #-}
 {-# LANGUAGE OverloadedStrings    #-}
 module Handler.SuperUser.WebSocket where
 
-import           Import                 hiding ( Value (..), count, groupBy,
-                                          isNothing, on, (==.), (||.) )
+import           Import                                       hiding
+                                                                ( Value (..),
+                                                                count, groupBy,
+                                                                isNothing, on,
+                                                                (==.), (||.) )
 
+import           Handler.SuperUser.Notice.Paramining.UserList ( getUsersWithParaminingDB )
 import           Local.Persist.Currency
 import           Local.Persist.Exchange
 import           Local.Persist.UserRole
 import           Local.Persist.Wallet
+import           Type.Wallet                                  ( WalletData (..) )
+import           Utils.Database.User.Wallet
 import           Utils.Money
 import           Yesod.WebSockets
 
-import qualified Data.Aeson             as A
+import           Data.Aeson                                   ( (.!=), (.:),
+                                                                (.:!), (.:?) )
+import qualified Data.Aeson                                   as A
 import           Database.Esqueleto
+import           Text.Blaze.Renderer.Text                     ( renderMarkup )
+import           Text.Hamlet                                  ( shamletFile )
 
 default (Text, String)
 
@@ -73,13 +84,149 @@ superUserWebSocket = do
                 send' $ countsEventToJson "Order Executions Transfer Stats" exeTransStats
                 send' $ countsEventToJson "Order Executions Amount Stats" exeAmountStats
                 send' $ countsEventToJson "Order Executions Fee Stats" (pairMapCurrencyCode exeFeeStats)
-            _            -> sendTextData t
+            mayJsonCommand -> case parseJSONCommand mayJsonCommand of
+                Just cmd -> execSUCommand cmd
+                Nothing  -> sendTextData $ "Command not recognized: " ++ t
   where
     send' = sendTextData . decodeUtf8 . A.encode
     pair2codes p =
         let (c1, c2) = unPairCurrency p
         in currencyCodeT c1 <> " " <> currencyCodeT c2
 
+    parseJSONCommand :: Text -> Maybe SUCommand
+    parseJSONCommand = A.decode . encodeUtf8 . fromStrict
+
+execSUCommand :: SUCommand -> WebSocketsT Handler ()
+execSUCommand cmd@(SUCmdWalletParaminingData wt inc) = do
+    walletByToken <- liftHandler . runDB $ getBy (UniqueWalletToken wt)
+    res <- case walletByToken of
+        Nothing -> pure A.Null
+        Just w@(Entity _ wallet) -> liftHandler $ do
+            now <- liftIO getCurrentTime
+            fmap toJSON <$> runDB $ do
+                paraTime <- lastWalletStrictParaTimeDB w
+                os       <- getUserWalletActiveOrders w
+                rs       <- getUserWalletActiveWithdrawal w
+                let stats = foldUserWalletStats w os rs paraTime
+                    walCents = userWalletAmountCents wallet
+                    wc = userWalletCurrency wallet
+                    ordCents = walletDataOrdersCents stats
+                    wreqCents = walletDataWithdrawalCents stats
+                    cents = walCents + ordCents + wreqCents
+                    paramining = paraTime >>= \t ->
+                        if cents < 1
+                        then
+                            Just (0, 0, t)
+                        else
+                            (\(v, k) -> (v, k, t)) <$>
+                                currencyAmountPara now t wc cents
+                return $ object
+                    [ "stats" .= toJSON stats
+                    , "paramining" .= case paramining of
+                        Nothing -> A.Null
+                        Just (paraCents, _, _) -> object
+                            [ "amount" .= toJSON paraCents ]
+                    ]
+    wsSendJSON (SUCmdResponseWalletParaminingData res)
+
+execSUCommand cmd@(SUCmdWalletParaminingDataPage l o inc) = do
+    (more, pageData) <- liftHandler . runDB $ getUsersWithParaminingDB l o
+    page <- toJSON <$> if inc
+        then includeHTML pageData
+        else pdToJSON pageData
+    wsSendJSON (SUCmdResponseWalletParaminingDataPage more page)
+  where
+    pdToJSON pageData = do
+        let res = flip map pageData $ \(u, w, _, p) -> object
+                [ "user" .= toJSON u
+                , "wallet" .= toJSON w
+                , "paramining-monthly-rate" .= toJSON p
+                ]
+        return res
+
+    includeHTML pageData = do
+        htmlRenders <- liftHandler $ mapM render pageData
+        let zips =  zip pageData htmlRenders
+        return $ flip map zips $ \((u, w, c, p), h) -> object
+            [ "user" .= toJSON u
+            , "wallet" .= toJSON w
+            , "paramining-monthly-rate" .= toJSON p
+            , "html" .= (toJSON . renderMarkup) h
+            ]
+
+    render (Entity uid u, Entity wid w, c, p) = do
+        renderAmount <- getAmountRenderer
+        return
+            $(shamletFile "templates/su/notice/paramining/wallet-item.hamlet")
+
+
+data SUCommand
+    = SUCmdWalletParaminingDataPage Int UserWalletId Bool
+    | SUCmdWalletParaminingData Text Bool
+
+instance ToJSON SUCommand where
+    toJSON cmd@(SUCmdWalletParaminingDataPage lim ofs incHtml) = object $
+        [ "per-page" .= toJSON lim
+        , "offset-id" .= fromSqlKey ofs
+        , "include-html" .= toJSON incHtml ]
+        <> defaultSUCommandJSONProps (suCmdName cmd)
+
+    toJSON cmd@(SUCmdWalletParaminingData tok incHtml) = object $
+        [ "wallet" .= toJSON (tok :: Text)
+        , "include-html" .= toJSON incHtml ]
+        <> defaultSUCommandJSONProps (suCmdName cmd)
+
+instance FromJSON SUCommand where
+    parseJSON (A.Object o) = do
+        typ <- o .: "type"
+        name <- o .: "name"
+        includeHTML <- o .:! "include-html"  .!= False
+        if typ == "command"
+            then case name of
+                "wallet-paramining-data-page" -> SUCmdWalletParaminingDataPage
+                    <$> o .: "per-page"
+                    <*> (toSqlKey <$> o .: "offset-id")
+                    <*> pure includeHTML
+                "wallet-paramining-data" -> SUCmdWalletParaminingData
+                    <$> o .: "wallet"
+                    <*> pure includeHTML
+                otherName -> fail $
+                     "Unknown super user command name " ++ otherName
+            else fail $ "Unknown super user command type " ++ typ
+    parseJSON _ = fail "Expected a command object"
+
+
+defaultSUCommandJSONProps :: Text -> [(Text, A.Value)]
+defaultSUCommandJSONProps name =
+    [ "type" .= toJSON ("command" :: Text)
+    , "name" .= toJSON name ]
+
+data SUCommandResponse
+    = SUCmdResponseWalletParaminingDataPage Bool A.Value
+    | SUCmdResponseWalletParaminingData A.Value
+
+instance ToJSON SUCommandResponse where
+    toJSON r@(SUCmdResponseWalletParaminingDataPage more list) = object
+        [ "type" .= ("response" :: Text)
+        , "command" .= suResponseCmdName r
+        , "next-page" .= more
+        , "data" .= list ]
+    toJSON r@(SUCmdResponseWalletParaminingData list) = object
+        [ "type" .= ("response" :: Text)
+        , "command" .= suResponseCmdName r
+        , "data" .= list ]
+
+
+suCmdName :: SUCommand -> Text
+suCmdName (SUCmdWalletParaminingDataPage _ _ _) = "wallet-paramining-data-page"
+suCmdName (SUCmdWalletParaminingData _ _) = "wallet-paramining-data"
+
+
+suResponseCmdName :: SUCommandResponse -> Text
+suResponseCmdName (SUCmdResponseWalletParaminingDataPage _ _) =
+    "wallet-paramining-data-page"
+suResponseCmdName (SUCmdResponseWalletParaminingData _) =
+    "wallet-paramining-data"
 
 data CountEvent = CountEvent
   { ceObjectType :: Text
@@ -228,9 +375,10 @@ getOrdersExecutionStats = runDB $ do
     pair2currencyFst = map (\(p, i) -> ((fst . unPairCurrency) p, i))
 
 
-
-
 {- UTILS -}
+
+wsSendJSON :: SUCommandResponse -> WebSocketsT Handler ()
+wsSendJSON = sendTextData . decodeUtf8 . A.encode
 
 take1st :: Num p => [Database.Esqueleto.Value p] -> p
 take1st []    = 0
