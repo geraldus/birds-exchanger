@@ -157,7 +157,7 @@ instance Yesod App where
             Just url
                 | url `notElem`  [ AuthR LogoutR, AuthR LoginR, SignUpR ] ->
                         setUltDest url
-                | url `elem` [ AuthR LogoutR ] -> setUltDest HomeR
+                | url == AuthR LogoutR -> setUltDest HomeR
                 | otherwise -> return ()
             _ -> return ()
 
