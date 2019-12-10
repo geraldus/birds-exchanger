@@ -9,12 +9,11 @@
                     Минимальный парамайнинг
                 <input name="limit" .form-control value="#{amountLimit}">
             <button .btn>Поиск
-    <div .row .mt-2>
+    <div .row .mt-2 .wallet-paramining-list>
         $forall i@(_, Entity wid wallet, _, _) <- items
             <div
                 .wallet-stats
                 .col-12
-                style="font-size: 0.7rem;"
                 data-wallet-id=#{fromSqlKey wid}
                 data-wallet-token=#{userWalletWalletId wallet}
                 >

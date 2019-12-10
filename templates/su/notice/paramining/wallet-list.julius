@@ -14,7 +14,17 @@ if (!window.app.config) {
     window.app.config = {}
 }
 if (!window.app.config.SU_WPD_PER_PAGE) {
-    window.app.config.SU_WPD_PER_PAGE = 12
+    window.app.config.SU_WPD_PER_PAGE = 2
+}
+
+function fixed(x, c, n) {
+    const v = (x / 100).toFixed(n)
+    const cs = c.toUpperCase()
+    const vm = $('<span class="value amount">' + v + '</span>')
+    const cm = $('<small class="currency text-muted">' + cs + '</small>')
+    const ret = $('<span/>')
+    ret.append(vm).append('&nbsp;').append(cm)
+    return ret
 }
 
 function mkCmdWalletParaminingDataPage(opts) {
@@ -57,6 +67,30 @@ function checkWalletDataFetch(ws) {
 }
 
 function handleWalletParamingDataPageResponse(ws, pageSize, d) {
+    function insertRow(rowData) {
+        const list = $('.wallet-paramining-list')
+        const token = rowData.wallet.walletId || rowData.wallet.token
+        if (list.length > 0) {
+            present = list.find('.wallet-stats[data-wallet-token="' + token + '"]')
+            if (present.length == 0) {
+                const currency = rowData.wallet.currency.contents
+                const item = $('<div class="wallet-stats col-12"/>')
+                item.attr('data-wallet-id', rowData.wallet.id)
+                item.attr('data-wallet-token', token)
+                const row = $('<div class="row"/>')
+                row.append($('<div class="col-4 user-ident"><a href="/su/user-view/' + rowData.user.id + '">' + rowData.user.ident + '</a></div>'))
+                row.append($('<div class="col-2 user-wallet" data-token="' + token + '"><div class="amount text-monospace text-right">' + fixed(rowData.wallet.amountCents, currency, 2).prop('outerHTML') + '</div></div>'))
+                row.append($('<div class="col-2 text-right"><div class="orders text-monospace">-.--&nbsp;<small class="text-muted text-uppercase">' + currency + '</small></div></div>'))
+                row.append($('<div class="col-2 text-right"><div class="withdrawal text-monospace">-.--&nbsp;<small class="text-muted text-uppercase">' + currency + '</small></div></div>'))
+                row.append($('<div class="col-2 text-right"><div class="paramining text-monospace">-.-------&nbsp;<small class="text-muted text-uppercase">' + currency + '</small></div></div>'))
+                const container = $('<div class="container-fluid"/>')
+                container.append(row)
+                item.append(container)
+                list.append(item)
+            }
+        }
+    }
+
     let lastId = 0
     app.wallets = [...app.wallets, ...d.data]
     if (d['next-page'] && d.data.length > 0) {
@@ -70,6 +104,7 @@ function handleWalletParamingDataPageResponse(ws, pageSize, d) {
         })
     }
     if (d.data.length) {
+        d.data.map(insertRow)
         window.app.unFetchedWalletsData = window.app.unFetchedWalletsData
             .concat(d.data.map(({ wallet }) => wallet.walletId))
         setTimeout(() => {
@@ -79,15 +114,6 @@ function handleWalletParamingDataPageResponse(ws, pageSize, d) {
 }
 
 function handleWalletParamingDataResponse(ws, d) {
-    function fixed(x, c, n) {
-        const v = (x / 100).toFixed(n)
-        const cs = c.toUpperCase()
-        const vm = $('<span class="value amount">' + v + '</span>')
-        const cm = $('<small class="currency text-muted">' + cs + '</small>')
-        const ret = $('<span/>')
-        ret.append(vm).append('&nbsp;').append(cm)
-        return ret
-    }
     window.app.walletDataFetching = false
     window.app.unFetchedWalletsData = window.app.unFetchedWalletsData.filter(
         tok => tok != d.stats.wallet.token
