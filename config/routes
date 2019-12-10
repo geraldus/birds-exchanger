@@ -12,23 +12,22 @@
 /password-change PasswordChangeR GET
 /password-change/guide PasswordChangeGuideR POST
 !/password-change/#Text PasswordResetR GET
-/api/unsafe/user/password/set ApiUserPasswordChangeR POST
 /signup SignUpR GET POST
 /signup-verification/#Text/#Text SignUpVerifyR GET POST
 
 /profile ProfileR GET
-/deposit                             DepositR                        GET POST
-/profile/deposit/confirmation/#Text  DepositRequestConfirmationR     GET
-/client/deposit/confirm              DepositConfirmRequestR              POST
-/client/deposit/cancel               ClientCancelDepositR                POST
-/withdrawal                          WithdrawalR                     GET
-/client/withdrawal/create            WithdrawalCreateR                   POST
-/client/withdrawal/cancel            ClientCancelWithdrawalR             POST
-/orders                              ClientOrdersR                   GET
-/order/#ExchangeOrderId              ClientOrderViewR                GET
-/client/order/create                 ExchangeOrderCreateR                POST
-/client/order/cancel                 ClientOrderCancelR                  POST
-/settings                            ClientSettingsR                 GET
+/deposit                             DepositR                          GET POST
+/profile/deposit/confirmation/#Text  DepositRequestConfirmationR       GET
+/client/deposit/confirm              DepositConfirmRequestR                POST
+/client/deposit/cancel               ClientCancelDepositR                  POST
+/withdrawal                          WithdrawalR                       GET
+/client/withdrawal/create            WithdrawalCreateR                     POST
+/client/withdrawal/cancel            ClientCancelWithdrawalR               POST
+/orders                              ClientOrdersR                     GET
+/order/#ExchangeOrderId              ClientOrderViewR                  GET
+/client/order/create                 ExchangeOrderCreateR                  POST
+/client/order/cancel                 ClientOrderCancelR                    POST
+/settings                            ClientSettingsR                   GET
 
 /operator/login                      OperatorLogInR  GET
 /operator/deposit-requests-list      OperatorDepositRequestsListR      GET
@@ -60,6 +59,7 @@
 /admin/login     AdminLogInR  GET
 
 -- API
-/api/app/config           ApiAppConfigR                GET
-/api/auth/authenticate    API_AuthAuthenticateNoTokenR POST
-/api/news/list            APINewsListR                 GET
+/api/unsafe/user/password/set    ApiUserPasswordChangeR                POST
+/api/app/config                  ApiAppConfigR                         GET
+/api/auth/authenticate           API_AuthAuthenticateNoTokenR          POST
+/api/news/list                   APINewsListR                          GET
