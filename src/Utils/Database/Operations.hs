@@ -203,10 +203,6 @@ executeExchange target (match:rest) time acc' = do
             insert tr >>= \x -> pure . Just . Entity x  $ tr
         | otherwise = pure Nothing
 
-    updateParaMap walMap w1 w2 = do
-        walMap' <- updateParaMapWith w1 walMap
-        updateParaMapWith w2 walMap'
-
     wrongRatioCase tk mk = dirPairMatch (mk > tk) (mk < tk)
 
 findMatchingOrders ::

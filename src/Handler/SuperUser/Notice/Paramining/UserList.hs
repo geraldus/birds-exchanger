@@ -87,7 +87,7 @@ getUsersWithParaminingDB lim ofs = do
             &&. (w ^. UserWalletId >. val ofs)
         limit $ fromIntegral lim + 1
         return (u, w)
-    let haveNextPage = if length lst > lim then True else False
+    let haveNextPage = length lst > lim
         dataPage = take lim $ map marshal lst
     return (haveNextPage, dataPage)
   where

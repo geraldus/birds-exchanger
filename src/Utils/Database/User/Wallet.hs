@@ -80,7 +80,7 @@ getOrCreateWalletDB userId walletTextId currency = do
 -- | Query for last accepted deposit time
 walletLastDepositParaTimeDB ::
        (MonadIO m) => Ent Wal -> SqlPersistT m (Maybe UTCTime)
-walletLastDepositParaTimeDB (Entity wid w) = do
+walletLastDepositParaTimeDB (Entity _ w) = do
         accept <- select $ from $
             \(acd, dr, r, t) -> do
                 where_ (
@@ -105,7 +105,7 @@ walletLastDepositParaTimeDB (Entity wid w) = do
 -- | Query for last executed withdrawal time
 walletLastWithdrawalParaTimeDB ::
        (MonadIO m) => Ent Wal -> SqlPersistT m (Maybe UTCTime)
-walletLastWithdrawalParaTimeDB (Entity wid w) = do
+walletLastWithdrawalParaTimeDB (Entity wid _) = do
     exec <- select $ from $
         \(acw, wr) -> do
             where_ (
@@ -122,7 +122,7 @@ walletLastWithdrawalParaTimeDB (Entity wid w) = do
 
 walletLastExchangeParaTimeDB ::
        (MonadIO m) => Ent Wal -> SqlPersistT m (Maybe UTCTime)
-walletLastExchangeParaTimeDB (Entity wid w) = do
+walletLastExchangeParaTimeDB (Entity _ w) = do
     let pairsIn = defaultExchangePairsOf (userWalletCurrency w)
     let pairsOut = defaultOppositeExchangePairsOf (userWalletCurrency w)
     let pairs = pairsIn <> pairsOut
@@ -149,7 +149,7 @@ walletLastExchangeParaTimeDB (Entity wid w) = do
 
 walletLastParaTransactionTimeDB ::
        (MonadIO m) => Ent Wal -> SqlPersistT m (Maybe UTCTime)
-walletLastParaTransactionTimeDB (Entity wid w) = do
+walletLastParaTransactionTimeDB (Entity wid _) = do
     ptr <- select . from $ \t -> do
         where_ (
             (t ^. WalletBalanceTransactionWalletId ==. val wid)
