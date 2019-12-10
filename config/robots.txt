@@ -1,1 +1,7 @@
 User-agent: *
+Disallow: /admin
+Disallow: /api
+Disallow: /su
+Disallow: /operator
+Disallow: /manager
+Disallow: /info/manage
