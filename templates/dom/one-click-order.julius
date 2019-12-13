@@ -14,8 +14,8 @@ const handleOrderClick = (e) => {
     actions.removeAttr('selected')
     switch (action) {
         case 'rub_pzm':
-        case 'pzm_our':
-        case 'rub_our':
+        case 'pzm_ouro':
+        case 'rub_ouro':
             $(actions[0]).attr('selected', 'selected')
             form.removeClass('action-give').addClass('action-take')
             amountInput.val(expected)

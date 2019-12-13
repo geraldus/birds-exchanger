@@ -12,40 +12,40 @@ import           Type.Money             ( Percent, mkPercent, oneCoinCents )
 defaultExchangeFee :: Fee
 defaultExchangeFee = Percent 1.0
 
-defRurWithdrawalFee :: Fee
-defRurWithdrawalFee = Percent 2.0
+defRubWithdrawalFee :: Fee
+defRubWithdrawalFee = Percent 2.0
 
 defPzmWithdrawalFee :: Fee
 defPzmWithdrawalFee = Percent 0.0
 
-defOurWithdrawalFee :: Fee
-defOurWithdrawalFee = Percent 0.0
+defOuroWithdrawalFee :: Fee
+defOuroWithdrawalFee = Percent 0.0
 
-defRurDepositFee :: Fee
-defRurDepositFee = Percent 0.0
+defRubDepositFee :: Fee
+defRubDepositFee = Percent 0.0
 
 defPzmDepositFee :: Fee
 defPzmDepositFee = Percent 0.5
 
-defOurDepositFee :: Fee
-defOurDepositFee = Percent 0.5
+defOuroDepositFee :: Fee
+defOuroDepositFee = Percent 0.5
 
 
-depositRurMinCentsAmount :: Int
-depositRurMinCentsAmount = 500 * oneCoinCents -- 500 RUR
+depositRubMinCentsAmount :: Int
+depositRubMinCentsAmount = 300 * oneCoinCents -- 300 RUB
 
 depositPzmMinCentsAmount :: Int
 depositPzmMinCentsAmount = 10 * oneCoinCents
 
-depositOurMinCentsAmount :: Int
-depositOurMinCentsAmount = 10 * oneCoinCents
+depositOuroMinCentsAmount :: Int
+depositOuroMinCentsAmount = 10 * oneCoinCents
 
 
 currencyDefaultMinimalDeposit :: Currency -> Int
 currencyDefaultMinimalDeposit c
     | c == pzmC  = depositPzmMinCentsAmount
-    | c == ouroC = depositOurMinCentsAmount
-    | c == rubC  = depositRurMinCentsAmount
+    | c == ouroC = depositOuroMinCentsAmount
+    | c == rubC  = depositRubMinCentsAmount
     | otherwise  = 199999999990
 
 defaultWalletCurrencies :: [Currency]

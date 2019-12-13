@@ -3,10 +3,10 @@ module Type.Withdrawal
     )
 where
 
-import           Local.Persist.Currency
-import           Type.Money
-
 import           ClassyPrelude.Yesod
+
+import           Local.Persist.TransferMethod
+import           Type.Money
 
 
 -- | This data type holds pieces of data minimally required to

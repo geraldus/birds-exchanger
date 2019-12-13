@@ -6,6 +6,7 @@ module Form.Profile.Deposit where
 import           Import
 import           Local.Params                  ( currencyDefaultMinimalDeposit )
 import           Local.Persist.Currency
+import           Local.Persist.TransferMethod  ( TransferMethod )
 import           Utils.Deposit
 import           Utils.Form
 import           Utils.Money
@@ -69,7 +70,7 @@ fromMaybeMinAmountDesc mc = [shamlet|#{messages}|]
 
 fromMaybeMinAmountCurrencies :: Maybe Currency -> [ Currency ]
 fromMaybeMinAmountCurrencies (Just c) = [ c ]
-fromMaybeMinAmountCurrencies _ = [ pzmC, ourC, rurC ]
+fromMaybeMinAmountCurrencies _        = [ pzmC, ouroC, rubC ]
 
 maybeSuccess :: FormResult a -> Maybe a
 maybeSuccess (FormSuccess x) = Just x

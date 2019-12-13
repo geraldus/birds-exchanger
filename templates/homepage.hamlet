@@ -19,23 +19,23 @@
                 <ul .nav .nav-tabs .justify-content-center>
                     <li .nav-item .mx-1>
                         <a
-                            #pzm-rur-pair
+                            #pzm-rub-pair
                             .nav-link
                             :paramsPair == defPairDir ExchangePzmRur:.active
                             :paramsPair /= defPairDir ExchangePzmRur:.text-light
                             .pzm
-                            .rur
+                            .rub
                             href="#"
                             title="#{messageRender MsgExchange} Prizm на рубли"
                             >
                                 PZM / RUB (₽)
                     <li .nav-item .mx-1>
                         <a
-                            #our-pzm-pair
+                            #ouro-pzm-pair
                             .nav-link
                             :paramsPair == defPairDir ExchangeOurPzm:.active
                             :paramsPair /= defPairDir ExchangeOurPzm:.text-light
-                            .our
+                            .ouro
                             .pzm
                             href="#"
                             title="#{messageRender MsgExchange} Ouroboros на Prizm"
@@ -43,12 +43,12 @@
                                 OURO / PZM
                     <li .nav-item .mx-1>
                         <a
-                            #our-rur-pair
+                            #ouro-rub-pair
                             .nav-link
                             :paramsPair == defPairDir ExchangeOurRur:.active
                             :paramsPair /= defPairDir ExchangeOurRur:.text-light
-                            .our
-                            .rur
+                            .ouro
+                            .rub
                             href="#"
                             title="#{messageRender MsgExchange} Ouroboros на рубли"
                             >
@@ -99,17 +99,17 @@
                 <p .text-center .text-muted>
                     _{MsgOperationExchangeShort}&nbsp;#{renderFeeAsPct defaultExchangeFee}%
                     <br>
-                    _{MsgOperationWithdrawShort}&nbsp;#{currencyCodeT rurC}&nbsp;#{renderFeeAsPct defRurWithdrawalFee}%#
+                    _{MsgOperationWithdrawShort}&nbsp;#{currencyCodeT rubC}&nbsp;#{renderFeeAsPct defRubWithdrawalFee}%#
                     \&nbsp;|&nbsp;#
-                    \_{MsgOperationDepositShort}&nbsp;#{currencyCodeT rurC}&nbsp;#{renderFeeAsPct defRurDepositFee}%
+                    \_{MsgOperationDepositShort}&nbsp;#{currencyCodeT rubC}&nbsp;#{renderFeeAsPct defRubDepositFee}%
                     <br>
                     _{MsgOperationWithdrawShort}&nbsp;#{currencyCodeT pzmC}&nbsp;#{renderFeeAsPct defPzmWithdrawalFee}%#
                     \&nbsp;|&nbsp;#
                     \_{MsgOperationDepositShort}&nbsp;#{currencyCodeT pzmC}&nbsp;#{renderFeeAsPct defPzmDepositFee}%
                     <br>
-                    _{MsgOperationWithdrawShort}&nbsp;#{currencyCodeT ourC}&nbsp;#{renderFeeAsPct defOurWithdrawalFee}%#
+                    _{MsgOperationWithdrawShort}&nbsp;#{currencyCodeT ouroC}&nbsp;#{renderFeeAsPct defOuroWithdrawalFee}%#
                     \&nbsp;|&nbsp;#
-                    \_{MsgOperationDepositShort}&nbsp;#{currencyCodeT ourC}&nbsp;#{renderFeeAsPct defOurDepositFee}%
+                    \_{MsgOperationDepositShort}&nbsp;#{currencyCodeT ouroC}&nbsp;#{renderFeeAsPct defOuroDepositFee}%
 
 <div #clickable-order-modal .modal .fade tabindex="-1" role=dialog>
     <div .modal-dialog .modal-lg .modal-dialog-centered role=document>

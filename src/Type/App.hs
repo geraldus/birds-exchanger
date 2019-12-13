@@ -3,7 +3,9 @@
 module Type.App where
 
 import           Import.NoFoundation hiding (method, count)
+
 import           Local.Persist.Currency
+import           Local.Persist.TransferMethod
 
 
 data MenuItem m where
@@ -42,15 +44,15 @@ hardcodedPaymentMethods :: AppPaymentMethods
 hardcodedPaymentMethods = AppPaymentMethods
     { appDepositFiatMethods =
         [ FiatPaymentMethod
-            (FiatTM SberBankCard2CardFTM RUR)
+            (FiatTM SberBankCard2CardFTM RUB)
             0
             [ PaymentAddress ["5469 7200 1130 6541"] 0 ]
         , FiatPaymentMethod
-            (FiatTM TinkoffBankCard2CardFTM RUR)
+            (FiatTM TinkoffBankCard2CardFTM RUB)
             0
             [ PaymentAddress ["5536 9137 9648 0594"] 0 ]
         , FiatPaymentMethod
-            (FiatTM QiwiFTM RUR)
+            (FiatTM QiwiFTM RUB)
             0
             [ PaymentAddress ["+79090991177"] 0 ]
         ]
@@ -71,7 +73,7 @@ hardcodedPaymentMethods = AppPaymentMethods
             0
             [ PaymentAddress ["1Hih1ccN7oAxfYWh2tTENiesJ69vt8fdvS"] 0 ]
         , CryptoPaymentMethod
-            OUR
+            OURO
             0
             [ PaymentAddress
                 ["ouro1uru3e8tfudnh7usswjqegquvt9scw2aw5q7w6z"] 0 ] ]

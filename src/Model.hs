@@ -14,11 +14,12 @@ import           ClassyPrelude.Yesod
 import           Local.Persist.Currency
 import           Local.Persist.Exchange
 import           Local.Persist.Notice
+import           Local.Persist.TransferMethod
 import           Local.Persist.UserRole
 import           Local.Persist.Wallet
 
 import           Database.Persist.Quasi
-import           Database.Persist.Sql   ( fromSqlKey )
+import           Database.Persist.Sql         ( fromSqlKey )
 
 
 -- You can define all of your database entities in the entities file.

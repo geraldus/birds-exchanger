@@ -40,13 +40,13 @@ $(document).ready(() => {
     currencySelect.change(() => {
         selectedCurrency = currencySelect.val()
         switch (selectedCurrency) {
-            case 'rur':
+            case 'rub':
                 updatePayamentMethods(selectedCurrency)
                 break
             case 'pzm':
                 updatePayamentMethods(selectedCurrency, true)
                 break
-            case 'our':
+            case 'ouro':
                 updatePayamentMethods(selectedCurrency, true)
                 break
             default: break

@@ -4,11 +4,13 @@ module Handler.Client.HandleDeposit where
 import           Import
 
 import           Local.Persist.Currency
-import           Local.Persist.Wallet   ( DepositRequestStatus (..) )
+import           Local.Persist.TransferMethod ( FiatTransferMethod (..),
+                                                TransferMethod (..) )
+import           Local.Persist.Wallet         ( DepositRequestStatus (..) )
 import           Utils.Money
 
-import           Data.Aeson             ( decode )
-import           Database.Persist.Sql   ( fromSqlKey, toSqlKey )
+import           Data.Aeson                   ( decode )
+import           Database.Persist.Sql         ( fromSqlKey, toSqlKey )
 
 {-
 Qiwкарты:
@@ -55,11 +57,11 @@ getDepositRequestConfirmationR code = withClientRequestByCode code $
             cents = depositRequestCentsAmount t
             currency = depositRequestCurrency t
             paymentGuide = case transferMethod of
-                FiatTM SberBankCard2CardFTM RUR -> paymentGuideCard2Card transferMethod transferAddressee cents currency code
-                FiatTM TinkoffBankCard2CardFTM RUR -> paymentGuideCard2Card transferMethod transferAddressee cents currency code
-                FiatTM QiwiFTM RUR -> paymentGuideQiwi transferMethod transferAddressee cents currency code
+                FiatTM SberBankCard2CardFTM RUB -> paymentGuideCard2Card transferMethod transferAddressee cents currency code
+                FiatTM TinkoffBankCard2CardFTM RUB -> paymentGuideCard2Card transferMethod transferAddressee cents currency code
+                FiatTM QiwiFTM RUB -> paymentGuideQiwi transferMethod transferAddressee cents currency code
                 CryptoTM PZM -> paymentGuideCryptoC transferMethod transferAddressee cents currency code
-                CryptoTM OUR -> paymentGuideCryptoC transferMethod transferAddressee cents currency code
+                CryptoTM OURO -> paymentGuideCryptoC transferMethod transferAddressee cents currency code
                 _ -> [whamlet|Приём средств временно приостановлен.  Попробуйте позже|]
         defaultLayout $(widgetFile "client/deposit-proceed")
   where
@@ -87,8 +89,8 @@ getDepositRequestConfirmationR code = withClientRequestByCode code $
     paymentAddr (CryptoTM PZM) adr =
         let (w, _) = case adr of
                 w':pk':_ -> (w', pk')
-                w':_ -> (w', "")
-                _ -> ("", "")
+                w':_     -> (w', "")
+                _        -> ("", "")
         in [shamlet|#{w}|]
     paymentAddr (CryptoTM _) adr = [shamlet|#{concat adr}|]
     cryptoCDesc curr = "на " <> cCurrencyTLong curr <> " кошелёк"

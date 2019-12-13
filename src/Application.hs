@@ -22,11 +22,18 @@ module Application
 
 import           Import                               hiding ( isNothing, on,
                                                         update, (=.), (==.) )
+import           Local.Persist.Currency               ( Currency, ouroC, rubC )
 import           Local.Persist.Exchange               ( ExchangePair (..) )
+import           Local.Persist.TransferMethod         ( TransferMethod, ctmOuro,
+                                                        ftmAlphaRub,
+                                                        ftmPayPalRub, ftmQiwiRub,
+                                                        ftmSberRub,
+                                                        ftmTinkoffRub )
 import           Market.Functions                     ( reduceDomStats )
 import           Type.App
 import           Utils.Database.Orders                ( selectActiveOrdersOf )
 
+import           Control.Monad                        ( void )
 import           Control.Monad.Logger                 ( liftLoc, runLoggingT )
 import qualified Crypto.Nonce                         as CN
 import           Database.Esqueleto
@@ -140,14 +147,16 @@ makeFoundation appSettings = do
         (pgConnStr  $ appDatabaseConf appSettings)
         (pgPoolSize $ appDatabaseConf appSettings)
 
+    flip runSqlPool pool $ do
+        migrateHelper_UpdateCurrencies
+
     -- Perform database migration using our application's logging settings.
     runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
 
     -- Perform manual migraions
-    let genToken = CN.nonce128urlT appNonceGen
     flip runSqlPool pool $ do
-        migrateHelper_RefTokens genToken
         migrateHelper_GRef
+        migrateHelper_UpdateCurrencies
 
     orders <- flip runSqlPool pool $ mapM
         selectActiveOrdersOf
@@ -288,12 +297,125 @@ migrateHelper_GRef = do
                     &&. not_ (u ^. UserIdent ==. val great)
                     )
                 return u
-            mapM_ (addReferral masterRef) (map entityKey noRels)
+            mapM_ (addReferral' masterRef) (map entityKey noRels)
   where
-    addReferral master client = insert_ (Referral client master)
+    addReferral' master client = insert_ (Referral client master)
     great = "heraldhoi@gmail.com"
 
+migrateHelper_UpdateCurrencies :: MonadIO m => SqlPersistT m ()
+migrateHelper_UpdateCurrencies = void $ do
+    wallets
+    withdrawals
+    deposits
+    acceptedDeposits
+    innerProfit
+  where
+        wallets :: MonadIO m => SqlPersistT m ()
+        wallets = mapApplyPersistVals updateWalletCurrencies currencyUpdatePairs
+
+        withdrawals :: MonadIO m => SqlPersistT m ()
+        withdrawals = mapApplyPersistVals
+            updateWithdrawalCurrencies transferMethodUpdatePairs
+
+        deposits :: MonadIO m => SqlPersistT m ()
+        deposits = do
+            mapApplyPersistVals depositCurrencies currencyUpdatePairs
+            mapApplyPersistVals depositTargetCurrencies currencyUpdatePairs
+            mapApplyPersistVals depositTransferMethods transferMethodUpdatePairs
+
+        acceptedDeposits :: MonadIO m => SqlPersistT m ()
+        acceptedDeposits = do
+            mapApplyPersistVals acceptedDepositCurrencies currencyUpdatePairs
+            mapApplyPersistVals
+                acceptedDepositTargetCurrencies currencyUpdatePairs
+
+        innerProfit :: MonadIO m => SqlPersistT m ()
+        innerProfit = mapApplyPersistVals
+            innerProfitCurrencies currencyUpdatePairs
+
+        currencyUpdatePairs :: [(Currency, Text)]
+        currencyUpdatePairs = [(ouroC, "CryptoC OUR"), (rubC, "% RUR")]
+
+        transferMethodUpdatePairs :: [(TransferMethod, Text)]
+        transferMethodUpdatePairs =
+            [ (ftmSberRub,    "%SberBankCard2CardFTM RUR")
+            , (ftmAlphaRub,   "%AlphaBankCard2CardFTM RUR")
+            , (ftmTinkoffRub, "%TinkoffBankCard2CardFTM RUR")
+            , (ftmPayPalRub,  "%PayPalTransferFTM RUR")
+            , (ftmQiwiRub,    "%QiwiFTM RUR")
+            , (ctmOuro,       "CryptoTM OUR")
+            ]
 
 
+        updateWalletCurrencies ::
+            MonadIO m => [PersistValue] -> SqlPersistT m ()
+        updateWalletCurrencies = rawExecute qUpdateWalletCurrencies
 
+        updateWithdrawalCurrencies ::
+            MonadIO m => [PersistValue] -> SqlPersistT m ()
+        updateWithdrawalCurrencies = rawExecute qUpdateWithdrawalCurrencies
+
+        depositCurrencies :: MonadIO m => [PersistValue] -> SqlPersistT m ()
+        depositCurrencies = rawExecute qUpdateDepositCurrencies
+
+        depositTargetCurrencies ::
+            MonadIO m => [PersistValue] -> SqlPersistT m ()
+        depositTargetCurrencies = rawExecute qUpdateDepositTargetCurrencies
+
+        depositTransferMethods ::
+            MonadIO m => [PersistValue] -> SqlPersistT m ()
+        depositTransferMethods = rawExecute qUpdateDepositTransferMethods
+
+        acceptedDepositCurrencies ::
+            MonadIO m => [PersistValue] -> SqlPersistT m ()
+        acceptedDepositCurrencies =
+            rawExecute qUpdateAcceptedDepositCurrencies
+
+        acceptedDepositTargetCurrencies ::
+            MonadIO m => [PersistValue] -> SqlPersistT m ()
+        acceptedDepositTargetCurrencies =
+            rawExecute qUpdateAcceptedDepositTargetCurrencies
+
+        innerProfitCurrencies :: MonadIO m => [PersistValue] -> SqlPersistT m ()
+        innerProfitCurrencies = rawExecute qUpdateInnerProfitRecordCurrencies
+
+        -- dropUniqueUserWallets :: MonadIO m => SqlPersistT m ()
+        -- dropUniqueUserWallets = rawExecute qDropUniqueUserWalletContraints []
+
+        qUpdateWalletCurrencies =
+            "update user_wallet set currency=? where currency like ?"
+
+        qUpdateWithdrawalCurrencies =
+            "update withdrawal_request set method=? where method like ?"
+
+        qUpdateDepositCurrencies =
+            "update deposit_request set currency=? where currency like ?"
+
+        qUpdateDepositTargetCurrencies =
+            "update deposit_request set target_currency=? where target_currency like ?"
+
+        qUpdateDepositTransferMethods =
+            "update deposit_request set transfer_method =? where transfer_method like ?"
+
+        qUpdateAcceptedDepositCurrencies =
+            "update accepted_deposit set currency=? where currency like ?"
+
+        qUpdateAcceptedDepositTargetCurrencies =
+            "update accepted_deposit set target_currency=? where target_currency like ?"
+
+        qUpdateInnerProfitRecordCurrencies =
+            "update inner_profit_record set currency=? where currency like ?"
+
+
+        mapApplyPersistVals ::
+               (MonadIO m, PersistField a, Show a, PersistField b)
+            => ([PersistValue] -> SqlPersistT m ())
+            -> [(a, b)]
+            -> SqlPersistT m ()
+        mapApplyPersistVals f = mapM_ $ \(a, b) ->
+            f [ toPersistValue (show a), toPersistValue b ]
+
+
+        -- qDropUniqueUserWalletContraints =
+        --     "alter table user_wallet drop constraint unique_wallet"
 

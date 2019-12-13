@@ -6,23 +6,23 @@
         <small>
             <span>Сервисный сбор: #
             <span .fee .val>?#
-            <small .currency .rur>₽#
+            <small .currency .rub>₽#
             <small .currency .pzm>PZM#
-            <small .currency .our>OUR#
+            <small .currency .ouro>OURO#
             <small>
                 <span> (#
                 <!-- TODO: FIXME: Loop over values -->
-                <span .def-fee .val .rur .percent>#{renderFeeAsPct defRurWithdrawalFee}#
+                <span .def-fee .val .rub .percent>#{renderFeeAsPct defRubWithdrawalFee}#
                 <span .def-fee .val .pzm .percent>#{renderFeeAsPct defPzmWithdrawalFee}#
-                <span .def-fee .val .our .percent>#{renderFeeAsPct defOurWithdrawalFee}#
+                <span .def-fee .val .ouro .percent>#{renderFeeAsPct defOuroWithdrawalFee}#
                 <span>%)
         <br>
         <small>
             <span>Итого будет удержано: #
             <span .total .val>?#
-            <small .currency .rur>₽#
+            <small .currency .rub>₽#
             <small .currency .pzm>PZM#
-            <small .currency .our>OUR#
+            <small .currency .ouro>OURO#
         ^{fvInput feeHiddenView}
 <div .form-row>
     <div .form-group .col-12>
@@ -30,18 +30,14 @@
         ^{fvInput transferMethodView}
 <div ##{adrid}-1-row .form-row .tm-addr-row style="display: none">
     <div .form-group .col-12>
-        <label for="#{adrid}-1" .rur_sber_tm>Номер карты СберБанка (₽/RUR)
-        <label for="#{adrid}-1" .rur_alpha_tm>Номер карты Альфа Банка (₽/RUR)
-        <label for="#{adrid}-1" .rur_tinkoff_tm>Номер карты Тинькофф Банка (₽/RUR)
-        <label for="#{adrid}-1" .rur_qiwi_tm>Qiwi кошелёк (номер телефона) (₽/RUR)
-        <label for="#{adrid}-1" .rur_paypal_tm>Аккаунт PayPal (₽/RUR)
+        <label for="#{adrid}-1" .rub_sber_tm>Номер карты СберБанка (₽/RUB)
+        <label for="#{adrid}-1" .rub_alpha_tm>Номер карты Альфа Банка (₽/RUB)
+        <label for="#{adrid}-1" .rub_tinkoff_tm>Номер карты Тинькофф Банка (₽/RUB)
+        <label for="#{adrid}-1" .rub_qiwi_tm>Qiwi кошелёк (номер телефона) (₽/RUB)
+        <label for="#{adrid}-1" .rub_paypal_tm>Аккаунт PayPal (₽/RUB)
         <label for="#{adrid}-1" .usd_paypal_tm>Аккаунт PayPal ($/USD)
         <label for="#{adrid}-1" .pzm_tm_addr>Адрес Prizm кошелька (PZM Address)
         <label for="#{adrid}-1" .btc_addr_tm>Адрес Bitcoin кошелька  (BTC)
         <label for="#{adrid}-1" .eth_addr_tm>Адрес Etherium кошелька (ETH)
-        <label for="#{adrid}-1" .our_addr_tm>Адрес Ouroboros кошелька (OUR)
+        <label for="#{adrid}-1" .ouro_addr_tm>Адрес Ouroboros кошелька (OURO)
         <input ##{adrid}-1 type=text .form-control required>
-<div ##{adrid}-2-row .form-row .tm-addr-row style="display: none">
-    <div .form-group .col-12>
-        <label for="#{adrid}-2" .pzm_tm_pubkey>Публичный ключ Prizm кошелька (PZM Public Key)
-        <input ##{adrid}-2 type=text .form-control required>

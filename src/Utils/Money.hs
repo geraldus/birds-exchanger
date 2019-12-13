@@ -22,8 +22,8 @@ calcFeeCents (T.CentsFixed f) c = c - f
 
 
 -- | Defines devisor and qoutient when specifying exchange ratio for
--- given pair.  E.g. for PZM -> RUR and RUR -> PZM exchange orders
--- ratio should always be specified as PZM/RUR pair.
+-- given pair.  E.g. for PZM -> RUB and RUB -> PZM exchange orders
+-- ratio should always be specified as PZM/RUB pair.
 defPairDir :: ExchangePair -> ExchangePair
 defPairDir p = case p of
     ExchangePzmRur -> ExchangeRurPzm
@@ -43,12 +43,12 @@ flipPair ExchangeOurPzm = ExchangePzmOur
 
 
 unPairCurrency :: ExchangePair -> (Currency, Currency)
-unPairCurrency ExchangePzmRur = (pzmC, rurC)
-unPairCurrency ExchangeRurPzm = (rurC, pzmC)
-unPairCurrency ExchangePzmOur = (pzmC, ourC)
-unPairCurrency ExchangeOurPzm = (ourC, pzmC)
-unPairCurrency ExchangeOurRur = (ourC, rurC)
-unPairCurrency ExchangeRurOur = (rurC, ourC)
+unPairCurrency ExchangePzmRur = (pzmC, rubC)
+unPairCurrency ExchangeRurPzm = (rubC, pzmC)
+unPairCurrency ExchangePzmOur = (pzmC, ouroC)
+unPairCurrency ExchangeOurPzm = (ouroC, pzmC)
+unPairCurrency ExchangeOurRur = (ouroC, rubC)
+unPairCurrency ExchangeRurOur = (rubC, ouroC)
 
 -- | Normalize ratio @r@ to preffered direction @d@ for given
 --   exchange pair @p@

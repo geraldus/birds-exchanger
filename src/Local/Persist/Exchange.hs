@@ -81,14 +81,14 @@ instance PathPiece ExchangePair where
 
 exchangePairUnsafe :: Currency -> Currency -> ExchangePair
 -- | RUB
-exchangePairUnsafe (FiatC RUR)   (CryptoC PZM) = ExchangeRurPzm
-exchangePairUnsafe (FiatC RUR)   (CryptoC OUR) = ExchangeRurOur
+exchangePairUnsafe (FiatC RUB)   (CryptoC PZM) = ExchangeRurPzm
+exchangePairUnsafe (FiatC RUB)   (CryptoC OURO) = ExchangeRurOur
 -- | PZM
-exchangePairUnsafe (CryptoC PZM) (FiatC RUR)   = ExchangePzmRur
-exchangePairUnsafe (CryptoC PZM) (CryptoC OUR) = ExchangePzmOur
+exchangePairUnsafe (CryptoC PZM) (FiatC RUB)   = ExchangePzmRur
+exchangePairUnsafe (CryptoC PZM) (CryptoC OURO) = ExchangePzmOur
 -- | OURO
-exchangePairUnsafe (CryptoC OUR) (FiatC RUR)   = ExchangeOurRur
-exchangePairUnsafe (CryptoC OUR) (CryptoC PZM) = ExchangeOurPzm
+exchangePairUnsafe (CryptoC OURO) (FiatC RUB)   = ExchangeOurRur
+exchangePairUnsafe (CryptoC OURO) (CryptoC PZM) = ExchangeOurPzm
 -- | Other
 exchangePairUnsafe c1 c2 = error $
     "Unexpected exchange pair: " <> show c1 <> ", "  <> show c2
@@ -96,13 +96,13 @@ exchangePairUnsafe c1 c2 = error $
 
 exchangePair :: Currency -> Currency -> Maybe ExchangePair
 -- RUB
-exchangePair (FiatC RUR)   (CryptoC PZM) = Just ExchangeRurPzm
-exchangePair (FiatC RUR)   (CryptoC OUR) = Just ExchangeRurOur
+exchangePair (FiatC RUB)   (CryptoC PZM) = Just ExchangeRurPzm
+exchangePair (FiatC RUB)   (CryptoC OURO) = Just ExchangeRurOur
 -- PZM
-exchangePair (CryptoC PZM) (FiatC RUR)   = Just ExchangePzmRur
-exchangePair (CryptoC PZM) (CryptoC OUR) = Just ExchangePzmOur
+exchangePair (CryptoC PZM) (FiatC RUB)   = Just ExchangePzmRur
+exchangePair (CryptoC PZM) (CryptoC OURO) = Just ExchangePzmOur
 -- OURO
-exchangePair (CryptoC OUR) (FiatC RUR)   = Just ExchangeOurRur
-exchangePair (CryptoC OUR) (CryptoC PZM) = Just ExchangeOurPzm
+exchangePair (CryptoC OURO) (FiatC RUB)   = Just ExchangeOurRur
+exchangePair (CryptoC OURO) (CryptoC PZM) = Just ExchangeOurPzm
 -- Other
 exchangePair _ _ = Nothing

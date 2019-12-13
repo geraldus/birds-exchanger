@@ -23,6 +23,7 @@ import           Yesod.Form.I18n.Russian
 import           Local.Auth
 import           Local.Params                 ( defaultWalletCurrencies )
 import           Local.Persist.Currency
+import           Local.Persist.TransferMethod
 import           Local.Persist.UserRole
 import           Market.Type                  ( DOMStats )
 import           Type.App

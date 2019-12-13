@@ -3,12 +3,12 @@ const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1)
 const currencySymbol = (c) => {
     let ret = c.toUpperCase()
     switch (true) {
-        case c == 'rur' || c == 'rub':
+        case c == 'rub':
             ret = '₽'; break
         case c == 'pzm':
             ret = 'PZM'; break
-        case c == 'our':
-            ret = 'OUR'; break
+        case c == 'ouro':
+            ret = 'OURO'; break
         default: break
     }
     return ret
@@ -49,9 +49,10 @@ const switchTab = (e, pair, tabs, { orderCols, historyCols, }) => {
             el.addClass('hide')
         }
     }
-
     e.preventDefault()
+
     tabs.forEach(t => $(t).removeClass('active').addClass('text-light'))
+
     $(pair).addClass('active').removeClass('text-light')
     const currency = $(pair).attr('id')
         .slice(0, -('-pair').length)
@@ -61,7 +62,7 @@ const switchTab = (e, pair, tabs, { orderCols, historyCols, }) => {
     const els = orderCols.find('> *')
     els.each((_, x) => {
         const el = $(x)
-        const pair = el.data('pair').replace('rub', 'rur')
+        const pair = el.data('pair')
         toggleVisibility(el, pair == id || pair == flip_id)
     })
     historyCols.each((_, x) => {
@@ -69,8 +70,6 @@ const switchTab = (e, pair, tabs, { orderCols, historyCols, }) => {
         const from = c.data('from')
         const to = c.data('to')
         const normalizedPair = id
-            .replace(/our([^o])/, 'ouro$1')
-            .replace('rur', 'rub')
         const targetPair = `${from}_${to}`
         const matchPair =
             targetPair == normalizedPair
@@ -86,21 +85,20 @@ const switchTab = (e, pair, tabs, { orderCols, historyCols, }) => {
 const init = () => {
     const orderCols = $('.order-col')
     const historyCols = $('.exchange-history')
-    const pzmRurTab = $('#pzm-rur-pair')
-    const pzmOurTab = $('#our-pzm-pair')
-    const ourRurTab = $('#our-rur-pair')
-    const tabs = [pzmRurTab, pzmOurTab, ourRurTab]
+    const pzmRubTab = $('#pzm-rub-pair')
+    const pzmOuroTab = $('#ouro-pzm-pair')
+    const ouroRubTab = $('#ouro-rub-pair')
+    const tabs = [pzmRubTab, pzmOuroTab, ouroRubTab]
     const switchConf = { orderCols, historyCols }
-    pzmRurTab.click((e) => { switchTab(e, pzmRurTab, tabs, switchConf) })
-    pzmOurTab.click((e) => { switchTab(e, pzmOurTab, tabs, switchConf) })
-    ourRurTab.click((e) => { switchTab(e, ourRurTab, tabs, switchConf) })
+    pzmRubTab.click((e) => { switchTab(e, pzmRubTab, tabs, switchConf) })
+    pzmOuroTab.click((e) => { switchTab(e, pzmOuroTab, tabs, switchConf) })
+    ouroRubTab.click((e) => { switchTab(e, ouroRubTab, tabs, switchConf) })
 }
 
 const getTextNodesIn = (n, includeWhitespaceNodes) => {
     const node = n[0]
     var textNodes = [], nonWhitespaceMatcher = /\S/
     const getTextNodes = (node) => {
-        let _x = 'prevent js breakange when minifying'
         if (node.nodeType == 3) {
             if (includeWhitespaceNodes || nonWhitespaceMatcher.test(node.nodeValue)) {
                 textNodes.push(node)
@@ -110,6 +108,7 @@ const getTextNodesIn = (n, includeWhitespaceNodes) => {
                 getTextNodes(node.childNodes[i])
             }
         }
+        return; // prevent minified JS issues
     }
     getTextNodes(node)
     return textNodes

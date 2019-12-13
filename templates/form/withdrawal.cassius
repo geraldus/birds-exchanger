@@ -1,13 +1,13 @@
-.rur .fee-stats .percent:not(.rur)
+.rub .fee-stats .percent:not(.rub)
     display: none
 .pzm .fee-stats .percent:not(.pzm)
     display: none
-.our .fee-stats .percent:not(.our)
+.ouro .fee-stats .percent:not(.ouro)
     display: none
 
-.rur .fee-stats .currency:not(.rur)
+.rub .fee-stats .currency:not(.rub)
     display: none
 .pzm .fee-stats .currency:not(.pzm)
     display: none
-.our .fee-stats .currency:not(.our)
+.ouro .fee-stats .currency:not(.ouro)
     display: none

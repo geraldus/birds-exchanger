@@ -71,13 +71,13 @@ getHomeR = do
     selectPair _ Nothing       = defPairDir ExchangePzmRur
     selectPair Nothing _       = defPairDir ExchangePzmRur
     selectPair (Just c1) (Just c2)
-        | (c1 == "rur" || c1 == "rub") && c2 == "our" =
+        | c1 == "rub" && c2 == "ouro" =
             defPairDir ExchangeRurOur
-        | (c2 == "rur" || c2 == "rub") && c1 == "our" =
+        | c2 == "rub" && c1 == "ouro" =
             defPairDir ExchangeOurRur
-        | c1 == "pzm" && c2 == "our" =
+        | c1 == "pzm" && c2 == "ouro" =
             defPairDir ExchangePzmOur
-        | c2 == "pzm" && c1 == "our" =
+        | c2 == "pzm" && c1 == "ouro" =
             defPairDir ExchangeOurPzm
         | otherwise = defPairDir ExchangePzmRur
 
@@ -112,8 +112,8 @@ getActiveOrders mu = do
     os <- runDB $ selectList
         ((ExchangeOrderIsActive ==. True) : userConstraint)
         [Asc ExchangeOrderNormalizedRatio, Asc ExchangeOrderCreated]
-    return $ partition (isPzmRurOrder . entityVal) os
-    where isPzmRurOrder = (== ExchangePzmRur) . exchangeOrderPair
+    return $ partition (isPzmRubOrder . entityVal) os
+    where isPzmRubOrder = (== ExchangePzmRur) . exchangeOrderPair
 
 -- * News
 
