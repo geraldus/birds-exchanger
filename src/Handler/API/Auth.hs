@@ -26,3 +26,7 @@ apiAuthAuthenticateNoTokenR username pass = do
                 [ "success" .= ("ok" :: Text)
                 , "ident" .= username
                 ]
+        _ -> do
+            selectRep . provideRep $ pure $ object
+                [ "status" .= ("fail" :: Text)
+                ]
