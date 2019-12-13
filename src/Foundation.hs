@@ -243,7 +243,6 @@ instance Yesod App where
         let navbarRightFilteredMenuItems =
                 [x | x <- navbarRightMenuItems, menuItemAccessCallback x]
 
-        navWalletDropdownId <- newIdent
         navUserDropdownId   <- newIdent
         navManageDropdownId <- newIdent
         -- We break up the default layout into two components:
@@ -859,7 +858,7 @@ renderWalletBalanceW stats _listClasses = do
     currencyClassNames = ["wallet-balance-currency"]
 
 renderParaminingW :: UTCTime -> Percent -> Int -> Currency -> Widget
-renderParaminingW t' r n c = do
+renderParaminingW t' _paraminingRate n c = do
     now <- liftIO getCurrentTime
     let paraCents = if n < 1
             then Just (0, 0, t')

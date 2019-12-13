@@ -29,6 +29,9 @@
 #clickable-order-modal .title
     color: #e9ecef
 
+.market-stats
+    font-size: 0.7rem
+
 .exchange-history .header.row
     background-color: #333a40
     color: white

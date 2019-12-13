@@ -9,16 +9,11 @@ import           Import
 
 import           Form.Exchanger.Order
 import           Handler.Client.Paramining ( scheduleParaminingMapAccrual )
-import           Local.Params              ( defaultExchangeFee,
-                                             defaultParaMiningDelaySeconds )
+import           Local.Params              ( defaultExchangeFee )
 import           Local.Persist.Currency
 import           Local.Persist.Exchange
 import           Utils.Database.Operations
 import           Utils.Money
-
-import           Control.Concurrent        ( forkIO, threadDelay )
-import qualified Data.Map                  as M
-import           Text.Pretty.Simple        ( pShow )
 
 
 data ProcessForm
@@ -101,20 +96,22 @@ checkOrderData
     -> OrderCheck
 checkOrderData
         exchangeDirection
-        amount
-        ratio
+        amountCents
+        orderRatio
         client
         wallet
         time
         renderErrors =
-    if amount <= 0 || ratio <= 0 || amount > userWalletAmountCents wallet
-        then OrderCheckErrors (renderErrors amount ratio wallet)
+    if amountCents <= 0
+            || orderRatio <= 0
+            || amountCents > userWalletAmountCents wallet
+        then OrderCheckErrors (renderErrors amountCents orderRatio wallet)
         else
-            let r = pairRatioByNormalizedRatio exchangeDirection ratio
+            let r = pairRatioByNormalizedRatio exchangeDirection orderRatio
                 -- Ratio Multiplicator
                 -- Ratio within form data is in normalized state, convert it
                 -- to direct multiplication value
-                t = multiplyCents r amount
+                t = multiplyCents r amountCents
                 -- Target Amount
                 -- Amount cents required for full order exchange
                 f = calcFeeCents defaultExchangeFee t
@@ -126,7 +123,7 @@ checkOrderData
                 -- direction, it must be interpreted depending on 'action', e.g.
                 -- give action -- same direction, take action -- flipped.
             in OrderCheckSuccess $
-                    mkNewOrderData client amount ratio d f time
+                    mkNewOrderData client amountCents orderRatio d f time
 
 orderCreateRenderFormErrors
     :: AmountCents
@@ -135,12 +132,16 @@ orderCreateRenderFormErrors
     -> (AppMessage -> Text)
     -> [ LabeledError ]
 orderCreateRenderFormErrors a r w m =
-    let amount = mkError (a <= 0) "amount" (m MsgFormMessageErrorPositiveValueRequired)
-        ratio  = mkError (r <= 0) "ratio" (m MsgFormMessageErrorPositiveValueRequired)
-        balance = mkError
-                (userWalletAmountCents w < a) "balance" (m MsgFormMessageErrorNotEnoughFunds)
-    in amount <> ratio <> balance
-  where mkError cond name e = [ (name, e) | cond ]
+    let amountError = mkError (
+            a <= 0) "amount" (m MsgFormMessageErrorPositiveValueRequired)
+        ratioError  = mkError
+            (r <= 0) "ratio" (m MsgFormMessageErrorPositiveValueRequired)
+        balanceError = mkError
+            (userWalletAmountCents w < a)
+            "balance"
+            (m MsgFormMessageErrorNotEnoughFunds)
+    in amountError <> ratioError <> balanceError
+  where mkError condition name e = [ (name, e) | condition ]
 
 
 giveTake :: ExchangeAction -> p -> p -> p

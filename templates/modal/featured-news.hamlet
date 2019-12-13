@@ -21,7 +21,7 @@
                                 >
                 <div .row>
                     <div .col-10 .mx-auto .py-3>
-                        #{preEscapedToMarkup desc}
+                        #{preEscapedToMarkup description}
                         <div .dont-show-again>
                             <span .checkmark>✓
                             <span ##{wrapId}-remember-trigger .text-muted>

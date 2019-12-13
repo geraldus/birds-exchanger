@@ -123,7 +123,7 @@ featuredModal = do
     case mayFeatured of
         Nothing -> [whamlet||]
         Just (Entity iid info)  -> do
-            let desc = case infoDescHtml info of
+            let description = case infoDescHtml info of
                     Just ""    -> infoContentHtml info
                     Just desc' -> desc'
                     _          -> infoContentHtml info

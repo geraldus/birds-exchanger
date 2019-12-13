@@ -326,7 +326,7 @@ updateParaMapWith w@(Entity k _) m =
     if k `M.member` m
         then pure m
         else getUserWalletStatsDB w >>= insertWalletStats k m
-  where insertWalletStats k m x = return (M.insert k x m)
+  where insertWalletStats k' m' x = return (M.insert k' x m')
 
 -- * Helper Types
 

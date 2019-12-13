@@ -20,7 +20,7 @@ import           Utils.Money
 import           Yesod.WebSockets
 
 import           Data.Aeson                                   ( (.!=), (.:),
-                                                                (.:!), (.:?) )
+                                                                (.:!) )
 import qualified Data.Aeson                                   as A
 import           Database.Esqueleto
 import           Text.Blaze.Renderer.Text                     ( renderMarkup )
@@ -97,7 +97,7 @@ superUserWebSocket = do
     parseJSONCommand = A.decode . encodeUtf8 . fromStrict
 
 execSUCommand :: SUCommand -> WebSocketsT Handler ()
-execSUCommand cmd@(SUCmdWalletParaminingData wt inc) = do
+execSUCommand (SUCmdWalletParaminingData wt _includeHtml) = do
     walletByToken <- liftHandler . runDB $ getBy (UniqueWalletToken wt)
     res <- case walletByToken of
         Nothing -> pure A.Null
@@ -129,7 +129,7 @@ execSUCommand cmd@(SUCmdWalletParaminingData wt inc) = do
                     ]
     wsSendJSON (SUCmdResponseWalletParaminingData res)
 
-execSUCommand cmd@(SUCmdWalletParaminingDataPage l o inc) = do
+execSUCommand (SUCmdWalletParaminingDataPage l o inc) = do
     (more, pageData) <- liftHandler . runDB $ getUsersWithParaminingDB l o
     page <- toJSON <$> if inc
         then includeHTML pageData
@@ -147,14 +147,14 @@ execSUCommand cmd@(SUCmdWalletParaminingDataPage l o inc) = do
     includeHTML pageData = do
         htmlRenders <- liftHandler $ mapM render pageData
         let zips =  zip pageData htmlRenders
-        return $ flip map zips $ \((u, w, c, p), h) -> object
+        return $ flip map zips $ \((u, w, _currency, p), h) -> object
             [ "user" .= toJSON u
             , "wallet" .= toJSON w
             , "paramining-monthly-rate" .= toJSON p
             , "html" .= (toJSON . renderMarkup) h
             ]
 
-    render (Entity uid u, Entity wid w, c, p) = do
+    render (Entity uid u, Entity _ w, c, _) = do
         renderAmount <- getAmountRenderer
         return
             $(shamletFile "templates/su/notice/paramining/wallet-item.hamlet")

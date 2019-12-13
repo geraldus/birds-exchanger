@@ -6,9 +6,8 @@ import           Import
 import           Local.Auth.Plugin             ( PrizmPluginAuthResult (..),
                                                  checkCredsDB )
 
-import           Database.Persist.Sql          ( SqlBackend )
 import           Yesod.Auth                    ( Creds (..), setCreds )
-import           Yesod.Auth.Util.PasswordStore ( makePassword )
+
 
 postAPI_AuthAuthenticateNoTokenR :: Handler TypedContent
 postAPI_AuthAuthenticateNoTokenR = do

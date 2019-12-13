@@ -342,7 +342,7 @@ paraMiningDesc ::
     -> Int
     -> Currency
     -> Widget
-paraMiningDesc wbt cents c = toWidget
+paraMiningDesc _ cents c = toWidget
     [whamlet|
         <td>#{renderAmount cents c}
         <td><span>_{MsgParaMining}

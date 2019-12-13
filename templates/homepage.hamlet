@@ -78,7 +78,7 @@
                 <p .text-center .text-muted>
                     _{MsgScheduleDesc}
 
-<div .container-fluid .mt-3 style="font-size: 0.7rem;">
+<div .container-fluid .mt-3 .market-stats>
     <div .row>
         ^{clickableOrderW modalWrapId}
         <div .exchange-history-view .col-12 .col-lg-4 .order-4 .order-lg-1>

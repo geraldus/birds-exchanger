@@ -19,7 +19,7 @@ depositForm formId extra = do
     cid <- newIdent
     tid <- newIdent
     aid <- newIdent
-    renderMessage <- getMessageRender
+    messageRender  <- getMessageRender
     (paymentCurrencyRes, paymentCurrencyView) <- mreq currencySelect (fsBs4WithId cid) Nothing
     (paymentAmountRes, paymentAmountView) <- mreq
         doubleField
@@ -33,14 +33,12 @@ depositForm formId extra = do
         amountCentsRes   = truncCoins2Cents <$> paymentAmountRes
         matchingFee = selectDepositFee <$> paymentCurrencyRes
         expectedFee = calcFeeCents <$> matchingFee <*> amountCentsRes
-        -- expectedRatio = selectRatio <$> paymentCurrencyRes <*> paymentCurrencyRes
         depReqRes = DepositRequestFD
                         <$> paymentCurrencyRes
                         <*> transferMethodRes
                         <*> amountCentsRes
                         <*> expectedFee
                         <*> paymentCurrencyRes
-                        -- <*> expectedRatio
     let mayPaymentCurrency = maybeSuccess paymentCurrencyRes
         formResult = case amountIsValidRes of
             FormSuccess True -> depReqRes
@@ -49,13 +47,11 @@ depositForm formId extra = do
                 in FormFailure [
                     toStrict $ renderHtml [shamlet|
                         $newline never
-                        #{renderMessage MsgFormMessageErrorInvalidMinimalAmount} #
+                        #{messageRender MsgFormMessageErrorInvalidMinimalAmount} #
                         \#{limits}|]
                 ]
             FormFailure es -> FormFailure es
             FormMissing -> FormMissing
-    -- TODO: FIXME: Check if Transfer Method is valid
-    -- let isValidTransferMethod = isJust . fvErrors $ transferMethodView
     let widget = do
             inCurrencyId <- newIdent
             $(widgetFile "form/client-deposit")
@@ -78,10 +74,9 @@ maybeSuccess _               = Nothing
 
 
 data DepositRequestFD = DepositRequestFD
-    { depReqCurrency                :: Currency
-    , depReqTransferMethod          :: TransferMethod
-    , depReqCentsAmount             :: Int
-    , depReqCentsExpectedFee        :: Int
-    , depReqTargetCurrency          :: Currency
-    -- , depReqExpectedConversionRatio :: Double
+    { depReqCurrency         :: Currency
+    , depReqTransferMethod   :: TransferMethod
+    , depReqCentsAmount      :: Int
+    , depReqCentsExpectedFee :: Int
+    , depReqTargetCurrency   :: Currency
     }

@@ -6,16 +6,17 @@ module Handler.Operator.WithdrawalRequest where
 
 import           Import
 import           Local.Persist.Currency
-import           Local.Persist.Wallet   ( WithdrawalStatus (..) )
-import           Utils.Common           ( selectLocale )
+import           Local.Persist.TransferMethod ( tmTShort )
+import           Local.Persist.Wallet         ( WithdrawalStatus (..) )
+import           Utils.Common                 ( selectLocale )
 import           Utils.Money
-import           Utils.Render           ( renderFeeAsPct )
+import           Utils.Render                 ( renderFeeAsPct )
 import           Utils.Time
 import           Utils.Withdrawal
 
-import qualified Data.Text              as T
-import           Database.Persist.Sql   ( fromSqlKey, rawSql )
-import           Text.Blaze.Html        ( preEscapedToHtml )
+import qualified Data.Text                    as T
+import           Database.Persist.Sql         ( fromSqlKey, rawSql )
+import           Text.Blaze.Html              ( preEscapedToHtml )
 
 
 getOperatorWithdrawalRequestsListR :: Handler Html

@@ -35,5 +35,4 @@ $(document).ready(() => {
     if (window.para_ouro) {
         renderPara('ouro', para_ouro)
     }
-
 })

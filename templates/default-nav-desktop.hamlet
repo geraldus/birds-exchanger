@@ -14,7 +14,7 @@
             >
     <div #main-nav-desktop-menu .main-nav .w-100 .d-flex .justify-content-between>
         <ul .navbar-nav>
-            $maybe userName <- muserName
+            $maybe _ <- muserName
                 $if isClientLoggedIn
                     $forall MenuItem label route _ <- clientMenuItems
                         <li .nav-item.mx-2 :Just route == currentRoute:.active>

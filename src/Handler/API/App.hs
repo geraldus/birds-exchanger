@@ -23,78 +23,11 @@ import           Yesod.WebSockets
 default (Text)
 
 
-tagGuest :: Text
-tagGuest = "guest" :: Text
-tagAuth :: Text
-tagAuth = "auth" :: Text
-tagUser :: Text
-tagUser = "user" :: Text
-
-guestNav :: (Route App -> Text) -> (AppMessage -> Text) -> [Value]
-guestNav renderUrl message =
-    [ object
-        [ "url" .= renderUrl HomeR
-        , "label" .= message MsgMenuTitleHome
-        , "tags" .= array [ tagGuest ]
-        ]
-    , object
-        [ "url" .= renderUrl InfoListR
-        , "label" .= message MsgMenuTitleNews
-        , "tags" .= array [ tagGuest ]
-        ]
-    , object
-        [ "url" .= renderUrl TermsOfUseR
-        , "label" .= message MsgMenuTitleTermsOfUse
-        , "tags" .= array [ tagGuest ]
-        ]
-    , object
-        [ "url" .= renderUrl SignUpR
-        , "label" .= message MsgMenuTitleSignUp
-        , "tags" .= array [ tagGuest, tagAuth ]
-        ]
-    , object
-        [ "url" .= renderUrl (AuthR LoginR)
-        , "label" .= message MsgMenuTitleSignIn
-        , "tags" .= array [ tagGuest, tagAuth ]
-        ]
-    ]
-
-userNav :: (Route App -> Text) -> (AppMessage -> Text) -> [Value]
-userNav renderUrl message =
-    [ object
-        [ "url" .= renderUrl (AuthR LogoutR)
-        , "label" .= message MsgMenuTitleSignOut
-        , "tags" .= array [ tagUser, tagAuth ]
-        ]
-    , object
-        [ "url" .= renderUrl ProfileR
-        , "label" .= message MsgMenuTitleClientHistory
-        , "tags" .= array [ tagUser, "history", "account", "index" ]
-        ]
-    , object
-        [ "url" .= renderUrl ClientOrdersR
-        , "label" .= message MsgMenuTitleClientOrders
-        , "tags" .= array [ tagUser, "history", "orders", "index" ]
-        ]
-    , object
-        [ "url" .= renderUrl DepositR
-        , "label" .= message MsgMenuTitleClientDeposit
-        , "tags" .= array [ tagUser, "history", "deposit", "index" ]
-        ]
-    , object
-        [ "url" .= renderUrl WithdrawalR
-        , "label" .= message MsgMenuTitleClientWithdrawal
-        , "tags" .= array [ tagUser, "history", "withdrawal", "index" ]
-        ]
-    ]
-
-
 getApiAppConfigR :: Handler TypedContent
 getApiAppConfigR = do
     auth <- maybeClient
-    url <- getUrlRender
     message <- getMessageRender
-    dom <- appDOM <$> getYesod >>= atomically . readTMVar
+    _marketDepth <- appDOM <$> getYesod >>= atomically . readTMVar
     let defaultPairs = [ ExchangePzmRur, ExchangeOurRur, ExchangeOurPzm ]
     activePairOrders <- concat <$> runDB (mapM selectActiveOrdersOf defaultPairs)
     let domStats = foldMarketOrders defaultPairs activePairOrders

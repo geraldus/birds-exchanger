@@ -7,17 +7,15 @@ import           Local.Params           ( defaultCurrencyMonthlyParamining,
                                           defaultWalletCurrencies )
 import           Local.Persist.Currency ( Currency, currencyCodeT' )
 import           Type.Money             ( Percent, mkPercent )
-import           Type.Wallet            ( WalletData )
+import           Utils.Type
 
 import           Database.Esqueleto
 import           Text.Hamlet            ( shamletFile )
-import           Yesod.WebSockets
 
 
 getSUNoticeParaminingUserListR :: Double -> Handler Html
-getSUNoticeParaminingUserListR limit = do
-    let amountLimit = defaultLimit
-    (haveMore, uwDataPage) <- runDB $ getUsersWithParaminingDB 12 (toSqlKey 0)
+getSUNoticeParaminingUserListR amountLimit = do
+    (_, uwDataPage) <- runDB $ getUsersWithParaminingDB 12 (toSqlKey 0)
     let items = uwDataPage
         render = renderer
     defaultLayout $(widgetFile "su/notice/paramining/wallet-list")
@@ -26,40 +24,16 @@ postSUNoticeParaminingUserListR :: Double -> Handler Html
 postSUNoticeParaminingUserListR _ = do
     mayLimit <- runInputPost $ iopt doubleField "limit"
     let amountLimit = fromMaybe defaultLimit mayLimit
-    (haveMore, uwDataPage) <- runDB $ getUsersWithParaminingDB 12 (toSqlKey 0)
+    (_, uwDataPage) <- runDB $ getUsersWithParaminingDB 12 (toSqlKey 0)
     let items = uwDataPage
         render = renderer
     defaultLayout $(widgetFile "su/notice/paramining/wallet-list")
 
 
-renderer :: (Entity User, Entity UserWallet, Currency, Percent) -> Widget
-renderer (Entity uid u, Entity wid w, c, p) = do
+renderer :: (Ent User, Ent UserWallet, Currency, Percent) -> Widget
+renderer (Entity uid u, Entity _ w, c, _) = do
     renderAmount <- handlerToWidget getAmountRenderer
     toWidget $(shamletFile "templates/su/notice/paramining/wallet-item.hamlet")
-
-
-getUserParamingList :: Double -> Int -> UserWalletId -> Handler [(Entity User, WalletData)]
-getUserParamingList amountLimit perPage walletOffset = do
-    error "wip"
-    -- webSocket $ suParaminingUserListSocket
-
-suParaminingUserListSocket :: WebSocketsT Handler ()
-suParaminingUserListSocket = do
-    error "wip"
---     channels <- appChannels <$> getYesod
---     let bcDepositConfirm = appChannelsOperatorDepositConfirm channels
---     let bcWithdrawalRequest = appChannelsOperatorWithdrawalCreate channels
---     dcReadChan <- liftIO . atomically $ dupTChan bcDepositConfirm
---     wrReadChan <- liftIO . atomically $ dupTChan bcWithdrawalRequest
---     forever $ race_
---         (do
---             dc <- liftIO . atomically $ readTChan dcReadChan
---             send' $ typedUpdateJson "Deposit User Confirmation" dc)
---         (do
---             wr <- liftIO . atomically $ readTChan wrReadChan
---             send' $ typedUpdateJson "Withdrawal User Request" wr)
---   where
---     send' = sendTextData . decodeUtf8 . A.encode
 
 
 -- | Optimized query for fetching page of users which have possible paramining
@@ -77,7 +51,7 @@ getUsersWithParaminingDB ::
     -> UserWalletId
     -- ^ id offset to speed up database lookup.  This meant to be an id of
     -- last fetched user
-    -> SqlPersistT m (Bool, [(Entity User, Entity UserWallet, Currency, Percent)])
+    -> SqlPersistT m (Bool, [(Ent User, Ent UserWallet, Currency, Percent)])
 getUsersWithParaminingDB lim ofs = do
     lst <- select . from $ \(w `InnerJoin` u) -> do
         on (w ^. UserWalletUserId ==. u ^. UserId)
