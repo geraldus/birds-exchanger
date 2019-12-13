@@ -15,42 +15,42 @@ module Foundation where
 import           Import.NoFoundation
 import           Yesod.Auth.Hardcoded
 import           Yesod.Auth.Message
-import           Yesod.Core.Types           ( Logger )
-import qualified Yesod.Core.Unsafe          as Unsafe
-import           Yesod.Default.Util         ( addStaticContentExternal )
+import           Yesod.Core.Types             ( Logger )
+import qualified Yesod.Core.Unsafe            as Unsafe
+import           Yesod.Default.Util           ( addStaticContentExternal )
 import           Yesod.Form.I18n.Russian
 
 import           Local.Auth
-import           Local.Params               ( defaultWalletCurrencies )
+import           Local.Params                 ( defaultWalletCurrencies )
 import           Local.Persist.Currency
 import           Local.Persist.UserRole
-import           Market.Type                ( DOMStats )
+import           Market.Type                  ( DOMStats )
 import           Type.App
-import           Type.Money                 ( Percent (..) )
-import           Type.Wallet                ( WalletData (..) )
+import           Type.Money                   ( Percent (..) )
+import           Type.Wallet                  ( WalletData (..) )
 import           Utils.Common
-import           Utils.Database.User.Wallet ( currencyAmountPara,
-                                              getOrCreateWalletDB,
-                                              getUserWalletStatsDB,
-                                              getUserWallets )
-import           Utils.Form                 ( currencyOptionListRaw,
-                                              transferOptionsRaw )
-import           Utils.Money                ( fixedDoubleT )
-import           Utils.Render               ( renderCurrencyAmount )
+import           Utils.Database.User.Wallet   ( currencyAmountPara,
+                                                getOrCreateWalletDB,
+                                                getUserWalletStatsDB,
+                                                getUserWallets )
+import           Utils.Form                   ( currencyOptionListRaw,
+                                                transferOptionsRaw )
+import           Utils.Money                  ( fixedDoubleT )
+import           Utils.Render                 ( renderCurrencyAmount )
 
-import           Control.Monad.Logger       ( LogSource )
-import qualified Crypto.Nonce               as CN
-import qualified Data.CaseInsensitive       as CI
-import           Data.List                  ( findIndex )
-import qualified Data.Text.Encoding         as TE
-import           Data.Time.Clock.POSIX      ( utcTimeToPOSIXSeconds )
-import           Data.Version               ( showVersion )
-import           Database.Persist.Sql       ( ConnectionPool, fromSqlKey,
-                                              runSqlPool )
-import           Paths_prizm_exchange       ( version )
-import           Text.Hamlet                ( hamletFile )
-import           Text.Jasmine               ( minifym )
-import           Text.Read                  ( readMaybe )
+import           Control.Monad.Logger         ( LogSource )
+import qualified Crypto.Nonce                 as CN
+import qualified Data.CaseInsensitive         as CI
+import           Data.List                    ( findIndex )
+import qualified Data.Text.Encoding           as TE
+import           Data.Time.Clock.POSIX        ( utcTimeToPOSIXSeconds )
+import           Data.Version                 ( showVersion )
+import           Database.Persist.Sql         ( ConnectionPool, fromSqlKey,
+                                                runSqlPool )
+import           Paths_prizm_exchange         ( version )
+import           Text.Hamlet                  ( hamletFile )
+import           Text.Jasmine                 ( minifym )
+import           Text.Read                    ( readMaybe )
 
 
 exchangerName :: Text
@@ -150,6 +150,10 @@ instance Yesod App where
         let isEditorLoggedIn = isEditorUser muser
         let isOperatorLoggedIn = isOperatorUser muser
         let isSuLoggedIn = isSU muser
+        let maybeClientUser = case muser of
+                (Just (Left uid, Left user@(User _ _ Client))) ->
+                    Just (uid, user)
+                _ -> Nothing
         wallets <- if isClientLoggedIn then getUserBalnaces else pure []
         currentRoute <- getCurrentRoute
         case currentRoute of
