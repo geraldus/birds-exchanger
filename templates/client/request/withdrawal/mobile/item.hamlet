@@ -5,7 +5,7 @@
             <div .col-5>
                 <small>
                     #{cents2dblT withdrawalRequestCentsAmount}
-                    <small .text-muted>#{currSign withdrawalCurrency}
+                    <small .text-muted>#{currencySymbol withdrawalCurrency}
                     <br>
                     <small .text-muted>
                         _{transferMethodMsg withdrawalRequestMethod}

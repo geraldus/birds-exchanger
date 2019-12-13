@@ -8,7 +8,7 @@ module Handler.Client.Withdrawal where
 import           Import                  as I hiding ( on, (==.) )
 
 import           Form.Profile.Withdrawal
-import           Local.Persist.Currency  ( Currency (..), currSign )
+import           Local.Persist.Currency  ( Currency (..), currencySymbol )
 import           Local.Persist.Wallet
 import           Type.Money              ( Money (..) )
 import           Type.Withdrawal
@@ -183,7 +183,7 @@ genericRow (Entity ident r@WithdrawalRequest{..}) c strikeout expected status =
     valueW = [whamlet|
         #{cents2dblT withdrawalRequestCentsAmount}#
         <small .text-muted>
-            #{currSign c}
+            #{currencySymbol c}
         |]
 
 genericRequestAmount :: (Int, Bool) -> Currency -> Widget -> Widget
@@ -191,8 +191,9 @@ genericRequestAmount (a, _) c d =
     [whamlet|
         #{sign}#{ac}#
         <small .text-muted>
-            #{currSign c}
-        <small .text-muted>^{d}
+            #{currencySymbol c}
+        <small .text-muted>
+            ^{d}
         |]
   where
     sign = if a == 0 then "" else "-" :: String

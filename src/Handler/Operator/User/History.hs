@@ -395,11 +395,11 @@ renderAmount amt cur = [shamlet|
         <big>
             #{centsT}#
             <small .text-muted>
-                \#{sign} |]
+                \#{currency} |]
   where
     centsT' = cents2dblT amt
     prefix = if amt > 0 then "+" else ""
     centsT = prefix <> centsT'
-    sign = currSign cur
+    currency = currencySymbol cur
 
 

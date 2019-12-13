@@ -12,7 +12,9 @@
                 data-filter="#{toLower (currencyCodeT (userWalletCurrency wallet))}"
                 href="#"
                 role="tab"
-                aria-selected="false">#{currSign (userWalletCurrency wallet)}
+                aria-selected="false"
+                >
+                #{currencySymbol (userWalletCurrency wallet)}
 
 ^{walletTotals}
 

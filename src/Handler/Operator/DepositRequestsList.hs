@@ -5,17 +5,18 @@
 {-# LANGUAGE TypeFamilies      #-}
 module Handler.Operator.DepositRequestsList where
 
-import           Import                 as I hiding ( on, (==.) )
-import           Local.Persist.Currency ( currSign, tmTShort )
-import           Local.Persist.Wallet   ( DepositRequestStatus (..) )
-import           Utils.Common           ( selectLocale )
+import           Import                       as I hiding ( on, (==.) )
+import           Local.Persist.Currency       ( currencySymbol )
+import           Local.Persist.TransferMethod ( tmTShort )
+import           Local.Persist.Wallet         ( DepositRequestStatus (..) )
+import           Utils.Common                 ( selectLocale )
 import           Utils.Deposit
 import           Utils.Money
 import           Utils.Render
 import           Utils.Time
 
-import           Database.Esqueleto     as E
-import           Database.Persist.Sql   ( fromSqlKey )
+import           Database.Esqueleto           as E
+import           Database.Persist.Sql         ( fromSqlKey )
 
 
 getOperatorDepositRequestsListR :: Handler Html
@@ -57,8 +58,8 @@ getOperatorDepositRequestsListR = do
 
 renderSums :: DepositRequest -> Html
 renderSums req@DepositRequest{..} =
-    let iC = currSign depositRequestCurrency
-        tC = currSign depositRequestTargetCurrency
+    let iC = currencySymbol depositRequestCurrency
+        tC = currencySymbol depositRequestTargetCurrency
         ratio = 1
         ratioT = renderRequestRatio req
         reqAmt = depositRequestCentsAmount

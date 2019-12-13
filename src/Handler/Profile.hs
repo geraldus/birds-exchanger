@@ -4,7 +4,7 @@
 module Handler.Profile where
 
 import           Import
-import           Local.Persist.Currency     ( Currency, currSign, currencyCodeT,
+import           Local.Persist.Currency     ( Currency, currencyCodeT,
                                               currencyCodeT', currencyNameT,
                                               currencySymbol )
 import           Local.Persist.Wallet

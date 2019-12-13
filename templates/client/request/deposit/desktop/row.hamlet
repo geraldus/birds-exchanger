@@ -3,7 +3,7 @@
     <td .align-middle>
         #{cents2dblT depositRequestCentsAmount}#
         <small .text-muted>
-            #{currSign depositRequestCurrency}
+            #{currencySymbol depositRequestCurrency}
         <br>
         <small .text-muted>
             _{transferMethodMsg depositRequestTransferMethod}

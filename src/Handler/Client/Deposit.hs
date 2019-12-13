@@ -7,7 +7,7 @@ module Handler.Client.Deposit where
 import           Import                 as I hiding ( on, (==.) )
 
 import           Form.Profile.Deposit
-import           Local.Persist.Currency ( Currency (..), currSign )
+import           Local.Persist.Currency ( Currency (..), currencySymbol )
 import           Local.Persist.Wallet   ( DepositRequestStatus (..) )
 import           Type.App
 import           Utils.App.Client
@@ -198,12 +198,12 @@ genericRequestAmount (a, rejected, f, c) d =
             $else
                 <b>#{ac}#
             <small .text-muted>
-                #{currSign c}
+                #{currencySymbol c}
         <br>
         <small .text-muted>
             #{sign}#{cents2dblT f}#
             <small>
-                #{currSign c}
+                #{currencySymbol c}
             ^{d}
         |]
   where

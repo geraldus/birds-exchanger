@@ -87,7 +87,7 @@ $forall ((Entity reqId req), _, Entity userId u, mayAddr) <- list
                                     #{userIdent u}
                         <div .form-group>
                             <label for="#{fromSqlKey reqId}-deposit-amount">
-                                Полученная сумма (#{currSign (depositRequestCurrency req)})
+                                Полученная сумма (#{currencySymbol (depositRequestCurrency req)})
                                 <small .text-muted>уточните сумму, полученную в переводе
                             <input
                                 ##{fromSqlKey reqId}-deposit-amount
@@ -110,18 +110,18 @@ $forall ((Entity reqId req), _, Entity userId u, mayAddr) <- list
                                 <span>(#
                                 <span .income-val>-#
                                 <span .income-cur>
-                                    <small>#{currSign (depositRequestCurrency req)}
+                                    <small>#{currencySymbol (depositRequestCurrency req)}
                                 <span> - #
                                 <span .fee-val>-#
                                 <span .fee-cur>
-                                    <small>#{currSign (depositRequestCurrency req)}
+                                    <small>#{currencySymbol (depositRequestCurrency req)}
                                 <span>) #
                                 <small>x
                                     <span .ratio-val>#{renderRequestRatio req}
                                 <span> = #
                                 <span .total-val>-#
                                 <span .total-cur>
-                                    <small>#{currSign (depositRequestTargetCurrency req)}
+                                    <small>#{currencySymbol (depositRequestTargetCurrency req)}
                             <p .text-muted>
                                 <small>Комиссия: #
                                 <span .fee-percent-val>#{renderReqFeeAsPct req}#
@@ -133,10 +133,10 @@ $forall ((Entity reqId req), _, Entity userId u, mayAddr) <- list
                                     <span>(#
                                     <span .income-val>#{cents2dblT (depositRequestCentsAmount req)}#
                                     <span .income-cur>
-                                        <small>#{currSign (depositRequestCurrency req)}
+                                        <small>#{currencySymbol (depositRequestCurrency req)}
                                     <span> - #
                                     <span .fee-val>#{cents2dblT (depositRequestExpectedFeeCents req)}#
-                                    <span .fee-cur><small>#{currSign (depositRequestCurrency req)}</small>#
+                                    <span .fee-cur><small>#{currencySymbol (depositRequestCurrency req)}</small>#
                                     <span>) #
                                     <small>x
                                         <!-- TODO: We should take ratio from request here
@@ -147,7 +147,7 @@ $forall ((Entity reqId req), _, Entity userId u, mayAddr) <- list
                                     <span> = #
                                     <span .total-val>#{renderRequestExpectedTotal req}#
                                     <span .total-cur>
-                                        <small>#{currSign (depositRequestTargetCurrency req)}
+                                        <small>#{currencySymbol (depositRequestTargetCurrency req)}
                     <div .modal-footer>
                         <div .container-fluid>
                             <div .row .justify-content-around>

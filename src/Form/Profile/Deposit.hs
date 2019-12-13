@@ -61,7 +61,10 @@ fromMaybeMinAmountDesc :: Maybe Currency -> Html
 fromMaybeMinAmountDesc mc = [shamlet|#{messages}|]
     where
         messages = intercalate " / " cs'
-        cs' = flip map cs $ \c -> [shamlet|#{cents2dblT (currencyDefaultMinimalDeposit c)} #{currSign c}|]
+        cs' = flip map cs $ \c ->
+            let amountCents = (cents2dblT . currencyDefaultMinimalDeposit) c
+                symbol = currencySymbol c
+            in [shamlet|#{amountCents}&nbsp;#{symbol}|]
         cs = fromMaybeMinAmountCurrencies mc
 
 fromMaybeMinAmountCurrencies :: Maybe Currency -> [ Currency ]

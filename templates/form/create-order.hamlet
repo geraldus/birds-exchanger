@@ -18,7 +18,7 @@
             ^{fvInput amountView}
             <div .input-group-append>
                 <span .input-group-text ##{wrapid}-out-currency-append>
-                    #{currSign currencyOut}
+                    #{currencySymbol currencyOut}
         <div
             .input-group
             .col-8
@@ -32,7 +32,7 @@
             ^{fvInput ratioView}
             <div .input-group-append>
                 <span .input-group-text ##{wrapid}-rate-append>
-                    #{currSign currencyIn}/#{currSign currencyOut}
+                    #{currencySymbol currencyIn}/#{currencySymbol currencyOut}
     <div .row .justify-content-center .order-form-stats>
         <table .col-11 .col-sm-6 .table.table-borderless .text-white-50 .mb-0>
             <thead>
@@ -47,15 +47,15 @@
                         <span .val>-#
                         \&nbsp;#
                         <span .cur-sign ##{wrapid}-in-currency-sum>
-                            #{currSign currencyIn}
+                            #{currencySymbol currencyIn}
                     <td ##{feeid}-tbl>
                         <span .val.take>-#
                         <span .val.give>-#
                         \&nbsp;#
                         <span .cur-sign-give ##{wrapid}-out-currency-fee>
-                            #{currSign currencyOut}
+                            #{currencySymbol currencyOut}
                         <span .cur-sign-take ##{wrapid}-in-currency-fee>
-                            #{currSign currencyIn}
+                            #{currencySymbol currencyIn}
                     <th
                         ##{sumid}-total-tbl
                         .text-left
@@ -66,6 +66,6 @@
                         <span .val.give>-#
                         \&nbsp;#
                         <span .cur-sign-give ##{wrapid}-out-currency-total>
-                            #{currSign currencyOut}
+                            #{currencySymbol currencyOut}
                         <span .cur-sign-take ##{wrapid}-in-currency-total>
-                            #{currSign currencyIn}
+                            #{currencySymbol currencyIn}

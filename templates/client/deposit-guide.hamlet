@@ -5,7 +5,7 @@
                 _{MsgTransfer}
                 <span .font-weight-bold>
                     #{cents2dblT cents}
-                    <small>#{currSign curr}</small>
+                    <small>#{currencySymbol curr}</small>
                 #{desc} #
                 <br>
                 <span .font-weight-bold style="word-break: break-all">
@@ -38,7 +38,7 @@
                     <input .form-control readonly value=#{cents2dblT cents}>
                     <div .input-group-append>
                         <span .input-group-text>
-                            #{currSign curr}
+                            #{currencySymbol curr}
     <div .row .justify-content-center>
         <div .col-12 .col-md-8 .alert .alert-warning role="alert">
             _{MsgFormPromptDepositConfirm}

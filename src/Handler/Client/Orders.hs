@@ -6,7 +6,7 @@ module Handler.Client.Orders where
 
 import           Import
 
-import           Local.Persist.Currency ( currSign )
+import           Local.Persist.Currency ( currencySymbol )
 import           Local.Persist.Exchange ( ExchangeOrderStatus (..),
                                           ExchangePair (..) )
 import           Local.Persist.Wallet   ( TransactionTypePlain (..),
@@ -323,12 +323,12 @@ renderMobileOrderCard (Entity oid o@ExchangeOrder{..}) = [whamlet|
                     <a href=@{ClientOrderViewR oid}>
                         <small>
                             #{cents2dblT exchangeOrderAmountCents}
-                            <small .text-muted>#{currSign outCurrency}
+                            <small .text-muted>#{currencySymbol outCurrency}
                 <div .col-4 .text-right>
                     <a href=@{ClientOrderViewR oid}>
                         <small>
                             #{cents2dblT inAmountCents}&nbsp;#
-                            <small .text-muted>#{currSign inCurrency}
+                            <small .text-muted>#{currencySymbol inCurrency}
     |]
     where
         (outCurrency, inCurrency) = unPairCurrency exchangeOrderPair
@@ -345,10 +345,10 @@ renderOrderRate order = [shamlet|
     rate = exchangeOrderNormalizedRatio order
 
 renderPairOut :: ExchangePair -> Html
-renderPairOut = toHtml . currSign . fst . unPairCurrency
+renderPairOut = toHtml . currencySymbol . fst . unPairCurrency
 
 renderPairIn :: ExchangePair -> Html
-renderPairIn = toHtml . currSign . snd . unPairCurrency
+renderPairIn = toHtml . currencySymbol . snd . unPairCurrency
 
 renderOrderNRatioSign :: ExchangeOrder -> Html
 renderOrderNRatioSign order = [shamlet|
