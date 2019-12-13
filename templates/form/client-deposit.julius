@@ -2,7 +2,11 @@ $(document).ready(() => {
     const currencySelect = $('##{rawJS cid}')
 
     let transferMethodSelect = $('##{rawJS tid}')
-    let defaultOption = $('<option disabled selected value="">укажите способ перевода</option>')
+    let defaultOption = $([
+        '<option disabled selected value="">',
+        '#{rawJS(messageRender MsgFormLabelOptionSelectDepositTransferMethod)}',
+        '</option>'
+    ].join())
     transferMethodSelect.prepend(defaultOption)
 
     const transferMethods = $('##{rawJS tid} option')

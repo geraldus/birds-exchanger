@@ -122,10 +122,17 @@
                     ^{modalOrderCreateFormW}
                     <div .row>
                         $maybe _ <- mayClientUser
-                            <button .btn .btn-outline-warning .btn-lg .text-lowercase .mx-auto type=submit>_{MsgOneClickExchange}
+                            <button
+                                .btn
+                                .btn-outline-warning
+                                .btn-lg .text-lowercase
+                                .mx-auto
+                                type=submit
+                                >
+                                _{MsgOneClickExchange}
                         $nothing
                             <div .text-muted .mx-auto>
-                                <small>
-                                    авторизуйтесь для обмена
+                                <a .text-muted href="@{AuthR LoginR}">
+                                    _{MsgFormMessageSignInToTrade}
 
 ^{featured}

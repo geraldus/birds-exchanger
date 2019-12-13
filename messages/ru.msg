@@ -1,5 +1,6 @@
-CurrencyExchangeService: Сервис обмена валют
 ProjectName: OutBirds
+CurrencyExchangeService: Сервис обмена валют
+CurrencyExchangeSlang: Обменник
 Info: Инфо
 TermsOfUse: Правила
 BlackList: Чёрный список
@@ -65,6 +66,7 @@ FormPromptDepositPayerAddress: Для зачисления средств ука
 FormHelpPasswordForgetEmail: Для сброса пароля, пожалуйста, введите адрес электронной почты
 FormLabelForgotPassword: Забыли пароль?
 FormHelpNewPassword: Введите новый пароль, не менее 6 символов
+FormLabelOptionSelectDepositTransferMethod: укажите способ перевода
 
 ## Form Messages
 
@@ -178,8 +180,12 @@ Remainder: Остаток
 Withdraw: Вывод
 Deposit: Пополнение
 Amount: Сумма
+Currency: Валюта
+DepositAmount: Сумма пополнения
 QuantityShort: Кол-во
 ParaMining: Парамайнинг
+DepositMethod: Способ пополнения
+TransferMethod: Способ перевода
 
 
 # DEPOSIT / WITHDRAWAL
@@ -207,10 +213,7 @@ CantViewThisOrder: Невозможно отобразить данные орд
 ViewOrderHistory: Показать историю ордера
 CancelRequest: Отменить заявку
 UserCancelled: Отменён пользователем
-
-
 ProcessRequest: Обработать запрос
-TransferMethod: Способ перевода
 ExpectedCalculation: Ожидаемый расчёт
 ActualCalculation: Расчёт по факту
 

@@ -1,18 +1,22 @@
 #{extra}
 <div ##{inCurrencyId} .form-group>
-    <label for=#{cid}>Валюта
+    <label for=#{cid}>
+        #{messageRender MsgCurrency}
     ^{fvInput paymentCurrencyView}
     $maybe errors <- fvErrors paymentCurrencyView
-        <div .invalid-feedback> #{errors}
-<!-- <div ##{inTargetCurrencyId} .form-group>
-    ^{fvInput targetCurrencyView} -->
+        <div .invalid-feedback>
+            #{errors}
 <div .form-group>
-    <label for=#{tid}>Способ пополнения
+    <label for=#{tid}>
+        #{messageRender MsgDepositMethod}
     ^{fvInput transferMethodView}
     $maybe errors <- fvErrors transferMethodView
-        <div .invalid-feedback> #{errors}
+        <div .invalid-feedback>
+            #{errors}
 <div .form-group>
-    <label for=#{aid}>Сумма пополнения
+    <label for=#{aid}>
+        #{messageRender MsgDepositAmount}
     ^{fvInput paymentAmountView}
     $maybe errors <- fvErrors paymentAmountView
-        <div .invalid-feedback> #{errors}
+        <div .invalid-feedback>
+            #{errors}
