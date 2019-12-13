@@ -765,7 +765,8 @@ supportEmail :: Text
 supportEmail = "support@outb.info"
 
 setAppTitle :: [ AppMessage ] -> Widget
-setAppTitle = setCompositeTitle . (:) MsgProjectName
+setAppTitle ms = setCompositeTitle $
+    ms <> [MsgProjectName, MsgCurrencyExchangeService, MsgCurrencyExchangeSlang]
 
 setAppPageTitle :: AppMessage -> Widget
 setAppPageTitle = setAppTitle . (: [])
