@@ -23,7 +23,7 @@
                     <b>
                         #{cents2dblT (withdrawalRequestCentsAmount req)}
                         &nbsp;
-                        #{currSign (userWalletCurrency wallet)}
+                        #{currencySymbol (userWalletCurrency wallet)}
                     <br>
                     <small>
                         <a
@@ -61,7 +61,7 @@ $forall (Entity reqId r, Entity _ w, Entity userId u) <- list
 
                         <p .lead .text-center>Переведите #
                             <big>#{cents2dblT (reqTransferAmount w r)}#
-                                <small>#{currSign (userWalletCurrency w)}
+                                <small>#{currencySymbol (userWalletCurrency w)}
 
                         <p>
                             <small>_{MsgUser} #
@@ -74,12 +74,12 @@ $forall (Entity reqId r, Entity _ w, Entity userId u) <- list
                             <small>
                                 <span>Удержано средств: #
                             <span>#{cents2dblT (withdrawalRequestFrozenAmount r)}#
-                                <small>#{currSign (userWalletCurrency w)}#
+                                <small>#{currencySymbol (userWalletCurrency w)}#
                             <br>
                             <small>
                                     <span>Комиссия на текущий момент: #{renderWalletCurrentFee w}%
                             <span>= #{renderReqFee w r}
-                                <small>#{currSign (userWalletCurrency w)}#
+                                <small>#{currencySymbol (userWalletCurrency w)}#
                         <input
                             ##{fromSqlKey reqId}-withdrawal-id
                             type=hidden
