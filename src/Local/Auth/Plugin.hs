@@ -92,20 +92,11 @@ genericPostLoginR username password = do
     if authRes == AuthSuccess
         then setCredsRedirect pluginCreds
         else
-            if authRes == AuthSuccessNeedReset
-                then do
-                    -- y <- getYesod
-                    {- @TODO @FIXME Provide SubSite's messages module
-                       Yes, written by hand with no TemplateHaskell, boys -}
-                    addMessage "success" msgUpdatePasswordTpl
-                    setCredsRedirect pluginCreds
-                else loginErrorMessageI LoginR
-                    (if authRes == InvalidAuthPair
-                        then Msg.InvalidUsernamePass
-                        else Msg.IdentifierNotFound username)
-  where
-    msgUpdatePasswordTpl =  $(shamletFile
-            "templates/messages/please-update-password.hamlet")
+            loginErrorMessageI
+                LoginR
+                (if authRes == InvalidAuthPair
+                    then Msg.InvalidUsernamePass
+                    else Msg.IdentifierNotFound username)
 
 checkCreds ::
        (PrizmAuthPlugin site, YesodPersistBackend site ~ SqlBackend)

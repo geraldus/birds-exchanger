@@ -18,15 +18,3 @@
         _{MsgReferralStats}
     <dd  .form-group .col-12 .col-md-9>
         ^{refStatsW (entityKey user)}
-
-$if shouldNoticeAboutPasswordChange
-    <div .row .flex>
-        <div .alert .alert-warning .col-11 .col-md-6 .mx-auto .mx-md-0>
-            <small>
-                Ваш пароль недостаточно защищён.
-                <hr>
-                Мы улучшили механику создания и хранения паролей. Теперь
-                все пароли хранятся в хэшированном виде.
-                <hr>
-                Предлагаем Вам установить новый пароль.  Новый пароль будет
-                сохранён более надёжным способом, чем прежний.
