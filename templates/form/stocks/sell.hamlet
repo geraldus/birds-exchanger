@@ -1,0 +1,42 @@
+<form ##{formId} .#{formClass} action="#" method=post>
+    <div .form-group>
+        <label .form-label for="#{formId}-sell-method-select" .text-muted>
+            _{MsgSellMethod}
+        <select
+            ##{formId}-sell-method-select
+            .form-control
+            disabled
+            aria-describedby="#{formId}-sell-method-help"
+            >
+            <option value="">
+                _{MsgFormOptionsStocksSelectSellMethod}
+            <small ##{formId}-sell-method-help .form-text .text-muted>
+                _{MsgFormLabelStocksSellNotAvailableYet}
+    <div .form-group>
+        <label .form-label for="#{formId}-stocks-select" .text-muted>
+            _{MsgStocksPack}
+        <select
+            ##{formId}-stocks-select
+            .form-control
+            aria-describedby="#{formId}-stocks-price-help"
+            disabled
+            >
+            <option value="">
+                _{MsgFormOptionsStocksSelectStocksPack}
+        <small ##{formId}-stocks-price-help .form-text .text-muted>
+            _{MsgFormLabelStocksSellNotAvailableYet}
+    <div .form-group>
+        <label .form-label for="#{formId}-buy-amount-input" .text-muted>
+            _{MsgAmount}
+        <input
+            ##{formId}-buy-amount-input
+            .form-control
+            type="number"
+            min="1"
+            step="0"
+            placeholder="_{MsgFormPlaceholderStocksAmount}"
+            disabled
+            aria-describedby="#{formId}-stocks-price-total-help"
+            >
+        <small ##{formId}-stocks-price-total-help .form-text .text-muted>
+            _{MsgFormLabelStocksSellNotAvailableYet}

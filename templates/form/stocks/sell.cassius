@@ -1,0 +1,4 @@
+##{formId}
+    input[disabled], select[disabled]
+        background: transparent
+        border-color: rgba(0, 0, 0, 0.05)
