@@ -3,6 +3,8 @@ CurrencyExchangeService: Сервис обмена валют
 CurrencyExchangeSlang: Обменник
 Info: Инфо
 TermsOfUse: Правила
+Stocks: Акции
+Tokens: Токены
 BlackList: Чёрный список
 VerPublicBeta: Общедоступная β
 
@@ -37,12 +39,13 @@ PasswordChangeGuideTitle: Инструкции по изменению паро�
 HomePageTitle: Главная страница
 SignInPageTitle: Вход
 SignUpPageTitle: Регистрация
+PageTitleStocks: Покупка и продажа акций
 NavShowMenu: Показать меню
 NavHostNameGoHome host@Text: #{host} - главная страница
 
 ## CLIENT
 
-ClientProfilePageTitle: Мой портфель
+ClientProfilePageTitle: История
 ClientOrdersPageTitle: Мои ордера
 ClientDepositPageTitle: Пополнение счёта
 ClientWithdrawalPageTitle: Вывод средств
@@ -186,6 +189,8 @@ QuantityShort: Кол-во
 ParaMining: Парамайнинг
 DepositMethod: Способ пополнения
 TransferMethod: Способ перевода
+BuyMethod: Способ покупки
+SellMethod: Способ продажи
 
 
 # DEPOSIT / WITHDRAWAL
@@ -217,6 +222,32 @@ ProcessRequest: Обработать запрос
 ExpectedCalculation: Ожидаемый расчёт
 ActualCalculation: Расчёт по факту
 
+
+# STOCKS
+
+StocksSubtitleBuy: Покупка
+StocksSubtitleSell: Продажа
+StocksPack: Пакет
+StocksPackTitleFenixStart: Старт
+StocksPackTitleFenixStandard: Стандарт
+StocksPackTitleFenixPremium: Премиум
+FormOptionsStocksSelectBuyMethod: выберите способ покупки
+FormOptionsStocksInnerWalletBuyMethod c@Currency: со внутреннего #{currencySymbol c} кошелька платформы
+FormOptionsStocksPersonalWalletTransfer c@Currency: перевод с личного кошелька #{currencySymbol c}
+FormOptionsStocksSelectSellMethod: выберите способ получения средств
+FormOptionsStocksConvertToInnerWalletMethod: перевод на счёт аккаунта платформы
+FormOptionsStocksTransferToPersonalWalletMethod: перевод на эл.кошелёк
+FormPlaceholderStocksAmount: кол-во акций
+FormOptionsStocksSelectStocksPack: выберите пакет
+FormLabelStocksPrice c@Currency q@Text: цена за акцию (#{currencySymbol c}/#{q})
+FormLabelStocksPriceAmountTotal c@Currency amt@Text: итого: #{amt}#{currencySymbol c}
+FormLabelStocksPriceTotal: итого
+FormLabelStocksBonusTokens: получаете токенов в подарок
+FormButtonStocksBuy: купить
+FormButtonStocksSell: продать
+FormLabelStocksSellNotAvailableYet: продажа акций ещё не открыта
+FormTextSignInToTrade: Авторизуйтесь на платформе для торговли акциями
+FormErrorExceededAvailableStocks: Невозможно приобрести такое количество акций
 
 # OPERATORS
 
