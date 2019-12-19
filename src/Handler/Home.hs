@@ -63,6 +63,10 @@ getHomeR = do
     let exHistory = exchangeHistoryW (zip defaultPairs exchanges)
     let statsDOM = reduceDomStats [] $ concat orders
     messageRender <- getMessageRender
+    projType <- appType . appSettings <$> getYesod
+    let logoRoute = if projType == FenixApp
+            then StaticR images_fenix_logo_png
+            else StaticR images_logo__sayt_png
     defaultLayout $ do
         setAppPageTitle MsgHomePageTitle
         $(widgetFile "homepage")

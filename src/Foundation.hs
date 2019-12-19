@@ -140,11 +140,12 @@ instance Yesod App where
     defaultLayout :: Widget -> Handler Html
     defaultLayout widget = do
         let appVersion = showVersion version
-        master <- getYesod
+        master          <- getYesod
+        muser           <- maybeAuthPair
+        currentRoute    <- getCurrentRoute
         sessionMessages <- getMessages
-        muser <- maybeAuthPair
-        mr    <- getMessageRender
-        setReferrerHttpOnlyCookie
+        mr              <- getMessageRender
+        renderedUrl     <- getUrlRender
         -- ^ @Handler (Maybe (Either UserId Text, Either User SuperUser))@
         let muserName = userNameF . snd <$> muser
         let isClientLoggedIn = isClientUser muser
@@ -154,7 +155,6 @@ instance Yesod App where
         let isSuLoggedIn = isSU muser
         let maybeClientUser = join $ eitherClientToMaybe <$> muser
         wallets <- if isClientLoggedIn then getUserBalnaces else pure []
-        currentRoute <- getCurrentRoute
         case currentRoute of
             Just ( PasswordResetR _) -> return ()
             Just url
@@ -163,10 +163,8 @@ instance Yesod App where
                 | url == AuthR LogoutR -> setUltDest HomeR
                 | otherwise -> return ()
             _ -> return ()
-
         -- Get the breadcrumbs, as defined in the YesodBreadcrumbs instance.
         (title, parents) <- breadcrumbs
-
         -- Define the menu items of the header.
         let menuItems =
                 [ NavbarLeft $ MenuItem
@@ -252,13 +250,24 @@ instance Yesod App where
 
         navUserDropdownId   <- newIdent
         navManageDropdownId <- newIdent
-        -- We break up the default layout into two components:
-        -- default-layout is the contents of the body tag, and
-        -- default-layout-wrapper is the entire page. Since the final
-        -- value passed to hamletToRepHtml cannot be a widget, this allows
-        -- you to use normal widget features in default-layout.
+
+        let settings = appSettings master
+        let projType = appType settings
+
+        let projNavBGColor = if projType == FenixApp
+                then "#0d011c" :: Text
+                else "rgb(14, 14, 14)"
+        let logoSrc = if projType == FenixApp
+                then renderedUrl $ StaticR images_fenix_logo_png
+                else renderedUrl $ StaticR images_logo_header_png
+        let hostname = if projType == FenixApp
+                then "FENIX.TRADING"
+                else "OutBirds"
+
         let defaultMobileNav = $(widgetFile "default-nav-mobile")
         let defaultDesktopNav = $(widgetFile "default-nav-desktop")
+
+        setReferrerHttpOnlyCookie
         pc <- widgetToPageContent $ do
             $(widgetFile "form/common")
             $(widgetFile "default-nav")
@@ -396,54 +405,61 @@ instance YesodBreadcrumbs App where
         -> Handler (Text, Maybe (Route App))
     breadcrumb r = do
         mr <- getMessageRender
+        isFenixApp <- (== FenixApp) . appType . appSettings <$> getYesod
         -- TODO: FIXME: Do not show breadcrumbs for non-staff users
-        breadcrumb' mr r
+        breadcrumb' isFenixApp mr r
       where
-        breadcrumb'
-            :: (AppMessage -> Text)
+        breadcrumb' ::
+               Bool
+            -> (AppMessage -> Text)
             -> Route App  -- ^ The route the user is visiting currently.
             -> Handler (Text, Maybe (Route App))
-        breadcrumb' mr HomeR      = return (mr MsgProjectName, Nothing)
-        breadcrumb' _ (AuthR _)   = return ("Вход", Just HomeR)
-        breadcrumb' _ SignUpR     = return ("Регистрация", Just HomeR)
-        breadcrumb' mr StocksR    = return (mr MsgPageTitleStocks, Nothing)
-        breadcrumb' mr PasswordChangeR =
+        breadcrumb' isFenix mr HomeR =
+            return (mr (projectName isFenix), Nothing)
+        breadcrumb' _ _ (AuthR _)   = return ("Вход", Just HomeR)
+        breadcrumb' _ _ SignUpR     = return ("Регистрация", Just HomeR)
+        breadcrumb' _ mr StocksR    = return (mr MsgPageTitleStocks, Nothing)
+        breadcrumb' _ mr PasswordChangeR =
             return (mr MsgPasswordSetupTitle, Just HomeR)
-        breadcrumb' mr PasswordChangeGuideR =
+        breadcrumb' _ mr PasswordChangeGuideR =
             return (mr MsgPasswordChangeGuideTitle, Just HomeR)
-        breadcrumb' mr (PasswordResetR _) =
+        breadcrumb' _ mr (PasswordResetR _) =
             return (mr MsgPasswordSetupTitle, Just HomeR)
-        breadcrumb' _ ProfileR    = return ("Портфель", Just HomeR)
-        breadcrumb' _ ClientOrdersR = return ("Мои ордера на обмен", Just HomeR)
-        breadcrumb' mr ClientSettingsR =
+        breadcrumb' _ _ ProfileR    = return ("Портфель", Just HomeR)
+        breadcrumb' _ _ ClientOrdersR =
+            return ("Мои ордера на обмен", Just HomeR)
+        breadcrumb' _ mr ClientSettingsR =
             return (mr MsgClientSettingsPageTitle, Just HomeR)
-        breadcrumb' _ (ClientOrderViewR oid) = return
+        breadcrumb' _ _ (ClientOrderViewR oid) = return
             ("Ордер #" <> (pack . show  .fromSqlKey) oid, Just ClientOrdersR)
-        breadcrumb' _ DepositR    = return ("Внесение средств", Just ProfileR)
-        breadcrumb' _ (DepositRequestConfirmationR _) =
+        breadcrumb' _ _ DepositR    = return ("Внесение средств", Just ProfileR)
+        breadcrumb' _ _ (DepositRequestConfirmationR _) =
             return ("Подтверждение", Just DepositR)
-        breadcrumb' _ WithdrawalR = return ("Вывод средств", Just ProfileR)
-        breadcrumb' _ WithdrawalCreateR =
+        breadcrumb' _ _ WithdrawalR = return ("Вывод средств", Just ProfileR)
+        breadcrumb' _ _ WithdrawalCreateR =
             return ("Вывод средств", Just ProfileR)
-        breadcrumb' _ OperatorLogInR = return ("Оператор / Вход", Just HomeR)
-        breadcrumb' _ OperatorDepositRequestsListR =
+        breadcrumb' _ _ OperatorLogInR = return ("Оператор / Вход", Just HomeR)
+        breadcrumb' _ _ OperatorDepositRequestsListR =
             return ("Заявки на пополнение", Just HomeR)
-        breadcrumb' _ OperatorWithdrawalRequestsListR =
+        breadcrumb' _ _ OperatorWithdrawalRequestsListR =
             return ("Заявки на вывод", Just HomeR)
-        breadcrumb' _ SuperUserFinancialReportViewR =
+        breadcrumb' _ _ SuperUserFinancialReportViewR =
             return ("Финансовая отчётность", Just HomeR)
-        breadcrumb' _ AdminLogInR =
+        breadcrumb' _ _ AdminLogInR =
             return ("Вход для супер-пользователя", Just HomeR)
-        breadcrumb' mr TermsOfUseR = return (mr MsgTermsOfUse, Just HomeR)
-        breadcrumb' mr InfoListR = return (mr MsgInfoListTitle, Just HomeR)
-        breadcrumb' _ (InfoViewR alias) = do
+        breadcrumb' _ mr TermsOfUseR = return (mr MsgTermsOfUse, Just HomeR)
+        breadcrumb' _ mr InfoListR = return (mr MsgInfoListTitle, Just HomeR)
+        breadcrumb' _ _ (InfoViewR alias) = do
             i <- runDB $ getBy404 (UniqueInfoAlias alias)
             return ((infoTitle . entityVal) i, Just InfoListR)
-        breadcrumb' mr ManageInfoIndexR =
+        breadcrumb' _ mr ManageInfoIndexR =
                 return (mr MsgManage <> " / " <> mr MsgInfo, Just HomeR)
-        breadcrumb' mr ManageInfoAddR =
+        breadcrumb' _ mr ManageInfoAddR =
                 return (mr MsgNewArticle, Just ManageInfoIndexR)
-        breadcrumb' _ _          = return ("*", Nothing)
+        breadcrumb' _ _ _          = return ("*", Nothing)
+        projectName f = if f
+            then MsgProjectNameFenix
+            else MsgProjectNameOutbirds
 
 
 -- How to run database actions.
@@ -666,7 +682,7 @@ maybeClientAuthPair = do
 eitherClientToMaybe ::
     (Either UserId Text, Either User SuperUser) -> Maybe (UserId, User)
 eitherClientToMaybe (Left uid, Left user@(User _ _ Client)) = Just (uid, user)
-eitherClientToMaybe _ = Nothing
+eitherClientToMaybe _                                       = Nothing
 
 
 requireClientData :: Handler (Entity User, [Entity UserWallet])
@@ -782,8 +798,13 @@ supportEmail :: Text
 supportEmail = "support@outb.info"
 
 setAppTitle :: [ AppMessage ] -> Widget
-setAppTitle ms = setCompositeTitle $
-    ms <> [MsgProjectName, MsgCurrencyExchangeService, MsgCurrencyExchangeSlang]
+setAppTitle ms = do
+    projType <- appType . appSettings <$> handlerToWidget getYesod
+    let projName = if projType == FenixApp
+            then MsgProjectNameFenix
+            else MsgProjectNameOutbirds
+    setCompositeTitle $
+        ms <> [projName, MsgCurrencyExchangeService, MsgCurrencyExchangeSlang]
 
 setAppPageTitle :: AppMessage -> Widget
 setAppPageTitle = setAppTitle . (: [])

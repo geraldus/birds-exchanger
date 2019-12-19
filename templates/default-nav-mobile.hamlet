@@ -18,9 +18,9 @@
         <span class="navbar-toggler-icon">
     <a class="navbar-brand" href="/">
         <img
-            src="@{StaticR images_logo_header_png}"
+            src="#{logoSrc}"
             style="max-height: 20px;"
-            alt='_{MsgNavHostNameGoHome "OutBirds"}'
+            alt='_{MsgNavHostNameGoHome hostname}'
             >
     <div #main-nav-mobile-menu .main-nav .collapse .navbar-collapse .justify-content-between>
         <ul .navbar-nav>

@@ -5,8 +5,8 @@
                 <img
                     #main-promo
                     .mw-100
-                    src=@{StaticR images_logo__sayt_png}
-                    alt="OutBirds | Site Logo"
+                    src=@{logoRoute}
+                    alt=_{MsgSiteLogoAlt}
                     >
     $if not (null messages)
         <div .container .mt-5 .mt-lg-3 #message>

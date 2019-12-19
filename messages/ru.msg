@@ -1,4 +1,6 @@
-ProjectName: OutBirds
+ProjectNameOutbirds: OutBirds
+ProjectNameFenix: Fenix
+SiteLogoAlt: логотип сайта
 CurrencyExchangeService: Сервис обмена валют
 CurrencyExchangeSlang: Обменник
 Info: Инфо

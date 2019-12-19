@@ -106,7 +106,7 @@ instance FromJSON AppSettings where
 
         return AppSettings {..}
 
-data AppType = FenixApp | OutbirdsApp
+data AppType = FenixApp | OutbirdsApp deriving Eq
 
 textToAppType :: Text -> AppType
 textToAppType "outbirds" = OutbirdsApp
