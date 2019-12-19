@@ -1,5 +1,4 @@
-module Utils.Money
-where
+module Utils.Money where
 
 import           ClassyPrelude.Yesod
 
