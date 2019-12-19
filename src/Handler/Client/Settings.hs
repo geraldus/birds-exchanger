@@ -24,8 +24,6 @@ import           Text.Hamlet                   ( shamletFile )
 getClientSettingsR :: Handler Html
 getClientSettingsR = do
     (user, _) <- requireClientData
-    let passwordPrefix = take 6 <$> (userPassword . entityVal) user
-    let shouldNoticeAboutPasswordChange = passwordPrefix /= Just "sha256"
     token <- appNonce128urlT
     refToken <- runDB $ getCreateRefTokenDB (entityKey user) token
     urlRender <- getUrlRenderParams

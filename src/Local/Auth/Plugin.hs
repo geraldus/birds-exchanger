@@ -25,7 +25,6 @@ import           Yesod.Form                    ( ireq, runInputPost, textField )
 
 import           Control.Applicative           ( (<$>), (<*>) )
 import           Data.Text                     ( Text )
-import           Text.Hamlet                   ( shamletFile )
 
 
 -- TODO: FIXME: проверять статус активации при входе
