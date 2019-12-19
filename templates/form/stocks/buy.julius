@@ -1,0 +1,143 @@
+$(document).ready(() => {
+    function isDigit(code) { return code > 47 && code < 58 }
+
+    function isNumPadKey(code) { return code > 95 && code < 106 }
+
+    function isEnterKey(code) { return code == 13 }
+
+    function isBackSpaceKey(code) { return code == 8 }
+
+    function isDeleteKey(code) { return code == 46 }
+
+    function isArrowKey(code) { return code > 36 && code < 41 }
+
+    function isKeyShortcut(e) { return e.altKey || e.ctrlKey || e.metaKey }
+
+    function isAllowedKey(code) {
+        const check = [
+            isEnterKey(code),
+            isBackSpaceKey(code),
+            isDeleteKey(code),
+            isArrowKey(code),
+        ]
+        return check.some(x => x)
+    }
+
+    function updateVisibility(f, b, name) {
+        const blk = $(b)
+        if (blk.data('pack-name') == name) {
+            f.stockPricePlaceholder.text(blk.data('pack-stocks-price'))
+            f.amountInput.data('price', blk.data('pack-stocks-price'))
+            f.amountInput.data('bounty', blk.data('pack-bounty'))
+            f.amountInput.data('avail', blk.data('pack-stocks-avail'))
+            f.amountInput.attr('required', 'required')
+            blk.show()
+        } else {
+            blk.hide()
+        }
+    }
+
+    function updateTotals(f) {
+        const value = parseInt(f.amountInput.val())
+        const price = f.amountInput.data('price')
+        const bounty = f.amountInput.data('bounty')
+        const avail = f.amountInput.data('avail')
+        if (value && !isNaN(value)) {
+            f.stockPriceTotalPlaceholder.text(' ' + (value * price).toFixed(2))
+            f.bountyPlaceholder.text(' ' + (value * bounty).toFixed(2))
+            if (value > avail) {
+                f.amountInput.addClass('is-invalid')
+                f.amountInput.removeClass('is-valid')
+                f.amountFeedbackExceededAvail.show()
+                f.submitButton.attr('disabled', 'disabled')
+            } else {
+                f.amountInput.removeClass('is-invalid')
+                f.amountInput.addClass('is-valid')
+                f.amountFeedbackExceededAvail.hide()
+                f.submitButton.removeAttr('disabled')
+            }
+        } else {
+            f.stockPriceTotalPlaceholder.text(' 0.00')
+            f.bountyPlaceholder.text(' 0.00')
+            f.amountInput.removeClass('is-valid is-invalid')
+            f.submitButton.attr('disabled', 'disabled')
+        }
+    }
+
+
+    function amountInputHandler(f) {
+        function filterAmountInput(e) {
+            if (!isDigit(e.keyCode) && !isNumPadKey(e.keyCode)) {
+                if (!isAllowedKey(e.keyCode) && !isKeyShortcut(e)) {
+                    e.preventDefault()
+                }
+            }
+            updateTotals(f)
+        }
+        return filterAmountInput
+    }
+
+    function resetForm(f) {
+        const { amountInput, descBlocks } = f
+        amountInput.attr('disabled', 'disabled')
+        amountInput.removeAttr('required')
+        amountInput.data('price', '')
+        amountInput.data('bounty', '')
+        amountInput.removeClass('is-valid is-invalid')
+        amountFeedbackExceededAvail.hide()
+        submitButton.attr('disabled')
+        descBlocks.each((_, b) => updateVisibility(f, b, null))
+        f.stockPricePlaceholder.text(f.defStockPricePlaceholderText)
+    }
+
+    const formId = '#{rawJS formId}'
+
+    const form = $(`#${formId}`)
+
+    const packSelect = $(`#${formId}-stocks-select`)
+
+    const descBlocks = $('.pack-desc')
+
+    const amountInput = $(`#${formId}-buy-amount-input`)
+
+    const amountFeedbackExceededAvail =
+        $(`#${formId} .amount-feedback.exceeded-avail`)
+
+    const stockPricePlaceholder = $(`#${formId} .stocks-price.value`)
+
+    const stockPriceTotalPlaceholder = $(`#${formId} .stocks-price-total.value`)
+
+    const bountyPlaceholder = $(`#${formId} .stocks-price-bounty.value`)
+
+    const submitButton = $(`#${formId}-submit`)
+
+    const defStockPricePlaceholderText = stockPricePlaceholder.text()
+
+    const formObj = {
+        amountInput,
+        amountFeedbackExceededAvail,
+        descBlocks,
+        stockPricePlaceholder,
+        stockPriceTotalPlaceholder,
+        bountyPlaceholder,
+        submitButton,
+        defStockPricePlaceholderText
+    }
+
+    packSelect.change((e) => {
+        const pack = packSelect.val()
+        descBlocks.each((_, b) => updateVisibility(formObj, b, pack))
+        if (pack) {
+            amountInput.removeAttr('disabled')
+            updateTotals(formObj)
+        } else {
+            resetForm(formObj)
+        }
+    })
+
+    amountInput.change(amountInputHandler(formObj))
+    amountInput.keyup(amountInputHandler(formObj))
+    amountInput.keydown(amountInputHandler(formObj))
+
+    resetForm(formObj)
+})

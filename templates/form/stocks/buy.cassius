@@ -1,0 +1,7 @@
+##{formId}
+    input[disabled]
+        background: transparent
+        border-color: rgba(0, 0, 0, 0.05)
+
+    .amount-feedback
+        display: none
