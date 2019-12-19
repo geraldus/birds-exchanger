@@ -147,16 +147,12 @@ makeFoundation appSettings = do
         (pgConnStr  $ appDatabaseConf appSettings)
         (pgPoolSize $ appDatabaseConf appSettings)
 
-    flip runSqlPool pool $ do
-        migrateHelper_UpdateCurrencies
-
     -- Perform database migration using our application's logging settings.
     runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
 
     -- Perform manual migraions
-    flip runSqlPool pool $ do
+    flip runSqlPool pool $
         migrateHelper_GRef
-        migrateHelper_UpdateCurrencies
 
     orders <- flip runSqlPool pool $ mapM
         selectActiveOrdersOf
