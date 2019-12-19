@@ -66,7 +66,6 @@ import           Handler.Admin.LogIn
 import           Handler.API.App
 import           Handler.API.Auth
 import           Handler.API.News
-import           Handler.BlackList
 import           Handler.Client.Deposit
 import           Handler.Client.HandleDeposit
 import           Handler.Client.HandleWithdrawal
@@ -77,6 +76,8 @@ import           Handler.Client.Withdrawal
 import           Handler.Common
 import           Handler.Home
 import           Handler.Info
+import           Handler.Stocks
+import           Handler.Tokens
 import           Handler.Manage.Info.Add
 import           Handler.Manage.Info.Index
 import           Handler.Manage.Info.Update

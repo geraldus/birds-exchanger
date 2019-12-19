@@ -5,7 +5,6 @@ Info: Инфо
 TermsOfUse: Правила
 Stocks: Акции
 Tokens: Токены
-BlackList: Чёрный список
 VerPublicBeta: Общедоступная β
 
 # ACCESS
@@ -29,7 +28,6 @@ MenuTitleClientWithdrawal: Вывод
 
 # PAGE TITLES
 TermsOfUseTitle: Правила пользования сервисом
-PrizmBlackListTitle: Список Prizm-кошельков, уличённых в мошенничестве
 PasswordForgetTitle: Восстановление пароля
 PasswordSetupTitle: Установка нового пароля
 PasswordChangeGuideTitle: Инструкции по изменению пароля
