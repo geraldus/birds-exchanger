@@ -77,7 +77,6 @@ import           Handler.Common
 import           Handler.Home
 import           Handler.Info
 import           Handler.Stocks
-import           Handler.Tokens
 import           Handler.Manage.Info.Add
 import           Handler.Manage.Info.Index
 import           Handler.Manage.Info.Update

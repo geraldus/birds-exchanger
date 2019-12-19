@@ -10,6 +10,7 @@
 {-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE ViewPatterns          #-}
+
 module Foundation where
 
 import           Import.NoFoundation
@@ -340,7 +341,6 @@ instance Yesod App where
     isAuthorized SuperUserFinancialReportViewR _     = isSuperUserAuthenticated
     isAuthorized SuperUserWebSocketR _               = isSuperUserAuthenticated
     -- ALL: Common routes (guests including)
-    isAuthorized BlackListR _                        = return Authorized
     isAuthorized InfoListR _                         = return Authorized
     isAuthorized (InfoViewR _) _                     = return Authorized
     isAuthorized TermsOfUseR _                       = return Authorized
@@ -431,7 +431,6 @@ instance YesodBreadcrumbs App where
             return ("Финансовая отчётность", Just HomeR)
         breadcrumb' _ AdminLogInR =
             return ("Вход для супер-пользователя", Just HomeR)
-        breadcrumb' _ BlackListR = return ("Чёрный список", Just HomeR)
         breadcrumb' mr TermsOfUseR = return (mr MsgTermsOfUse, Just HomeR)
         breadcrumb' mr InfoListR = return (mr MsgInfoListTitle, Just HomeR)
         breadcrumb' _ (InfoViewR alias) = do
