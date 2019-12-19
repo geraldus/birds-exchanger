@@ -25,15 +25,15 @@ stanzas:
       # You can specify one or more hostnames for your application to respond
       # to. The primary hostname will be used for generating your application
       # root.
-      - fenix.trading
-      - www.fenix.trading
+      - outb.info
+      - www.outb.info
 
     # Enable to force Keter to redirect to https
     # Can be added to any stanza
     requires-secure: true
     ssl:
-      key: /etc/letsencrypt/live/fenix.trading/privkey.pem
-      certificate: /etc/letsencrypt/live/fenix.trading/fullchain.pem
+      key: /opt/keter/etc/outb.info.key
+      certificate: /opt/keter/etc/outb.info.pem
 
   # Static files.
   # - type: static-files
@@ -47,9 +47,9 @@ stanzas:
   # Redirect plain domain name to www.
   - type: redirect
     hosts:
-      - www.fenix.trading
+      - www.outb.info
     actions:
-      - host: fenix.trading
+      - host: outb.info
         secure: true
         port: 443
 

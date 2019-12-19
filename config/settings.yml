@@ -35,7 +35,8 @@ database:
   host:     "_env:YESOD_PGHOST:localhost"
   port:     "_env:YESOD_PGPORT:5432"
   # See config/test-settings.yml for an override during tests
-  database: "_env:YESOD_PGDATABASE:prizm-exchange"
+  # database: "_env:YESOD_PGDATABASE:prizm-exchange"
+  database: "_env:YESOD_PGDATABASE:fenix_trading"
   poolsize: "_env:YESOD_PGPOOLSIZE:10"
 
 copyright: © 2018-2019 «OutBirds»
