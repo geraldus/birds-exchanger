@@ -152,10 +152,7 @@ instance Yesod App where
         let isEditorLoggedIn = isEditorUser muser
         let isOperatorLoggedIn = isOperatorUser muser
         let isSuLoggedIn = isSU muser
-        let maybeClientUser = case muser of
-                (Just (Left uid, Left user@(User _ _ Client))) ->
-                    Just (uid, user)
-                _ -> Nothing
+        let maybeClientUser = join $ eitherClientToMaybe <$> muser
         wallets <- if isClientLoggedIn then getUserBalnaces else pure []
         currentRoute <- getCurrentRoute
         case currentRoute of
@@ -654,6 +651,17 @@ maybeClient = do
                 return $ Just (Entity uid user, wallets)
             _ -> return Nothing
         _ -> return Nothing
+
+maybeClientAuthPair :: Handler (Maybe (UserId, User))
+maybeClientAuthPair = do
+    p <- maybeAuthPair
+    return . join $ eitherClientToMaybe <$> p
+
+eitherClientToMaybe ::
+    (Either UserId Text, Either User SuperUser) -> Maybe (UserId, User)
+eitherClientToMaybe (Left uid, Left user@(User _ _ Client)) = Just (uid, user)
+eitherClientToMaybe _ = Nothing
+
 
 requireClientData :: Handler (Entity User, [Entity UserWallet])
 requireClientData = do
