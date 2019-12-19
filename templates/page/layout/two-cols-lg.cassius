@@ -1,0 +1,5 @@
+##{htmlId}.page-layout
+    .col-header
+        text-transform: uppercase
+        font-size: 1.1rem
+        font-weight: bold

@@ -1,0 +1,11 @@
+<h1 .h5 .d-md-none>
+    ^{title}
+
+<div ##{htmlId} .container-fluid .page-layout>
+    <div .row .two-cols-lg>
+        <div .col-12 .col-lg-6 .left-col>
+            ^{leftCol}
+        <div .col-12 .d-lg-none>
+            <hr>
+        <div .col-12 .col-lg-6 .right-col>
+            ^{rightCol}

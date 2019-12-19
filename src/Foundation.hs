@@ -917,3 +917,11 @@ referrerQueryString = do
 getAmountRenderer ::
         Handler ([Text] -> [Text] -> Bool -> Currency -> Int -> Html)
 getAmountRenderer = selectLocale >>= return . renderCurrencyAmount
+
+
+twoColsLayout ::
+    Html -> Maybe Text -> AppMessage -> Widget -> Widget -> Widget -> Widget
+twoColsLayout _extraHtml maybeId pageTitle title leftCol rightCol = do
+    htmlId <- maybe newIdent return maybeId
+    setAppTitle [ pageTitle ]
+    $(widgetFile "page/layout/two-cols-lg")
