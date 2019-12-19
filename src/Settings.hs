@@ -67,6 +67,7 @@ data AppSettings = AppSettings
     , appRefTokenCookieName     :: Text
     , appRefTokenParamName      :: Text
     , appRefMaxLevels           :: Int
+    , appType                   :: AppType
     }
 
 instance FromJSON AppSettings where
@@ -100,8 +101,16 @@ instance FromJSON AppSettings where
         appRefTokenParamName      <- o .:? "ref-token-param-name"
                                         .!= "ref"
         appRefMaxLevels           <- o .:? "ref-max-levels" .!= 10
+        appType                   <- textToAppType
+                                        <$> o .:? "app-type" .!= "fenix"
 
         return AppSettings {..}
+
+data AppType = FenixApp | OutbirdsApp
+
+textToAppType :: Text -> AppType
+textToAppType "outbirds" = OutbirdsApp
+textToAppType _ = FenixApp
 
 -- | Settings for 'widgetFile', such as which template languages to support and
 -- default Hamlet settings.
