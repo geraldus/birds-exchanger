@@ -1,7 +1,7 @@
 <div .masthead .pt-3>
-    <div .container>
+    <div .container .d-none .d-lg-block>
         <div .row>
-            <div #mainlogo .col-8 .col-sm-6 .mx-auto .my-2>
+            <div #mainlogo .col-8 .col-sm-6 .mx-auto .mt-5>
                 <img
                     #main-promo
                     .mw-100
@@ -9,11 +9,11 @@
                     alt="OutBirds | Site Logo"
                     >
     $if not (null messages)
-        <div .container .mt-3 #message>
+        <div .container .mt-5 .mt-lg-3 #message>
             $forall (label, msg) <- messages
                 <div .alert.alert-warning data-label=#{label}>
                     #{msg}
-    <div .container .mt-3>
+    <div .container .mt-5 .mt-lg-3>
         <div .row>
             <div .col-8 .mx-auto>
                 <ul .nav .nav-tabs .justify-content-center>
