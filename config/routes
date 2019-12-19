@@ -12,6 +12,7 @@
 /news                                InfoListR                         GET
 /news/#Text                          InfoViewR                         GET
 /terms                               TermsOfUseR                       GET
+/stocks                              StocksR                           GET
 
 /password-change PasswordChangeR GET
 /password-change/guide PasswordChangeGuideR POST

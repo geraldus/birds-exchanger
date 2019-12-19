@@ -177,6 +177,10 @@ instance Yesod App where
                     { menuItemLabel = mr MsgTermsOfUse
                     , menuItemRoute = TermsOfUseR
                     , menuItemAccessCallback = True }
+                , NavbarLeft $ MenuItem
+                    { menuItemLabel = mr MsgStocks
+                    , menuItemRoute = StocksR
+                    , menuItemAccessCallback = True }
                 , NavbarRight $ MenuItem
                     { menuItemLabel = mr MsgMenuTitleSignUp
                     , menuItemRoute = SignUpR
@@ -286,16 +290,17 @@ instance Yesod App where
         -> Handler AuthResult
     -- Routes not requiring authentication.
     isAuthorized (AuthR _) _                         = return Authorized
-    isAuthorized HomeR _                             = return Authorized
     isAuthorized FaviconR _                          = return Authorized
     isAuthorized RobotsR _                           = return Authorized
+    isAuthorized HomeR _                             = return Authorized
+    isAuthorized StocksR _                           = return Authorized
     isAuthorized (StaticR _) _                       = return Authorized
     isAuthorized SignUpR _                           = return Authorized
     isAuthorized (SignUpVerifyR _ _) _               = return Authorized
     isAuthorized PasswordChangeR _                   = return Authorized
     isAuthorized PasswordChangeGuideR _              = return Authorized
     isAuthorized (PasswordResetR _) _                = return Authorized
-    isAuthorized ApiUserPasswordChangeR _               = return Authorized
+    isAuthorized ApiUserPasswordChangeR _            = return Authorized
     -- the profile route requires that the user is authenticated, so we
     -- delegate to that function
     isAuthorized ProfileR _                          = isAuthenticated
@@ -398,9 +403,10 @@ instance YesodBreadcrumbs App where
             :: (AppMessage -> Text)
             -> Route App  -- ^ The route the user is visiting currently.
             -> Handler (Text, Maybe (Route App))
-        breadcrumb' _ HomeR       = return ("OutBirds", Nothing)
+        breadcrumb' mr HomeR      = return (mr MsgProjectName, Nothing)
         breadcrumb' _ (AuthR _)   = return ("Вход", Just HomeR)
         breadcrumb' _ SignUpR     = return ("Регистрация", Just HomeR)
+        breadcrumb' mr StocksR    = return (mr MsgPageTitleStocks, Nothing)
         breadcrumb' mr PasswordChangeR =
             return (mr MsgPasswordSetupTitle, Just HomeR)
         breadcrumb' mr PasswordChangeGuideR =
@@ -686,7 +692,6 @@ requireRolesId suIncluding roles action = do
         Just (ident, Left u) -> if userRole u `elem` roles
             then return ident else action
         _ -> action
-
 
 requireSu :: Handler (Either UserId Text)
 requireSu = do
