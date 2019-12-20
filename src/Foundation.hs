@@ -568,8 +568,8 @@ authorizeStaffRoles rs =
     authorizeRolesRedirect rs (Just notFound) (Just notFound)
 
 
-authorizeRolesRedirect
-    :: [ UserRole ]
+authorizeRolesRedirect ::
+       [ UserRole ]
     -> Maybe (Handler AuthResult)
     -> Maybe (Handler AuthResult)
     -> Handler AuthResult
