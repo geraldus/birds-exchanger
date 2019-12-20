@@ -88,7 +88,7 @@ import           Handler.Operator.User.History
 import           Handler.Operator.WebSocket
 import           Handler.Operator.WithdrawalRequest
 import           Handler.Profile
-import           Handler.SignUp                       hiding ( from )
+import           Handler.SignUp
 import           Handler.SignUpVerification
 import           Handler.Stocks
 import           Handler.SuperUser.FinancialReport
