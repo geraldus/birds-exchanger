@@ -218,7 +218,7 @@ Stocks json
     price Int
     UniqueStocks abbr
 
-StocksActive
+StocksActive json
     stock StocksId
     total Int
     left Int
