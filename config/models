@@ -211,3 +211,15 @@ Notice json
     trials Int default=0
     lastTrial UTCTime Maybe
     nextTrial UTCTime Maybe
+
+Stocks json
+    name Text
+    abbr Text
+    price Int
+    UniqueStocks abbr
+
+StocksActive
+    stock StocksId
+    total Int
+    left Int
+    UniqueStocksActive stock

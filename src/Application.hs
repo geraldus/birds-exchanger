@@ -72,11 +72,11 @@ import           Handler.Client.HandleWithdrawal
 import           Handler.Client.Order.Create
 import           Handler.Client.Orders
 import           Handler.Client.Settings
+import           Handler.Client.Stocks.Purchase
 import           Handler.Client.Withdrawal
 import           Handler.Common
 import           Handler.Home
 import           Handler.Info
-import           Handler.Stocks
 import           Handler.Manage.Info.Add
 import           Handler.Manage.Info.Index
 import           Handler.Manage.Info.Update
@@ -90,6 +90,7 @@ import           Handler.Operator.WithdrawalRequest
 import           Handler.Profile
 import           Handler.SignUp                       hiding ( from )
 import           Handler.SignUpVerification
+import           Handler.Stocks
 import           Handler.SuperUser.FinancialReport
 import           Handler.SuperUser.Notice
 import           Handler.SuperUser.WebSocket
@@ -151,7 +152,8 @@ makeFoundation appSettings = do
     runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
 
     -- Perform manual migraions
-    flip runSqlPool pool $
+    flip runSqlPool pool $ do
+        migrateHelper_Stocks
         migrateHelper_GRef
 
     orders <- flip runSqlPool pool $ mapM
@@ -266,6 +268,58 @@ handler h = getAppSettings >>= makeFoundation >>= flip unsafeHandler h
 db :: ReaderT SqlBackend Handler a -> IO a
 db = handler . runDB
 
+
+migrateHelper_Stocks :: (MonadIO m) => SqlPersistT m ()
+migrateHelper_Stocks = do
+    let stocksStartMax = 10000
+        stocksStartPriceCents = 100000
+        stocksStartAbbr = "FNXB"
+        stocksStartName = "FENIX START"
+    let stocksStandardMax = 1000
+        stocksStandardPriceCents = 1000000
+        stocksStandardAbbr = "FNXS"
+        stocksStandardName = "FENIX STANDARD"
+    let stocksPremiumMax = 100
+        stocksPremiumPriceCents = 5000000
+        stocksPremiumAbbr = "FNXP"
+        stocksPremiumName = "FENIX PREMIUM"
+    mkStockActives
+        stocksStartMax
+        stocksStartPriceCents
+        stocksStartAbbr
+        stocksStartName
+    mkStockActives
+        stocksStandardMax
+        stocksStandardPriceCents
+        stocksStandardAbbr
+        stocksStandardName
+    mkStockActives
+        stocksPremiumMax
+        stocksPremiumPriceCents
+        stocksPremiumAbbr
+        stocksPremiumName
+    return ()
+  where
+    mkStockActives ::
+        MonadIO m => Int -> Int -> Text -> Text -> SqlPersistT m (Entity Stocks, Entity StocksActive)
+    mkStockActives qnt cents abr name = do
+        let stockActive sid = StocksActive sid qnt qnt
+        rows <- select . from $ \(s `LeftOuterJoin` a) -> do
+            on (just (s ^. StocksId) ==. a ?. StocksActiveStock)
+            where_ (s ^. StocksAbbr ==. val abr)
+            return (s, a)
+        let s = Stocks name abr cents
+        case rows of
+            [] -> do
+                sid <- insert s
+                let a = stockActive sid
+                aid <- insert a
+                return (Entity sid s, Entity aid a)
+            (s', Nothing) : _ -> do
+                let a = stockActive (entityKey s')
+                aid <- insert a
+                return (s', Entity aid a)
+            (s', Just a'):_ -> return (s', a')
 
 migrateHelper_RefTokens :: (MonadIO m) => IO Text -> SqlPersistT m ()
 migrateHelper_RefTokens genToken = do
