@@ -27,6 +27,8 @@ import           Local.Persist.Currency
 import           Local.Persist.TransferMethod
 import           Local.Persist.UserRole
 import           Market.Type                  ( DOMStats )
+import           Settings.MailRu              ( supportEmailFenix,
+                                                supportEmailOutbirds )
 import           Type.App
 import           Type.Money                   ( Percent (..) )
 import           Type.Wallet                  ( WalletData (..) )
@@ -146,7 +148,8 @@ instance Yesod App where
         sessionMessages <- getMessages
         mr              <- getMessageRender
         renderedUrl     <- getUrlRender
-        -- ^ @Handler (Maybe (Either UserId Text, Either User SuperUser))@
+        let settings = appSettings master
+        let projType = appType settings
         let muserName = userNameF . snd <$> muser
         let isClientLoggedIn = isClientUser muser
         let isStaffLoggedIn = isStaffUser muser
@@ -166,6 +169,13 @@ instance Yesod App where
         -- Get the breadcrumbs, as defined in the YesodBreadcrumbs instance.
         (title, parents) <- breadcrumbs
         -- Define the menu items of the header.
+        let appItems = if projType /= FenixApp
+                then [ ]
+                else
+                    [ NavbarLeft $ MenuItem
+                        { menuItemLabel = mr MsgStocks
+                        , menuItemRoute = StocksR
+                        , menuItemAccessCallback = True } ]
         let menuItems =
                 [ NavbarLeft $ MenuItem
                     { menuItemLabel = mr MsgMenuTitleNews
@@ -175,11 +185,10 @@ instance Yesod App where
                     { menuItemLabel = mr MsgTermsOfUse
                     , menuItemRoute = TermsOfUseR
                     , menuItemAccessCallback = True }
-                , NavbarLeft $ MenuItem
-                    { menuItemLabel = mr MsgStocks
-                    , menuItemRoute = StocksR
-                    , menuItemAccessCallback = True }
-                , NavbarRight $ MenuItem
+                ]
+                <> appItems
+                <>
+                [ NavbarRight $ MenuItem
                     { menuItemLabel = mr MsgMenuTitleSignUp
                     , menuItemRoute = SignUpR
                     , menuItemAccessCallback = isNothing muser
@@ -251,9 +260,6 @@ instance Yesod App where
         navUserDropdownId   <- newIdent
         navManageDropdownId <- newIdent
 
-        let settings = appSettings master
-        let projType = appType settings
-
         let projNavBGColor = if projType == FenixApp
                 then "#0d011c" :: Text
                 else "rgb(14, 14, 14)"
@@ -263,6 +269,9 @@ instance Yesod App where
         let hostname = if projType == FenixApp
                 then "FENIX.TRADING"
                 else "OutBirds"
+        let supportEmail = if projType == FenixApp
+                then supportEmailFenix
+                else supportEmailOutbirds
 
         let defaultMobileNav = $(widgetFile "default-nav-mobile")
         let defaultDesktopNav = $(widgetFile "default-nav-desktop")
@@ -323,7 +332,6 @@ instance Yesod App where
     isAuthorized ClientCancelWithdrawalR True        = isClientAuthenticated
     isAuthorized WithdrawalCreateR False             = postOnly
     isAuthorized ClientCancelWithdrawalR False       = postOnly
-
     isAuthorized ExchangeOrderCreateR True           = isClientAuthenticated
     isAuthorized ExchangeOrderCreateR False          = postOnly
     isAuthorized ClientOrdersR _                     = isClientAuthenticated
@@ -793,9 +801,6 @@ currencySelect = selectField . pure $ mkOptionList currencyOptionListRaw
 
 transferMethodSelect :: Field (HandlerFor App) TransferMethod
 transferMethodSelect = selectField . pure $ mkOptionList transferOptionsRaw
-
-supportEmail :: Text
-supportEmail = "support@outb.info"
 
 setAppTitle :: [ AppMessage ] -> Widget
 setAppTitle ms = do

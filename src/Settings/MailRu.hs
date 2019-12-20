@@ -20,3 +20,9 @@ usernameOutbirdsNoreply = "noreply@outb.info"
 
 password :: Text
 password = "$afi2C3TFBsl"
+
+supportEmailFenix :: Text
+supportEmailFenix = "support@fenix.trading"
+
+supportEmailOutbirds :: Text
+supportEmailOutbirds = "support@outb.info"
