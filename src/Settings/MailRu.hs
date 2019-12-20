@@ -12,8 +12,11 @@ serverName = "smtp.mail.ru"
 smtpPort :: PortNumber
 smtpPort = toEnum 465
 
-username :: Text
-username = "noreply@outb.info"
+usernameFenixNoreply :: Text
+usernameFenixNoreply = "noreply@fenix.trading"
+
+usernameOutbirdsNoreply :: Text
+usernameOutbirdsNoreply = "noreply@outb.info"
 
 password :: Text
 password = "$afi2C3TFBsl"

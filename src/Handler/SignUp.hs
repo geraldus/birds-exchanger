@@ -10,7 +10,8 @@ import           Form.Auth.SignUp
 import           Import
 import           Local.Persist.UserRole
 import           Settings.MailRu               ( password, serverName, smtpPort,
-                                                 username )
+                                                 usernameFenixNoreply,
+                                                 usernameOutbirdsNoreply )
 import           Type.Auth.SignUp              ( SignUpFormData (..) )
 
 import qualified Data.Text                     as T
@@ -23,8 +24,11 @@ import           Yesod.Auth.Util.PasswordStore ( makePassword )
 authType :: AuthType
 authType = PLAIN
 
-from :: String
-from = "noreply@outb.info"
+fenixFrom :: String
+fenixFrom = "noreply@fenix.info"
+
+outbirdsFrom :: String
+outbirdsFrom = "noreply@outb.info"
 
 subject :: String
 subject = "Подтвердите ваш электронный ящик"
@@ -87,7 +91,7 @@ postSignUpR = do
                     _ <- insert newEmail
                     case ref of
                         Nothing -> return []
-                        Just r -> (:[]) <$> addReferral r userId
+                        Just r  -> (:[]) <$> addReferral r userId
                     let refTok = Referrer userId token
                     _ <- insert refTok
                     return CreateSuccess
@@ -96,6 +100,10 @@ postSignUpR = do
     sendEmailActivationMessage email key = do
         urlRender <- getUrlRender
         let verUrl = urlRender $ SignUpVerifyR email key
+        projType <- appType . appSettings <$> getYesod
+        let from = if projType == FenixApp
+                then usernameFenixNoreply
+                else usernameOutbirdsNoreply
         liftIO $ do
             conn <- connectSMTPSSLWithSettings
                 (unpack serverName)
@@ -103,12 +111,12 @@ postSignUpR = do
             authSuccess <-
                 Network.HaskellNet.SMTP.SSL.authenticate
                     PLAIN
-                    (unpack username)
+                    (unpack usernameOutbirdsNoreply)
                     (unpack password)
                     conn
             if authSuccess
                 then sendMimeMail (T.unpack email)
-                                  from
+                                  (unpack from)
                                   subject
                                   (plainBody email verUrl)
                                   (htmlBody email verUrl)

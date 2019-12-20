@@ -6,7 +6,8 @@ module Handler.Client.Settings where
 import           Handler.API.Client.Password   ( apiUnsafeChangeUserPassword )
 import           Import
 import           Settings.MailRu               ( password, serverName, smtpPort,
-                                                 username )
+                                                 usernameFenixNoreply,
+                                                 usernameOutbirdsNoreply )
 import           Utils.Database.Password       ( getCredsByEmail,
                                                  getCredsByToken )
 import           Utils.Database.User.Referral  ( getCreateRefTokenDB,
@@ -67,6 +68,7 @@ postPasswordChangeGuideR = do
         let token = (passwordResetTokenToken . entityVal) tokenEntity
         let url = (urlRender . PasswordResetR) token
             homeUrl = urlRender HomeR
+        projType <- appType . appSettings <$> getYesod
         liftIO $ do
             conn <- connectSMTPSSLWithSettings
                 (unpack serverName)
@@ -74,16 +76,18 @@ postPasswordChangeGuideR = do
             authSuccess <-
                 Network.HaskellNet.SMTP.SSL.authenticate
                     PLAIN
-                    (unpack username)
+                    (unpack usernameOutbirdsNoreply)
                     (unpack password)
                     conn
             ret <- if authSuccess
                 then do
-                    let from = "noreply@outb.info"
+                    let from = if projType == FenixApp
+                            then usernameFenixNoreply
+                            else usernameOutbirdsNoreply
                         subject = messageRender
                             MsgMessageClientPasswordResetTitle
                     sendMimeMail (unpack email)
-                                  from
+                                  (unpack from)
                                   (unpack subject)
                                   (textContent url)
                                   (htmlContent url homeUrl email)
