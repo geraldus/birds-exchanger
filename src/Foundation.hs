@@ -273,15 +273,17 @@ instance Yesod App where
                 then supportEmailFenix
                 else supportEmailOutbirds
 
-        let defaultMobileNav = $(widgetFile "default-nav-mobile")
-        let defaultDesktopNav = $(widgetFile "default-nav-desktop")
+        let defaultMobileNav = $(widgetFile "default/nav/mobile")
+        let defaultDesktopNav = $(widgetFile "default/nav/desktop")
 
         setReferrerHttpOnlyCookie
         pc <- widgetToPageContent $ do
+            addStylesheet (StaticR _3rd_party_fontawesome_css_all_css)
+            addStylesheet (StaticR _3rd_party_fontawesome_js_all_js)
             $(widgetFile "form/common")
-            $(widgetFile "default-nav")
-            $(widgetFile "default-layout")
-        withUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
+            $(widgetFile "default/nav")
+            $(widgetFile "default/layout")
+        withUrlRenderer $(hamletFile "templates/default/wrapper.hamlet")
         where
             isStaffUser (Just (_, Left u))  = userRole u /= Client
             isStaffUser (Just (_, Right _)) = True

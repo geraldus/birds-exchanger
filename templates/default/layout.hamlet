@@ -31,10 +31,11 @@
             <a .mx-2 href="mailto:#{supportEmail}" title="_{MsgSendEmail}">
                 <i class="far fa-envelope-open">
                 &nbsp;#{supportEmail}
-        <div .col-sm .text-center>
-            <a .mx-2 href="https://t.me/outb_support" title="_{MsgToTelegramChat}">
-                <i class="far fa-paper-plane">
-                &nbsp;@outb_support
+        $if projType /= FenixApp
+            <div .col-sm .text-center>
+                <a .mx-2 href="https://t.me/outb_support" title="_{MsgToTelegramChat}">
+                    <i class="far fa-paper-plane">
+                    &nbsp;@outb_support
     <div .row .mt-4>
         <div .col style="background: #e9ecef" .pt-3>
             <p .text-center>
