@@ -39,7 +39,7 @@ database:
   database: "_env:YESOD_PGDATABASE:fenix_trading"
   poolsize: "_env:YESOD_PGPOOLSIZE:10"
 
-copyright: © 2018-2019 «OutBirds»
+copyright: © 2018-2019
 #analytics: UA-YOURCODE
 
 ref-token-cookie-name: "_outb_ref"
