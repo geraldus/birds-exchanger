@@ -49,7 +49,8 @@ currencyDefaultMinimalDeposit c
     | otherwise  = 199999999990
 
 defaultWalletCurrencies :: [Currency]
-defaultWalletCurrencies = [ rubC, pzmC, ouroC ]
+defaultWalletCurrencies = [ rubC, pzmC ]
+-- TODO: DEFAULT WALLET CURRENCIES SHOULD ALTER FROM PROJECT TO PROJECT
 
 defaultParaMiningDelaySeconds :: Int
 defaultParaMiningDelaySeconds = 10

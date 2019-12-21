@@ -8,21 +8,24 @@
             <span .fee .val>?#
             <small .currency .rub>₽#
             <small .currency .pzm>PZM#
-            <small .currency .ouro>OURO#
+            $if projType /= FenixApp
+                <small .currency .ouro>OURO#
             <small>
                 <span> (#
                 <!-- TODO: FIXME: Loop over values -->
                 <span .def-fee .val .rub .percent>#{renderFeeAsPct defRubWithdrawalFee}#
                 <span .def-fee .val .pzm .percent>#{renderFeeAsPct defPzmWithdrawalFee}#
-                <span .def-fee .val .ouro .percent>#{renderFeeAsPct defOuroWithdrawalFee}#
-                <span>%)
+                $if projType /= FenixApp
+                    <span .def-fee .val .ouro .percent>#{renderFeeAsPct defOuroWithdrawalFee}#
+                    <span>%)
         <br>
         <small>
             <span>Итого будет удержано: #
             <span .total .val>?#
             <small .currency .rub>₽#
             <small .currency .pzm>PZM#
-            <small .currency .ouro>OURO#
+            $if projType /= FenixApp
+                <small .currency .ouro>OURO#
         ^{fvInput feeHiddenView}
 <div .form-row>
     <div .form-group .col-12>
@@ -39,5 +42,6 @@
         <label for="#{adrid}-1" .pzm_tm_addr>Адрес Prizm кошелька (PZM Address)
         <label for="#{adrid}-1" .btc_addr_tm>Адрес Bitcoin кошелька  (BTC)
         <label for="#{adrid}-1" .eth_addr_tm>Адрес Etherium кошелька (ETH)
-        <label for="#{adrid}-1" .ouro_addr_tm>Адрес Ouroboros кошелька (OURO)
+        $if projType /= FenixApp
+            <label for="#{adrid}-1" .ouro_addr_tm>Адрес Ouroboros кошелька (OURO)
         <input ##{adrid}-1 type=text .form-control required>

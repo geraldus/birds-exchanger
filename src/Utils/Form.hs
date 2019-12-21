@@ -22,20 +22,23 @@ currencyOptions :: [(Text, Currency)]
 currencyOptions =
     [ ("Российский рубль ₽ (RUB)", FiatC RUB)
     , ("Криптовалюта Prizm (PZM)", CryptoC PZM)
-    , ("Криптовалюта Ouroboros (OURO)", CryptoC OURO)
+    -- TODO: DEFAULT WALLET CURRENCIES SHOULD ALTER FROM PROJECT TO PROJECT
+    -- , ("Криптовалюта Ouroboros (OURO)", CryptoC OURO)
     ]
 
 currencyOptionListRaw :: [Option Currency]
 currencyOptionListRaw =
     [ Option "Российский рубль ₽ (RUB)"     (FiatC RUB)   "rub"
     , Option "Криптовалюта Prizm (PZM)"     (CryptoC PZM) "pzm"
-    , Option "Криптовалюта Ouroboros (OURO)" (CryptoC OURO) "ouro"
+    -- TODO: DEFAULT WALLET CURRENCIES SHOULD ALTER FROM PROJECT TO PROJECT
+    -- , Option "Криптовалюта Ouroboros (OURO)" (CryptoC OURO) "ouro"
     ]
 
 transferOptionsRaw :: [Option TransferMethod]
 transferOptionsRaw =
     [ Option "перевод Prizm"                    ctmPzm        "pzm_tm"
-    , Option "перевод Ouroboros"                ctmOuro        "ouro_tm"
+    -- TODO: DEFAULT WALLET CURRENCIES SHOULD ALTER FROM PROJECT TO PROJECT
+    -- , Option "перевод Ouroboros"                ctmOuro        "ouro_tm"
     -- , Option "перевод Bitcoin" ctmBtc "btc_tm"
     -- , Option "перевод Etherium" ctmBtc "eth_tm"
     , Option "СберБанк - перевод на карту"      ftmSberRub    "rub_sber_tm"

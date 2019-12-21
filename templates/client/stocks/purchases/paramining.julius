@@ -2,8 +2,6 @@ $(document).ready(function () {
     const id = '##{rawJS htmlId}'
     const placeholder = $(`${id} .stocks-zlt-bounty.para`)
 
-    console.log(placeholder)
-
     function renderParaming() {
         const now = new Date()
         const paraminingTimestamp = #{ paraminingTimestamp }

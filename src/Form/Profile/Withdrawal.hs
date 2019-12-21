@@ -15,6 +15,7 @@ import           Text.Julius     ( RawJS (..) )
 
 withdrawalForm :: Text -> Form WithdrawalM
 withdrawalForm formId extra = do
+    projType <- appType . appSettings <$> getYesod
     adrid <- newIdent
     amtid <- newIdent
     tmid  <- newIdent

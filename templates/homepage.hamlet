@@ -29,30 +29,31 @@
                             title="#{messageRender MsgExchange} Prizm на рубли"
                             >
                                 PZM / RUB (₽)
-                    <li .nav-item .mx-1>
-                        <a
-                            #ouro-pzm-pair
-                            .nav-link
-                            :paramsPair == defPairDir ExchangeOurPzm:.active
-                            :paramsPair /= defPairDir ExchangeOurPzm:.text-light
-                            .ouro
-                            .pzm
-                            href="#"
-                            title="#{messageRender MsgExchange} Ouroboros на Prizm"
-                            >
-                                OURO / PZM
-                    <li .nav-item .mx-1>
-                        <a
-                            #ouro-rub-pair
-                            .nav-link
-                            :paramsPair == defPairDir ExchangeOurRur:.active
-                            :paramsPair /= defPairDir ExchangeOurRur:.text-light
-                            .ouro
-                            .rub
-                            href="#"
-                            title="#{messageRender MsgExchange} Ouroboros на рубли"
-                            >
-                                OURO / RUB (₽)
+                    $if projType /= FenixApp
+                        <li .nav-item .mx-1>
+                            <a
+                                #ouro-pzm-pair
+                                .nav-link
+                                :paramsPair == defPairDir ExchangeOurPzm:.active
+                                :paramsPair /= defPairDir ExchangeOurPzm:.text-light
+                                .ouro
+                                .pzm
+                                href="#"
+                                title="#{messageRender MsgExchange} Ouroboros на Prizm"
+                                >
+                                    OURO / PZM
+                        <li .nav-item .mx-1>
+                            <a
+                                #ouro-rub-pair
+                                .nav-link
+                                :paramsPair == defPairDir ExchangeOurRur:.active
+                                :paramsPair /= defPairDir ExchangeOurRur:.text-light
+                                .ouro
+                                .rub
+                                href="#"
+                                title="#{messageRender MsgExchange} Ouroboros на рубли"
+                                >
+                                    OURO / RUB (₽)
         <div .row .mt-3>
             <div .col>
                 <form method=post action=@{ExchangeOrderCreateR} enctype="">
@@ -86,11 +87,13 @@
         <div .col-12 .col-lg-4 .mb-3 .order-col .order-2>
             ^{renderDomTable ExchangePzmRur False (paramsPair /= defPairDir ExchangePzmRur) statsDOM}
             ^{renderDomTable ExchangeOurPzm False (paramsPair /= defPairDir ExchangeOurPzm) statsDOM}
-            ^{renderDomTable ExchangeOurRur False (paramsPair /= defPairDir ExchangeOurRur) statsDOM}
+            $if projType /= FenixApp
+                ^{renderDomTable ExchangeOurRur False (paramsPair /= defPairDir ExchangeOurRur) statsDOM}
         <div .col-12 .col-lg-4 .mb-3 .order-col .order-3>
             ^{renderDomTable ExchangePzmRur True (paramsPair /= defPairDir ExchangePzmRur) statsDOM}
             ^{renderDomTable ExchangeOurPzm True (paramsPair /= defPairDir ExchangeOurPzm) statsDOM}
-            ^{renderDomTable ExchangeOurRur True (paramsPair /= defPairDir ExchangeOurRur) statsDOM}
+            $if projType /= FenixApp
+                ^{renderDomTable ExchangeOurRur True (paramsPair /= defPairDir ExchangeOurRur) statsDOM}
 
 <div .container .mt-5>
     <div .row>
@@ -106,10 +109,11 @@
                     _{MsgOperationWithdrawShort}&nbsp;#{currencyCodeT pzmC}&nbsp;#{renderFeeAsPct defPzmWithdrawalFee}%#
                     \&nbsp;|&nbsp;#
                     \_{MsgOperationDepositShort}&nbsp;#{currencyCodeT pzmC}&nbsp;#{renderFeeAsPct defPzmDepositFee}%
-                    <br>
-                    _{MsgOperationWithdrawShort}&nbsp;#{currencyCodeT ouroC}&nbsp;#{renderFeeAsPct defOuroWithdrawalFee}%#
-                    \&nbsp;|&nbsp;#
-                    \_{MsgOperationDepositShort}&nbsp;#{currencyCodeT ouroC}&nbsp;#{renderFeeAsPct defOuroDepositFee}%
+                    $if projType /= FenixApp
+                        <br>
+                        _{MsgOperationWithdrawShort}&nbsp;#{currencyCodeT ouroC}&nbsp;#{renderFeeAsPct defOuroWithdrawalFee}%#
+                        \&nbsp;|&nbsp;#
+                        \_{MsgOperationDepositShort}&nbsp;#{currencyCodeT ouroC}&nbsp;#{renderFeeAsPct defOuroDepositFee}%
 
 <div #clickable-order-modal .modal .fade tabindex="-1" role=dialog>
     <div .modal-dialog .modal-lg .modal-dialog-centered role=document>

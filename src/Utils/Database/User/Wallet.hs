@@ -33,7 +33,10 @@ import           Database.Persist       as P ( update, (+=.), (=.) )
 -- | Get list of user wallets
 getUserWallets :: (MonadIO m) => UserId -> SqlPersistT m [Ent Wal]
 getUserWallets userId = select . from $ \w -> do
-        where_ (w ^. UserWalletUserId ==. val userId)
+        where_
+            (   (w ^. UserWalletUserId ==. val userId)
+            &&. (w ^. UserWalletCurrency `in_` valList defaultWalletCurrencies)
+            )
         orderBy [ asc (w ^. UserWalletId) ]
         return w
 
