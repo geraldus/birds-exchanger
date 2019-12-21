@@ -40,7 +40,6 @@ purchaseParaminingW htmlId p s t = do
         paraminingRate      = stocksParaRate stocks
         paraminingAmount    = paraminingTime * paraminingRate * amountCoins
         paramining          = fixedDoubleT 7 paraminingAmount
-
     $(widgetFile "client/stocks/purchases/paramining")
   where
     stocksParaRate s =

@@ -4,7 +4,7 @@
     $else
         <section>
             <div .container .py-3 style="min-height: 100%">
-                <div .row .d-none .d-md-block .mb-3>
+                <div .row .d-none .d-lg-block .mb-3>
                     <div .col-12 .mx-auto>
                         <ul .breadcrumb>
                             $forall (link, label) <- parents
