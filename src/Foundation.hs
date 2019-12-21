@@ -201,32 +201,37 @@ instance Yesod App where
                     , menuItemAccessCallback = isNothing muser
                     }
                 ]
+        let appClientItems = if projType == FenixApp
+                then [ ]
+                else
+                    [ MenuItem
+                        { menuItemLabel = mr MsgClientProfilePageTitle
+                        , menuItemRoute = ProfileR
+                        , menuItemAccessCallback = isClientLoggedIn
+                        }
+                    , MenuItem
+                        { menuItemLabel = mr MsgClientOrdersPageTitle
+                        , menuItemRoute = ClientOrdersR
+                        , menuItemAccessCallback = isClientLoggedIn
+                        }
+                    , MenuItem
+                        { menuItemLabel = mr MsgDeposit
+                        , menuItemRoute = DepositR
+                        , menuItemAccessCallback = isClientLoggedIn }
+                    , MenuItem
+                        { menuItemLabel = mr MsgWithdraw
+                        , menuItemRoute = WithdrawalR
+                        , menuItemAccessCallback = isClientLoggedIn }
+                    ]
 
         let clientMenuItems =
+                appClientItems
+                <>
                 [ MenuItem
-                    { menuItemLabel = mr MsgClientProfilePageTitle
-                    , menuItemRoute = ProfileR
-                    , menuItemAccessCallback = isClientLoggedIn
-                    }
-                , MenuItem
-                    { menuItemLabel = mr MsgClientOrdersPageTitle
-                    , menuItemRoute = ClientOrdersR
-                    , menuItemAccessCallback = isClientLoggedIn
-                    }
-                , MenuItem
-                    { menuItemLabel = mr MsgDeposit
-                    , menuItemRoute = DepositR
-                    , menuItemAccessCallback = isClientLoggedIn }
-                , MenuItem
-                    { menuItemLabel = mr MsgWithdraw
-                    , menuItemRoute = WithdrawalR
-                    , menuItemAccessCallback = isClientLoggedIn }
-                , MenuItem
                     { menuItemLabel = mr MsgClientSettingsPageTitle
                     , menuItemRoute = ClientSettingsR
                     , menuItemAccessCallback = isClientLoggedIn
-                    }
-                ]
+                    } ]
 
         let operatorRequestsMenuItems =
                 [ MenuItem
