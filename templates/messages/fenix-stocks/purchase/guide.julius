@@ -1,0 +1,18 @@
+$(document).ready(function () {
+    const prizmWalletRE = /^PRIZM(-[\w\W]{4}){3}-[\w\W]{5}$/
+
+    const guideId = '##{rawJS guideId}'
+    const input = $(`${guideId}-payer-address-input`)
+    const submit = $(`${guideId}-submit`)
+
+    function checkValidity() {
+        const v = input.val().trim()
+        if (v !== '' && prizmWalletRE.test(v)) {
+            submit.removeAttr('disabled')
+        } else {
+            submit.attr('disabled', 'disabled')
+        }
+    }
+
+    input.keyup(checkValidity)
+})

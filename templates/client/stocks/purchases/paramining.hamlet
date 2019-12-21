@@ -1,0 +1,12 @@
+<strong style="color: #ffc107">
+    <big .stocks-zlt-bounty .value>
+        +#{amount}#
+    <small>
+        \&#8239;ZLT
+<small .text-muted>
+    _{MsgStocksTokensAccrued}
+    <br>
+    <i .fas .fa-angle-double-up .stats-icon>
+    $if stocksParaRate stocks > 0
+        <span .stocks-zlt-bounty .para>
+            #{paramining}

@@ -61,6 +61,16 @@
                                         :Just route == currentRoute:.active
                                         href="@{route}">
                                             #{label}
+                                <a .dropdown-item .disabled>
+                                    <span .d-flex .text-uppercase>
+                                        <i .fas .fa-file-invoice .align-self-center>
+                                        <span .d-block .ml-1> _{MsgStocks}
+                                $forall MenuItem label route _ <- operatorStocksMenuItems
+                                    <a
+                                        .dropdown-item
+                                        :Just route == currentRoute:.active
+                                        href="@{route}">
+                                            #{label}
                             $if isSuLoggedIn
                                 <a .dropdown-item .disabled>
                                     <span .d-flex .text-uppercase>

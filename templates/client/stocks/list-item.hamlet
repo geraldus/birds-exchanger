@@ -1,0 +1,29 @@
+<div .row ##{htmlId}>
+    <div .col-12 .col-lg-10 .my-2>
+        <div .row .purchase-details data-purchase-id="#{purchaseId}">
+            <div .col-12>
+                <div .d-flex .justify-content-between>
+                    <div>
+                        <big>#{stocksAmount}
+                        <small .text-muted>
+                            _{MsgPiecesShort}&#8239;&times;&#8239;
+                            <span .text-uppercase>
+                                #{stocksPackName}
+                    <div>
+                        <small .text-muted>
+                            ^{significantDate}
+            <div .col-12>
+                <div .d-block .d-lg-none>
+                    ^{purchaseStatus}
+                <div .d-block .d-lg-none .text-right>
+                    <a href=#{url}>
+                        <small .text-lowercase>
+                            _{MsgReadMore}
+                <div .d-none .d-lg-flex .justify-content-between>
+                    <div>
+                        ^{purchaseStatus}
+                    <div .text-right>
+                        <a href=#{url}>
+                            <small .text-lowercase>
+                                _{MsgReadMore}
+

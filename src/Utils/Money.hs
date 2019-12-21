@@ -74,6 +74,9 @@ centsToCoins n = fromIntegral n / fromIntegral oneCoinCents
 cents2dblT :: Int -> Text
 cents2dblT = dbl2MoneyT . centsToCoins
 
+centsDouble2MoneyT :: Int -> Text
+centsDouble2MoneyT = dbl2MoneyT . centsToCoins
+
 -- | Render 'Double' as 'Text' with two fractional digits
 dbl2MoneyT :: Double -> Text
 dbl2MoneyT = fixedDoubleT 2

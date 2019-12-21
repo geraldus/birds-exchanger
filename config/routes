@@ -39,6 +39,10 @@
 /client/withdrawal/create            WithdrawalCreateR                     POST
 /client/withdrawal/cancel            ClientCancelWithdrawalR               POST
 
+/client/stocks/purchase              ClientStocksPurchaseR                 POST
+/client/stocks/purchase/#Text        ClientStocksPurchaseDetailsR      GET
+/client/stocks/purchase/confirm/#Text ClientStocksPurchaseConfirmationR    POST
+
 /operator/login                      OperatorLogInR  GET
 /operator/deposit-requests-list      OperatorDepositRequestsListR      GET
 /operator/accept-deposit-request     OperatorAcceptDepositRequestR     POST
@@ -47,6 +51,8 @@
 /operator/accept-withdrawal-request  OperatorAcceptWithdrawalRequestR  POST
 /operator/decline-withdrawal-request OperatorDeclineWithdrawalRequestR POST
 /operator/user-history/#UserId       OperatorUserHistoryR              GET
+/operator/stocks/purchase            OperatorStocksPurchaseIndexR      GET
+/operator/stocks/purchase/confirm/#StocksPurchaseId OperatorStocksPurchaseConfirmationR POST
 /info/manage/index                   ManageInfoIndexR                  GET
 /info/manage/add                     ManageInfoAddR                    GET POST
 /info/manage/update                  ManageInfoUpdateR                 POST

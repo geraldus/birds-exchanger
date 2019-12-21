@@ -1,0 +1,26 @@
+<h2 .h5 .d-lg-none>
+    _{MsgPageTitleClientStocksPurchaseDetails} ^{packName}
+
+<dl ##{htmlId} .my-3 .row>
+    <dt .col-12 .col-lg-3>
+        _{MsgStocksPack}
+    <dd .form-group .col-12 .col-lg-9>
+        ^{packName}
+    <dt .col-12 .col-lg-3 .text-capitalize>
+        _{MsgQuantity}
+    <dd .form-group .col-12 .col-lg-9>
+        #{amount}
+        <small .text-muted>
+            _{MsgPiecesShort}
+    <dt .col-12 .col-lg-3>
+        _{MsgDate}
+    <dd .form-group .col-12 .col-lg-9>
+        ^{purchaseDate}
+    <dt .col-12 .col-lg-3>
+        _{MsgStatus}
+    <dd .form-group .col-12 .col-lg-9>
+        ^{purchaseStatus}
+
+$if not clientConfirmed
+    <form action=@{ClientStocksPurchaseConfirmationR purchaseId} method="POST">
+        ^{guide}

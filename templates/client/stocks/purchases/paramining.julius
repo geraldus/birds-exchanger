@@ -1,0 +1,23 @@
+$(document).ready(function () {
+    const id = '##{rawJS htmlId}'
+    const placeholder = $(`${id} .stocks-zlt-bounty.para`)
+
+    console.log(placeholder)
+
+    function renderParaming() {
+        const now = new Date()
+        const paraminingTimestamp = #{ paraminingTimestamp }
+        const paraminingRate = #{ rawJS (show paraminingRate) }
+        const paraminingBase = #{ rawJS (show amountCoins) }
+        const paraminingTime = now.getTime() - paraminingTimestamp
+        const value = paraminingTime * paraminingRate * paraminingBase
+        placeholder.text(value.toFixed(7))
+    }
+
+    function loop() {
+        renderParaming()
+        requestAnimationFrame(loop)
+    }
+
+    loop()
+})

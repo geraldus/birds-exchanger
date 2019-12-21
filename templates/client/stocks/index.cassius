@@ -1,0 +1,5 @@
+.purchase-list
+    .purchase-details
+        background-color: #e9ecef
+        border-radius: 0.2rem
+        padding: 0.3rem

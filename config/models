@@ -226,3 +226,21 @@ StocksActive json
     left Int
     UniqueStocksActive stock
     deriving Show
+
+StocksPurchase json
+    user UserId
+    stocks StocksId
+    amount Int
+    created UTCTime
+    transferAddress Text
+    token Text
+    -- ^ platform wallet address where client should transfer funds
+    userConfirmed UTCTime Maybe
+    payerAddress Text Maybe
+    -- ^ client's wallet address
+    cancelled UTCTime Maybe
+    accepted UTCTime Maybe
+    acceptedBy UserId Maybe
+    acceptedByIdent Text Maybe
+    UniqueStocksPurchase token
+    deriving Show

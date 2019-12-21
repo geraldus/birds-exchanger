@@ -28,6 +28,8 @@ MenuTitleClientOrders: Мои ордера
 MenuTitleClientDeposit: Пополнение
 MenuTitleClientWithdrawal: Вывод
 
+NavLabelStocksPurchase: Покупка акций
+
 # PAGE TITLES
 TermsOfUseTitle: Правила пользования сервисом
 PasswordForgetTitle: Восстановление пароля
@@ -53,9 +55,12 @@ ClientSettingsPageTitle: Настройки
 ClientWalletStatsBalanceSectionTitle: На балансе
 ClientWalletStatsOrdersSectionTitle: В активных ордерах
 ClientWalletStatsWithdrawalSectionTitle: В неисполненных заявках на вывод
+ClientStocksHistory: История операций
+PageTitleClientStocksPurchaseDetails: Покупка акций
 
 ### CLIENT MESSAGES
 MessageClientPasswordResetTitle: Восстановление пароля
+MessageClientPurchaseNotFound: Операция не найдена
 
 
 # FORMS
@@ -185,6 +190,7 @@ Deposit: Пополнение
 Amount: Сумма
 Currency: Валюта
 DepositAmount: Сумма пополнения
+Quantity: количество
 QuantityShort: Кол-во
 ParaMining: Парамайнинг
 DepositMethod: Способ пополнения
@@ -217,7 +223,7 @@ AmountFrozen: Удержано средств
 CantViewThisOrder: Невозможно отобразить данные ордера
 ViewOrderHistory: Показать историю ордера
 CancelRequest: Отменить заявку
-UserCancelled: Отменён пользователем
+UserCancelled: Отменено пользователем
 ProcessRequest: Обработать запрос
 ExpectedCalculation: Ожидаемый расчёт
 ActualCalculation: Расчёт по факту
@@ -248,6 +254,17 @@ FormButtonStocksSell: продать
 FormLabelStocksSellNotAvailableYet: продажа акций ещё не открыта
 FormTextSignInToTrade: Авторизуйтесь на платформе для торговли акциями
 FormErrorExceededAvailableStocks: Невозможно приобрести такое количество акций
+FormErrorNoPaymentAddressee: Перевод активов временно невозможен.
+FormSumbitConfirmTransfer: Перевод выполнен
+StocksTokensAccrued: токенов начислено
+PageTitleStocksDetailsAbbr stocksAbbr@Text: Подробности покупки акции #{stocksAbbr}
+PageBreadcrumbTitleStocksDetails: Информация о покупке
+
+GuideTransferFunds: Перевите средства на указанный адрес
+GuideProvideYourWalletAddress: Укажите адрес Prizm-кошелька, с которого Вы осуществили перевод
+GuidePressButton: Нажмите кнопку
+
+PurchaseStatusNotConfirmed: Требуется подтвердить перевод
 
 # OPERATORS
 
@@ -258,6 +275,8 @@ DeclineRequest: Отклонить заявку
 DeclineReason: Причина отмены
 DepositPayerAddress: Счёт плательщика
 DepositTransactionCode: Код операции
+StocksAvailable: Остаток акций
+FormSubmitOperatorAcceptStocksPurchase: подтвердить покупку акций
 
 WithdrawalExecuted: Перевод выполнен
 
@@ -301,8 +320,14 @@ NewsThumbImageAlt: иконка новости
 
 All: Все
 ReadMore: Подробнее
+SeeDetails: смотрите подробности
 DoNotShowAgain: Больше не показывать
-
+PiecesShort: шт.
+Recipient: Получатель
+Price: Цена
+PriceCurrency c@Currency: Цена, #{currencySymbol c}
+YourWalletAddress: Адрес Вашего кошелька
+Processing: В обработке
 
 SendEmail: Написать на эл.почту
 ToTelegramChat: Перейти в Telegram-чат
@@ -330,7 +355,11 @@ WebSite: Веб.сайт
 VkComTitle: ВКонтакте
 
 # Messages
-
+APIMissingFormData: Не получены данные формы.
+APIInvalidFormData: Неверные данные формы.
 APIFailedToSendEmailAuthenticationFailed: Ошибка при отправке письма: неверные данные пользователя.
 APIInvalidPasswordChangeLink: Недействительная ссылка для смены пароля
 APIPleaseChangePassword: Пожалуйста, установите новый пароль.
+APIInvalidStocksPack packName@Text: Неизвестный пакет акций "#{packName}".
+APIImpossibleStocksAbbrNotFound stocksAbbr@Text: Случилось невозможное: акции "#{stocksAbbr}" не найдены в базе данных
+APIInvalidStocksPurchaseToken: Неверный ключ операции

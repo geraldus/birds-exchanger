@@ -20,44 +20,52 @@ module Application
     , db
     ) where
 
-import           Import                               hiding ( isNothing, on,
-                                                        update, (=.), (==.) )
-import           Local.Persist.Currency               ( Currency, ouroC, rubC )
-import           Local.Persist.Exchange               ( ExchangePair (..) )
-import           Local.Persist.TransferMethod         ( TransferMethod, ctmOuro,
-                                                        ftmAlphaRub,
-                                                        ftmPayPalRub, ftmQiwiRub,
-                                                        ftmSberRub,
-                                                        ftmTinkoffRub )
-import           Market.Functions                     ( reduceDomStats )
+import           Import                                        hiding
+                                                                 ( isNothing, on,
+                                                                 update, (=.),
+                                                                 (==.) )
+import           Local.Persist.Currency                        ( Currency,
+                                                                 ouroC, rubC )
+import           Local.Persist.Exchange                        ( ExchangePair (..) )
+import           Local.Persist.TransferMethod                  ( TransferMethod,
+                                                                 ctmOuro,
+                                                                 ftmAlphaRub,
+                                                                 ftmPayPalRub,
+                                                                 ftmQiwiRub,
+                                                                 ftmSberRub,
+                                                                 ftmTinkoffRub )
+import           Market.Functions                              ( reduceDomStats )
 import           Type.App
-import           Utils.Database.Orders                ( selectActiveOrdersOf )
+import           Utils.Database.Orders                         ( selectActiveOrdersOf )
 
-import           Control.Monad                        ( void )
-import           Control.Monad.Logger                 ( liftLoc, runLoggingT )
-import qualified Crypto.Nonce                         as CN
+import           Control.Monad                                 ( void )
+import           Control.Monad.Logger                          ( liftLoc,
+                                                                 runLoggingT )
+import qualified Crypto.Nonce                                  as CN
 import           Database.Esqueleto
-import           Database.Persist.Postgresql          ( createPostgresqlPool,
-                                                        pgConnStr, pgPoolSize,
-                                                        runSqlPool )
-import           Language.Haskell.TH.Syntax           ( qLocation )
-import           Network.HTTP.Client.TLS              ( getGlobalManager )
-import           Network.Wai                          ( Middleware )
-import           Network.Wai.Handler.Warp             ( Settings,
-                                                        defaultSettings,
-                                                        defaultShouldDisplayException,
-                                                        getPort, runSettings,
-                                                        setHost, setOnException,
-                                                        setPort )
-import           Network.Wai.Middleware.RequestLogger ( Destination (Logger),
-                                                        IPAddrSource (..),
-                                                        OutputFormat (..),
-                                                        destination,
-                                                        mkRequestLogger,
-                                                        outputFormat )
-import           System.Log.FastLogger                ( defaultBufSize,
-                                                        newStdoutLoggerSet,
-                                                        toLogStr )
+import           Database.Persist.Postgresql                   ( createPostgresqlPool,
+                                                                 pgConnStr,
+                                                                 pgPoolSize,
+                                                                 runSqlPool )
+import           Language.Haskell.TH.Syntax                    ( qLocation )
+import           Network.HTTP.Client.TLS                       ( getGlobalManager )
+import           Network.Wai                                   ( Middleware )
+import           Network.Wai.Handler.Warp                      ( Settings,
+                                                                 defaultSettings,
+                                                                 defaultShouldDisplayException,
+                                                                 getPort,
+                                                                 runSettings,
+                                                                 setHost,
+                                                                 setOnException,
+                                                                 setPort )
+import           Network.Wai.Middleware.RequestLogger          ( Destination (Logger),
+                                                                 IPAddrSource (..),
+                                                                 OutputFormat (..),
+                                                                 destination,
+                                                                 mkRequestLogger,
+                                                                 outputFormat )
+import           System.Log.FastLogger                         ( defaultBufSize, newStdoutLoggerSet,
+                                                                 toLogStr )
 
 
 -- Import all relevant handler modules here.
@@ -73,6 +81,8 @@ import           Handler.Client.Order.Create
 import           Handler.Client.Orders
 import           Handler.Client.Settings
 import           Handler.Client.Stocks.Purchase
+import           Handler.Client.Stocks.Purchase.Confirmation
+import           Handler.Client.Stocks.Purchase.Details
 import           Handler.Client.Withdrawal
 import           Handler.Common
 import           Handler.Home
@@ -84,6 +94,8 @@ import           Handler.Operator.DepositRequestsList
 import           Handler.Operator.HandleDeposit
 import           Handler.Operator.HandleWithdrawal
 import           Handler.Operator.LogIn
+import           Handler.Operator.Stocks.Purchase.Confirmation
+import           Handler.Operator.Stocks.Purchase.Index
 import           Handler.Operator.User.History
 import           Handler.Operator.WebSocket
 import           Handler.Operator.WithdrawalRequest

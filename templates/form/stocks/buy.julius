@@ -140,4 +140,5 @@ $(document).ready(() => {
     amountInput.keydown(amountInputHandler(formObj))
 
     resetForm(formObj)
+    updateTotals(formObj)
 })

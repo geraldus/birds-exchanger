@@ -16,45 +16,47 @@ module Foundation where
 import           Import.NoFoundation
 import           Yesod.Auth.Hardcoded
 import           Yesod.Auth.Message
-import           Yesod.Core.Types             ( Logger )
-import qualified Yesod.Core.Unsafe            as Unsafe
-import           Yesod.Default.Util           ( addStaticContentExternal )
+import           Yesod.Core.Types                ( Logger )
+import qualified Yesod.Core.Unsafe               as Unsafe
+import           Yesod.Default.Util              ( addStaticContentExternal )
 import           Yesod.Form.I18n.Russian
 
 import           Local.Auth
-import           Local.Params                 ( defaultWalletCurrencies )
+import           Local.Params                    ( defaultWalletCurrencies )
 import           Local.Persist.Currency
 import           Local.Persist.TransferMethod
 import           Local.Persist.UserRole
-import           Market.Type                  ( DOMStats )
-import           Settings.MailRu              ( supportEmailFenix,
-                                                supportEmailOutbirds )
+import           Market.Type                     ( DOMStats )
+import           Settings.MailRu                 ( supportEmailFenix,
+                                                   supportEmailOutbirds )
 import           Type.App
-import           Type.Money                   ( Percent (..) )
-import           Type.Wallet                  ( WalletData (..) )
+import           Type.Money                      ( Percent (..) )
+import           Type.Wallet                     ( WalletData (..) )
 import           Utils.Common
-import           Utils.Database.User.Wallet   ( currencyAmountPara,
-                                                getOrCreateWalletDB,
-                                                getUserWalletStatsDB,
-                                                getUserWallets )
-import           Utils.Form                   ( currencyOptionListRaw,
-                                                transferOptionsRaw )
-import           Utils.Money                  ( fixedDoubleT )
-import           Utils.Render                 ( renderCurrencyAmount )
+import           Utils.Database.User.Wallet      ( currencyAmountPara,
+                                                   getOrCreateWalletDB,
+                                                   getUserWalletStatsDB,
+                                                   getUserWallets )
+import           Utils.Form                      ( currencyOptionListRaw,
+                                                   transferOptionsRaw )
+import           Utils.Money                     ( fixedDoubleT )
+import           Utils.Render                    ( renderCurrencyAmount )
 
-import           Control.Monad.Logger         ( LogSource )
-import qualified Crypto.Nonce                 as CN
-import qualified Data.CaseInsensitive         as CI
-import           Data.List                    ( findIndex )
-import qualified Data.Text.Encoding           as TE
-import           Data.Time.Clock.POSIX        ( utcTimeToPOSIXSeconds )
-import           Data.Version                 ( showVersion )
-import           Database.Persist.Sql         ( ConnectionPool, fromSqlKey,
-                                                runSqlPool )
-import           Paths_prizm_exchange         ( version )
-import           Text.Hamlet                  ( hamletFile )
-import           Text.Jasmine                 ( minifym )
-import           Text.Read                    ( readMaybe )
+import           Control.Monad.Logger            ( LogSource )
+import           Control.Monad.Trans.Writer.Lazy ( Writer )
+import qualified Crypto.Nonce                    as CN
+import qualified Data.CaseInsensitive            as CI
+import           Data.List                       ( findIndex )
+import           Data.Semigroup                  ( Endo )
+import qualified Data.Text.Encoding              as TE
+import           Data.Time.Clock.POSIX           ( utcTimeToPOSIXSeconds )
+import           Data.Version                    ( showVersion )
+import           Database.Persist.Sql            ( ConnectionPool, fromSqlKey,
+                                                   runSqlPool )
+import           Paths_prizm_exchange            ( version )
+import           Text.Hamlet                     ( hamletFile )
+import           Text.Jasmine                    ( minifym )
+import           Text.Read                       ( readMaybe )
 
 
 exchangerName :: Text
@@ -235,7 +237,11 @@ instance Yesod App where
                     { menuItemLabel = mr MsgWithdraw
                     , menuItemRoute = OperatorWithdrawalRequestsListR
                     , menuItemAccessCallback = isOperatorLoggedIn } ]
-
+        let operatorStocksMenuItems =
+                [ MenuItem
+                    { menuItemLabel = mr MsgNavLabelStocksPurchase
+                    , menuItemRoute = OperatorStocksPurchaseIndexR
+                    , menuItemAccessCallback = isOperatorLoggedIn } ]
 
         let editorMenuItems =
                 [ MenuItem
@@ -279,7 +285,7 @@ instance Yesod App where
         setReferrerHttpOnlyCookie
         pc <- widgetToPageContent $ do
             addStylesheet (StaticR _3rd_party_fontawesome_css_all_css)
-            addStylesheet (StaticR _3rd_party_fontawesome_js_all_js)
+            addScript (StaticR _3rd_party_fontawesome_js_all_js)
             $(widgetFile "form/common")
             $(widgetFile "default/nav")
             $(widgetFile "default/layout")
@@ -334,11 +340,14 @@ instance Yesod App where
     isAuthorized ClientCancelWithdrawalR True        = isClientAuthenticated
     isAuthorized WithdrawalCreateR False             = postOnly
     isAuthorized ClientCancelWithdrawalR False       = postOnly
+    isAuthorized (ClientStocksPurchaseR) _           = isClientAuthenticated
     isAuthorized ExchangeOrderCreateR True           = isClientAuthenticated
     isAuthorized ExchangeOrderCreateR False          = postOnly
     isAuthorized ClientOrdersR _                     = isClientAuthenticated
     isAuthorized (ClientOrderViewR _) _              = isClientAuthenticated
     isAuthorized ClientOrderCancelR _                = isClientAuthenticated
+    isAuthorized (ClientStocksPurchaseDetailsR _) _  = isClientAuthenticated
+    isAuthorized (ClientStocksPurchaseConfirmationR _) _ = isClientAuthenticated
     isAuthorized ClientSettingsR _                   = isClientAuthenticated
     -- STAFF
     isAuthorized AdminLogInR _                       = return Authorized
@@ -350,6 +359,8 @@ instance Yesod App where
     isAuthorized OperatorWithdrawalRequestsListR _   = isStaffAuthenticated
     isAuthorized OperatorAcceptWithdrawalRequestR _  = isStaffAuthenticated
     isAuthorized OperatorDeclineWithdrawalRequestR _ = isStaffAuthenticated
+    isAuthorized OperatorStocksPurchaseIndexR _      = isOperatorAuthenticated
+    isAuthorized (OperatorStocksPurchaseConfirmationR _) _ = isOperatorAuthenticated
     isAuthorized (OperatorUserHistoryR _) _          = isOperatorAuthenticated
     isAuthorized OperatorWebSocketR _                = isOperatorAuthenticated
     -- ADMINS
@@ -443,6 +454,8 @@ instance YesodBreadcrumbs App where
         breadcrumb' _ _ (ClientOrderViewR oid) = return
             ("Ордер #" <> (pack . show  .fromSqlKey) oid, Just ClientOrdersR)
         breadcrumb' _ _ DepositR    = return ("Внесение средств", Just ProfileR)
+        breadcrumb' _ mr (ClientStocksPurchaseDetailsR _) =
+            return (mr MsgPageBreadcrumbTitleStocksDetails, Just StocksR)
         breadcrumb' _ _ (DepositRequestConfirmationR _) =
             return ("Подтверждение", Just DepositR)
         breadcrumb' _ _ WithdrawalR = return ("Вывод средств", Just ProfileR)
@@ -688,6 +701,11 @@ maybeClientAuthPair :: Handler (Maybe (UserId, User))
 maybeClientAuthPair = do
     p <- maybeAuthPair
     return . join $ eitherClientToMaybe <$> p
+
+maybeClientId :: Handler (Maybe UserId)
+maybeClientId = do
+    p <- maybeAuthPair
+    return . fmap fst . join $ eitherClientToMaybe <$> p
 
 eitherClientToMaybe ::
     (Either UserId Text, Either User SuperUser) -> Maybe (UserId, User)
@@ -965,3 +983,23 @@ twoColsLayout _extraHtml maybeId pageTitle title leftCol rightCol = do
     htmlId <- maybe newIdent return maybeId
     setAppTitle [ pageTitle ]
     $(widgetFile "page/layout/two-cols-lg")
+
+
+redirectWithMessages ::
+        [(Text, AppMessage)]
+    -> [(Text, Html)]
+    -> Route App
+    -> Writer (Endo [ProvidedRep Handler]) ()
+redirectWithMessages ms ts r = provideRep $ do
+    mapM_ (uncurry addMessageI) ms
+    mapM_ (uncurry addMessage)  ts
+    (redirect r :: Handler Html)
+
+respondJSONErrorMessages ::
+    Text -> [(Text, Text)] -> Writer (Endo [ProvidedRep Handler]) ()
+respondJSONErrorMessages m ts = provideRep . pure . object $
+    [ "status" .= ("fail" :: Text)
+    , "message" .= m
+    ]
+    <> if length ts > 0 then [ "errors" .= toJSON ts ] else [ ]
+

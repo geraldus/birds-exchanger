@@ -1,0 +1,9 @@
+$(document).ready(function () {
+    const id = '##{rawJS htmlId}'
+    const button = $(`${id}-confirm-button`)
+    button.click(function (e) {
+        if (!confirm('#{rawJS confirmText}')) {
+            e.preventDefault()
+        }
+    })
+})

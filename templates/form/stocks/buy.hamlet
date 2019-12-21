@@ -1,4 +1,4 @@
-<form ##{formId} .#{formClass} action="#" method=post>
+<form ##{formId} .#{formClass} action="@{ClientStocksPurchaseR}" method=post>
     <div .form-group>
         <label .form-label for="#{formId}-buy-method-select">
             _{MsgBuyMethod}
@@ -13,11 +13,12 @@
         <label .form-label for="#{formId}-stocks-select">
             _{MsgStocksPack}
         <select
+            name="stocks-pack"
             ##{formId}-stocks-select
             .form-control
             aria-describedby="#{formId}-stocks-price-help"
             >
-            <option value="">
+            <option value="" disabled>
                 _{MsgFormOptionsStocksSelectStocksPack}
             <option value="fenix-start">
                 _{MsgStocksPackTitleFenixStart}
@@ -32,6 +33,7 @@
         <label .form-label for="#{formId}-buy-amount-input">
             _{MsgAmount}
         <input
+            name="amount"
             ##{formId}-buy-amount-input
             .form-control
             type="number"
