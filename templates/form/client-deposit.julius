@@ -4,9 +4,9 @@ $(document).ready(() => {
     let transferMethodSelect = $('##{rawJS tid}')
     let defaultOption = $([
         '<option disabled selected value="">',
-        '#{rawJS(messageRender MsgFormLabelOptionSelectDepositTransferMethod)}',
+        '#{rawJS (messageRender MsgFormLabelOptionSelectDepositTransferMethod)}',
         '</option>'
-    ].join())
+    ].join(''))
     transferMethodSelect.prepend(defaultOption)
 
     const transferMethods = $('##{rawJS tid} option')

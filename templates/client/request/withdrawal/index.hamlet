@@ -1,4 +1,4 @@
-<h1 .h5 .d-md-none>_{MsgClientWithdrawalPageTitle}
+<h1 .h5 .d-lg-none>_{MsgClientWithdrawalPageTitle}
 
 <form
     ##{formId}
