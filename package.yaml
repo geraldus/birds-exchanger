@@ -59,6 +59,7 @@ dependencies:
 - network
 - pretty-simple
 - blaze-markup
+- transformers
 
 default-extensions:
 - TemplateHaskell
