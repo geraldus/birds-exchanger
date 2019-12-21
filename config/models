@@ -13,6 +13,7 @@ Email json
     userId UserId Maybe
     verkey Text Maybe
     UniqueEmail email
+    deriving Show
 
 PasswordResetToken json
     email EmailId
@@ -217,9 +218,11 @@ Stocks json
     abbr Text
     price Int
     UniqueStocks abbr
+    deriving Show
 
 StocksActive json
     stock StocksId
     total Int
     left Int
     UniqueStocksActive stock
+    deriving Show
