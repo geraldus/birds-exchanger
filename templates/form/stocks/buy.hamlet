@@ -3,7 +3,7 @@
         <label .form-label for="#{formId}-buy-method-select">
             _{MsgBuyMethod}
         <select ##{formId}-buy-method-select .form-control>
-            <option value="" disabled>
+            <option value="" disabled selected>
                 _{MsgFormOptionsStocksSelectBuyMethod}
             <option value="inner-wallet" disabled>
                 _{MsgFormOptionsStocksInnerWalletBuyMethod pzmC}
