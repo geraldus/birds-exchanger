@@ -22,7 +22,7 @@ getFaviconR = do
 
 getFenixFaviconR :: Handler TypedContent
 getFenixFaviconR = return $ TypedContent "image/x-icon" $
-    toContent $(embedFile "config/fenix-favicon.png")
+    toContent $(embedFile "config/fenix-N-favicon.png")
 
 getOutbirdsFaviconR :: Handler TypedContent
 getOutbirdsFaviconR = return $ TypedContent "image/x-icon" $

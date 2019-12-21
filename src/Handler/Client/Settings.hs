@@ -32,7 +32,8 @@ getClientSettingsR = do
     let refLink = urlRender
             HomeR
             [(appRefTokenParamName s, (referrerToken (entityVal refToken)))]
-    defaultLayout
+    defaultLayout $ do
+        setAppPageTitle MsgClientSettingsPageTitle
         $(widgetFile "client/settings")
 
 getPasswordChangeR :: Handler Html
@@ -81,16 +82,16 @@ postPasswordChangeGuideR = do
                     conn
             ret <- if authSuccess
                 then do
-                    let from = if projType == FenixApp
-                            then usernameFenixNoreply
-                            else usernameOutbirdsNoreply
+                    let (from, exHost) = if projType == FenixApp
+                            then (usernameFenixNoreply, "FENIX.TRADING")
+                            else (usernameOutbirdsNoreply, "OUTB.INFO")
                         subject = messageRender
                             MsgMessageClientPasswordResetTitle
                     sendMimeMail (unpack email)
                                   (unpack from)
                                   (unpack subject)
-                                  (textContent url)
-                                  (htmlContent url homeUrl email)
+                                  (textContent url exHost)
+                                  (htmlContent url homeUrl email exHost)
                                   []
                                   conn
                     return []
@@ -102,12 +103,12 @@ postPasswordChangeGuideR = do
             return ret
 
     -- @TODO: Move to template file and use stFile QQ to embed
-    textContent :: Text -> TL.Text
-    textContent linkUrl =  fromStrict
+    textContent :: Text -> Text -> TL.Text
+    textContent linkUrl exchangerHost =  fromStrict
             [stFile|templates/mail/password-reset-link.text|]
 
-    htmlContent :: Text -> Text -> Text -> TL.Text
-    htmlContent linkUrl siteUrl userName = renderHtml
+    htmlContent :: Text -> Text -> Text -> Text -> TL.Text
+    htmlContent linkUrl siteUrl userName exchangerHost = renderHtml
         $(shamletFile "templates/mail/password-reset-link.hamlet")
 
     passwordResetGuide :: Html

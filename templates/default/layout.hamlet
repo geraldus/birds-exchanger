@@ -39,6 +39,6 @@
     <div .row .mt-4>
         <div .col style="background: #e9ecef" .pt-3>
             <p .text-center>
-                _{MsgCurrencyExchangeService} «OutBirds» #
+                _{MsgCurrencyExchangeService} «#{hostname}» #
                     <small .text-muted>v#{appVersion}
                         <small .text-lowercase> _{MsgVerPublicBeta}

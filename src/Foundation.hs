@@ -59,11 +59,11 @@ import           Text.Jasmine                    ( minifym )
 import           Text.Read                       ( readMaybe )
 
 
-exchangerName :: Text
-exchangerName = "OutBirds Cryptochanger"
+-- exchangerName :: Text
+-- exchangerName = "OutBirds Cryptochanger"
 
-exchangerHost :: Text
-exchangerHost = "OutBirds (outb.info)"
+-- exchangerHost :: Text
+-- exchangerHost = "OutBirds (outb.info)"
 
 data AppChannels = AppChannels
     { appChannelsClientNotifications      :: TChan Value

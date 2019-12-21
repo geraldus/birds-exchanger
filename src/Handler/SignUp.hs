@@ -33,12 +33,6 @@ outbirdsFrom = "noreply@outb.info"
 subject :: String
 subject = "Подтвердите ваш электронный ящик"
 
-plainBody :: Text -> Text -> TL.Text
-plainBody = textContent
-
-htmlBody :: Text -> Text -> TL.Text
-htmlBody = htmlContent
-
 
 getSignUpR :: Handler Html
 getSignUpR = do
@@ -101,9 +95,9 @@ postSignUpR = do
         urlRender <- getUrlRender
         let verUrl = urlRender $ SignUpVerifyR email key
         projType <- appType . appSettings <$> getYesod
-        let from = if projType == FenixApp
-                then usernameFenixNoreply
-                else usernameOutbirdsNoreply
+        let (from, exName, exHost) = if projType == FenixApp
+                then (usernameFenixNoreply, "FENIX.TRADING", "FENIX.TRADING")
+                else (usernameOutbirdsNoreply, "OutBirds", "OUTB.INFO")
         liftIO $ do
             conn <- connectSMTPSSLWithSettings
                 (unpack serverName)
@@ -118,19 +112,24 @@ postSignUpR = do
                 then sendMimeMail (T.unpack email)
                                   (unpack from)
                                   subject
-                                  (plainBody email verUrl)
-                                  (htmlBody email verUrl)
+                                  (plainBody email verUrl exName exHost)
+                                  (htmlBody email verUrl exName exHost)
                                   []
                                   conn
                 else putStrLn "Authentication failed."
             closeSMTP conn
 
+    plainBody = textContent
+
+    htmlBody = htmlContent
+
+
 data UserCreateResult
     = CreateError Text
     | CreateSuccess
 
-textContent :: Text -> Text -> TL.Text
-textContent _email url = renderHtml [shamlet|
+textContent :: Text -> Text -> Text -> Text -> TL.Text
+textContent _email url exchangerName exchangerHost = renderHtml [shamlet|
     Необходимо подтверждение электронной почты.
 
     Для завершения регистрации на сайте #{exchangerHost} пройдите по ссылке:
@@ -138,23 +137,33 @@ textContent _email url = renderHtml [shamlet|
 
     Если это письмо пришло Вам по ошибке, просто проигнорируйте его.
 
-    ------------------------------------------
+    ----------------------------------------------------------------------------
     #{exchangerName}
     |]
 
-htmlContent :: Text -> Text -> TL.Text
-htmlContent _email url = renderHtml [shamlet|
+htmlContent :: Text -> Text -> Text -> Text -> TL.Text
+htmlContent _email url exchangerName exchangerHost = renderHtml [shamlet|
     <html>
         <head>
         <body>
-            <h3>#{exchangerName}
+            <h3>#{exchangerName} | Регистрация
             <h4>Необходимо подтверждение электронной почты
             <br>
             <br>
-            <p>Для завершения регистрации на сайте #{exchangerHost} пройдите по ссылке:
-            <p>#{url}
+            <p>
+                Уважаемый пользователь,
+            <p>
+                для завершения регистрации на сайте #{exchangerHost} пройдите по
+                <a href="#{url}">этой ссылке
             <p>
             <p>Если это письмо пришло Вам по ошибке, просто проигнорируйте его.
+            <p>
+                <small>
+                    Прямая ссылка: #{url}
+
+            <p style="text-align: right;">
+                <i>
+                    С уважением, Администрация #{exchangerHost}.
     |]
 
 
