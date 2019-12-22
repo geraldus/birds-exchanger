@@ -289,7 +289,6 @@ instance Yesod App where
 
         setReferrerHttpOnlyCookie
         pc <- widgetToPageContent $ do
-            addStylesheet (StaticR _3rd_party_fontawesome_css_all_css)
             addScript (StaticR _3rd_party_fontawesome_js_all_js)
             $(widgetFile "form/common")
             $(widgetFile "default/nav")
