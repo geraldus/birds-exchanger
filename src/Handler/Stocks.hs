@@ -7,6 +7,7 @@ import           Local.Persist.Currency ( pzmC )
 import           Stocks.Widgets         ( purchaseStatusW )
 import           Utils.App.Client       ( dateTimeRowW )
 import           Utils.Stocks           ( purchaseSignificantDate )
+import           Utils.Database.User.Stocks ( queryClientPurchases )
 
 import           Database.Esqueleto
 import           Text.Julius            ( rawJS )
@@ -74,13 +75,3 @@ sellForm idMaybe classMaybe = do
     $(widgetFile "form/stocks/sell")
     $(widgetFile "messages/sell-not-avail-yet")
 
-queryClientPurchases ::
-       MonadIO m
-    => UserId -> SqlPersistT m [(Entity StocksPurchase, Entity Stocks)]
-queryClientPurchases uid = select . from $
-    \(u `InnerJoin` p `InnerJoin` s) -> do
-        on (s ^. StocksId ==. p ^. StocksPurchaseStocks)
-        on (p ^. StocksPurchaseUser ==. u ^. UserId)
-        orderBy [ desc (p ^. StocksPurchaseCreated) ]
-        where_ (u ^. UserId ==. val uid)
-        return (p, s)
