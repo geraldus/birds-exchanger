@@ -11,7 +11,8 @@
     <h3 .h5 .text-center>Пакет «ПРЕМИУМ»
     <p>
         Стоимость 1 акции:
-        <strong>50000
+        <strong>
+            <big>50000
             <small .text-muted> PRIZM
         <br>
         Акций всего:
@@ -20,8 +21,8 @@
         <br>
         Остаток акций, доступных для приобретения:
         <strong>
-            <span .stocks-avail .value>
-                100
+            <big .stocks-avail .value>
+                #{show fnxPLeft}
         <small .text-muted>шт.
     <h4 .h5>
         Токены ZLT

@@ -1,32 +1,34 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Handler.Stocks ( getStocksR ) where
 
-import           Import                 hiding ( on, (==.) )
+import           Import                     hiding ( on, (==.) )
 
-import           Local.Persist.Currency ( pzmC )
-import           Stocks.Widgets         ( purchaseStatusW )
-import           Utils.App.Client       ( dateTimeRowW )
-import           Utils.Stocks           ( purchaseSignificantDate )
+import           Local.Persist.Currency     ( pzmC )
+import           Stocks.Widgets             ( purchaseStatusW )
+import           Utils.App.Client           ( dateTimeRowW )
+import           Utils.Database.Stocks      ( queryStocksActives )
 import           Utils.Database.User.Stocks ( queryClientPurchases )
+import           Utils.Stocks               ( purchaseSignificantDate )
 
-import           Database.Esqueleto
-import           Text.Julius            ( rawJS )
+import           Text.Julius                ( rawJS )
 
 
 getStocksR :: Handler Html
-getStocksR = defaultLayout $ do
-    setAppPageTitle MsgStocks
-    twoColsLayout
-        noCSRF noPredefinedId MsgStocks title leftCol rightCol
-    client <- handlerToWidget maybeClientId
-    clientHistoryW client
+getStocksR =
+    defaultLayout $ do
+        setAppPageTitle MsgStocks
+        twoColsLayout
+            noCSRF noPredefinedId MsgStocks title leftCol rightCol
+        client <- handlerToWidget maybeClientId
+        clientHistoryW client
   where
     title = [whamlet|_{MsgPageTitleStocks}|]
 
     leftCol  = do
         formId <- newIdent
+        stocksActives <- liftHandler . runDB $ queryStocksActives
         colHeaderMessage MsgStocksSubtitleBuy
-        buyForm (Just formId) Nothing
+        buyForm stocksActives (Just formId) Nothing
 
     rightCol = do
         colHeaderMessage MsgStocksSubtitleSell
@@ -57,16 +59,27 @@ getStocksR = defaultLayout $ do
         $(widgetFile "client/stocks/list-item")
 
 
-buyForm :: Maybe Text -> Maybe Text -> Widget
-buyForm idMaybe classMaybe = do
+buyForm ::
+       [(Entity StocksActive, Entity Stocks)]
+    -> Maybe Text
+    -> Maybe Text
+    -> Widget
+buyForm actives idMaybe classMaybe = do
     let formClass = fromMaybe "stocks-buy-form .mt-5 .mt-lg-0" classMaybe
     formId <- maybe newIdent return idMaybe
     maybeClientUser <- handlerToWidget maybeClientAuthPair
+    let fnxBLeft = findActive "FNXB" actives
+    let fnxSLeft = findActive "FNXS" actives
+    let fnxPLeft = findActive "FNXP" actives
     $(widgetFile "form/stocks/buy")
     $(widgetFile "messages/fenix-stocks/pack-desc/generic")
     $(widgetFile "messages/fenix-stocks/pack-desc/start")
     $(widgetFile "messages/fenix-stocks/pack-desc/standard")
     $(widgetFile "messages/fenix-stocks/pack-desc/premium")
+  where
+    findActive abr =
+        maybe 0 (stocksActiveLeft . entityVal . fst)
+            . stocksActiveByAbbr abr
 
 sellForm :: Maybe Text -> Maybe Text -> Widget
 sellForm idMaybe classMaybe = do
@@ -75,3 +88,9 @@ sellForm idMaybe classMaybe = do
     $(widgetFile "form/stocks/sell")
     $(widgetFile "messages/sell-not-avail-yet")
 
+stocksActiveByAbbr ::
+       Text
+    -> [(Entity StocksActive, Entity Stocks)]
+    -> Maybe (Entity StocksActive, Entity Stocks)
+stocksActiveByAbbr abr = find stockAbr
+    where stockAbr (_, Entity _ s) = stocksAbbr s == abr

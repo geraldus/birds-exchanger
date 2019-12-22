@@ -11,7 +11,9 @@
     <h3 .h5 .text-center>Пакет «СТАРТ»
     <p>
         Стоимость 1 акции:
-        <strong>1000
+        <strong>
+            <big>
+                1000
             <small .text-muted> PRIZM
         <br>
         Акций всего:
@@ -20,8 +22,8 @@
         <br>
         Остаток акций, доступных для приобретения:
         <strong>
-            <span .stocks-avail .value>
-                10000
+            <big .stocks-avail .value>
+                #{show fnxBLeft}
         <small .text-muted>шт.
     <h4 .h5>
         Токены ZLT
