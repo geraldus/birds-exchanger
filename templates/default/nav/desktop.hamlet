@@ -99,6 +99,10 @@
                         aria-labelledby="#{navUserDropdownId}-toggle"
                         >
                         $if isClientLoggedIn
+                            <a .dropdown-item .disabled .text-uppercase style="white-space: nowrap;">
+                                <i .fas .fa-wallet>
+                                <span .ml-1>
+                                    _{MsgBalance}
                             $if projType == FenixApp
                                 <a .pl-2 .dropdown-item .disabled>
                                     <span
@@ -131,10 +135,6 @@
                                                 >
                                                 -.-------
                                             <small .currency .para .pzm>ZLT
-                            <a .dropdown-item .disabled .text-uppercase style="white-space: nowrap;">
-                                <i .fas .fa-wallet>
-                                <span .ml-1>
-                                    _{MsgBalance}
                             $forall stats <- wallets
                                 <a .pl-2 .dropdown-item .disabled>
                                     ^{renderWalletBalanceW stats []}

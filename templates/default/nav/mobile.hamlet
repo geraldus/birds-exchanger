@@ -33,24 +33,23 @@
                         <i .fas .fa-wallet .align-self-center>
                         <span .d-block .ml-1>
                             _{MsgBalance}
-                    <a .dropdown-item .disabled>
-                        <span .navbar-text .tokens .zlt .balance>
-                            <span style="whitespace: no-wrap;">
-                                <span .font-weight-bold .tokens-balance-val>
-                                    0
-                                <small .tokens-balance-currency>ZLT
-                            <br>
-                            <small .tokens .zlt .paramining>
-                                <i
-                                    .fas
-                                    .fa-angle-double-up
-                                    .stats-icon
-                                    style="font-size: 0.65rem"
-                                    >
-                                <span
-                                    .value .para .zlt style="font-size: 0.9rem">
-                                    -.-------
-                                <small .currency .para .pzm>ZLT
+                    <span .navbar-text .tokens .zlt .balance .ml-2>
+                        <span style="whitespace: no-wrap;">
+                            <span .font-weight-bold .tokens-balance-val>
+                                0
+                            <small .tokens-balance-currency>ZLT
+                        <br>
+                        <small .tokens .zlt .paramining>
+                            <i
+                                .fas
+                                .fa-angle-double-up
+                                .stats-icon
+                                style="font-size: 0.65rem"
+                                >
+                            <span
+                                .value .para .zlt style="font-size: 0.9rem">
+                                -.-------
+                            <small .currency .para .pzm>ZLT
                     $forall stats <- wallets
                         ^{renderWalletBalanceW stats ["ml-2"]}
                     $forall MenuItem label route _ <- clientMenuItems
