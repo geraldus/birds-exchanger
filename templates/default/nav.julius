@@ -1,0 +1,55 @@
+$(document).ready(function () {
+    const isClientLoggedIn = #{ rawJS isClientLoggedIn }
+
+    const stockPurchases = #{ rawJS jsonStocksPurchases }
+
+    const zltBalancePlaceholder = $('.zlt.tokens .tokens-balance-val')
+    const zltParaminingPlaceholder =
+        $('.zlt.tokens .zlt.paramining .zlt.para.value')
+
+    function monthlyParamining(p) {
+        switch (p['pack-abbr']) {
+            case 'FNXB': return 20
+            case 'FNXS': return 22
+            case 'FNXP': return 24
+            default: return 0
+        }
+    }
+
+    function paraminingValue(p) {
+        const d = new Date()
+        const timeNow = d.getTime()
+        const paraminingTime = (new Date(p.time)).getTime()
+        const rate = monthlyParamining(p)
+        const r = rate / (30 * 24 * 60 * 60 * 1000)
+        const timeDiff = timeNow - paraminingTime
+        const paraminingBase = p.amount * p['pack-price'] / (100 * 10)
+        const v = paraminingBase * timeDiff * r / 100
+        return v
+    }
+
+    function calculateTotalZLT() {
+        const totals = stockPurchases.reduce(
+            function (acc, p) {
+                const ret = {
+                    total: acc.total + p.amount * p['pack-price'] / (100 * 10),
+                    paramining: acc.paramining + paraminingValue(p)
+                }
+                return ret
+            },
+            { total: 0, paramining: 0 }
+        )
+        return totals
+    }
+
+    function loop() {
+        const t = calculateTotalZLT()
+        zltBalancePlaceholder.text(t.total.toFixed(2))
+        zltParaminingPlaceholder.text(t.paramining.toFixed(7))
+        requestAnimationFrame(loop)
+    }
+
+    if (isClientLoggedIn) {
+        loop()
+    }
+})

@@ -1,0 +1,5 @@
+<span ##{htmlId}-zlt-tokens .ml-2 .navbar-text .wallet .balance>
+    #{amountRenderT currencyClassNames amountClassNames False c a}
+    <br>
+    $maybe (r, t) <- paraVals
+        ^{renderParaminingW t r cents c}

@@ -27,7 +27,10 @@
 
 .main-nav .wallet-balance-val,
 .main-nav .wallet-balance-currency,
-.main-nav .wallet.paramining {
+.main-nav .wallet.paramining,
+.main-nav .tokens-balance-val,
+.main-nav .tokens-balance-currency,
+.main-nav .tokens.paramining {
     color: #ffc107!important;
 }
 

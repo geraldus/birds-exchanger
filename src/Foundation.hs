@@ -31,12 +31,16 @@ import           Settings.MailRu                 ( supportEmailFenix,
                                                    supportEmailOutbirds )
 import           Type.App
 import           Type.Money                      ( Percent (..) )
+import           Type.Stocks                     ( ClientStocksData )
 import           Type.Wallet                     ( WalletData (..) )
 import           Utils.Common
+import           Utils.Database.User.Stocks      ( queryClientStocks )
 import           Utils.Database.User.Wallet      ( currencyAmountPara,
                                                    getOrCreateWalletDB,
                                                    getUserWalletStatsDB,
                                                    getUserWallets )
+
+import           Paths_prizm_exchange            ( version )
 import           Utils.Form                      ( currencyOptionListRaw,
                                                    transferOptionsRaw )
 import           Utils.Money                     ( fixedDoubleT )
@@ -45,6 +49,7 @@ import           Utils.Render                    ( renderCurrencyAmount )
 import           Control.Monad.Logger            ( LogSource )
 import           Control.Monad.Trans.Writer.Lazy ( Writer )
 import qualified Crypto.Nonce                    as CN
+import           Data.Aeson                      as A
 import qualified Data.CaseInsensitive            as CI
 import           Data.List                       ( findIndex )
 import           Data.Semigroup                  ( Endo )
@@ -53,17 +58,11 @@ import           Data.Time.Clock.POSIX           ( utcTimeToPOSIXSeconds )
 import           Data.Version                    ( showVersion )
 import           Database.Persist.Sql            ( ConnectionPool, fromSqlKey,
                                                    runSqlPool )
-import           Paths_prizm_exchange            ( version )
 import           Text.Hamlet                     ( hamletFile )
 import           Text.Jasmine                    ( minifym )
+import           Text.Julius                     ( rawJS )
 import           Text.Read                       ( readMaybe )
 
-
--- exchangerName :: Text
--- exchangerName = "OutBirds Cryptochanger"
-
--- exchangerHost :: Text
--- exchangerHost = "OutBirds (outb.info)"
 
 data AppChannels = AppChannels
     { appChannelsClientNotifications      :: TChan Value
@@ -159,7 +158,9 @@ instance Yesod App where
         let isOperatorLoggedIn = isOperatorUser muser
         let isSuLoggedIn = isSU muser
         let maybeClientUser = join $ eitherClientToMaybe <$> muser
-        wallets <- if isClientLoggedIn then getUserBalnaces else pure []
+        (wallets, stocks) <- if isClientLoggedIn
+            then getUserBalances
+            else pure ([ ], [ ])
         case currentRoute of
             Just ( PasswordResetR _) -> return ()
             Just url
@@ -283,6 +284,8 @@ instance Yesod App where
         let supportEmail = if projType == FenixApp
                 then supportEmailFenix
                 else supportEmailOutbirds
+
+        let jsonStocksPurchases = decodeUtf8 . encode $ map clientStocksToJSON stocks
 
         let defaultMobileNav = $(widgetFile "default/nav/mobile")
         let defaultDesktopNav = $(widgetFile "default/nav/desktop")
@@ -759,14 +762,16 @@ userNameF :: Either User SuperUser -> Text
 userNameF (Left  u) = userIdent u
 userNameF (Right u) = suName u
 
-getUserBalnaces ::Handler [WalletData]
-getUserBalnaces = do
+getUserBalances ::Handler ([WalletData], [ClientStocksData])
+getUserBalances = do
     mAuthPair <- maybeAuthPair
     case mAuthPair of
         Just (Left uid, Left _) -> runDB $ do
             wallets <- getUserWallets uid
-            mapM getUserWalletStatsDB wallets
-        _ -> return []
+            wd <- mapM getUserWalletStatsDB wallets
+            sd <- queryClientStocks uid
+            return (wd, sd)
+        _ -> return ([ ], [ ])
 
 
 accessErrorClientOnly :: Text
@@ -1007,3 +1012,12 @@ respondJSONErrorMessages m ts = provideRep . pure . object $
     ]
     <> if length ts > 0 then [ "errors" .= toJSON ts ] else [ ]
 
+clientStocksToJSON :: (Entity StocksPurchase, Entity Stocks) -> Value
+clientStocksToJSON (Entity _ p, Entity sid s)= object
+    [ "pack-name"   .= stocksName s
+    , "pack-id"     .= fromSqlKey sid
+    , "pack-abbr"   .= stocksAbbr s
+    , "pack-price"  .= stocksPrice s
+    , "amount"      .= stocksPurchaseAmount p
+    , "purchase-id" .= stocksPurchaseToken p
+    , "time"        .= stocksPurchaseAccepted p ]
