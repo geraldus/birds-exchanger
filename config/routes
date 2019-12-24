@@ -13,6 +13,7 @@
 /news/#Text                          InfoViewR                         GET
 /terms                               TermsOfUseR                       GET
 /stocks                              StocksR                           GET
+/public-notices                      PublicNotificationsWebSocketR     GET
 
 /password-change PasswordChangeR GET
 /password-change/guide PasswordChangeGuideR POST

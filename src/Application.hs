@@ -107,6 +107,7 @@ import           Handler.SuperUser.FinancialReport
 import           Handler.SuperUser.Notice
 import           Handler.SuperUser.WebSocket
 import           Handler.TermsOfUse
+import           Handler.WebSocket.Public
 
 
 -- This line actually creates our YesodDispatch instance. It is the second half
@@ -132,9 +133,11 @@ makeFoundation appSettings = do
     chOperatorNotifications <- newBroadcastTChanIO
     chDepositUserConfirm <- newBroadcastTChanIO
     chWithdrawalRequest <- newBroadcastTChanIO
+    chPublicNotifications <- newBroadcastTChanIO
     appPaymentMethods <- newTMVarIO hardcodedPaymentMethods
     let appChannels = AppChannels
-            { appChannelsClientNotifications = chClientNotifications
+            { appChannelsPublicNotifications = chPublicNotifications
+            , appChannelsClientNotifications = chClientNotifications
             , appChannelsOperatorNotifications = chOperatorNotifications
             , appChannelsOperatorDepositConfirm = chDepositUserConfirm
             , appChannelsOperatorWithdrawalCreate = chWithdrawalRequest

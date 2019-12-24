@@ -1,0 +1,42 @@
+$(document).ready(function () {
+    const publicNotices = '@{PublicNotificationsWebSocketR}'
+        .replace(/^http(s)?/, 'ws$1')
+
+    const ws = new WebSocket(publicNotices)
+
+    function updateAvailability(d) {
+        const abr = d.stocks
+        const amt = d['amount-left']
+        let pack = undefined
+        switch (abr) {
+            case 'FNXB': pack = 'fenix-start'; break
+            case 'FNXS': pack = 'fenix-standard'; break
+            case 'FNXP': pack = 'fenix-premium'; break
+        }
+        if (pack) {
+            const placeholder =
+                $(`div[data-pack-name="${pack}"] .stocks-avail.value`)
+            placeholder.text(amt.toFixed(0))
+        }
+    }
+
+    ws.onmessage = function (m) {
+        try {
+            const d = JSON.parse(m.data)
+            if (d.object == 'notification') {
+                switch (d.contents.type) {
+                    case 'stocks-availability-change':
+                        updateAvailability(d.contents)
+                        break
+                }
+            }
+        } catch (e) {
+            console.groupCollapsed(
+                'Non-JSON public message or maybe error occurred during its processing.'
+            )
+            console.warn(m.data)
+            console.info('Caught error', e)
+            console.groupEnd()
+        }
+    }
+})
