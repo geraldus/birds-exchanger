@@ -85,7 +85,6 @@ $newline never
                     style="position:absolute; left:-9999px;"
                     alt=""
                     >
-        <!-- Global site tag (gtag.js) - Google Analytics -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=UA-154389563-2">
         <script>
             if (window.location.hostname != 'localhost') {
@@ -93,6 +92,7 @@ $newline never
                 function gtag(){dataLayer.push(arguments);}
                 gtag('js', new Date());
                 gtag('config', 'UA-154389563-2');
+            }
         $maybe (uid, _) <- maybeClientUser
             <script>
                 if (window.location.hostname != 'localhost') {
