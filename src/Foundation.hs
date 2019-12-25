@@ -296,7 +296,8 @@ instance Yesod App where
             addScript (StaticR _3rd_party_fontawesome_js_all_js)
             $(widgetFile "form/common")
             $(widgetFile "default/nav")
-            $(widgetFile "default/layout")
+            $(widgetFile "under-development")
+            -- $(widgetFile "default/layout")
         withUrlRenderer $(hamletFile "templates/default/wrapper.hamlet")
         where
             isStaffUser (Just (_, Left u))  = userRole u /= Client
