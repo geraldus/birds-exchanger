@@ -17,7 +17,7 @@ $newline never
     \<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     \<![endif]-->
     <script async src=#{jQueryScriptUrl}>
-    <script async src=#{jsCookieScriptUrl}>
+    <script src=#{jsCookieScriptUrl}>
     <script defer>
       /* The `defaultCsrfMiddleware` Middleware added in Foundation.hs adds a CSRF token to the request cookies. */
       /* AJAX requests should add that token to a header to be validated by the server. */
