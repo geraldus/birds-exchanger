@@ -297,9 +297,15 @@ instance Yesod App where
 
         setReferrerHttpOnlyCookie
         pc <- widgetToPageContent $ do
-            addScript (StaticR _3rd_party_fontawesome_js_all_js)
-            addStylesheet (StaticR _3rd_party_bootstrap_css_bootstrap_min_css)
-            addScript (StaticR _3rd_party_bootstrap_js_bootstrap_bundle_min_js)
+            addStylesheetAttrs
+                (StaticR _3rd_party_fontawesome_css_all_min_css)
+                [("defer", "defer"), ("async", "async")]
+            addStylesheetAttrs
+                (StaticR _3rd_party_bootstrap_css_bootstrap_min_css)
+                [("defer", "defer"), ("async", "async")]
+            addScriptAttrs
+                (StaticR _3rd_party_bootstrap_js_bootstrap_bundle_min_js)
+                [("defer", "defer"), ("async", "async")]
             $(widgetFile "form/common")
             $(widgetFile "default/nav")
             -- $(widgetFile "under-development")
