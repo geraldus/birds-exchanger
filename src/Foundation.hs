@@ -27,6 +27,7 @@ import           Local.Persist.Currency
 import           Local.Persist.TransferMethod
 import           Local.Persist.UserRole
 import           Market.Type                     ( DOMStats )
+import           Paths_prizm_exchange            ( version )
 import           Settings.MailRu                 ( supportEmailFenix,
                                                    supportEmailOutbirds )
 import           Type.App
@@ -39,8 +40,6 @@ import           Utils.Database.User.Wallet      ( currencyAmountPara,
                                                    getOrCreateWalletDB,
                                                    getUserWalletStatsDB,
                                                    getUserWallets )
-
-import           Paths_prizm_exchange            ( version )
 import           Utils.Form                      ( currencyOptionListRaw,
                                                    transferOptionsRaw )
 import           Utils.Money                     ( fixedDoubleT )
@@ -291,13 +290,20 @@ instance Yesod App where
         let defaultMobileNav = $(widgetFile "default/nav/mobile")
         let defaultDesktopNav = $(widgetFile "default/nav/desktop")
 
+        let jQueryScriptUrl = renderedUrl
+                (StaticR _3rd_party_jquery_jquery_3_4_1_min_js)
+        let jsCookieScriptUrl = renderedUrl
+                (StaticR _3rd_party_js_cookie_js_cookie_2_2_1_min_js)
+
         setReferrerHttpOnlyCookie
         pc <- widgetToPageContent $ do
             addScript (StaticR _3rd_party_fontawesome_js_all_js)
+            addStylesheet (StaticR _3rd_party_bootstrap_css_bootstrap_min_css)
+            addScript (StaticR _3rd_party_bootstrap_js_bootstrap_bundle_min_js)
             $(widgetFile "form/common")
             $(widgetFile "default/nav")
-            $(widgetFile "under-development")
-            -- $(widgetFile "default/layout")
+            -- $(widgetFile "under-development")
+            $(widgetFile "default/layout")
         withUrlRenderer $(hamletFile "templates/default/wrapper.hamlet")
         where
             isStaffUser (Just (_, Left u))  = userRole u /= Client
