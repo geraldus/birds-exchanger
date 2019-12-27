@@ -14,6 +14,7 @@
 /terms                               TermsOfUseR                       GET
 /stocks                              StocksR                           GET
 /public-notices                      PublicNotificationsWebSocketR     GET
+/client-notices                      ClientNotificationsWebSocketR     GET
 
 /password-change PasswordChangeR GET
 /password-change/guide PasswordChangeGuideR POST

@@ -107,6 +107,7 @@ import           Handler.SuperUser.FinancialReport
 import           Handler.SuperUser.Notice
 import           Handler.SuperUser.WebSocket
 import           Handler.TermsOfUse
+import           Handler.WebSocket.Client
 import           Handler.WebSocket.Public
 
 

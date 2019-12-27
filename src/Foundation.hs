@@ -65,7 +65,7 @@ import           Text.Read                       ( readMaybe )
 
 data AppChannels = AppChannels
     { appChannelsPublicNotifications      :: TChan Value
-    , appChannelsClientNotifications      :: TChan Value
+    , appChannelsClientNotifications      :: TChan (UserId, Value)
     , appChannelsOperatorNotifications    :: TChan Value
     , appChannelsOperatorDepositConfirm   :: TChan (Entity DepositRequest)
     , appChannelsOperatorWithdrawalCreate :: TChan (Entity WithdrawalRequest) }
@@ -349,6 +349,7 @@ instance Yesod App where
     isAuthorized (PasswordResetR _) _                = return Authorized
     isAuthorized ApiUserPasswordChangeR _            = return Authorized
     isAuthorized PublicNotificationsWebSocketR _     = return Authorized
+    isAuthorized ClientNotificationsWebSocketR _     = isClientAuthenticated
     -- the profile route requires that the user is authenticated, so we
     -- delegate to that function
     isAuthorized ProfileR _                          = isAuthenticated
