@@ -294,6 +294,7 @@ instance Yesod App where
                 (StaticR _3rd_party_jquery_jquery_3_4_1_min_js)
         let jsCookieScriptUrl = renderedUrl
                 (StaticR _3rd_party_js_cookie_js_cookie_2_2_1_min_js)
+        let clientSocketUrl = renderedUrl ClientNotificationsWebSocketR
 
         setReferrerHttpOnlyCookie
         pc <- widgetToPageContent $ do

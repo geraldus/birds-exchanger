@@ -1,11 +1,22 @@
 $(document).ready(function () {
     const isClientLoggedIn = #{ rawJS isClientLoggedIn }
 
+    if (!isClientLoggedIn) { return; }
+
+    const clientSocketUrl = '#{rawJS clientSocketUrl}'
+        .replace(/^http(s)?/, 'ws$1');
+
+    const ws = new WebSocket(clientSocketUrl)
+
     const stockPurchases = #{ rawJS jsonStocksPurchases }
 
     const zltBalancePlaceholder = $('.zlt.tokens .tokens-balance-val')
     const zltParaminingPlaceholder =
         $('.zlt.tokens .zlt.paramining .zlt.para.value')
+
+    function addPurchase(d) {
+        stockPurchases.push(d)
+    }
 
     function monthlyParamining(p) {
         switch (p['pack-abbr']) {
@@ -49,7 +60,25 @@ $(document).ready(function () {
         requestAnimationFrame(loop)
     }
 
-    if (isClientLoggedIn) {
-        loop()
+    loop()
+
+    ws.onmessage = function (m) {
+        try {
+            const d = JSON.parse(m.data)
+            if (d.object == 'notification') {
+                switch (d.contents.type) {
+                    case 'client-stocks-purchase-details':
+                        addPurchase(d.contents)
+                        break
+                }
+            }
+        } catch (e) {
+            console.groupCollapsed(
+                'Non-JSON public message or maybe error occurred during its processing.'
+            )
+            console.warn(m.data)
+            console.info('Caught error', e)
+            console.groupEnd()
+        }
     }
 })

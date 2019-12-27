@@ -27,16 +27,17 @@ postOperatorStocksPurchaseConfirmationR pid = do
                     return (Just uid, Just op)
             let stocks = stocksPurchaseStocks p
                 amount = stocksPurchaseAmount p
-            runDB $ do
-                _ <- updateGet
+            purchase' <- runDB $ do
+                updateWhere
+                    [ StocksActiveStock I.==. stocks ]
+                    [ StocksActiveLeft -=. amount ]
+                updateGet
                     pid
                     [ StocksPurchaseAccepted =. Just timeNow
                     , StocksPurchaseAcceptedBy =. staffId
                     , StocksPurchaseAcceptedByIdent =. staffIdent ]
-                updateWhere
-                    [ StocksActiveStock I.==. stocks ]
-                    [ StocksActiveLeft -=. amount ]
             notifyPublic s a amount
+            notifyClient purchase' s amount
             redirect OperatorStocksPurchaseIndexR
 
 notifyPublic :: Stocks -> StocksActive -> Int -> Handler ()
@@ -48,6 +49,25 @@ notifyPublic s a n = do
             , "amount-left" .= (stocksActiveLeft a - n)
             ]
     liftIO . atomically $ writeTChan ch notice
+
+notifyClient :: StocksPurchase -> Stocks -> Int -> Handler ()
+notifyClient p s n = do
+    let u   = stocksPurchaseUser p
+        sid = stocksPurchaseStocks p
+    ch <- appChannelsClientNotifications . appChannels <$> getYesod
+    let notice = object
+            [ "type"        .= ("client-stocks-purchase-details" :: Text)
+            , "client"      .= fromSqlKey u
+            , "pack-id"     .= fromSqlKey sid
+            , "pack-name"   .= stocksName s
+            , "pack-abbr"   .= stocksAbbr s
+            , "pack-price"  .= stocksPrice s
+            , "event"       .= ("purchase-confirmation" :: Text)
+            , "amount"      .= n
+            , "purchase-id" .= stocksPurchaseToken p
+            , "time"        .= stocksPurchaseAccepted p
+            ]
+    liftIO . atomically $ writeTChan ch (u, notice)
 
 
 queryPurchaseDetails ::
