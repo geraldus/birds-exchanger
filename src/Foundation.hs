@@ -299,17 +299,17 @@ instance Yesod App where
         pc <- widgetToPageContent $ do
             addStylesheetAttrs
                 (StaticR _3rd_party_fontawesome_css_all_min_css)
-                [("defer", "defer"), ("async", "async")]
+                [("defer", "defer")]
             addStylesheetAttrs
                 (StaticR _3rd_party_bootstrap_css_bootstrap_min_css)
-                [("defer", "defer"), ("async", "async")]
+                [("async", "async")]
             addScriptAttrs
                 (StaticR _3rd_party_bootstrap_js_bootstrap_bundle_min_js)
-                [("defer", "defer"), ("async", "async")]
+                [("defer", "defer")]
             $(widgetFile "form/common")
             $(widgetFile "default/nav")
-            $(widgetFile "under-development")
-            -- $(widgetFile "default/layout")
+            -- $(widgetFile "under-development")
+            $(widgetFile "default/layout")
         withUrlRenderer $(hamletFile "templates/default/wrapper.hamlet")
         where
             isStaffUser (Just (_, Left u))  = userRole u /= Client

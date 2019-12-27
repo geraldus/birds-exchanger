@@ -16,33 +16,14 @@ $newline never
     \<!--[if lt IE 9]>
     \<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     \<![endif]-->
-    <script async src=#{jQueryScriptUrl}>
+    <script src=#{jQueryScriptUrl}>
     <script src=#{jsCookieScriptUrl}>
-    <script defer>
-      /* The `defaultCsrfMiddleware` Middleware added in Foundation.hs adds a CSRF token to the request cookies. */
-      /* AJAX requests should add that token to a header to be validated by the server. */
-      /* See the CSRF documentation in the Yesod.Core.Handler module of the yesod-core package for details. */
-      var csrfHeaderName = "#{TE.decodeUtf8 $ CI.foldedCase defaultCsrfHeaderName}";
-
-      var csrfCookieName = "#{TE.decodeUtf8 defaultCsrfCookieName}";
-      var csrfToken = Cookies.get(csrfCookieName);
-
-
-      if (csrfToken) {
-      \  $.ajaxPrefilter(function( options, originalOptions, jqXHR ) {
-      \      if (!options.crossDomain) {
-      \          jqXHR.setRequestHeader(csrfHeaderName, csrfToken);
-      \      }
-      \  });
-      }
-
-      document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/,'js');
     ^{pageHead pc}
   <body style="min-height:100vh">
     ^{pageBody pc}
 
     $if projType == FenixApp
-        <script type="text/javascript" >
+        <script defer type="text/javascript" >
             if (window.location.hostname != 'localhost') {
                 (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
                     m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
@@ -61,8 +42,8 @@ $newline never
                     style="position:absolute; left:-9999px;"
                     alt=""
                     >
-        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-154389563-2">
-        <script>
+        <script defer src="https://www.googletagmanager.com/gtag/js?id=UA-154389563-2">
+        <script defer>
             if (window.location.hostname != 'localhost') {
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
@@ -70,18 +51,17 @@ $newline never
                 gtag('config', 'UA-154389563-2');
             }
         $maybe (uid, _) <- maybeClientUser
-            <script>
+            <script defer>
                 if (window.location.hostname != 'localhost') {
                     gtag('set', { 'user_id': '#{fromSqlKey uid}' })
                 }
 
     $else
-        <script type="text/javascript">
+        <script defer type="text/javascript">
             if (window.location.hostname != 'localhost') {
                 (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
                 m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
                 (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-
                 ym(55402894, "init", {
                         clickmap:true,
                         trackLinks:true,
@@ -97,8 +77,8 @@ $newline never
                     style="position:absolute; left:-9999px;"
                     alt=""
                     >
-        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-154389563-1">
-        <script>
+        <script defer src="https://www.googletagmanager.com/gtag/js?id=UA-154389563-1">
+        <script defer>
             if (window.location.hostname != 'localhost') {
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
@@ -110,3 +90,22 @@ $newline never
                 if (window.location.hostname != 'localhost') {
                     gtag('set', { 'user_id': '#{fromSqlKey uid}' })
                 }
+    <script defer>
+        /* The `defaultCsrfMiddleware` Middleware added in Foundation.hs adds a CSRF token to the request cookies. */
+        /* AJAX requests should add that token to a header to be validated by the server. */
+        /* See the CSRF documentation in the Yesod.Core.Handler module of the yesod-core package for details. */
+        var csrfHeaderName = "#{TE.decodeUtf8 $ CI.foldedCase defaultCsrfHeaderName}";
+
+        var csrfCookieName = "#{TE.decodeUtf8 defaultCsrfCookieName}";
+        var csrfToken = Cookies.get(csrfCookieName);
+
+
+        if (csrfToken) {
+        \  $.ajaxPrefilter(function( options, originalOptions, jqXHR ) {
+        \      if (!options.crossDomain) {
+        \          jqXHR.setRequestHeader(csrfHeaderName, csrfToken);
+        \      }
+        \  });
+        }
+
+        document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/,'js');
