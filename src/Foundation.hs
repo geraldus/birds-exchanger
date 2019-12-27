@@ -309,8 +309,8 @@ instance Yesod App where
                 [("defer", "defer")]
             $(widgetFile "form/common")
             $(widgetFile "default/nav")
-            -- $(widgetFile "under-development")
-            $(widgetFile "default/layout")
+            $(widgetFile "under-development")
+            -- $(widgetFile "default/layout")
         withUrlRenderer $(hamletFile "templates/default/wrapper.hamlet")
         where
             isStaffUser (Just (_, Left u))  = userRole u /= Client
