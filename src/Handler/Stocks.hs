@@ -43,8 +43,10 @@ getStocksR =
 
     clientHistoryW Nothing = mempty
     clientHistoryW (Just client) = do
+        urlRender <- getUrlRender
         list <- handlerToWidget . runDB $ queryClientPurchases client
         let body = mapM_ clientHistoryItemW list
+            clientSocketUrl = urlRender ClientNotificationsWebSocketR
         $(widgetFile "client/stocks/index")
 
     clientHistoryItemW (Entity _ p, Entity _ s) = do
@@ -65,7 +67,7 @@ buyForm ::
     -> Maybe Text
     -> Widget
 buyForm actives idMaybe classMaybe = do
-    let formClass = fromMaybe "stocks-buy-form .mt-5 .mt-lg-0" classMaybe
+    let formClass = fromMaybe "stocks-buy-form mt-5 mt-lg-0" classMaybe
     formId <- maybe newIdent return idMaybe
     maybeClientUser <- handlerToWidget maybeClientAuthPair
     let fnxBLeft = findActive "FNXB" actives

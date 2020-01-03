@@ -3,7 +3,7 @@ module Handler.Client.Stocks.Purchase.Confirmation where
 
 import           Import
 
-import           Handler.Client.Stocks.Purchase.Details ( queryClientPurchases )
+import           Utils.Database.User.Stocks ( queryClientPurchasesByToken )
 
 
 postClientStocksPurchaseConfirmationR :: Text -> Handler TypedContent
@@ -30,7 +30,7 @@ postClientStocksPurchaseConfirmationR token = do
             , "message" .= render message
             , "errors" .= toJSON es ]
     processFormResult (FormSuccess payerWallet) render client = do
-        res <- runDB $ queryClientPurchases client token
+        res <- runDB $ queryClientPurchasesByToken client token
         case res of
             [] -> selectRep $ do
                 let message = MsgAPIInvalidStocksPurchaseToken

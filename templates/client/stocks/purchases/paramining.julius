@@ -1,6 +1,12 @@
+
 $(document).ready(function () {
     const id = '##{rawJS htmlId}'
-    const placeholder = $(`${id} .stocks-zlt-bounty.para`)
+
+    let placeholders = []
+
+    function updatePlaceholders() {
+        placeholders = $(`${id} .stocks-zlt-bounty.para`)
+    }
 
     function renderParaming() {
         const now = new Date()
@@ -9,7 +15,7 @@ $(document).ready(function () {
         const paraminingBase = #{ rawJS (show amountCoins) }
         const paraminingTime = now.getTime() - paraminingTimestamp
         const value = paraminingTime * paraminingRate * paraminingBase
-        placeholder.text(value.toFixed(7))
+        placeholders.text(value.toFixed(7))
     }
 
     function loop() {
@@ -17,5 +23,31 @@ $(document).ready(function () {
         requestAnimationFrame(loop)
     }
 
+    updatePlaceholders()
     loop()
+
+    let updater = {
+        ui: {
+            updaters: {
+                paraminingPlaceholders: {
+                    zlt: updatePlaceholders
+                }
+            }
+        }
+    }
+
+    if (!window.app) {
+        window.app = { ...updater }
+    }
+    if (!window.app.ui) {
+        window.app.ui = { ...updater.ui }
+    }
+    if (!window.app.ui.updaters) {
+        window.app.ui.updaters = { ...updater.ui.updaters }
+    }
+    if (!window.app.ui.updaters.paraminingPlaceholders) {
+        window.app.ui.updaters.paraminingPlaceholders =
+            { ...updater.ui.updaters.paraminingPlaceholders }
+    }
+    window.app.ui.updaters.paraminingPlaceholders.zlt = updatePlaceholders
 })

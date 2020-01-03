@@ -1,10 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Handler.Operator.Stocks.Purchase.Confirmation where
 
-import           Import             hiding ( on, (==.) )
-import qualified Import             as I
+import           Handler.API.Render.Stocks.ListItem ( renderClientStocksPurchase )
+import           Import                             hiding ( on, (==.) )
+import qualified Import                             as I
 
-import           Database.Esqueleto hiding ( (-=.), (=.) )
+import           Database.Esqueleto                 hiding ( (-=.), (=.) )
+import           Text.Blaze.Html.Renderer.Text      ( renderHtml )
 
 
 postOperatorStocksPurchaseConfirmationR ::
@@ -55,6 +57,7 @@ notifyClient p s n = do
     let u   = stocksPurchaseUser p
         sid = stocksPurchaseStocks p
     ch <- appChannelsClientNotifications . appChannels <$> getYesod
+    html <- renderClientStocksPurchase p s
     let notice = object
             [ "type"        .= ("client-stocks-purchase-details" :: Text)
             , "client"      .= fromSqlKey u
@@ -66,6 +69,7 @@ notifyClient p s n = do
             , "amount"      .= n
             , "purchase-id" .= stocksPurchaseToken p
             , "time"        .= stocksPurchaseAccepted p
+            , "html-render" .= renderHtml html
             ]
     liftIO . atomically $ writeTChan ch (u, notice)
 
@@ -83,5 +87,3 @@ queryPurchaseDetails pid = select . from $
         where_ (p ^. StocksPurchaseId ==. val pid)
         limit 1
         return (p, s, a)
-
-

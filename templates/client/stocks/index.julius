@@ -1,0 +1,56 @@
+
+$(document).ready(function () {
+    const clientSocketUrl = '#{rawJS clientSocketUrl}'
+        .replace(/^http(s)?/, 'ws$1');
+
+    const ws = new WebSocket(clientSocketUrl)
+
+    const listPlaceholder = $('.purchase-list .container-fluid').first()
+
+    function updatePurchaseStatus(d) {
+        const pid = d['purchase-id']
+        const html = d['html-render']
+        const placeholder = $(`.purchase-details[data-purchase-id="${pid}"]`)
+        const el = $(html)
+        console.log('data, element, pid, html', d, el, pid, html)
+        if (placeholder.length > 0) {
+            const target = placeholder.parents('.row').first()
+            target.replaceWith(el)
+        } else {
+            listPlaceholder.prepend(el)
+        }
+    }
+
+    function updateParaminingPlaceholders() {
+        if (window.app) {
+            if (window.app.updaters) {
+                if (window.app.updaters.paraminingPlaceholders) {
+                    if (window.app.updaters.paraminingPlaceholders.zlt) {
+                        window.app.updaters.paraminingPlaceholders.zlt()
+                    }
+                }
+            }
+        }
+    }
+
+    ws.onmessage = function (m) {
+        try {
+            const d = JSON.parse(m.data)
+            if (d.object == 'notification') {
+                switch (d.contents.type) {
+                    case 'client-stocks-purchase-details':
+                        updatePurchaseStatus(d.contents)
+                        updateParaminingPlaceholders()
+                        break
+                }
+            }
+        } catch (e) {
+            console.groupCollapsed(
+                'Non-JSON public message or maybe error occurred during its processing.'
+            )
+            console.warn(m.data)
+            console.info('Caught error', e)
+            console.groupEnd()
+        }
+    }
+})
