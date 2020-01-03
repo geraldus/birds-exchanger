@@ -1,3 +1,4 @@
+
 $(document).ready(function () {
     const publicNotices = '@{PublicNotificationsWebSocketR}'
         .replace(/^http(s)?/, 'ws$1')
