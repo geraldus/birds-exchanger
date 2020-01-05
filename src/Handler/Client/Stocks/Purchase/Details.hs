@@ -29,6 +29,7 @@ getClientStocksPurchaseDetailsR token = do
         let purchaseStatus  = purchaseStatusW htmlId p s
         let clientConfirmed = isJust (stocksPurchaseUserConfirmed p)
         let guide           = paymentGuideW p s
+        let pageUrl         = urlRender (ClientStocksPurchaseDetailsR token)
         let clientSocketUrl = urlRender ClientNotificationsWebSocketR
         let jsonStocksPurchases = "[]" :: Text
         selectRep . provideRep . defaultLayout $ do

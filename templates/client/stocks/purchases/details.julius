@@ -4,7 +4,7 @@ $(document).ready(function () {
 
     if (!isClientLoggedIn) { return; }
 
-    const clientSocketUrl = '#{rawJS clientSocketUrl}'
+    const clientSocketUrl = '#{ rawJS clientSocketUrl }'
         .replace(/^http(s)?/, 'ws$1');
 
     const ws = new WebSocket(clientSocketUrl)
@@ -54,6 +54,11 @@ $(document).ready(function () {
         return totals
     }
 
+    function getPageContent() {
+        const url = '#{ rawJS pageUrl}'
+        window.location = url
+    }
+
     function loop() {
         const t = calculateTotalZLT()
         zltBalancePlaceholder.text(t.total.toFixed(2))
@@ -70,6 +75,7 @@ $(document).ready(function () {
                 switch (d.contents.type) {
                     case 'client-stocks-purchase-details':
                         addPurchase(d.contents)
+                        getPageContent()
                         break
                 }
             }
