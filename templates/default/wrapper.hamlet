@@ -21,6 +21,26 @@ $newline never
     ^{pageHead pc}
   <body style="min-height:100vh">
     ^{pageBody pc}
+    <footer .footer .mt-2 .pt-3 .container-fluid>
+        <div .row .mb-2>
+            <div .col-sm .text-center>
+                <p .text-muted .mx-2>
+                    #{mr MsgSupport}: #
+            <div .col-sm .text-center>
+                <a .mx-2 href="mailto:#{supportEmail}" title="#{mr MsgSendEmail}">
+                    <i class="far fa-envelope-open">
+                    &nbsp;#{supportEmail}
+            $if projType /= FenixApp
+                <div .col-sm .text-center>
+                    <a .mx-2 href="https://t.me/outb_support" title="#{mr MsgToTelegramChat}">
+                        <i class="far fa-paper-plane">
+                        &nbsp;@outb_support
+        <div .row .mt-4>
+            <div .col style="background: #e9ecef" .pt-3>
+                <p .text-center .text-muted>
+                    «<strong>#{hostname}</strong>»
+                    <small .text-muted> v#{appVersion}
+                        <small .text-lowercase> #{mr MsgVerPublicBeta}
 
     $if projType == FenixApp
         <script defer type="text/javascript" >

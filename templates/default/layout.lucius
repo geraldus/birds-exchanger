@@ -1,3 +1,8 @@
+body {
+    position: relative;
+    padding-bottom: 150px;
+}
+
 .masthead,
 .navbar {
     background-color: #{projNavBGColor};
@@ -97,4 +102,9 @@
 
 .modal figure.image > img {
     max-width: 100%;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
 }
