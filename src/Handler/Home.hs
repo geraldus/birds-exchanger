@@ -64,9 +64,10 @@ getHomeR = do
     let statsDOM = reduceDomStats [] $ concat orders
     messageRender <- getMessageRender
     projType <- appType . appSettings <$> getYesod
-    let logoRoute = if projType == FenixApp
-            then StaticR images_fenix_logo_png
+    let logoSrc = if projType == FenixApp
+            then StaticR images_logo_050119_png
             else StaticR images_logo__sayt_png
+    let bgSrc = StaticR images_bg_050119_png
     defaultLayout $ do
         setAppPageTitle MsgHomePageTitle
         $(widgetFile "homepage")

@@ -276,7 +276,7 @@ instance Yesod App where
                 then "#0d011c" :: Text
                 else "rgb(14, 14, 14)"
         let logoSrc = if projType == FenixApp
-                then renderedUrl $ StaticR images_fenix_logo_png
+                then renderedUrl $ StaticR images_logo_050119_png
                 else renderedUrl $ StaticR images_logo_header_png
         let hostname = if projType == FenixApp
                 then "FENIX.TRADING"

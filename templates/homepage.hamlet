@@ -5,7 +5,7 @@
                 <img
                     #main-promo
                     .mw-100
-                    src=@{logoRoute}
+                    src=@{logoSrc}
                     alt=_{MsgSiteLogoAlt}
                     >
     $if not (null messages)
@@ -71,6 +71,14 @@
                         <div .mb-4>
                             <a .text-muted href="@{AuthR LoginR}">
                                 _{MsgFormMessageSignInToTrade}
+
+$if projType == FenixApp
+    <style>
+        .masthead {
+            background: #0d011d url(@{bgSrc}) no-repeat center;
+            background-size: cover;
+        };
+
 
 <div .container .mt-3>
     <div .row>
