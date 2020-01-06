@@ -19,7 +19,7 @@ $newline never
     <script src=#{jQueryScriptUrl}>
     <script src=#{jsCookieScriptUrl}>
     ^{pageHead pc}
-  <body style="min-height:100vh">
+  <body>
     ^{pageBody pc}
     <footer .footer .mt-2 .pt-3 .container-fluid>
         <div .row .mb-2>
@@ -129,3 +129,15 @@ $newline never
         }
 
         document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/,'js');
+
+<style>
+    body {
+        position: relative;
+        padding-bottom: 150px;
+        min-height: 100vh
+    }
+
+    footer {
+        position: absolute;
+        bottom: 0;
+    }
