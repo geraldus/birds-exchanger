@@ -51,7 +51,6 @@ stanzas:
       - www.fenix.trading
     actions:
       - host: fenix.trading
-        port: 443
 
     # Uncomment to switch to a non-permanent redirect.
     # status: 303
