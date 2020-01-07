@@ -51,15 +51,6 @@ stanzas:
       - www.fenix.trading
     actions:
       - host: fenix.trading
-        secure: false
-        port: 80
-
-  - type: redirect
-    hosts:
-      - www.fenix.trading
-    actions:
-      - host: fenix.trading
-        secure: true
         port: 443
 
     # Uncomment to switch to a non-permanent redirect.
