@@ -18,6 +18,10 @@ $newline never
     \<![endif]-->
     <script src=#{jQueryScriptUrl}>
     <script src=#{jsCookieScriptUrl}>
+    <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Exo+2:400,700&display=swap&subset=cyrillic,cyrillic-ext"
+        >
     ^{pageHead pc}
   <body>
     ^{pageBody pc}
