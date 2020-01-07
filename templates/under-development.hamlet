@@ -2,17 +2,15 @@
     <div .container .mt-5>
         <div .row>
             <div .col>
-                <h1 .h3>Ведутся технические работы
+                <h1 .h3>Мы проводим технические работы на сайте
 
                 <p .text-center .mt-3>
                     <b>Уважаемый Пользователь,
-
                 <p>
                     На сайте платформы ведутся технические работы.
                     <br>
                     Работоспособность сайта будет восстановлена
                     в ближайшее время.
 
-                <p .text-right>
-                    <i>
-                        Администрация <strong>FENIX.TRADING</strong>
+                <p .text-right .text-muted>
+                    Администрация «<strong>FENIX.TRADING</strong>».
