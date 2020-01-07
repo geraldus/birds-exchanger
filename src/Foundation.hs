@@ -57,6 +57,7 @@ import           Data.Time.Clock.POSIX           ( utcTimeToPOSIXSeconds )
 import           Data.Version                    ( showVersion )
 import           Database.Persist.Sql            ( ConnectionPool, fromSqlKey,
                                                    runSqlPool )
+import           Text.Cassius                    ( cassiusFile )
 import           Text.Hamlet                     ( hamletFile )
 import           Text.Jasmine                    ( minifym )
 import           Text.Julius                     ( rawJS )
@@ -172,7 +173,7 @@ instance Yesod App where
         -- Get the breadcrumbs, as defined in the YesodBreadcrumbs instance.
         (title, parents) <- breadcrumbs
         -- Define the menu items of the header.
-        let appItems = if projType /= FenixApp
+        let stocksItems = if projType /= FenixApp
                 then [ ]
                 else
                     [ NavbarLeft $ MenuItem
@@ -180,16 +181,13 @@ instance Yesod App where
                         , menuItemRoute = StocksR
                         , menuItemAccessCallback = True } ]
         let menuItems =
+                stocksItems
+                <>
                 [ NavbarLeft $ MenuItem
                     { menuItemLabel = mr MsgMenuTitleNews
                     , menuItemRoute = InfoListR
                     , menuItemAccessCallback = True }
-                , NavbarLeft $ MenuItem
-                    { menuItemLabel = mr MsgTermsOfUse
-                    , menuItemRoute = TermsOfUseR
-                    , menuItemAccessCallback = True }
                 ]
-                <> appItems
                 <>
                 [ NavbarRight $ MenuItem
                     { menuItemLabel = mr MsgMenuTitleSignUp
@@ -276,7 +274,7 @@ instance Yesod App where
                 then "#0d011c" :: Text
                 else "rgb(14, 14, 14)"
         let logoSrc = if projType == FenixApp
-                then renderedUrl $ StaticR images_logo_050119_png
+                then renderedUrl $ StaticR images_logo_060119_png
                 else renderedUrl $ StaticR images_logo_header_png
         let hostname = if projType == FenixApp
                 then "FENIX.TRADING"
@@ -307,6 +305,7 @@ instance Yesod App where
             addScriptAttrs
                 (StaticR _3rd_party_bootstrap_js_bootstrap_bundle_min_js)
                 [("defer", "defer")]
+            toWidget $(cassiusFile "templates/default/wrapper.cassius")
             $(widgetFile "form/common")
             $(widgetFile "default/nav")
             $(widgetFile "under-development")

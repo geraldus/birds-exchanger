@@ -40,6 +40,28 @@ data FileForm = FileForm
 
 getHomeR :: Handler Html
 getHomeR = do
+    projType <- appType . appSettings <$> getYesod
+    if projType == FenixApp
+        then getFenixTradingHomeR
+        else getOutbInfoHomeR
+
+getFenixTradingHomeR :: Handler Html
+getFenixTradingHomeR = do
+    (messages, _) <- getCommonData
+    let featured = featuredModal
+    projType <- appType . appSettings <$> getYesod
+    renderUrl <- getUrlRender
+    let logoSrc = if projType == FenixApp
+            then StaticR images_logo_060119_png
+            else StaticR images_logo_outb_info_png
+    let bgSrc = StaticR images_bg_050119_png
+        whitepaperBgSrc = renderUrl $ StaticR images_wp060119_0002_png
+    defaultLayout $ do
+        setAppPageTitle MsgHomePageTitle
+        $(widgetFile "index")
+
+getOutbInfoHomeR :: Handler Html
+getOutbInfoHomeR = do
     wrapId <- newIdent
     ratioId <- newIdent
     modalWrapId <- newIdent
@@ -55,37 +77,22 @@ getHomeR = do
     let featured = featuredModal
     let defaultPairs = [ ExchangePzmRur, ExchangeOurRur, ExchangeOurPzm ]
     orders <- runDB $ mapM selectActiveOrdersOf defaultPairs
-    let dropEverySecond []             = []
-        dropEverySecond (x : [])       = [x]
-        dropEverySecond (x : _ : [])   = [x]
-        dropEverySecond (x : _ : rest) = x : dropEverySecond rest
-    exchanges <- mapM ((dropEverySecond <$>) <$> getLastExchangesOf) defaultPairs
+    let dropEven []             = []
+        dropEven (x : [])       = [x]
+        dropEven (x : _ : [])   = [x]
+        dropEven (x : _ : rest) = x : dropEven rest
+    exchanges <- mapM ((dropEven <$>) <$> getLastExchangesOf) defaultPairs
     let exHistory = exchangeHistoryW (zip defaultPairs exchanges)
     let statsDOM = reduceDomStats [] $ concat orders
     messageRender <- getMessageRender
     projType <- appType . appSettings <$> getYesod
     let logoSrc = if projType == FenixApp
-            then StaticR images_logo_050119_png
-            else StaticR images_logo__sayt_png
+            then StaticR images_logo_060119_png
+            else StaticR images_logo_outb_info_png
     let bgSrc = StaticR images_bg_050119_png
     defaultLayout $ do
         setAppPageTitle MsgHomePageTitle
         $(widgetFile "homepage")
-  where
-    selectPair Nothing Nothing = defPairDir ExchangePzmRur
-    selectPair _ Nothing       = defPairDir ExchangePzmRur
-    selectPair Nothing _       = defPairDir ExchangePzmRur
-    selectPair (Just c1) (Just c2)
-        | c1 == "rub" && c2 == "ouro" =
-            defPairDir ExchangeRurOur
-        | c2 == "rub" && c1 == "ouro" =
-            defPairDir ExchangeOurRur
-        | c1 == "pzm" && c2 == "ouro" =
-            defPairDir ExchangePzmOur
-        | c2 == "pzm" && c1 == "ouro" =
-            defPairDir ExchangeOurPzm
-        | otherwise = defPairDir ExchangePzmRur
-
 
 -- * Utils
 
@@ -97,17 +104,20 @@ getData ::
     -> ExchangePair
     -> HandlerFor App ([(Text, Html)], Maybe (Key User), Widget, Widget)
 getData wrapId modalWrapId ratioId modalRatioId exdir = do
-    mUser <- maybeClientUser
+    (messages, user) <- getCommonData
     (,,,)
-        <$> getMessages
-        <*> pure mUser
+        <$> pure messages
+        <*> pure user
         <*> fmap fst (generateFormPost
                 (createOrderForm wrapId ratioId exdir))
         <*> fmap fst (generateFormPost
                 (createOrderForm modalWrapId modalRatioId exdir))
 
-maybeClientUser :: HandlerFor App (Maybe (Key User))
-maybeClientUser = (entityKey . fst <$>) <$> maybeClient
+getCommonData :: HandlerFor App ([(Text, Html)], Maybe (Key User))
+getCommonData = do
+    mUser <- maybeClientUser
+    (,) <$> getMessages <*> pure mUser
+
 
 getActiveOrders :: Maybe UserId -> Handler ([Entity ExchangeOrder], [Entity ExchangeOrder])
 getActiveOrders mu = do
@@ -339,3 +349,23 @@ exchangeW cOut cIn (Entity _ ex, Entity _ o) = do
             $else
                 _{MsgExchangeBid}
         |]
+
+-- * Misc
+
+maybeClientUser :: HandlerFor App (Maybe (Key User))
+maybeClientUser = (entityKey . fst <$>) <$> maybeClient
+
+selectPair :: Maybe Text -> Maybe Text -> ExchangePair
+selectPair Nothing Nothing = defPairDir ExchangePzmRur
+selectPair _ Nothing       = defPairDir ExchangePzmRur
+selectPair Nothing _       = defPairDir ExchangePzmRur
+selectPair (Just c1) (Just c2)
+    | c1 == "rub" && c2 == "ouro" =
+        defPairDir ExchangeRurOur
+    | c2 == "rub" && c1 == "ouro" =
+        defPairDir ExchangeOurRur
+    | c1 == "pzm" && c2 == "ouro" =
+        defPairDir ExchangePzmOur
+    | c2 == "pzm" && c1 == "ouro" =
+        defPairDir ExchangeOurPzm
+    | otherwise = defPairDir ExchangePzmRur

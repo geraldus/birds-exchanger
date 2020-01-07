@@ -1,0 +1,54 @@
+.masthead
+    background: #0d011d url(@{bgSrc}) no-repeat center
+    background-size: cover
+
+.gold
+    color: #F7CE82
+
+.desc-block-01
+    .desc
+        position: relative
+
+    .desc::before
+        position: absolute
+        width: 80px
+        left: calc(50% - 40px)
+        height: 50px
+        bottom: -25px
+        border-bottom: 5px solid #F7CE82
+        content: " "
+
+    .whitepaper
+        .heading
+            font-size: 2rem
+            font-weight: bold
+
+        .card
+            color: white
+            background: url(#{whitepaperBgSrc}) no-repeat left, linear-gradient(296.39deg, #0E011B 0%, #18014F 100%)
+            background-size: contain
+            height: 250px
+
+        .card
+            .download-link
+                text-decoration: underline !important
+        a:hover
+            text-decoration: none
+
+@media only screen and (min-device-width: 1200px)
+    .video-embed
+        iframe
+            height: 360px
+            width: 640px
+
+@media only screen and (max-device-width: 1199px)
+    .desc-block-01
+        .whitepaper
+            .card
+                background: linear-gradient(296.39deg, #0E011B 0%, #18014F 100%)
+                height: 200px
+
+    .video-embed
+        iframe
+            max-height: 320px
+            width: 100%

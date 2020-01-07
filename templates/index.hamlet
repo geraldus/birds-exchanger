@@ -1,0 +1,82 @@
+<div .masthead .pt-3 .pb-5>
+    $if not (null messages)
+        <div .container .mt-5 .mt-lg-3 #message>
+            $forall (label, msg) <- messages
+                <div .alert.alert-warning .my-1 data-label=#{label}>
+                    #{msg}
+
+    <div .container .d-none .d-lg-block>
+        <div .row>
+            <div #mainlogo .col-8 .col-sm-6 .mx-auto .my-5>
+                <img
+                    #main-promo
+                    .mw-100
+                    src=@{logoSrc}
+                    alt=_{MsgSiteLogoAlt}
+                    >
+
+    <div .container .video-embed>
+        <div .row .mb-5>
+            <div .col-10 .rounded .mx-auto>
+                <iframe
+                    width="288"
+                    height="162"
+                    src="https://www.youtube.com/embed/uDo2bZi51lE?controls=0&modestbranding=1&iv_load_policy=3"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen
+                    .rounded>
+
+        <div .row>
+            <div .col-12>
+                <p .h3 .lg-h1 .font-weight-bold>
+                    Стань акционером самого амбициозного
+                    и прибыльного проекта#
+                    &nbsp;#
+                    <span .gold>PRIZM
+                <p .h4 .mt-3>
+                    Получай стабильную, гарантированную прибыль от увеличения
+                    капитализации компании
+
+<main role="main" .container .desc-block-01 .mt-5>
+    <div .row>
+        <div .col-12 .mb-4 .col-lg-4 .mb-lg-0>
+            <b .desc>
+                Что такое FENIX?
+        <div .col-12 .col-lg-8>
+            <p>
+                Уникальная многофункциональная крипто-инвестиционная
+                платформа, или цифровая финансовая эко-система.
+            <p>
+                <b>
+                    Платформа включает в себя :
+            <p>
+                <ul style="padding-inline-start: 1rem">
+                    <li>
+                        Биржу с 9-ти уровневой реферальной системой
+                        и дисконтом на торговую комиссию до 100%;
+                    <li>Интернет-магазин с товарами за монету PRIZM;
+                    <li>Инвестиционный фонд в реальный сектор экономики
+                        и IT-проекты;
+                    <li>Удобное мобильное приложение для купли/продажи
+                        товаров и услуг, и ввода/вывода фиатных средств
+                        через банкоматы в любой точке мира;
+
+    <div .row .my-5 .my-lg-0 .whitepaper>
+        <div .col-12>
+            <h4>
+                WHITEPAPER
+
+        <div .col-10 .offset-1 .col-lg-9 .offset-lg-0 .mt-4>
+            <a href="@{StaticR media_fenix_whitepaper_pdf}" target="_blank">
+                <div .rounded .card .p-3 .container-fluid>
+                    <div .row .no-gutters>
+                        <div .col-12 .col-lg-7 .offset-lg-5>
+                            <span .heading>
+                                Белая бумага проекта FENIX
+                            <br>
+                            <small .text-muted .text-right .download-link>
+                                Скачать PDF-версию
+
+
+^{featured}

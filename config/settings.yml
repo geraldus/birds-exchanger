@@ -48,3 +48,4 @@ ref-max-levels: 10
 
 # possible options are: fenix | outbirds
 app-type: fenix
+# app-type: outbirds
