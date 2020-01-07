@@ -27,6 +27,7 @@ stanzas:
       # root.
       - fenix.trading
       - www.fenix.trading
+      - 188.225.77.67
 
     # Enable to force Keter to redirect to https
     # Can be added to any stanza
@@ -45,6 +46,14 @@ stanzas:
     # directory-listing: true
 
   # Redirect plain domain name to www.
+  - type: redirect
+    hosts:
+      - www.fenix.trading
+    actions:
+      - host: fenix.trading
+        secure: false
+        port: 80
+
   - type: redirect
     hosts:
       - www.fenix.trading
