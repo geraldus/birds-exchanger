@@ -87,6 +87,7 @@ import           Handler.Client.Withdrawal
 import           Handler.Common
 import           Handler.Home
 import           Handler.Info
+import           Handler.LP.LP0001
 import           Handler.Manage.Info.Add
 import           Handler.Manage.Info.Index
 import           Handler.Manage.Info.Update
