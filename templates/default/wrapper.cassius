@@ -1,2 +1,13 @@
 body
     font-family: 'Exo 2', sans-serif
+
+.fnx footer
+    background: linear-gradient(90deg, #0F0120 0%, #18014F 100%)
+
+.fnx footer, .fnx footer .support a
+    color: white
+.fnx footer .support
+    font-size: 0.75rem
+
+.fnx footer p
+    margin-bottom: 0

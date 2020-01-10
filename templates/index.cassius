@@ -1,4 +1,5 @@
-.masthead
+.masthead, .quick-purchase
+    color: white
     background: #0d011d url(@{bgSrc}) no-repeat center
     background-size: cover
 
@@ -18,35 +19,87 @@
         border-bottom: 5px solid #F7CE82
         content: " "
 
-    .whitepaper
-        .heading
+.whitepaper
+    .heading
+        font-size: 2rem
+        font-weight: bold
+
+    .card
+        color: white
+        background: url(#{whitepaperBgSrc}) no-repeat left, linear-gradient(296.39deg, #0E011B 0%, #18014F 100%)
+        background-size: contain
+        height: 250px
+
+    .card
+        .download-link
+            text-decoration: underline !important
+    a:hover
+        text-decoration: none
+
+.stocks
+    .heading
+        font-size: 2rem
+        font-weight: bold
+
+    .card
+        font-weight: bold
+        color: black
+        padding: 1rem
+        height: 240px
+        text-align: center
+
+        .price
             font-size: 2rem
-            font-weight: bold
 
-        .card
-            color: white
-            background: url(#{whitepaperBgSrc}) no-repeat left, linear-gradient(296.39deg, #0E011B 0%, #18014F 100%)
-            background-size: contain
-            height: 250px
+            .extra
+                font-size: 1.3rem
 
-        .card
-            .download-link
-                text-decoration: underline !important
-        a:hover
-            text-decoration: none
+        .buy-stocks
+            display: none
+
+    .card:hover
+        color: white
+        background: linear-gradient(296.39deg, #0E011B 0%, #18014F 100%)
+
+        .buy-stocks
+            display: block
+
+.quick-purchase
+    .heading
+        font-size: 2rem
+        font-weight: bold
+
+    form
+        background: rgba(234, 234, 234, 0.31)
+
+        label
+            color: rgba(255, 255, 255, 0.8)
+            font-size: 0.75rem
+            text-transform: uppercase
+
+.buy-stocks, #stocks-form-submit
+    color: #F7CE82
+    border-color: #F7CE82
+    background-color: transparent !important
+    font-weight: bold
+
+.buy-stocks:hover, #stocks-form-submit:hover
+    color: black
+    background-color: #F7CE82 !important
+    border-color: #F7CE82
+
 
 @media only screen and (min-device-width: 1200px)
     .video-embed
         iframe
-            height: 360px
-            width: 640px
+            height: 100vh
+            width: 100%
 
 @media only screen and (max-device-width: 1199px)
-    .desc-block-01
-        .whitepaper
-            .card
-                background: linear-gradient(296.39deg, #0E011B 0%, #18014F 100%)
-                height: 200px
+    .whitepaper
+        .card
+            background: linear-gradient(296.39deg, #0E011B 0%, #18014F 100%)
+            height: 200px
 
     .video-embed
         iframe

@@ -4,7 +4,7 @@ $newline never
 \<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en"> <![endif]-->
 \<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en"> <![endif]-->
 \<!--[if gt IE 8]><!-->
-<html class="no-js" lang="ru"> <!--<![endif]-->
+<html class="no-js" lang="ru" :projType == FenixApp:.fnx> <!--<![endif]-->
   <head>
     <meta charset="UTF-8">
 
@@ -25,10 +25,10 @@ $newline never
     ^{pageHead pc}
   <body>
     ^{pageBody pc}
-    <footer .footer .mt-2 .pt-3 .container-fluid>
-        <div .row .mb-2>
+    <footer .footer .py-3 .container-fluid>
+        <div .row .support>
             <div .col-sm .text-center>
-                <p .text-muted .mx-2>
+                <p .mx-2>
                     #{mr MsgSupport}: #
             <div .col-sm .text-center>
                 <a .mx-2 href="mailto:#{supportEmail}" title="#{mr MsgSendEmail}">
@@ -39,11 +39,11 @@ $newline never
                     <a .mx-2 href="https://t.me/outb_support" title="#{mr MsgToTelegramChat}">
                         <i class="far fa-paper-plane">
                         &nbsp;@outb_support
-        <div .row .mt-4>
-            <div .col style="background: #e9ecef" .pt-3>
-                <p .text-center .text-muted>
+        <div .row>
+            <div .col>
+                <p .text-center>
                     «<strong>#{hostname}</strong>»
-                    <small .text-muted> v#{appVersion}
+                    <small> v#{appVersion}
                         <small .text-lowercase> #{mr MsgVerPublicBeta}
 
     $if projType == FenixApp
@@ -139,6 +139,9 @@ $newline never
         position: relative;
         padding-bottom: 150px;
         min-height: 100vh
+    }
+    .fnx body {
+        padding-bottom: 70px;
     }
 
     footer {
