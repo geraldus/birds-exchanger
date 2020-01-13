@@ -169,9 +169,7 @@ makeFoundation appSettings = do
     runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
 
     -- Perform manual migraions
-    flip runSqlPool pool $ do
-        migrateHelper_Stocks
-        migrateHelper_GRef
+    flip runSqlPool pool migrateHelper_Stocks
 
     orders <- flip runSqlPool pool $ mapM
         selectActiveOrdersOf
