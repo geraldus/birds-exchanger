@@ -61,6 +61,7 @@ PageTitleClientStocksPurchaseDetails: Покупка акций
 ### CLIENT MESSAGES
 MessageClientPasswordResetTitle: Восстановление пароля
 MessageClientPurchaseNotFound: Операция не найдена
+MessageInfoReferralProgramIsDisabled: Все реферальные бонусы зафиксированы, но временно не отображаются.  Следите за новостями.
 
 
 # FORMS
@@ -354,6 +355,12 @@ Skype: Skype
 TelegramTitle: Telegram
 WebSite: Веб.сайт
 VkComTitle: ВКонтакте
+
+# EMAILS
+
+## Subjects
+
+EmailSubjectQuickRegistrationCompleted: Ваша учётная запись создана
 
 # Messages
 APIMissingFormData: Не получены данные формы.
