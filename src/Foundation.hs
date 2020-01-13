@@ -309,8 +309,8 @@ instance Yesod App where
             toWidget $(cassiusFile "templates/default/wrapper.cassius")
             $(widgetFile "form/common")
             $(widgetFile "default/nav")
-            $(widgetFile "under-development")
-            -- $(widgetFile "default/layout")
+            -- $(widgetFile "maintainance-mode-message")
+            $(widgetFile "default/layout")
         withUrlRenderer $(hamletFile "templates/default/wrapper.hamlet")
         where
             isStaffUser (Just (_, Left u))  = userRole u /= Client
