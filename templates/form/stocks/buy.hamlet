@@ -21,11 +21,11 @@
             <option value="" disabled selected>
                 _{MsgFormOptionsStocksSelectStocksPack}
             <option value="fenix-start">
-                _{MsgStocksPackTitleFenixStart}
+                START
             <option value="fenix-standard">
-                _{MsgStocksPackTitleFenixStandard}
+                STANDARD
             <option value="fenix-premium">
-                _{MsgStocksPackTitleFenixPremium}
+                PREMIUM
         <small ##{formId}-stocks-price-help .form-text .text-muted>
             _{MsgFormLabelStocksPrice pzmC "шт"}:
             <span .stocks-price .value> _{MsgFormOptionsStocksSelectStocksPack}
