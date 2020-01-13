@@ -117,7 +117,12 @@ runStocksAmountPostForm = do
                     then do
                         let message = MsgFormErrorExceededAvailableStocks
                         return $ Left [ ("form", render message) ]
-                    else return $ Right (dbs, dba, amount)
+                    else if amount < 1
+                        then do
+                            let message = MsgFormMessageErrorPositiveValueRequired
+                            return $ Left [ ("form", render message ) ]
+                        else
+                            return $ Right (dbs, dba, amount)
 
 apiCreateUnconfirmedStocksPurchase ::
        Entity Stocks
