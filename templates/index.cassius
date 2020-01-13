@@ -54,9 +54,6 @@
             .extra
                 font-size: 1.3rem
 
-        .buy-stocks
-            display: none
-
     .card:hover
         color: white
         background: linear-gradient(296.39deg, #0E011B 0%, #18014F 100%)
@@ -94,12 +91,23 @@
         iframe
             height: 100vh
             width: 100%
+    .stocks
+        .card
+            .buy-stocks
+                display: none
 
 @media only screen and (max-device-width: 1199px)
     .whitepaper
         .card
             background: linear-gradient(296.39deg, #0E011B 0%, #18014F 100%)
             height: 200px
+    .stocks
+        .card
+            .buy-stocks
+                opacity: 0.66
+        .card:hover
+            .buy-stocks
+                opacity: 1
 
     .video-embed
         iframe
