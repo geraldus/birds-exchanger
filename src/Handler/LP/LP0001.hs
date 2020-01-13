@@ -8,10 +8,13 @@ import           Import                         hiding ( on, (==.) )
 import           Handler.Client.Stocks.Purchase ( apiCreateUnconfirmedStocksPurchase,
                                                   jsonAddressee,
                                                   runStocksAmountPostForm )
+import           Handler.SignUp                 ( addReferral, cleanUpRefCookie,
+                                                  maybeReferrer )
 import           Local.Persist.Currency         ( CryptoCurrency (PZM) )
 import           Local.Persist.TransferMethod   ( TransferMethod (CryptoTM) )
 import           Local.Persist.UserRole         ( UserRole (Client) )
 import           Type.App                       ( defaultSelectNextAddr )
+import           Utils.Common                   ( projectSupportNameHost )
 import           Utils.Database.Password        ( getCredsByEmail )
 import           Yesod.Auth.Util.PasswordStore  ( makePassword )
 
@@ -52,10 +55,17 @@ postLPHandler0001R = do
                         s a q (entityKey u) adr
                 let token = stocksPurchaseToken $
                         entityVal purchaseDetails
-                when (isJust pwd) $ do
-                    let lgn = (emailEmail . entityVal) e
-                        creds = Creds "prizm auth plugin" lgn [("email", lgn)]
-                    setCreds False creds
+                case pwd of
+                    Just pswd -> do
+                        let lgn = (emailEmail . entityVal) e
+                            creds = Creds "prizm auth plugin"
+                                          lgn
+                                          [("email", lgn)]
+                        vk <- (flip fromMaybe (emailVerkey (entityVal e)))
+                                <$> appNonce128urlT
+                        cleanUpRefCookie
+                        setCreds False creds
+                    Nothing -> return ()
                 selectRep $ do
                     let url = ClientStocksPurchaseDetailsR token
                     provideRep $ (redirect url :: Handler Html)
@@ -79,26 +89,40 @@ runQuickRegisterPostForm = do
             [ ("form", render message) ]
             <> (map ((,) "form-error") es)
     processFormResult (FormSuccess email) _ = do
+        ref <- maybeReferrer
+        rt <- appNonce128urlT
         pwd <- appNonce128urlT
         saltedPass <- liftIO $ decodeUtf8 <$>
             makePassword (encodeUtf8 pwd) 14
         vk  <- appNonce128urlT
-        Right <$> (runDB $ queryGetCreateCreds email (saltedPass, vk))
+        (u, e, newPass) <- runDB $ queryGetCreateCreds email (saltedPass, vk) (ref, rt)
+        let res = (u, e, if newPass then Just pwd else Nothing)
+        return $ Right res
+
 
 queryGetCreateCreds ::
        MonadIO m
     => Text
     -> (Text, Text)
-    -> SqlPersistT m (Entity User, Entity Email, Maybe Text)
-queryGetCreateCreds login (pwd, vk) = do
+    -> (Maybe (Entity Referrer), Text)
+    -> SqlPersistT m (Entity User, Entity Email, Bool)
+queryGetCreateCreds login (pwd, vk) (ref, refToken) = do
     dbVals <- getCredsByEmail login
     case dbVals of
         []         -> createNewCreds login
-        (e, u) : _ -> return $ (u, e, Nothing)
+        (e, u) : _ -> return $ (u, e, False)
   where
+    -- ^ TODO: Combine with 'createUniqueLogin' in Handler.SignUp
     createNewCreds l = do
         let usr = User l (Just pwd) Client
         uid <- insert usr
         let eml = Email l (Just uid) (Just vk)
         eid <- insert eml
-        return (Entity uid usr, Entity eid eml, Just pwd)
+        _ <- case ref of
+            Nothing -> return []
+            Just r  -> (:[]) <$> addReferral r uid
+        let refTok = Referrer uid refToken
+        insert refTok
+        return (Entity uid usr, Entity eid eml, True)
+
+
