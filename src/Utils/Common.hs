@@ -5,7 +5,10 @@ module Utils.Common where
 
 import           Import.NoFoundation
 
+import           Settings.MailRu     ( usernameFenixNoreply,
+                                       usernameOutbirdsNoreply )
 import           Utils.Time
+
 
 import           Data.Time.Format    ( TimeLocale (..) )
 
@@ -51,3 +54,7 @@ selectLocale = locale <$> languages
     locale (_:rest) = locale rest
     locale []       = defaultTimeLocale
 
+projectSupportNameHost :: AppType -> (Text, Text, Text)
+projectSupportNameHost typ = if typ == FenixApp
+    then (usernameFenixNoreply, "FENIX.TRADING", "FENIX.TRADING")
+    else (usernameOutbirdsNoreply, "OutBirds", "OUTB.INFO")

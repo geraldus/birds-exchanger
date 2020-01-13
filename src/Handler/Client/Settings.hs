@@ -6,8 +6,8 @@ module Handler.Client.Settings where
 import           Handler.API.Client.Password   ( apiUnsafeChangeUserPassword )
 import           Import
 import           Settings.MailRu               ( password, serverName, smtpPort,
-                                                 usernameFenixNoreply,
                                                  usernameOutbirdsNoreply )
+import           Utils.Common                  ( projectSupportNameHost )
 import           Utils.Database.Password       ( getCredsByEmail,
                                                  getCredsByToken )
 import           Utils.Database.User.Referral  ( getCreateRefTokenDB,
@@ -82,18 +82,16 @@ postPasswordChangeGuideR = do
                     conn
             ret <- if authSuccess
                 then do
-                    let (from, exHost) = if projType == FenixApp
-                            then (usernameFenixNoreply, "FENIX.TRADING")
-                            else (usernameOutbirdsNoreply, "OUTB.INFO")
+                    let (from, _, exHost) = projectSupportNameHost projType
                         subject = messageRender
                             MsgMessageClientPasswordResetTitle
                     sendMimeMail (unpack email)
-                                  (unpack from)
-                                  (unpack subject)
-                                  (textContent url exHost)
-                                  (htmlContent url homeUrl email exHost)
-                                  []
-                                  conn
+                                 (unpack from)
+                                 (unpack subject)
+                                 (textContent url exHost)
+                                 (htmlContent url homeUrl email exHost)
+                                 []
+                                 conn
                     return []
                 else do
                     let message = (toHtml . messageRender)

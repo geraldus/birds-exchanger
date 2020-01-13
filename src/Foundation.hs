@@ -277,9 +277,7 @@ instance Yesod App where
         let logoSrc = if projType == FenixApp
                 then renderedUrl $ StaticR images_logo_060119_png
                 else renderedUrl $ StaticR images_logo_header_png
-        let hostname = if projType == FenixApp
-                then "FENIX.TRADING"
-                else "OutBirds"
+        let (_, hostname, _) = projectSupportNameHost projType
         let supportEmail = if projType == FenixApp
                 then supportEmailFenix
                 else supportEmailOutbirds

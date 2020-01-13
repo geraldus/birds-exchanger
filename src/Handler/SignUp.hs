@@ -11,9 +11,9 @@ import           Import
 import           Form.Auth.SignUp
 import           Local.Persist.UserRole
 import           Settings.MailRu               ( password, serverName, smtpPort,
-                                                 usernameFenixNoreply,
                                                  usernameOutbirdsNoreply )
 import           Type.Auth.SignUp              ( SignUpFormData (..) )
+import           Utils.Common                  ( projectSupportNameHost )
 
 import qualified Data.Text                     as T
 import qualified Data.Text.Lazy                as TL
@@ -96,9 +96,7 @@ postSignUpR = do
         urlRender <- getUrlRender
         let verUrl = urlRender $ SignUpVerifyR email key
         projType <- appType . appSettings <$> getYesod
-        let (from, exName, exHost) = if projType == FenixApp
-                then (usernameFenixNoreply, "FENIX.TRADING", "FENIX.TRADING")
-                else (usernameOutbirdsNoreply, "OutBirds", "OUTB.INFO")
+        let (from, exName, exHost) = projectSupportNameHost projType
         liftIO $ do
             conn <- connectSMTPSSLWithSettings
                 (unpack serverName)
