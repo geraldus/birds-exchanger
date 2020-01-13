@@ -1,63 +1,79 @@
-<form ##{formId} .#{formClass} action="@{ClientStocksPurchaseR}" method=post>
-    <div .form-group>
-        <label .form-label for="#{formId}-buy-method-select">
-            _{MsgBuyMethod}
-        <select ##{formId}-buy-method-select .form-control>
-            <option value="" disabled>
-                _{MsgFormOptionsStocksSelectBuyMethod}
-            <option value="inner-wallet" disabled>
-                _{MsgFormOptionsStocksInnerWalletBuyMethod pzmC}
-            <option value="direct-transfer" selected>
-                _{MsgFormOptionsStocksPersonalWalletTransfer pzmC}
-    <div .form-group>
-        <label .form-label for="#{formId}-stocks-select">
-            _{MsgStocksPack}
-        <select
-            name="stocks-pack"
-            ##{formId}-stocks-select
-            .form-control
-            aria-describedby="#{formId}-stocks-price-help"
-            >
-            <option value="" disabled selected>
-                _{MsgFormOptionsStocksSelectStocksPack}
-            <option value="fenix-start">
-                START
-            <option value="fenix-standard">
-                STANDARD
-            <option value="fenix-premium">
-                PREMIUM
-        <small ##{formId}-stocks-price-help .form-text .text-muted>
-            _{MsgFormLabelStocksPrice pzmC "шт"}:
-            <span .stocks-price .value> _{MsgFormOptionsStocksSelectStocksPack}
-    <div .form-group>
-        <label .form-label for="#{formId}-buy-amount-input">
-            _{MsgAmount}
-        <input
-            name="amount"
-            ##{formId}-buy-amount-input
-            .form-control
-            type="number"
-            min="1"
-            step="0"
-            placeholder="_{MsgFormPlaceholderStocksAmount}"
-            disabled
-            aria-describedby="#{formId}-stocks-price-total-help"
-            >
-        <div .invalid-feedback .amount-feedback .exceeded-avail>
-            _{MsgFormErrorExceededAvailableStocks}
-        <small ##{formId}-stocks-price-total-help .form-text .text-muted>
-            _{MsgFormLabelStocksPriceTotal}:
-            <span .stocks-price-total .value> 0.00
-            <small .text-muted>&nbsp;PRIZM
-            <br>
-            _{MsgFormLabelStocksBonusTokens}
-            <span .stocks-price-bounty .value> 0.00
-            <small .text-muted>&nbsp;ZLT
+<div .row .no-gutters>
+    <form
+        ##{formId}
+        .#{formClass}
+        action="@{ClientStocksPurchaseR}"
+        method=post
+        >
+        <div .form-group>
+            <label .form-label for="#{formId}-buy-method-select">
+                _{MsgBuyMethod}
+            <select ##{formId}-buy-method-select .form-control>
+                <option value="" disabled>
+                    _{MsgFormOptionsStocksSelectBuyMethod}
+                <option value="inner-wallet" disabled>
+                    _{MsgFormOptionsStocksInnerWalletBuyMethod pzmC}
+                <option value="direct-transfer" selected>
+                    _{MsgFormOptionsStocksPersonalWalletTransfer pzmC}
+        <div .form-group>
+            <label .form-label for="#{formId}-stocks-select">
+                _{MsgStocksPack}
+            <select
+                name="stocks-pack"
+                ##{formId}-stocks-select
+                .form-control
+                aria-describedby="#{formId}-stocks-price-help"
+                >
+                <option value="" disabled selected>
+                    _{MsgFormOptionsStocksSelectStocksPack}
+                <option value="fenix-start">
+                    START
+                <option value="fenix-standard">
+                    STANDARD
+                <option value="fenix-premium">
+                    PREMIUM
+            <small ##{formId}-stocks-price-help .form-text .text-muted>
+                _{MsgFormLabelStocksPrice pzmC "шт"}:
+                <span .stocks-price .value> #
+                    _{MsgFormOptionsStocksSelectStocksPack}
+        <div .form-group>
+            <label .form-label for="#{formId}-buy-amount-input">
+                _{MsgAmount}
+            <input
+                name="amount"
+                ##{formId}-buy-amount-input
+                .form-control
+                type="number"
+                min="1"
+                step="0"
+                placeholder="_{MsgFormPlaceholderStocksAmount}"
+                disabled
+                aria-describedby="#{formId}-stocks-price-total-help"
+                >
+            <div .invalid-feedback .amount-feedback .exceeded-avail>
+                _{MsgFormErrorExceededAvailableStocks}
+            <small ##{formId}-stocks-price-total-help .form-text .text-muted>
+                _{MsgFormLabelStocksPriceTotal}:
+                <span .stocks-price-total .value> 0.00
+                <small .text-muted>&nbsp;PRIZM
+                <br>
+                _{MsgFormLabelStocksBonusTokens}
+                <span .stocks-price-bounty .value> 0.00
+                <small .text-muted>&nbsp;ZLT
 
-    <div .form-group>
-        $maybe _ <- maybeClientUser
-            <button ##{formId}-submit .btn .btn-primary .w-100 disabled>
-                _{MsgFormButtonStocksBuy}
-        $nothing
-            <p .text-center>
-                <small>_{MsgFormTextSignInToTrade}
+        <div .form-group>
+            $maybe _ <- maybeClientUser
+                <div .row .no-gutters>
+                    <div .col-12 .col-lg-5>
+                        <button
+                            ##{formId}-submit
+                            .btn
+                            .btn-primary
+                            .w-100
+                            .text-capitalize
+                            disabled
+                            >
+                            _{MsgFormButtonStocksBuy}
+            $nothing
+                <p .text-center>
+                    <small>_{MsgFormTextSignInToTrade}
