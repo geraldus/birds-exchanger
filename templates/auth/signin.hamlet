@@ -32,7 +32,7 @@
                         .btn
                         .btn-lg
                         .btn-block
-                        .btn-outline-primary
+                        .btn-primary
                         type=submit
                         >
                         _{MsgFormSubmitSignIn}

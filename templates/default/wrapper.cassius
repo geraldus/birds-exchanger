@@ -11,3 +11,10 @@ body
 
 .fnx footer p
     margin-bottom: 0
+
+.fnx .btn.btn-primary
+    background: linear-gradient(90deg, #0F0120 0%, #18014F 100%) !important
+    border: none !important
+
+.fnx .btn.btn-primary:hover
+    background: linear-gradient(90deg, #220242 0%, #26027D 100%) !important

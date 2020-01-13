@@ -15,7 +15,7 @@ $maybe error <- mayError
                 <button
                     .btn
                     .btn-lg
-                    .btn-outline-primary
+                    .btn-primary
                     .mx-auto
                     .text-uppercase
                     type=submit
