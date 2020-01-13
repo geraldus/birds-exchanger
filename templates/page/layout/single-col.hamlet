@@ -1,0 +1,7 @@
+<h1 .h5 .d-md-none>
+    ^{title}
+
+<div ##{htmlId} .container-fluid .page-layout>
+    <div .row .single-col>
+        <div .col-12>
+            ^{content}

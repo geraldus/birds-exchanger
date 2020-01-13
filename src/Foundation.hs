@@ -1024,6 +1024,13 @@ twoColsLayout _extraHtml maybeId pageTitle title leftCol rightCol = do
     $(widgetFile "page/layout/two-cols-lg")
 
 
+singleColLayout ::
+    Html -> Maybe Text -> AppMessage -> Widget -> Widget -> Widget
+singleColLayout _extraHtml maybeId pageTitle title content = do
+    htmlId <- maybe newIdent return maybeId
+    setAppTitle [ pageTitle ]
+    $(widgetFile "page/layout/single-col")
+
 redirectWithMessages ::
         [(Text, AppMessage)]
     -> [(Text, Html)]
