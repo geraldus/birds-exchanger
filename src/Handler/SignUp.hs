@@ -6,8 +6,9 @@
 {-# LANGUAGE TemplateHaskell   #-}
 module Handler.SignUp where
 
-import           Form.Auth.SignUp
 import           Import
+
+import           Form.Auth.SignUp
 import           Local.Persist.UserRole
 import           Settings.MailRu               ( password, serverName, smtpPort,
                                                  usernameFenixNoreply,
@@ -83,7 +84,7 @@ postSignUpR = do
                     userId <- insert newUser
                     let newEmail = Email login (Just userId) (Just key)
                     _ <- insert newEmail
-                    case ref of
+                    _ <- case ref of
                         Nothing -> return []
                         Just r  -> (:[]) <$> addReferral r userId
                     let refTok = Referrer userId token
@@ -173,8 +174,7 @@ maybeReferrer = do
     case token of
         Nothing -> return Nothing
         Just t -> runDB $
-            getBy (UniqueReferrerToken t) -- >>= maybe
-                -- (return Nothing) (getEntity . referrerUser . entityVal)
+            getBy (UniqueReferrerToken t)
 
 addReferral ::
     MonadIO m => Entity Referrer -> UserId -> SqlPersistT m (Entity Referral)
