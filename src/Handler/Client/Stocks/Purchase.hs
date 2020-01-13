@@ -17,6 +17,7 @@ import           Database.Esqueleto
 postClientStocksPurchaseR :: Handler TypedContent
 postClientStocksPurchaseR = do
     client <- requireClientId
+    -- ^ TODO: Adopt 'runStocksAmountForm', refactor like 'postLPHandler0001R'
     res <- runInputPostResult $ (,)
         <$> ireq textField "stocks-pack"
         <*> ireq intField "amount"
