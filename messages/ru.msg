@@ -101,6 +101,7 @@ FormSubmitSignIn: войти
 FormSubmitSignUp: продолжить
 FormSubmitDepositConfirm: Перевод подтверждаю
 FormSubmitPasswordResetTitle: Нажмите, чтобы получить инструкции по восстановлению пароля
+FormSubmitPasswordChangeTitle: Установить новый пароль
 FormSubmitChangePassword: Изменить пароль
 
 ### Other Messages
