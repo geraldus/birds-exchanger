@@ -74,7 +74,7 @@ postClientStocksPurchaseR = do
                                         (render message) [ ]
                             Just adr -> do
                                 purchaseDetails <-
-                                    apiCreateUncofirmedStocksPurchase
+                                    apiCreateUnconfirmedStocksPurchase
                                         stocks actives amount client adr
                                 let token = stocksPurchaseToken $
                                         entityVal purchaseDetails
@@ -85,16 +85,15 @@ postClientStocksPurchaseR = do
                                         [ "status" .= ("OK" :: Text)
                                         , "data" .= toJSON purchaseDetails ]
 
-    jsonAddressee = decodeUtf8 . toStrict . encode . paymentAddressAddressee
 
-apiCreateUncofirmedStocksPurchase ::
+apiCreateUnconfirmedStocksPurchase ::
        Entity Stocks
     -> Entity StocksActive
     -> Int
     -> UserId
     -> Text
     -> Handler (Entity StocksPurchase)
-apiCreateUncofirmedStocksPurchase (Entity s _) a n u w = do
+apiCreateUnconfirmedStocksPurchase (Entity s _) a n u w = do
     t <- liftIO getCurrentTime
     x <- appNonce128urlT
     let p = StocksPurchase
@@ -114,3 +113,6 @@ getFenixActivesUnsafeDB abr = do
         _                 -> error $ concat
             [ "Should never happen, stocks created during app start, "
             , "abbreviations also already filtered." ]
+
+jsonAddressee :: PaymentAddress -> Text
+jsonAddressee = decodeUtf8 . toStrict . encode . paymentAddressAddressee
