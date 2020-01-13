@@ -102,7 +102,6 @@ postPasswordChangeGuideR = do
             closeSMTP conn
             return ret
 
-    -- @TODO: Move to template file and use stFile QQ to embed
     textContent :: Text -> Text -> TL.Text
     textContent linkUrl exchangerHost =  fromStrict
             [stFile|templates/mail/password-reset-link.text|]
