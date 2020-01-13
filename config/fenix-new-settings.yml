@@ -42,10 +42,11 @@ database:
 copyright: © 2018-2019
 #analytics: UA-YOURCODE
 
-ref-token-cookie-name: "_outb_ref"
 ref-token-param-name: "ref"
 ref-max-levels: 10
 
 # possible options are: fenix | outbirds
 app-type: fenix
+ref-token-cookie-name: "_fnx_ref"
 # app-type: outbirds
+# ref-token-cookie-name: "_outb_ref"
