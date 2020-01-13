@@ -13,7 +13,10 @@
     <dt .col-12 .col-md-3>
         _{MsgReferralLink}
     <dd .form-group .col-12 .col-md-9>
-        #{refLink}
+        <a href="#{refLink}" onClick="return false;">
+            #{refLink}
+        <br>
+        <small .text-muted>_{MsgMessageInfoReferralProgramIsDisabled}
     <dt .col-12 .col-md-3>
         _{MsgReferralStats}
     <dd  .form-group .col-12 .col-md-9>
