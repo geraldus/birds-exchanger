@@ -6,11 +6,9 @@ import           Import                       hiding ( on, (==.) )
 
 import           Local.Persist.Currency       ( CryptoCurrency (PZM) )
 import           Local.Persist.TransferMethod ( TransferMethod (CryptoTM) )
-import           Local.Persist.UserRole       ( UserRole (Client) )
 import           Type.App                     ( PaymentAddress,
                                                 defaultSelectNextAddr,
                                                 paymentAddressAddressee )
-import           Utils.Database.Password      ( getCredsByEmail )
 
 import           Data.Aeson
 import           Database.Esqueleto
