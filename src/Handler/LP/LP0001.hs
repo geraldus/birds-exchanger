@@ -13,6 +13,7 @@ import           Local.Persist.TransferMethod   ( TransferMethod (CryptoTM) )
 import           Local.Persist.UserRole         ( UserRole (Client) )
 import           Type.App                       ( defaultSelectNextAddr )
 import           Utils.Database.Password        ( getCredsByEmail )
+import           Yesod.Auth.Util.PasswordStore  ( makePassword )
 
 
 postLPHandler0001R :: Handler TypedContent
@@ -79,8 +80,10 @@ runQuickRegisterPostForm = do
             <> (map ((,) "form-error") es)
     processFormResult (FormSuccess email) _ = do
         pwd <- appNonce128urlT
+        saltedPass <- liftIO $ decodeUtf8 <$>
+            makePassword (encodeUtf8 pwd) 14
         vk  <- appNonce128urlT
-        Right <$> (runDB $ queryGetCreateCreds email (pwd, vk))
+        Right <$> (runDB $ queryGetCreateCreds email (saltedPass, vk))
 
 queryGetCreateCreds ::
        MonadIO m
