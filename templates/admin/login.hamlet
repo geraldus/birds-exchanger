@@ -11,4 +11,4 @@
                     <input type=password .form-control #input1234 placeholder="******" name="password">
                 <div .form-group .row>
                     <div .col-9 .mx-auto>
-                        <button .btn.btn-lg.btn-block.btn-outline-primary type=submit>войти
+                        <button .btn.btn-block.btn-primary type=submit>Войти

@@ -12,12 +12,13 @@ $maybe error <- mayError
                 _{MsgFormTitleSignUp}
             ^{widget}
             <div .form-group.row .mt-3>
-                <button
-                    .btn
-                    .btn-lg
-                    .btn-primary
-                    .mx-auto
-                    .text-uppercase
-                    type=submit
-                    >
-                    _{MsgFormSubmitSignUp}
+                <div .col-12 .col-sm-9 col-md-6 .mx-auto>
+                    <button
+                        .btn
+                        .btn-primary
+                        .btn-block
+                        .mx-auto
+                        .text-capitalize
+                        type=submit
+                        >
+                        _{MsgFormSubmitSignUp}

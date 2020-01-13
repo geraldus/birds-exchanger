@@ -16,6 +16,6 @@
             $forall e <- error
                 <div .error>#{e}
     <div .form-group .row>
-        <button type=submit .btn.btn-outline-primary.btn-lg .mx-auto>
-            <span .text-lowercase>_{MsgContinue}
+        <button type=submit .btn .btn-primary .mx-auto .text-capitalize>
+            _{MsgContinue}
 ^{withdrawalHistory}

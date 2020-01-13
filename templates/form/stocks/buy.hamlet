@@ -56,7 +56,7 @@
 
     <div .form-group>
         $maybe _ <- maybeClientUser
-            <button ##{formId}-submit .btn .btn-outline-primary .w-100 disabled>
+            <button ##{formId}-submit .btn .btn-primary .w-100 disabled>
                 _{MsgFormButtonStocksBuy}
         $nothing
             <p .text-center>
