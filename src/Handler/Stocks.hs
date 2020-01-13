@@ -17,8 +17,8 @@ getStocksR :: Handler Html
 getStocksR =
     defaultLayout $ do
         setAppPageTitle MsgStocks
-        twoColsLayout
-            noCSRF noPredefinedId MsgStocks title leftCol rightCol
+        singleColLayout
+            noCSRF noPredefinedId MsgStocks title leftCol
         client <- handlerToWidget maybeClientId
         clientHistoryW client
   where
@@ -30,9 +30,6 @@ getStocksR =
         colHeaderMessage MsgStocksSubtitleBuy
         buyForm stocksActives (Just formId) Nothing
 
-    rightCol = do
-        colHeaderMessage MsgStocksSubtitleSell
-        sellForm Nothing Nothing
 
     noPredefinedId = Nothing
 
@@ -67,7 +64,9 @@ buyForm ::
     -> Maybe Text
     -> Widget
 buyForm actives idMaybe classMaybe = do
-    let formClass = fromMaybe "stocks-buy-form mt-5 mt-lg-0" classMaybe
+    let formClass = fromMaybe
+            "stocks-buy-form mt-5 mt-lg-0 col-12 col-lg-7"
+            classMaybe
     formId <- maybe newIdent return idMaybe
     maybeClientUser <- handlerToWidget maybeClientAuthPair
     let fnxBLeft = findActive "FNXB" actives

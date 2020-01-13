@@ -1,7 +1,7 @@
 <div .row .d-lg-none>
     <div .col-12>
         <hr>
-<div .row .mt-3 .purchase-list>
+<div .row .mt-3 .mb-5 .purchase-list>
     <div .col-12>
         <h2 .h5 .mb-3>
             _{MsgClientStocksHistory}
