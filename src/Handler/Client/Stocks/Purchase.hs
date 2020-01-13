@@ -1,12 +1,16 @@
+{-# LANGUAGE GADTs             #-}
 {-# LANGUAGE OverloadedStrings #-}
 module Handler.Client.Stocks.Purchase where
 
-import           Import                          hiding ( on, (==.) )
+import           Import                       hiding ( on, (==.) )
 
-import           Local.Persist.Currency          ( CryptoCurrency (PZM) )
-import           Local.Persist.TransferMethod    ( TransferMethod (CryptoTM) )
-import           Type.App                        ( defaultSelectNextAddr,
-                                                   paymentAddressAddressee )
+import           Local.Persist.Currency       ( CryptoCurrency (PZM) )
+import           Local.Persist.TransferMethod ( TransferMethod (CryptoTM) )
+import           Local.Persist.UserRole       ( UserRole (Client) )
+import           Type.App                     ( PaymentAddress,
+                                                defaultSelectNextAddr,
+                                                paymentAddressAddressee )
+import           Utils.Database.Password      ( getCredsByEmail )
 
 import           Data.Aeson
 import           Database.Esqueleto
@@ -85,6 +89,36 @@ postClientStocksPurchaseR = do
                                         [ "status" .= ("OK" :: Text)
                                         , "data" .= toJSON purchaseDetails ]
 
+runStocksAmountPostForm ::
+    Handler (Either [(Text, Text)] (Entity Stocks, Entity StocksActive, Int))
+runStocksAmountPostForm = do
+    mr <- getMessageRender
+    res <- runInputPostResult $ (,)
+        <$> ireq textField "stocks-pack"
+        <*> ireq intField "amount"
+    processFormResult res mr
+  where
+    processFormResult FormMissing render = do
+        let message = MsgAPIMissingFormData
+        return $ Left [ ("form", render message) ]
+    processFormResult (FormFailure es) render = do
+        let message = MsgAPIInvalidFormData
+        return . Left $
+            [ ("form", render message) ]
+            <> (map ((,) "form-error") es)
+    processFormResult (FormSuccess (stocksPack, amount)) render = do
+        stocks <- runDB $ queryStocksActives stocksPack
+        case stocks of
+            [] -> do
+                let message = MsgAPIInvalidStocksPack stocksPack
+                return $ Left [ ("form", render message) ]
+            (dbs, dba) : _ -> do
+                let stocksAvailable = (stocksActiveLeft . entityVal) dba
+                if amount > stocksAvailable
+                    then do
+                        let message = MsgFormErrorExceededAvailableStocks
+                        return $ Left [ ("form", render message) ]
+                    else return $ Right (dbs, dba, amount)
 
 apiCreateUnconfirmedStocksPurchase ::
        Entity Stocks
@@ -100,6 +134,14 @@ apiCreateUnconfirmedStocksPurchase (Entity s _) a n u w = do
                 u s n t w x Nothing Nothing Nothing Nothing Nothing Nothing
     pid <- runDB $ insert p
     return (Entity pid p)
+
+queryStocksActives ::
+    MonadIO m => Text -> SqlPersistT m [(Entity Stocks, Entity StocksActive)]
+queryStocksActives abr = select . from $
+    \(s `LeftOuterJoin` a) -> do
+        on (s ^. StocksId ==. a ^. StocksActiveStock)
+        where_ (s ^. StocksAbbr ==. val abr)
+        return (s, a)
 
 getFenixActivesUnsafeDB ::
     MonadIO m => Text -> SqlPersistT m (Entity Stocks, Entity StocksActive)

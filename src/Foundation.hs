@@ -35,6 +35,7 @@ import           Type.Money                      ( Percent (..) )
 import           Type.Stocks                     ( ClientStocksData )
 import           Type.Wallet                     ( WalletData (..) )
 import           Utils.Common
+import           Utils.Database.Password         ( getCredsByEmail )
 import           Utils.Database.User.Stocks      ( queryClientStocks )
 import           Utils.Database.User.Wallet      ( currencyAmountPara,
                                                    getOrCreateWalletDB,
@@ -403,6 +404,7 @@ instance Yesod App where
     isAuthorized ApiAppConfigR _                     = return Authorized
     isAuthorized API_AuthAuthenticateNoTokenR _      = return Authorized
     isAuthorized APINewsListR _                      = return Authorized
+    isAuthorized LPHandler0001R _                    = return Authorized
 
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
@@ -706,6 +708,18 @@ requireClientId = do
             _ ->
                 permissionDenied accessErrorClientOnly
         _ -> permissionDenied accessErrorClientOnly
+
+requireClientCreds :: Handler (Entity Email, Entity User)
+requireClientCreds = do
+    auth <- requireAuthPair
+    case auth of
+        (Left _, Left (User ident _ Client)) -> do
+            ret <- runDB $ getCredsByEmail ident
+            case ret of
+                val : _ -> return val
+                []      -> permissionDenied accessErrorClientOnly
+        _ -> permissionDenied accessErrorClientOnly
+
 
 maybeClient :: Handler (Maybe (Entity User, [Entity UserWallet]))
 maybeClient = do
