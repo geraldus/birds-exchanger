@@ -260,7 +260,7 @@ StocksTokensAccrued: токенов начислено
 PageTitleStocksDetailsAbbr stocksAbbr@Text: Подробности покупки акции #{stocksAbbr}
 PageBreadcrumbTitleStocksDetails: Информация о покупке
 
-GuideTransferFunds: Перевите средства на указанный адрес
+GuideTransferFunds: Переведите средства на указанный адрес
 GuideProvideYourWalletAddress: Укажите адрес Prizm-кошелька, с которого Вы осуществили перевод
 GuidePressButton: Нажмите кнопку
 
