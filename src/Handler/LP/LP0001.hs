@@ -11,12 +11,24 @@ import           Handler.Client.Stocks.Purchase ( apiCreateUnconfirmedStocksPurc
 import           Handler.SignUp                 ( addReferral, cleanUpRefCookie,
                                                   maybeReferrer )
 import           Local.Persist.Currency         ( CryptoCurrency (PZM) )
+import           Local.Persist.Notice           ( NoticeType (NoticeEmail) )
 import           Local.Persist.TransferMethod   ( TransferMethod (CryptoTM) )
 import           Local.Persist.UserRole         ( UserRole (Client) )
+import           Settings.MailRu                ( password, serverName,
+                                                  smtpPort )
 import           Type.App                       ( defaultSelectNextAddr )
 import           Utils.Common                   ( projectSupportNameHost )
 import           Utils.Database.Password        ( getCredsByEmail )
+import           Utils.QQ                       ( stFile )
 import           Yesod.Auth.Util.PasswordStore  ( makePassword )
+
+import qualified Data.Aeson                     as A
+import qualified Data.Text                      as T
+import qualified Data.Text.Lazy                 as TL
+import           Network.HaskellNet.SMTP
+import           Network.HaskellNet.SMTP.SSL
+import           Text.Blaze.Html.Renderer.Text  ( renderHtml )
+import           Text.Hamlet                    ( shamletFile )
 
 
 postLPHandler0001R :: Handler TypedContent
@@ -64,6 +76,7 @@ postLPHandler0001R = do
                         vk <- (flip fromMaybe (emailVerkey (entityVal e)))
                                 <$> appNonce128urlT
                         cleanUpRefCookie
+                        notifyClientQuickRegistrationCompleted lgn pswd vk
                         setCreds False creds
                     Nothing -> return ()
                 selectRep $ do
@@ -124,5 +137,69 @@ queryGetCreateCreds login (pwd, vk) (ref, refToken) = do
         let refTok = Referrer uid refToken
         insert refTok
         return (Entity uid usr, Entity eid eml, True)
+
+
+notifyClientQuickRegistrationCompleted :: Text -> Text -> Text -> Handler ()
+notifyClientQuickRegistrationCompleted email pass vk = do
+    projType      <- appType . appSettings <$> getYesod
+    timeNow       <- liftIO getCurrentTime
+    urlRender     <- getUrlRender
+    messageRender <- getMessageRender
+    let actUrl  = urlRender (SignUpVerifyR email vk)
+        passUrl = urlRender PasswordChangeR
+    let (from, _, exHost) = projectSupportNameHost projType
+    let subject  = unpack $
+            messageRender MsgEmailSubjectQuickRegistrationCompleted
+    let textContent' = textContent exHost pass actUrl passUrl
+    let htmlContent' = htmlContent exHost pass actUrl passUrl
+    let jsonContent = toStrict . decodeUtf8 . A.encode $ object
+            [ "text-content" .= toJSON textContent'
+            , "html-content" .= toJSON htmlContent' ]
+    let notice = Notice
+            NoticeEmail
+            email
+            jsonContent
+            timeNow
+            Nothing
+            0
+            Nothing
+            (Just timeNow)
+    nid <- runDB $ insert notice
+    handler <- handlerToIO
+    liftIO $ do
+        conn <- connectSMTPSSLWithSettings
+            (unpack serverName)
+            (defaultSettingsSMTPSSL { sslPort = smtpPort })
+        authSuccess <-
+            Network.HaskellNet.SMTP.SSL.authenticate
+                PLAIN
+                (unpack from)
+                (unpack password)
+                conn
+        if authSuccess
+            then do
+                sendMimeMail (T.unpack email)
+                              (unpack from)
+                              subject
+                              textContent'
+                              htmlContent'
+                              []
+                              conn
+                handler . runDB $ update
+                    nid
+                    [ NoticeSent =. Just timeNow
+                    , NoticeTrials +=. 1
+                    , NoticeLastTrial =. Just timeNow
+                    , NoticeNextTrial =. Nothing ]
+            else putStrLn "Authentication failed."
+        closeSMTP conn
+  where
+    textContent :: Text -> Text -> Text -> Text -> TL.Text
+    textContent hostname password activationLink changePasswordLink =  fromStrict
+        [stFile|templates/mail/quick-register.text|]
+
+    htmlContent :: Text -> Text -> Text -> Text -> TL.Text
+    htmlContent hostname password activationLink changePasswordLink = renderHtml
+        $(shamletFile "templates/mail/quick-register.hamlet")
 
 
