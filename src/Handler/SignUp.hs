@@ -10,10 +10,10 @@ import           Import
 
 import           Form.Auth.SignUp
 import           Local.Persist.UserRole
-import           Settings.MailRu               ( password, serverName, smtpPort,
-                                                 usernameOutbirdsNoreply )
+import           Settings.MailRu               ( projectNoreplyEmailCreds,
+                                                 serverName, smtpPort )
 import           Type.Auth.SignUp              ( SignUpFormData (..) )
-import           Utils.Common                  ( projectSupportNameHost )
+import           Utils.Common                  ( projectNameHost )
 
 import qualified Data.Text                     as T
 import qualified Data.Text.Lazy                as TL
@@ -96,20 +96,21 @@ postSignUpR = do
         urlRender <- getUrlRender
         let verUrl = urlRender $ SignUpVerifyR email key
         projType <- appType . appSettings <$> getYesod
-        let (from, exName, exHost) = projectSupportNameHost projType
+        let (exName, exHost) = projectNameHost projType
         liftIO $ do
             conn <- connectSMTPSSLWithSettings
                 (unpack serverName)
                 (defaultSettingsSMTPSSL { sslPort = smtpPort })
+            let (username, password) = projectNoreplyEmailCreds projType
             authSuccess <-
                 Network.HaskellNet.SMTP.SSL.authenticate
                     PLAIN
-                    (unpack usernameOutbirdsNoreply)
+                    (unpack username)
                     (unpack password)
                     conn
             if authSuccess
                 then sendMimeMail (T.unpack email)
-                                  (unpack from)
+                                  (unpack username)
                                   subject
                                   (plainBody email verUrl exName exHost)
                                   (htmlBody email verUrl exName exHost)

@@ -28,8 +28,7 @@ import           Local.Persist.TransferMethod
 import           Local.Persist.UserRole
 import           Market.Type                     ( DOMStats )
 import           Paths_prizm_exchange            ( version )
-import           Settings.MailRu                 ( supportEmailFenix,
-                                                   supportEmailOutbirds )
+import           Settings.MailRu                 ( projectSupportEmailCreds )
 import           Type.App
 import           Type.Money                      ( Percent (..) )
 import           Type.Stocks                     ( ClientStocksData )
@@ -277,10 +276,8 @@ instance Yesod App where
         let logoSrc = if projType == FenixApp
                 then renderedUrl $ StaticR images_logo_060119_png
                 else renderedUrl $ StaticR images_logo_header_png
-        let (_, hostname, _) = projectSupportNameHost projType
-        let supportEmail = if projType == FenixApp
-                then supportEmailFenix
-                else supportEmailOutbirds
+        let (hostname, _)     = projectNameHost projType
+        let (supportEmail, _) = projectSupportEmailCreds projType
 
         let jsonStocksPurchases = decodeUtf8 . encode $ map clientStocksToJSON stocks
 

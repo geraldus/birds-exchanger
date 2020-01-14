@@ -14,10 +14,10 @@ import           Local.Persist.Currency         ( CryptoCurrency (PZM) )
 import           Local.Persist.Notice           ( NoticeType (NoticeEmail) )
 import           Local.Persist.TransferMethod   ( TransferMethod (CryptoTM) )
 import           Local.Persist.UserRole         ( UserRole (Client) )
-import           Settings.MailRu                ( password, serverName,
-                                                  smtpPort )
+import           Settings.MailRu                ( projectNoreplyEmailCreds,
+                                                  serverName, smtpPort )
 import           Type.App                       ( defaultSelectNextAddr )
-import           Utils.Common                   ( projectSupportNameHost )
+import           Utils.Common                   ( projectNameHost )
 import           Utils.Database.Password        ( getCredsByEmail )
 import           Utils.QQ                       ( stFile )
 import           Yesod.Auth.Util.PasswordStore  ( makePassword )
@@ -147,7 +147,7 @@ notifyClientQuickRegistrationCompleted email pass vk = do
     messageRender <- getMessageRender
     let actUrl  = urlRender (SignUpVerifyR email vk)
         passUrl = urlRender PasswordChangeR
-    let (from, _, exHost) = projectSupportNameHost projType
+    let (_, exHost) = projectNameHost projType
     let subject  = unpack $
             messageRender MsgEmailSubjectQuickRegistrationCompleted
     let textContent' = textContent exHost pass actUrl passUrl
@@ -170,21 +170,22 @@ notifyClientQuickRegistrationCompleted email pass vk = do
         conn <- connectSMTPSSLWithSettings
             (unpack serverName)
             (defaultSettingsSMTPSSL { sslPort = smtpPort })
+        let (username, password) = projectNoreplyEmailCreds projType
         authSuccess <-
             Network.HaskellNet.SMTP.SSL.authenticate
                 PLAIN
-                (unpack from)
+                (unpack username)
                 (unpack password)
                 conn
         if authSuccess
             then do
                 sendMimeMail (T.unpack email)
-                              (unpack from)
-                              subject
-                              textContent'
-                              htmlContent'
-                              []
-                              conn
+                             (unpack username)
+                             subject
+                             textContent'
+                             htmlContent'
+                             []
+                             conn
                 handler . runDB $ update
                     nid
                     [ NoticeSent =. Just timeNow

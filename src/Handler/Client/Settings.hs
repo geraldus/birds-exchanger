@@ -5,9 +5,9 @@ module Handler.Client.Settings where
 
 import           Handler.API.Client.Password   ( apiUnsafeChangeUserPassword )
 import           Import
-import           Settings.MailRu               ( password, serverName, smtpPort,
-                                                 usernameOutbirdsNoreply )
-import           Utils.Common                  ( projectSupportNameHost )
+import           Settings.MailRu               ( projectNoreplyEmailCreds,
+                                                 serverName, smtpPort )
+import           Utils.Common                  ( projectNameHost )
 import           Utils.Database.Password       ( getCredsByEmail,
                                                  getCredsByToken )
 import           Utils.Database.User.Referral  ( getCreateRefTokenDB,
@@ -71,22 +71,23 @@ postPasswordChangeGuideR = do
             homeUrl = urlRender HomeR
         projType <- appType . appSettings <$> getYesod
         liftIO $ do
+            let (username, password) = projectNoreplyEmailCreds projType
             conn <- connectSMTPSSLWithSettings
                 (unpack serverName)
                 (defaultSettingsSMTPSSL { sslPort = smtpPort })
             authSuccess <-
                 Network.HaskellNet.SMTP.SSL.authenticate
                     PLAIN
-                    (unpack usernameOutbirdsNoreply)
+                    (unpack username)
                     (unpack password)
                     conn
             ret <- if authSuccess
                 then do
-                    let (from, _, exHost) = projectSupportNameHost projType
+                    let (_, exHost) = projectNameHost projType
                         subject = messageRender
                             MsgMessageClientPasswordResetTitle
                     sendMimeMail (unpack email)
-                                 (unpack from)
+                                 (unpack username)
                                  (unpack subject)
                                  (textContent url exHost)
                                  (htmlContent url homeUrl email exHost)

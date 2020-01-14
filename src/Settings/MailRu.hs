@@ -3,6 +3,7 @@ module Settings.MailRu where
 
 import           ClassyPrelude
 import           Network.Socket.Internal ( PortNumber )
+import           Settings                ( AppType(..) )
 
 
 -- | Your settings
@@ -12,17 +13,39 @@ serverName = "smtp.mail.ru"
 smtpPort :: PortNumber
 smtpPort = toEnum 465
 
-usernameFenixNoreply :: Text
-usernameFenixNoreply = "noreply@fenix.trading"
+supportEmailFenixUsername :: Text
+supportEmailFenixUsername = "support@fenix.trading"
 
-usernameOutbirdsNoreply :: Text
-usernameOutbirdsNoreply = "noreply@outb.info"
+supportEmailFenixPassword :: Text
+supportEmailFenixPassword = "gv0]Tr2FhvAR"
 
-password :: Text
-password = "$afi2C3TFBsl"
+noreplyEmailFenixUsername :: Text
+noreplyEmailFenixUsername = "noreply@fenix.trading"
 
-supportEmailFenix :: Text
-supportEmailFenix = "support@fenix.trading"
+noreplyEmailFenixPassword :: Text
+noreplyEmailFenixPassword = "%9aO4OFqIjxc"
 
-supportEmailOutbirds :: Text
-supportEmailOutbirds = "support@outb.info"
+supportEmailOutbirdsUsername :: Text
+supportEmailOutbirdsUsername = "support@outb.info"
+
+supportEmailOutbirdsPassword :: Text
+supportEmailOutbirdsPassword = "$afi2C3TFBsl"
+
+noreplyEmailOutbirdsUsername :: Text
+noreplyEmailOutbirdsUsername = "noreply@outb.info"
+
+noreplyEmailOutbirdsPassword :: Text
+noreplyEmailOutbirdsPassword = "T[fi20xTFlaX"
+
+
+projectSupportEmailCreds :: AppType -> (Text, Text)
+projectSupportEmailCreds FenixApp =
+    (supportEmailOutbirdsUsername, supportEmailFenixPassword)
+projectSupportEmailCreds OutbirdsApp =
+    (supportEmailOutbirdsUsername, supportEmailOutbirdsPassword)
+
+projectNoreplyEmailCreds :: AppType -> (Text, Text)
+projectNoreplyEmailCreds FenixApp =
+    (noreplyEmailFenixUsername, noreplyEmailFenixPassword)
+projectNoreplyEmailCreds OutbirdsApp =
+    (noreplyEmailOutbirdsUsername, noreplyEmailOutbirdsPassword)
