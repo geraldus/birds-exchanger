@@ -96,6 +96,7 @@ import           Handler.Operator.HandleDeposit
 import           Handler.Operator.HandleWithdrawal
 import           Handler.Operator.LogIn
 import           Handler.Operator.Stocks.Purchase.Confirmation
+import           Handler.Operator.Stocks.Purchase.Details
 import           Handler.Operator.Stocks.Purchase.Index
 import           Handler.Operator.User.History
 import           Handler.Operator.WebSocket

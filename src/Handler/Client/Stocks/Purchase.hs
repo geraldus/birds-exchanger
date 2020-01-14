@@ -146,7 +146,7 @@ apiCreateUnconfirmedStocksPurchase ::
     -> UserId
     -> Text
     -> Handler (Entity StocksPurchase)
-apiCreateUnconfirmedStocksPurchase (Entity s _) a n u w = do
+apiCreateUnconfirmedStocksPurchase (Entity s _) _ n u w = do
     t <- liftIO getCurrentTime
     x <- appNonce128urlT
     let p = StocksPurchase

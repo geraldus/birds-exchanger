@@ -54,11 +54,11 @@
 /operator/decline-withdrawal-request OperatorDeclineWithdrawalRequestR POST
 /operator/user-history/#UserId       OperatorUserHistoryR              GET
 /operator/stocks/purchase            OperatorStocksPurchaseIndexR      GET
+/operator/stocks/purchase/#StocksPurchaseId OperatorStocksPurchaseDetailsR GET
 /operator/stocks/purchase/confirm/#StocksPurchaseId OperatorStocksPurchaseConfirmationR POST
 /info/manage/index                   ManageInfoIndexR                  GET
 /info/manage/add                     ManageInfoAddR                    GET POST
 /info/manage/update                  ManageInfoUpdateR                 POST
--- /info/manage/archive                 ManageInfoArchiveR                POST
 /operator/websocket                  OperatorWebSocketR                GET
 
 

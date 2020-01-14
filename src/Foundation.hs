@@ -379,6 +379,7 @@ instance Yesod App where
     isAuthorized OperatorAcceptWithdrawalRequestR _  = isStaffAuthenticated
     isAuthorized OperatorDeclineWithdrawalRequestR _ = isStaffAuthenticated
     isAuthorized OperatorStocksPurchaseIndexR _      = isOperatorAuthenticated
+    isAuthorized (OperatorStocksPurchaseDetailsR _) _ = isOperatorAuthenticated
     isAuthorized (OperatorStocksPurchaseConfirmationR _) _ = isOperatorAuthenticated
     isAuthorized (OperatorUserHistoryR _) _          = isOperatorAuthenticated
     isAuthorized OperatorWebSocketR _                = isOperatorAuthenticated
@@ -487,6 +488,11 @@ instance YesodBreadcrumbs App where
             return ("Заявки на пополнение", Just HomeR)
         breadcrumb' _ _ OperatorWithdrawalRequestsListR =
             return ("Заявки на вывод", Just HomeR)
+        breadcrumb' _ mr OperatorStocksPurchaseIndexR =
+            return (mr MsgPageBreadcrumbTitleStocksIndex, Nothing)
+        breadcrumb' _ mr (OperatorStocksPurchaseDetailsR _) =
+            return ( mr MsgPageBreadcrumbTitleStocksDetails
+                   , Just OperatorStocksPurchaseIndexR )
         breadcrumb' _ _ SuperUserFinancialReportViewR =
             return ("Финансовая отчётность", Just HomeR)
         breadcrumb' _ _ AdminLogInR =
