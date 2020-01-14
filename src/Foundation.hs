@@ -401,6 +401,7 @@ instance Yesod App where
     -- API
     isAuthorized ApiAppConfigR _                     = return Authorized
     isAuthorized API_AuthAuthenticateNoTokenR _      = return Authorized
+    isAuthorized APIStocksAvailabilityR _            = return Authorized
     isAuthorized APINewsListR _                      = return Authorized
     isAuthorized LPHandler0001R _                    = return Authorized
 

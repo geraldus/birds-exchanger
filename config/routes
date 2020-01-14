@@ -76,5 +76,6 @@
 /api/app/config                  ApiAppConfigR                         GET
 /api/auth/authenticate           API_AuthAuthenticateNoTokenR          POST
 /api/news/list                   APINewsListR                          GET
+/api/stocks/get-availability     APIStocksAvailabilityR                GET
 
 /lp/handler/0001                 LPHandler0001R                        POST

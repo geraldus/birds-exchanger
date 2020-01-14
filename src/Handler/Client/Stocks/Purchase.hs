@@ -9,6 +9,7 @@ import           Local.Persist.TransferMethod ( TransferMethod (CryptoTM) )
 import           Type.App                     ( PaymentAddress,
                                                 defaultSelectNextAddr,
                                                 paymentAddressAddressee )
+import qualified Utils.Database.Stocks        as U
 
 import           Data.Aeson
 import           Database.Esqueleto
@@ -88,6 +89,18 @@ postClientStocksPurchaseR = do
                                         [ "status" .= ("OK" :: Text)
                                         , "data" .= toJSON purchaseDetails ]
 
+
+getAPIStocksAvailabilityR :: Handler TypedContent
+getAPIStocksAvailabilityR = do
+    actives <- runDB U.queryStocksActives
+    selectRep . provideRep . return . toJSON $ map stocksAvailJSON actives
+  where
+    stocksAvailJSON (Entity _ a, Entity _ s) = object
+        [ "stocks"      .= stocksAbbr s
+        , "amount-left" .= stocksActiveLeft a
+        , "price"       .= stocksPrice s
+        , "total"       .= stocksActiveTotal a
+        , "pack-name"   .= stocksName s ]
 runStocksAmountPostForm ::
     Handler (Either [(Text, Text)] (Entity Stocks, Entity StocksActive, Int))
 runStocksAmountPostForm = do
