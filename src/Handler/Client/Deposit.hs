@@ -148,7 +148,7 @@ requestAmounts (RejectD (Entity _ r) _) =
 requestStatuses
     :: (Route App -> Text)
     -> (AppMessage -> Text)
-    -> (UTCTime -> Html, UTCTime -> Html)
+    -> (UTCTime -> Text, UTCTime -> Text)
     -> Details
     -> (Widget, Widget, Widget)
 requestStatuses

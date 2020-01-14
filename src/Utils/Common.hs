@@ -31,18 +31,18 @@ dateTimeRowWM t = do
         &nbsp;&nbsp;#
         <span .text-muted>#{ft t}|]
 
-getFormatDateRender :: MonadWidget m => m (UTCTime -> Html)
+getFormatDateRender :: MonadHandler m => m (UTCTime -> Text)
 getFormatDateRender = (\(l, t) -> localeFormatDate l . offsetTime t)
     <$> getFormatParams
 
-getFormatTimeRender :: MonadWidget m => m (UTCTime -> Html)
+getFormatTimeRender :: MonadHandler m => m (UTCTime -> Text)
 getFormatTimeRender = (\(l, t) -> localeFormatTime l . offsetTime t)
     <$> getFormatParams
 
-getFormatParams :: MonadWidget m => m (TimeLocale, Int)
+getFormatParams :: MonadHandler m => m (TimeLocale, Int)
 getFormatParams = (,)
-    <$> liftHandler selectLocale
-    <*> liftHandler timezoneOffsetFromCookie
+    <$> selectLocale
+    <*> timezoneOffsetFromCookie
 
 selectLocale :: MonadHandler m => m TimeLocale
 selectLocale = locale <$> languages

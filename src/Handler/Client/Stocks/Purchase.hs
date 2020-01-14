@@ -101,6 +101,8 @@ getAPIStocksAvailabilityR = do
         , "price"       .= stocksPrice s
         , "total"       .= stocksActiveTotal a
         , "pack-name"   .= stocksName s ]
+
+
 runStocksAmountPostForm ::
     Handler (Either [(Text, Text)] (Entity Stocks, Entity StocksActive, Int))
 runStocksAmountPostForm = do

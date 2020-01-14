@@ -219,7 +219,7 @@ requestAmounts CancelD{} = (0, True)
 requestStatuses
     :: (Route App -> Text)
     -> (AppMessage -> Text)
-    -> (UTCTime -> Html, UTCTime -> Html)
+    -> (UTCTime -> Text, UTCTime -> Text)
     -> Details
     -> (Widget, Widget)
 requestStatuses _ mr _ (NoDetails (Entity _ WithdrawalRequest{..}) _) =

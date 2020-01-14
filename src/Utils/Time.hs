@@ -43,10 +43,10 @@ renderDateTimeRow loc tz t = [shamlet|
         &#32;&#32;#{renderTime loc tz t}
     |]
 
-renderTime :: TimeLocale -> Int -> UTCTime -> Html
+renderTime :: TimeLocale -> Int -> UTCTime -> Text
 renderTime l tz t = localeFormatTime l (offsetTime tz t)
 
-renderDate :: TimeLocale -> Int -> UTCTime -> Html
+renderDate :: TimeLocale -> Int -> UTCTime -> Text
 renderDate l tz t = localeFormatDate l (offsetTime tz t)
 
 
@@ -104,11 +104,11 @@ ruTimeLocale = TimeLocale
 dateFormatMNH :: String
 dateFormatMNH = "%e %b %Y"
 
-localeFormatTime :: TimeLocale -> UTCTime -> Html
-localeFormatTime l = toHtml . formatTime l (timeFmt l)
+localeFormatTime :: TimeLocale -> UTCTime -> Text
+localeFormatTime l = pack . formatTime l (timeFmt l)
 
-localeFormatDate :: TimeLocale -> UTCTime -> Html
-localeFormatDate l = toHtml . formatTime l dateFormatMNH
+localeFormatDate :: TimeLocale -> UTCTime -> Text
+localeFormatDate l = pack . formatTime l dateFormatMNH
 
 offsetTime :: Int -> UTCTime -> UTCTime
 offsetTime minutesOffset = addUTCTime (negate . fromIntegral $ minutesOffset * 60)
