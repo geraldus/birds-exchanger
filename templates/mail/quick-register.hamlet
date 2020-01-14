@@ -21,9 +21,8 @@
 <p>
     Ваш временный пароль:
     <br>
-    <b>
-        <pre style="font-size: 1.25rem">
-            #{password}
+    <b style="font-size: 1.25rem; font-family: monospace;">
+        #{password}
 
 <p>
     В целях безопасности
