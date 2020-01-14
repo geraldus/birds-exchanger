@@ -18,3 +18,6 @@ body
 
 .fnx .btn.btn-primary:hover
     background: linear-gradient(90deg, #220242 0%, #26027D 100%) !important
+
+.break-all
+    word-break: break-all

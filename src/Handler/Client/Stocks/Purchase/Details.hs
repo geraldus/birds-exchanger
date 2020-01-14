@@ -59,6 +59,6 @@ getClientStocksPurchaseDetailsR token = do
     recipientAddressW (address : extras) = [whamlet|
         <input .form-control readonly value="#{address}">
         $forall extra <- extras
-            <small .form-text .text-muted>
+            <small .form-text .text-muted .break-all>
                 #{extra}
         |]
