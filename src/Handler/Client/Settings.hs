@@ -3,10 +3,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Handler.Client.Settings where
 
-import           Handler.API.Client.Password   ( apiUnsafeChangeUserPassword )
 import           Import
-import           Settings.MailRu               ( projectNoreplyEmailCreds,
-                                                 serverName, smtpPort )
+
+import           Handler.API.Client.Password   ( apiUnsafeChangeUserPassword )
+import           Utils.App.Common              ( sendNoReplyEmail )
 import           Utils.Common                  ( projectNameHost )
 import           Utils.Database.Password       ( getCredsByEmail,
                                                  getCredsByToken )
@@ -14,10 +14,9 @@ import           Utils.Database.User.Referral  ( getCreateRefTokenDB,
                                                  getReferralsOfDB )
 import           Utils.QQ                      ( stFile )
 
+
 import qualified Data.Text.Lazy                as TL
 import           Data.Time.Clock               ( addUTCTime )
-import           Network.HaskellNet.SMTP
-import           Network.HaskellNet.SMTP.SSL
 import           Text.Blaze.Html.Renderer.Text ( renderHtml )
 import           Text.Hamlet                   ( shamletFile )
 
@@ -63,43 +62,18 @@ postPasswordChangeGuideR = do
     sendPasswordChangeLink ::
         Entity Email -> Entity PasswordResetToken -> Handler [(Text, Html)]
     sendPasswordChangeLink emailEntity tokenEntity = do
+        projType      <- appType . appSettings <$> getYesod
         messageRender <- getMessageRender
-        urlRender <- getUrlRender
-        let email = (emailEmail . entityVal) emailEntity
-        let token = (passwordResetTokenToken . entityVal) tokenEntity
-        let url = (urlRender . PasswordResetR) token
-            homeUrl = urlRender HomeR
-        projType <- appType . appSettings <$> getYesod
-        liftIO $ do
-            let (username, password) = projectNoreplyEmailCreds projType
-            conn <- connectSMTPSSLWithSettings
-                (unpack serverName)
-                (defaultSettingsSMTPSSL { sslPort = smtpPort })
-            authSuccess <-
-                Network.HaskellNet.SMTP.SSL.authenticate
-                    PLAIN
-                    (unpack username)
-                    (unpack password)
-                    conn
-            ret <- if authSuccess
-                then do
-                    let (_, exHost) = projectNameHost projType
-                        subject = messageRender
-                            MsgMessageClientPasswordResetTitle
-                    sendMimeMail (unpack email)
-                                 (unpack username)
-                                 (unpack subject)
-                                 (textContent url exHost)
-                                 (htmlContent url homeUrl email exHost)
-                                 []
-                                 conn
-                    return []
-                else do
-                    let message = (toHtml . messageRender)
-                            MsgAPIFailedToSendEmailAuthenticationFailed
-                    return [("send-email", message)]
-            closeSMTP conn
-            return ret
+        urlRender     <- getUrlRender
+        let email       = (emailEmail . entityVal) emailEntity
+        let token       = (passwordResetTokenToken . entityVal) tokenEntity
+        let url         = (urlRender . PasswordResetR) token
+            homeUrl     = urlRender HomeR
+        let (_, exHost) = projectNameHost projType
+            subject     = messageRender MsgMessageClientPasswordResetTitle
+            txt         = textContent url exHost
+            html        = htmlContent url homeUrl email exHost
+        liftIO $ sendNoReplyEmail projType messageRender email subject txt html
 
     textContent :: Text -> Text -> TL.Text
     textContent linkUrl exchangerHost =  fromStrict
@@ -204,7 +178,6 @@ postApiUserPasswordChangeR = do
         | length p < minPassLen =
                 (Left . msg) (MsgFormMessageErrorPasswordTooShort minPassLen)
         | otherwise  = Right p
-
 
 
 createPasswordChangeToken :: Entity Email -> Handler (Entity PasswordResetToken)

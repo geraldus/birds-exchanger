@@ -10,29 +10,13 @@ import           Import
 
 import           Form.Auth.SignUp
 import           Local.Persist.UserRole
-import           Settings.MailRu               ( projectNoreplyEmailCreds,
-                                                 serverName, smtpPort )
 import           Type.Auth.SignUp              ( SignUpFormData (..) )
+import           Utils.App.Common              ( sendNoReplyEmail )
 import           Utils.Common                  ( projectNameHost )
 
-import qualified Data.Text                     as T
 import qualified Data.Text.Lazy                as TL
-import           Network.HaskellNet.SMTP
-import           Network.HaskellNet.SMTP.SSL
 import           Text.Blaze.Html.Renderer.Text ( renderHtml )
 import           Yesod.Auth.Util.PasswordStore ( makePassword )
-
-authType :: AuthType
-authType = PLAIN
-
-fenixFrom :: String
-fenixFrom = "noreply@fenix.info"
-
-outbirdsFrom :: String
-outbirdsFrom = "noreply@outb.info"
-
-subject :: String
-subject = "Подтвердите ваш электронный ящик"
 
 
 getSignUpR :: Handler Html
@@ -93,41 +77,21 @@ postSignUpR = do
 
     sendEmailActivationMessage :: Text -> Text -> Handler ()
     sendEmailActivationMessage email key = do
-        urlRender <- getUrlRender
-        let verUrl = urlRender $ SignUpVerifyR email key
+        urlRender     <- getUrlRender
+        messageRender <- (getMessageRender :: Handler (AppMessage -> Text))
         projType <- appType . appSettings <$> getYesod
+        let verUrl = urlRender $ SignUpVerifyR email key
         let (exName, exHost) = projectNameHost projType
-        liftIO $ do
-            conn <- connectSMTPSSLWithSettings
-                (unpack serverName)
-                (defaultSettingsSMTPSSL { sslPort = smtpPort })
-            let (username, password) = projectNoreplyEmailCreds projType
-            authSuccess <-
-                Network.HaskellNet.SMTP.SSL.authenticate
-                    PLAIN
-                    (unpack username)
-                    (unpack password)
-                    conn
-            if authSuccess
-                then sendMimeMail (T.unpack email)
-                                  (unpack username)
-                                  subject
-                                  (plainBody email verUrl exName exHost)
-                                  (htmlBody email verUrl exName exHost)
-                                  []
-                                  conn
-                else putStrLn "Authentication failed."
-            closeSMTP conn
-
-    plainBody = textContent
-
-    htmlBody = htmlContent
-
+        let txt     = textContent email verUrl exName exHost
+            html    = htmlContent email verUrl exName exHost
+            subject = messageRender MsgEmailSubjectConfirmEmail
+        void . liftIO $ sendNoReplyEmail projType messageRender email subject txt html
 
 data UserCreateResult
     = CreateError Text
     | CreateSuccess
 
+-- ^ TODO move code to template
 textContent :: Text -> Text -> Text -> Text -> TL.Text
 textContent _email url exchangerName exchangerHost = renderHtml [shamlet|
     Необходимо подтверждение электронной почты.
@@ -141,6 +105,7 @@ textContent _email url exchangerName exchangerHost = renderHtml [shamlet|
     #{exchangerName}
     |]
 
+-- ^ TODO move code to template
 htmlContent :: Text -> Text -> Text -> Text -> TL.Text
 htmlContent _email url exchangerName exchangerHost = renderHtml [shamlet|
     <html>
