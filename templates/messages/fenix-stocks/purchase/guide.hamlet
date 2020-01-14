@@ -23,7 +23,7 @@
             placeholder="PRIZM-____-____-____-_____"
             required
             >
-<div .row>
+<div .row .mb-5>
     <div .col-12>
         <button ##{guideId}-submit.btn .btn-primary disabled>
             _{MsgFormSumbitConfirmTransfer}
