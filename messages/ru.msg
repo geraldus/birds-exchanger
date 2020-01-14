@@ -239,6 +239,7 @@ StocksPack: Пакет
 StocksPackTitleFenixStart: Старт
 StocksPackTitleFenixStandard: Стандарт
 StocksPackTitleFenixPremium: Премиум
+StocksNotConfirmedYet: Ещё не подтверждена
 FormOptionsStocksSelectBuyMethod: выберите способ покупки
 FormOptionsStocksInnerWalletBuyMethod c@Currency: со внутреннего #{currencySymbol c} кошелька платформы
 FormOptionsStocksPersonalWalletTransfer c@Currency: перевод с личного кошелька #{currencySymbol c}
@@ -260,6 +261,7 @@ FormErrorNoPaymentAddressee: Перевод активов временно не
 FormSumbitConfirmTransfer: Перевод выполнен
 StocksTokensAccrued: токенов начислено
 PageTitleStocksDetailsAbbr stocksAbbr@Text: Подробности покупки акции #{stocksAbbr}
+PageBreadcrumbTitleStocksIndex: Акции
 PageBreadcrumbTitleStocksDetails: Информация о покупке
 
 GuideTransferFunds: Переведите средства на указанный адрес
@@ -330,6 +332,7 @@ Price: Цена
 PriceCurrency c@Currency: Цена, #{currencySymbol c}
 YourWalletAddress: Адрес Вашего кошелька
 Processing: В обработке
+Processed: Обработака выполнена
 
 SendEmail: Написать на эл.почту
 ToTelegramChat: Перейти в Telegram-чат
@@ -360,7 +363,9 @@ VkComTitle: ВКонтакте
 
 ## Subjects
 
+EmailSubjectConfirmEmail: Подтвердите ваш электронный ящик
 EmailSubjectQuickRegistrationCompleted: Ваша учётная запись создана
+EmailSubjectOperatorPendingPurchase stocksPack@Text: Новая заявка на покупку акций #{stocksPack}
 
 # Messages
 APIMissingFormData: Не получены данные формы.
