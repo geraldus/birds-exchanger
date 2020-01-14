@@ -14,7 +14,7 @@ import           Local.Persist.Currency         ( CryptoCurrency (PZM) )
 import           Local.Persist.Notice           ( NoticeType (NoticeEmail) )
 import           Local.Persist.TransferMethod   ( TransferMethod (CryptoTM) )
 import           Local.Persist.UserRole         ( UserRole (Client) )
-import           Settings.MailRu                ( projectNoreplyEmailCreds,
+import           Settings.MailRu                ( projectNoReplyEmailCreds,
                                                   serverName, smtpPort )
 import           Type.App                       ( defaultSelectNextAddr )
 import           Utils.Common                   ( projectNameHost )
@@ -170,7 +170,7 @@ notifyClientQuickRegistrationCompleted email pass vk = do
         conn <- connectSMTPSSLWithSettings
             (unpack serverName)
             (defaultSettingsSMTPSSL { sslPort = smtpPort })
-        let (username, password) = projectNoreplyEmailCreds projType
+        let (username, password) = projectNoReplyEmailCreds projType
         authSuccess <-
             Network.HaskellNet.SMTP.SSL.authenticate
                 PLAIN
