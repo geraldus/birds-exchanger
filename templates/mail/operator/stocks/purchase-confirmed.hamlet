@@ -1,0 +1,35 @@
+<p>
+    Уважаемый <b>оператор</b>,
+    <br>
+    поступила заявка на покупку акций:
+
+<dl>
+    <dt>Акции:
+    <dd>#{stocksPack}
+
+    <dt>Кол-во:
+    <dd style="font-family: monospace;">#{stocksAmount}
+
+    <dt>Ожидаемая для поступления сумма:
+    <dd style="font-family: monospace;">#{cost} <small>PZM</small>
+
+    <dt>Зачисление ожидается на:
+    <dd style="font-family: monospace;">
+        #{transferAddr}
+
+    <dt>Отправитель:
+    <dd style="font-family: monospace;">#{payer}
+
+    <dt>Пользватель платформы:
+    <dd>#{username}
+
+    <dt>Дата операции:
+    <dd>#{date}
+
+    <dt>Акций доступно для продажи:
+    <dd style="font-family: monospace;">#{stocksLeft}
+
+    <dt>Ссылка на операцию:
+    <dd>
+        <a href="#{url}">
+            #{url}
