@@ -1,0 +1,11 @@
+<form
+    action=@{OperatorStocksPurchaseConfirmationR pid}
+    method="POST"
+    >
+    <button
+        ##{htmlId}-confirm-button
+        .btn
+        .btn-sm
+        .btn-outline-dark
+        >
+        _{MsgFormSubmitOperatorAcceptStocksPurchase}

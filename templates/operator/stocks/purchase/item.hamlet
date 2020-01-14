@@ -15,7 +15,7 @@
                 #{price}
         <div .col-12 .text-muted>
             <small>
-                #{payerAddress},
+                #{payerAddress}
                 <a href="#">
                     #{payerEmail}
         <div .col-12 .text-muted>
@@ -23,14 +23,4 @@
                 _{MsgStocksAvailable}: #{stocksLeft}
         <div .col-12>
             <div .text-right .text-lowercase .mb-2>
-                <form
-                    action=@{OperatorStocksPurchaseConfirmationR pid}
-                    method="POST"
-                    >
-                    <button
-                        ##{htmlId}-confirm-button
-                        .btn
-                        .btn-sm
-                        .btn-outline-dark
-                        >
-                        _{MsgFormSubmitOperatorAcceptStocksPurchase}
+                ^{extra}
