@@ -40,7 +40,7 @@ noreplyEmailOutbirdsPassword = "T[fi20xTFlaX"
 
 projectSupportEmailCreds :: AppType -> (Text, Text)
 projectSupportEmailCreds FenixApp =
-    (supportEmailOutbirdsUsername, supportEmailFenixPassword)
+    (supportEmailFenixUsername, supportEmailFenixPassword)
 projectSupportEmailCreds OutbirdsApp =
     (supportEmailOutbirdsUsername, supportEmailOutbirdsPassword)
 
