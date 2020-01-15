@@ -13,6 +13,7 @@ $(document).ready(function () {
         const stocks = $(this).data('stocks')
         formOptions.removeAttr('selected')
         $(`option[value="${stocks}"]`).attr('selected', 'selected')
+        $('#stocks-amount').focus()
         scrollToForm()
     }
 
