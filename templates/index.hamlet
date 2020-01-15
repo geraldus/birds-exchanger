@@ -74,7 +74,7 @@
         <div .col-12 .mb-4>
             <h4>
                 АКЦИИ
-        <div .col-10 .col-lg-4 .mb-5 .mx-auto>
+        <div .col-10 .col-lg-4 .mb-5 .mx-auto data-stocks="FNXB">
             <div .rounded .card>
                 <p .heading>
                     START
@@ -85,7 +85,8 @@
                         за 1 акцию
                 <button .btn .buy-stocks data-stocks="FNXB">
                     Приобрести
-        <div .col-10 .col-lg-4 .mb-5 .mx-auto>
+            ^{stocksAvailabilityW "FNXB"}
+        <div .col-10 .col-lg-4 .mb-5 .mx-auto data-stocks="FNXS">
             <div .rounded .card>
                 <p .heading>
                     STANDARD
@@ -96,7 +97,8 @@
                         за 1 акцию
                 <button .btn .buy-stocks data-stocks="FNXS">
                     Приобрести
-        <div .col-10 .col-lg-4 .mb-5 .mx-auto>
+            ^{stocksAvailabilityW "FNXS"}
+        <div .col-10 .col-lg-4 .mb-5 .mx-auto data-stocks="FNXP">
             <div .rounded .card>
                 <p .heading>
                     PREMIUM
@@ -105,12 +107,9 @@
                     <br>
                     <span .extra>
                         за 1 акцию
-                <button
-                    .btn
-                    .buy-stocks
-                    data-stocks="FNXP"
-                    >
+                <button .btn .buy-stocks data-stocks="FNXP">
                     Приобрести
+            ^{stocksAvailabilityW "FNXP"}
 
 <section .container-fliud .quick-purchase .p-4>
     <div .row>

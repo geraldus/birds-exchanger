@@ -18,10 +18,12 @@ import           Market.Type            ( DOMRateStats, DOMStats,
 import           Type.Money             ( oneCoinCents )
 import           Utils.Common           ( selectLocale )
 import           Utils.Database.Orders  ( selectActiveOrdersOf )
+import           Utils.Database.Stocks  ( queryStocksActives )
 import           Utils.Money
 import           Utils.Render
 import           Utils.Time             ( renderDate, renderTime,
                                           timezoneOffsetFromCookie )
+import Handler.Stocks (findStocksActive)
 
 import qualified Data.HashMap.Strict    as HMS
 import           Database.Esqueleto     ( InnerJoin (..), asc, desc, from, in_,
@@ -48,17 +50,31 @@ getHomeR = do
 getFenixTradingHomeR :: Handler Html
 getFenixTradingHomeR = do
     (messages, _) <- getCommonData
+    renderUrl     <- getUrlRender
+    stocksActives <- liftHandler . runDB $ queryStocksActives
     let featured = featuredModal
-    projType <- appType . appSettings <$> getYesod
-    renderUrl <- getUrlRender
-    let logoSrc = if projType == FenixApp
-            then StaticR images_logo_060119_png
-            else StaticR images_logo_outb_info_png
     let bgSrc = StaticR images_bg_050119_png
         whitepaperBgSrc = renderUrl $ StaticR images_wp060119_0002_png
+    let stocksAvailabilityW = renderActivesLeft stocksActives
     defaultLayout $ do
         setAppPageTitle MsgHomePageTitle
         $(widgetFile "index")
+  where
+    renderActivesLeft ::
+        [(Entity StocksActive, Entity Stocks)] -> Text -> Widget
+    renderActivesLeft stocks abr = do
+        let (avail, total) = findStocksActive abr stocks
+        [whamlet|
+            <div .mt-2 .stocks-avail .text-center>
+                <span .text-capitalize>
+                    _{MsgStocksAmountLeftShort}
+                <span .amount-left>
+                    #{show avail}
+                <span>
+                    _{MsgStocksAmountLeftOf}
+                <span .amount-total>
+                    #{show total}
+            |]
 
 getOutbInfoHomeR :: Handler Html
 getOutbInfoHomeR = do

@@ -44,6 +44,7 @@
     .card
         font-weight: bold
         color: black
+        border-color: #F7CE82 !important
         padding: 1rem
         height: 250px
         text-align: center

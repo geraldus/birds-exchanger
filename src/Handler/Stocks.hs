@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Handler.Stocks ( getStocksR ) where
+module Handler.Stocks ( getStocksR, findStocksActive ) where
 
 import           Import                     hiding ( on, (==.) )
 
@@ -29,7 +29,6 @@ getStocksR =
         stocksActives <- liftHandler . runDB $ queryStocksActives
         colHeaderMessage MsgStocksSubtitleBuy
         buyForm stocksActives (Just formId) Nothing
-
 
     noPredefinedId = Nothing
 
@@ -69,18 +68,19 @@ buyForm actives idMaybe classMaybe = do
             classMaybe
     formId <- maybe newIdent return idMaybe
     maybeClientUser <- handlerToWidget maybeClientAuthPair
-    let fnxBLeft = findActive "FNXB" actives
-    let fnxSLeft = findActive "FNXS" actives
-    let fnxPLeft = findActive "FNXP" actives
+    let fnxBLeft = fst $ findStocksActive "FNXB" actives
+    let fnxSLeft = fst $ findStocksActive "FNXS" actives
+    let fnxPLeft = fst $ findStocksActive "FNXP" actives
     $(widgetFile "form/stocks/buy")
     $(widgetFile "messages/fenix-stocks/pack-desc/generic")
     $(widgetFile "messages/fenix-stocks/pack-desc/start")
     $(widgetFile "messages/fenix-stocks/pack-desc/standard")
     $(widgetFile "messages/fenix-stocks/pack-desc/premium")
-  where
-    findActive abr =
-        maybe 0 (stocksActiveLeft . entityVal . fst)
-            . stocksActiveByAbbr abr
+
+
+findStocksActive :: Text -> [(Entity StocksActive, Entity Stocks)] -> (Int, Int)
+findStocksActive abr = maybe (0, 0) stats . stocksActiveByAbbr abr
+  where stats (Entity _ s, _) = (stocksActiveLeft s, stocksActiveTotal s)
 
 sellForm :: Maybe Text -> Maybe Text -> Widget
 sellForm idMaybe classMaybe = do
