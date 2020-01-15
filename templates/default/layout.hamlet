@@ -23,9 +23,14 @@
 
                 $forall (label, msg) <- sessionMessages
                     <div .row data-session-message-label=#{label}>
-                        <div .col-8 .col-lg-6 .mx-auto>
+                        <div .col-10 .col-lg-7 .mx-auto>
                             <div .alert.alert-warning #message>
-                                #{msg}
+                                <div .d-none .d-lg-block>
+                                    #{msg}
+                                <div .d-lg-none>
+                                    <small>
+                                        #{msg}
+
                 <div .row>
                     <div .col-md-12>
                         ^{widget}
