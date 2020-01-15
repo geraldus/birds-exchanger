@@ -4,11 +4,14 @@
             <div .col-12>
                 <div .d-flex .justify-content-between>
                     <div>
-                        <big>#{stocksAmount}
+                        <span .text-uppercase>
+                            #{stocksPackName}
                         <small .text-muted>
-                            _{MsgPiecesShort}&#8239;&times;&#8239;
-                            <span .text-uppercase>
-                                #{stocksPackName}
+                            &#8239;&times;&#8239;
+                            <b>#{stocksAmount}
+                            <small .text-muted>
+                                _{MsgPiecesShort}
+
                     <div>
                         <small .text-muted>
                             ^{significantDate}
