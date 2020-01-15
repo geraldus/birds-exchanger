@@ -1,26 +1,27 @@
-<div .col-12 .col-lg-10 .my-2>
-    <div .row .purchase-details data-purchase-id="#{purchaseId}">
-        <div .col-12 .mt-2>
-            <div .d-flex .justify-content-between>
-                <div>
-                    #{stocksAmount}
-                    <small .text-muted>
-                        _{MsgPiecesShort},
-                        <span .text-uppercase>#{stocksPackName}
-                <div>
-                    <small .text-muted>
-                        ^{significantDate}
-        <div .col-12 .text-muted>
-            <small>
-                #{price}
-        <div .col-12 .text-muted>
-            <small>
-                #{payerAddress}
-                <a href="#">
-                    #{payerEmail}
-        <div .col-12 .text-muted>
-            <small>
-                _{MsgStocksAvailable}: #{stocksLeft}
-        <div .col-12>
-            <div .text-right .text-lowercase .mb-2>
-                ^{extra}
+<div .col-12 .col-lg-6 .my-2>
+    <div .container-fluid>
+        <div .row .purchase-details data-purchase-id="#{purchaseId}">
+            <div .col-12 .mt-2>
+                <div .d-flex .justify-content-between>
+                    <div>
+                        #{stocksAmount}
+                        <small .text-muted>
+                            _{MsgPiecesShort},
+                            <span .text-uppercase>#{stocksPackName}
+                    <div>
+                        <small .text-muted>
+                            ^{significantDate}
+            <div .col-12 .text-muted>
+                <small>
+                    #{price}
+            <div .col-12 .text-muted>
+                <small>
+                    #{payerAddress}
+                    <a href="#">
+                        #{payerEmail}
+            <div .col-12 .text-muted>
+                <small>
+                    _{MsgStocksAvailable}: #{stocksLeft}
+            <div .col-12>
+                <div .text-right .text-lowercase .mb-2>
+                    ^{extra}

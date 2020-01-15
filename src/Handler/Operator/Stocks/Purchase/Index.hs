@@ -6,7 +6,6 @@
 module Handler.Operator.Stocks.Purchase.Index where
 
 import           Import                 as I hiding ( on, (==.) )
-import qualified Import                 as I
 
 import           Local.Persist.Currency ( pzmC )
 import           Utils.App.Client       ( dateTimeRowW )
@@ -22,14 +21,31 @@ import           Text.Julius            ( rawJS )
 
 getOperatorStocksPurchaseIndexR :: Handler Html
 getOperatorStocksPurchaseIndexR = do
-    requireOperatorId
+    render <- getMessageRender
+    let linkText = render MsgPageTitleStocksArchive
+        route = OperatorStocksPurchaseArchiveR
+    getOperatorStocksGenericRoute queryPendingPurchases linkText route
+
+getOperatorStocksPurchaseArchiveR :: Handler Html
+getOperatorStocksPurchaseArchiveR = do
+    render <- getMessageRender
+    let linkText = render MsgPageTitleStocksPending
+        route = OperatorStocksPurchaseIndexR
+    getOperatorStocksGenericRoute queryAllPurchases linkText route
+
+getOperatorStocksGenericRoute ::
+       (MonadIO m, m ~ Handler)
+    => SqlPersistT m [FullPurchaseDetails] -> Text -> Route App -> Handler Html
+getOperatorStocksGenericRoute queryList linkText route = do
+    _ <- requireOperatorId
     renderUrl <- getUrlRender
-    list <- runDB queryPendingPurchasesDB
+    list <- runDB queryList
     let body = if length list > 0
             then mapM_ purchaseItemW list
             else [whamlet|
                 <span .mt-2 .text-muted>
                     _{MsgNoOperationsYet}|]
+    let url = renderUrl route
     defaultLayout $ do
         $(widgetFile "operator/common")
         $(widgetFile "operator/stocks/purchase/index")
@@ -91,21 +107,23 @@ purchaseItemW (Entity pid p, Entity _ s, Entity _ a, _, Entity _ e) = do
                 #{ident}|]
         | otherwise = mempty
 
-
-queryPendingPurchasesDB :: MonadIO m => SqlPersistT m [FullPurchaseDetails]
-queryPendingPurchasesDB = select . from $
+queryAllPurchases :: MonadIO m => SqlPersistT m [FullPurchaseDetails]
+queryAllPurchases = select . from $
     \q@(e `InnerJoin` u `InnerJoin` p `InnerJoin` s `InnerJoin` a) -> do
         purchaseDataJoins q
         orderBy
             [ asc (p ^. StocksPurchaseUserConfirmed)
             , asc (p ^. StocksPurchaseCreated) ]
-        where_
-            (   (not_  $ E.isNothing (p ^. StocksPurchaseUserConfirmed))
-            &&. (E.isNothing (p ^. StocksPurchaseCancelled))
-            &&. (E.isNothing (p ^. StocksPurchaseAccepted))
-            &&. (E.isNothing (p ^. StocksPurchaseAcceptedBy))
-            &&. (E.isNothing (p ^. StocksPurchaseAcceptedByIdent))
-            )
+        return (p, s, a, u, e)
+
+queryPendingPurchases :: MonadIO m => SqlPersistT m [FullPurchaseDetails]
+queryPendingPurchases = select . from $
+    \q@(e `InnerJoin` u `InnerJoin` p `InnerJoin` s `InnerJoin` a) -> do
+        purchaseDataJoins q
+        orderBy
+            [ asc (p ^. StocksPurchaseUserConfirmed)
+            , asc (p ^. StocksPurchaseCreated) ]
+        pendingPurchaseConditions q
         return (p, s, a, u, e)
 
 purchaseDataJoins ::
@@ -116,13 +134,30 @@ purchaseDataJoins ::
            `InnerJoin` SqlExpr (Entity StocksActive)
        )
     -> SqlQuery ()
-purchaseDataJoins =
-    \(e `InnerJoin` u `InnerJoin` p `InnerJoin` s `InnerJoin` a) -> do
+purchaseDataJoins (e `InnerJoin` u `InnerJoin` p `InnerJoin` s `InnerJoin` a) =
+    do
         on (a ^. StocksActiveStock ==. s ^. StocksId)
         on (s ^. StocksId ==. p ^. StocksPurchaseStocks)
         on (p ^. StocksPurchaseUser ==. u ^. UserId)
         on (just (u ^. UserId) ==. e ^. EmailUserId)
 
+pendingPurchaseConditions ::
+       (   SqlExpr (Entity Email)
+           `InnerJoin` SqlExpr (Entity User)
+           `InnerJoin` SqlExpr (Entity StocksPurchase)
+           `InnerJoin` SqlExpr (Entity Stocks)
+           `InnerJoin` SqlExpr (Entity StocksActive)
+       )
+    -> SqlQuery ()
+pendingPurchaseConditions =
+    \(_ `InnerJoin` _ `InnerJoin` p `InnerJoin` _ `InnerJoin` _) -> do
+        where_
+            (   (not_  $ E.isNothing (p ^. StocksPurchaseUserConfirmed))
+            &&. (E.isNothing (p ^. StocksPurchaseCancelled))
+            &&. (E.isNothing (p ^. StocksPurchaseAccepted))
+            &&. (E.isNothing (p ^. StocksPurchaseAcceptedBy))
+            &&. (E.isNothing (p ^. StocksPurchaseAcceptedByIdent))
+            )
 
 type FullPurchaseDetails
     = (Ent StocksPurchase, Ent Stocks, Ent StocksActive, Ent User, Ent Email)

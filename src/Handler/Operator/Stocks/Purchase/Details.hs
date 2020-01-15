@@ -17,12 +17,15 @@ getOperatorStocksPurchaseDetailsR :: StocksPurchaseId -> Handler Html
 getOperatorStocksPurchaseDetailsR pid = do
     _ <- requireOperatorId
     renderUrl <- getUrlRender
+    render <- getMessageRender
     d <- runDB $ queryPurchaseFullDetails pid
     let body = case d of
             [] -> do
                 addMessageI "invalid-url" MsgAPIInvalidStocksPurchaseToken
                 redirect OperatorStocksPurchaseIndexR
             d' : _ -> purchaseItemW d'
+    let linkText = render MsgPageTitleStocksPending
+        url = renderUrl OperatorStocksPurchaseIndexR
     defaultLayout $ do
         $(widgetFile "operator/common")
         $(widgetFile "operator/stocks/purchase/index")
