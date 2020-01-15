@@ -59,6 +59,8 @@ import           Database.Persist.Sql            ( ConnectionPool, fromSqlKey,
                                                    runSqlPool )
 import           Text.Cassius                    ( cassiusFile )
 import           Text.Hamlet                     ( hamletFile )
+import qualified Data.Text.Encoding.Error as TEE
+import qualified Network.Wai as W
 import           Text.Jasmine                    ( minifym )
 import           Text.Julius                     ( rawJS )
 import           Text.Read                       ( readMaybe )
@@ -168,7 +170,11 @@ instance Yesod App where
                 | url `notElem`  [ AuthR LogoutR, AuthR LoginR, SignUpR ] ->
                         setUltDest url
                 | url == AuthR LogoutR -> setUltDest HomeR
-                | otherwise -> return ()
+                | otherwise -> do
+                    rm <- W.requestMethod . reqWaiRequest <$> getRequest
+                    if rm == methodPost
+                        then setUltDest HomeR
+                        else return ()
             _ -> return ()
         -- Get the breadcrumbs, as defined in the YesodBreadcrumbs instance.
         (title, parents) <- breadcrumbs
@@ -279,7 +285,8 @@ instance Yesod App where
         let (hostname, _)     = projectNameHost projType
         let (supportEmail, _) = projectSupportEmailCreds projType
 
-        let jsonStocksPurchases = decodeUtf8 . encode $ map clientStocksToJSON stocks
+        let jsonStocksPurchases = decodeUtf8 . encode $
+                map clientStocksToJSON stocks
 
         let defaultMobileNav = $(widgetFile "default/nav/mobile")
         let defaultDesktopNav = $(widgetFile "default/nav/desktop")
