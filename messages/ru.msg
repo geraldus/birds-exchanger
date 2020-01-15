@@ -62,6 +62,7 @@ PageTitleClientStocksPurchaseDetails: Покупка акций
 MessageClientPasswordResetTitle: Восстановление пароля
 MessageClientPurchaseNotFound: Операция не найдена
 MessageInfoReferralProgramIsDisabled: Все реферальные бонусы зафиксированы, но временно не отображаются.  Следите за новостями.
+MessageInfoRefferalProgramRequirements: Реферальная программа доступна только владельцам акций «FENIX». Для получения ссылки приобретите любое количество акций.
 MessagePleaseLogIn: Пожалуйста, войдите в систему
 MessagePageNotFound: Страница не найдена
 
