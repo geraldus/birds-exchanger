@@ -88,7 +88,6 @@ notifyOperatorStocksPurchase pid = do
                     , "html-content" .= html ]
                 subject = messageRender $
                         MsgEmailSubjectOperatorPendingPurchase packName
-            $(logInfo) (pack (show operators))
             flip mapM_ operators $ \email -> do
                 let n = Notice
                         NoticeEmail email contents tn Nothing 0 Nothing (Just tn)
