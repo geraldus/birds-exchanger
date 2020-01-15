@@ -14,5 +14,5 @@ $(document).ready(function () {
         }
     }
 
-    input.keyup(checkValidity)
+    input.bind('input propertychange paste', checkValidity)
 })
