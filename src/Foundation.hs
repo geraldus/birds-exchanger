@@ -913,11 +913,13 @@ transferMethodSelect = selectField . pure $ mkOptionList transferOptionsRaw
 setAppTitle :: [ AppMessage ] -> Widget
 setAppTitle ms = do
     projType <- appType . appSettings <$> handlerToWidget getYesod
-    let projName = if projType == FenixApp
-            then MsgProjectNameFenix
-            else MsgProjectNameOutbirds
+    let (projName, extra) = if projType == FenixApp
+            then (MsgProjectNameFenix, [ ])
+            else ( MsgProjectNameOutbirds
+                 , [MsgCurrencyExchangeService, MsgCurrencyExchangeSlang] )
+
     setCompositeTitle $
-        ms <> [projName, MsgCurrencyExchangeService, MsgCurrencyExchangeSlang]
+        ms <> [projName] <> extra
 
 setAppPageTitle :: AppMessage -> Widget
 setAppPageTitle = setAppTitle . (: [])
