@@ -261,7 +261,10 @@ FormErrorNoPaymentAddressee: Перевод активов временно не
 FormSumbitConfirmTransfer: Перевод выполнен
 StocksTokensAccrued: токенов начислено
 PageTitleStocksDetailsAbbr stocksAbbr@Text: Подробности покупки акции #{stocksAbbr}
+PageTitleStocksArchive: Архив операций
+PageTitleStocksPending: Неподтверждённые заявки
 PageBreadcrumbTitleStocksIndex: Акции
+PageBreadcrumbTitleStocksArchive: Архив операций
 PageBreadcrumbTitleStocksDetails: Информация о покупке
 
 GuideTransferFunds: Переведите средства на указанный адрес
