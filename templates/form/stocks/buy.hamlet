@@ -9,10 +9,6 @@
             <label .form-label for="#{formId}-buy-method-select">
                 _{MsgBuyMethod}
             <select ##{formId}-buy-method-select .form-control>
-                <option value="" disabled>
-                    _{MsgFormOptionsStocksSelectBuyMethod}
-                <option value="inner-wallet" disabled>
-                    _{MsgFormOptionsStocksInnerWalletBuyMethod pzmC}
                 <option value="direct-transfer" selected>
                     _{MsgFormOptionsStocksPersonalWalletTransfer pzmC}
         <div .form-group>
