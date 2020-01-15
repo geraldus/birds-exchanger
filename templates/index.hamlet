@@ -124,7 +124,7 @@
     <div .row>
         <div .col-12 .col-lg-9 .mx-auto .p-4>
             <form
-                id="#quick-stocks-purchase"
+                id="quick-purchase-form"
                 action=@{LPHandler0001R}
                 method="post"
                 .container-fluid

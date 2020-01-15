@@ -1,0 +1,21 @@
+
+$(document).ready(function () {
+
+    const buyStocksButtons = $('.buy-stocks')
+    const form = $('#quick-purchase-form')
+    const formOptions = $('option', form)
+
+    function scrollToForm() {
+        $('html, body').animate({ scrollTop: form.offset().top });
+    }
+
+    function handler(a, b) {
+        const stocks = $(this).data('stocks')
+        formOptions.removeAttr('selected')
+        $(`option[value="${stocks}"]`).attr('selected', 'selected')
+        scrollToForm()
+    }
+
+    buyStocksButtons.click(handler)
+
+})
