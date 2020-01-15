@@ -136,8 +136,9 @@
                                                 -.-------
                                             <small .currency .para .pzm>ZLT
                             $forall stats <- wallets
-                                <a .pl-2 .dropdown-item .disabled>
-                                    ^{renderWalletBalanceW stats []}
+                                $if userWalletCurrency (entityVal (walletDataWallet stats)) /= rubC
+                                    <a .pl-2 .dropdown-item .disabled>
+                                        ^{renderWalletBalanceW stats []}
                         <a .dropdown-item .pl-3 href="@{AuthR LogoutR}">
                             _{MsgMenuTitleSignOut}
 

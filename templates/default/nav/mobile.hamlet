@@ -51,7 +51,8 @@
                                 -.-------
                             <small .currency .para .pzm>ZLT
                     $forall stats <- wallets
-                        ^{renderWalletBalanceW stats ["ml-2"]}
+                        $if userWalletCurrency (entityVal (walletDataWallet stats)) /= rubC
+                            ^{renderWalletBalanceW stats ["ml-2"]}
                     $forall MenuItem label route _ <- clientMenuItems
                         <li .ml-2 .nav-item :Just route == currentRoute:.active>
                             <a .nav-link href="@{route}">#{label}
