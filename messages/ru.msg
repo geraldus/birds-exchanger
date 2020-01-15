@@ -239,6 +239,9 @@ StocksPack: Пакет
 StocksPackTitleFenixStart: Старт
 StocksPackTitleFenixStandard: Стандарт
 StocksPackTitleFenixPremium: Премиум
+StocksAmountAvailable: Остаток акций, доступных для приобретения
+StocksAmountLeftShort: осталось
+StocksAmountLeftOf: из
 StocksNotConfirmedYet: Ещё не подтверждена
 FormOptionsStocksSelectBuyMethod: выберите способ покупки
 FormOptionsStocksInnerWalletBuyMethod c@Currency: со внутреннего #{currencySymbol c} кошелька платформы
