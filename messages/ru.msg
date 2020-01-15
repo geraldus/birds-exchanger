@@ -62,7 +62,8 @@ PageTitleClientStocksPurchaseDetails: Покупка акций
 MessageClientPasswordResetTitle: Восстановление пароля
 MessageClientPurchaseNotFound: Операция не найдена
 MessageInfoReferralProgramIsDisabled: Все реферальные бонусы зафиксированы, но временно не отображаются.  Следите за новостями.
-
+MessagePleaseLogIn: Пожалуйста, войдите в систему
+MessagePageNotFound: Страница не найдена
 
 # FORMS
 

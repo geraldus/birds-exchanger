@@ -7,12 +7,20 @@
                 <div .row .d-none .d-lg-block .mb-3>
                     <div .col-12 .mx-auto>
                         <ul .breadcrumb>
-                            $forall (link, label) <- parents
+                            $maybe _ <- currentRoute
+                                $forall (link, label) <- parents
+                                    <li .breadcrumb-item>
+                                        <a href="@{link}">
+                                            #{label}
+                                <li .breadcrumb-item.active>
+                                    #{title}
+                            $nothing
                                 <li .breadcrumb-item>
-                                    <a href="@{link}">
-                                        #{label}
-                            <li .breadcrumb-item.active>
-                                #{title}
+                                    <a href="@{HomeR}">
+                                        #{fst (projectNameHost projType)}
+                                <li .breadcrumb-item.active>
+                                    Ошибка
+
                 $forall (label, msg) <- sessionMessages
                     <div .row data-session-message-label=#{label}>
                         <div .col-8 .col-lg-6 .mx-auto>

@@ -440,6 +440,30 @@ instance Yesod App where
     makeLogger :: App -> IO Logger
     makeLogger = return . appLogger
 
+    errorHandler (PermissionDenied msg) = do
+        render <- getMessageRender
+        let message = render MsgMessagePleaseLogIn
+        selectRep $ do
+            provideRep $ defaultLayout $ defaultMessageWidget
+                (toHtml message)
+                [hamlet|<p>#{msg}|]
+            provideRep $
+                return $ object ["message" .= (message <> ". " <> msg)]
+            provideRep $ return $ message <> ". " <> msg
+    errorHandler NotFound = do
+        render <- getMessageRender
+        let message = render MsgMessagePageNotFound
+        selectRep $ do
+            provideRep $ defaultLayout $ do
+                r <- waiRequest
+                let path' = TE.decodeUtf8With TEE.lenientDecode $
+                        W.rawPathInfo r
+                defaultMessageWidget (toHtml message) [hamlet|<p>#{path'}|]
+            provideRep $ return $ object ["message" .= message]
+            provideRep $ return message
+
+    errorHandler other = defaultErrorHandler other
+
 -- Define breadcrumbs.
 instance YesodBreadcrumbs App where
     -- Takes the route that the user is currently on, and returns a tuple
