@@ -757,6 +757,26 @@ requireClientCreds = do
                 []      -> permissionDenied accessErrorClientOnly
         _ -> permissionDenied accessErrorClientOnly
 
+requireClientData :: Handler (Entity User, [Entity UserWallet])
+requireClientData = do
+    client <- maybeClient
+    case client of
+        Nothing         -> permissionDenied accessErrorClientOnly
+        Just clientData -> return clientData
+
+requireClientData' ::
+    Handler ( Entity User
+            , [Entity UserWallet]
+            , [WalletData]
+            , [(Entity StocksPurchase, Entity Stocks)] )
+requireClientData' = do
+    uid <- requireClientId
+    runDB $ do
+        user <- getJustEntity uid
+        wallets <- getUserWallets uid
+        wd <- mapM getUserWalletStatsDB wallets
+        sd <- queryClientStocks uid
+        return (user, wallets, wd, sd)
 
 maybeClient :: Handler (Maybe (Entity User, [Entity UserWallet]))
 maybeClient = do
@@ -785,14 +805,6 @@ eitherClientToMaybe ::
     (Either UserId Text, Either User SuperUser) -> Maybe (UserId, User)
 eitherClientToMaybe (Left uid, Left user@(User _ _ Client)) = Just (uid, user)
 eitherClientToMaybe _                                       = Nothing
-
-
-requireClientData :: Handler (Entity User, [Entity UserWallet])
-requireClientData = do
-    client <- maybeClient
-    case client of
-        Nothing         -> permissionDenied accessErrorClientOnly
-        Just clientData -> return clientData
 
 requireOperatorId :: Handler (Either UserId Text)
 requireOperatorId = requireRolesId True [ Operator ] notFound

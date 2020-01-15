@@ -13,10 +13,15 @@
     <dt .col-12 .col-md-3>
         _{MsgReferralLink}
     <dd .form-group .col-12 .col-md-9>
-        <a href="#{refLink}" onClick="return false;">
-            #{refLink}
-        <br>
-        <small .text-muted>_{MsgMessageInfoReferralProgramIsDisabled}
+        $if length stocks > 0
+            <a href="#{refLink}" onClick="return false;">
+                #{refLink}
+            <br>
+            <small .text-muted>
+                _{MsgMessageInfoReferralProgramIsDisabled}
+        $else
+            <small .text-muted>
+                _{MsgMessageInfoRefferalProgramRequirements}
     <dt .col-12 .col-md-3>
         _{MsgReferralStats}
     <dd  .form-group .col-12 .col-md-9>

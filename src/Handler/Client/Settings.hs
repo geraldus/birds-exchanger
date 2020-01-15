@@ -23,7 +23,7 @@ import           Text.Hamlet                   ( shamletFile )
 
 getClientSettingsR :: Handler Html
 getClientSettingsR = do
-    (user, _) <- requireClientData
+    (user, _, _, stocks) <- requireClientData'
     token <- appNonce128urlT
     refToken <- runDB $ getCreateRefTokenDB (entityKey user) token
     urlRender <- getUrlRenderParams
