@@ -14,14 +14,14 @@
             >
     <div #main-nav-desktop-menu .main-nav .w-100 .d-flex .justify-content-between>
         <ul .navbar-nav>
+            $forall MenuItem label route _ <- navbarLeftFilteredMenuItems
+                <li .nav-item.mx-2 :Just route == currentRoute:.active>
+                    <a .nav-link href="@{route}">#{label}
             $maybe _ <- muserName
                 $if isClientLoggedIn
                     $forall MenuItem label route _ <- clientMenuItems
                         <li .nav-item.mx-2 :Just route == currentRoute:.active>
                             <a .nav-link href="@{route}">#{label}
-            $forall MenuItem label route _ <- navbarLeftFilteredMenuItems
-                <li .nav-item.mx-2 :Just route == currentRoute:.active>
-                    <a .nav-link href="@{route}">#{label}
         $maybe userName <- muserName
             <ul .navbar-nav>
                 $if isStaffLoggedIn
