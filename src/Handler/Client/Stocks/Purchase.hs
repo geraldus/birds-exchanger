@@ -93,6 +93,7 @@ postClientStocksPurchaseR = do
 getAPIStocksAvailabilityR :: Handler TypedContent
 getAPIStocksAvailabilityR = do
     actives <- runDB U.queryStocksActives
+    addHeader "Access-Control-Allow-Origin" "*"
     selectRep . provideRep . return . toJSON $ map stocksAvailJSON actives
   where
     stocksAvailJSON (Entity _ a, Entity _ s) = object
