@@ -55,7 +55,7 @@ $(document).ready(function () {
     }
 
     function getPageContent() {
-        const url = '#{ rawJS pageUrl}'
+        const url = '#{rawJS pageUrl}'
         window.location = url
     }
 

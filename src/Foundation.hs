@@ -150,14 +150,14 @@ instance Yesod App where
         sessionMessages <- getMessages
         mr              <- getMessageRender
         renderedUrl     <- getUrlRender
-        let settings = appSettings master
-        let projType = appType settings
-        let muserName = userNameF . snd <$> muser
-        let isClientLoggedIn = isClientUser muser
-        let isStaffLoggedIn = isStaffUser muser
-        let isEditorLoggedIn = isEditorUser muser
+        let settings           = appSettings master
+        let projType           = appType settings
+        let muserName          = userNameF . snd <$> muser
+        let isClientLoggedIn   = isClientUser muser
+        let isStaffLoggedIn    = isStaffUser muser
+        let isEditorLoggedIn   = isEditorUser muser
         let isOperatorLoggedIn = isOperatorUser muser
-        let isSuLoggedIn = isSU muser
+        let isSuLoggedIn       = isSU muser
         let maybeClientUser = join $ eitherClientToMaybe <$> muser
         (wallets, stocks) <- if isClientLoggedIn
             then getUserBalances
