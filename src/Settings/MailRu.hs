@@ -20,10 +20,10 @@ supportEmailFenixPassword :: Text
 supportEmailFenixPassword = "gv0]Tr2FhvAR"
 
 noreplyEmailFenixUsername :: Text
-noreplyEmailFenixUsername = "noreply@fenix.trading"
+noreplyEmailFenixUsername = "mailbot@fenix.trading"
 
 noreplyEmailFenixPassword :: Text
-noreplyEmailFenixPassword = "%9aO4OFqIjxc"
+noreplyEmailFenixPassword = "K,y00XBkYyhs"
 
 supportEmailOutbirdsUsername :: Text
 supportEmailOutbirdsUsername = "support@outb.info"
