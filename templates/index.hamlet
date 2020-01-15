@@ -136,6 +136,7 @@
                             <label for="stocks-pack-select">
                                 Выберите пакет
                             <select
+                                style="font-weight: bold;"
                                 #stocks-pack-select
                                 .form-control
                                 name="stocks-pack"
