@@ -30,6 +30,9 @@
     background: #e9ecef
     border-radius: 0.2em
 
+.fnx .order-list.mobile .order-card > .row
+    background: #F9F9FA
+
 .order-list.mobile.active .order-card:not(.active)
     display: none
 

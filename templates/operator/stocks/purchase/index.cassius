@@ -1,5 +1,5 @@
 .stocks-purchase-index
     .purchase-details
-        background-color: #e9ecef
+        background-color: #F9F9FA
         border-radius: 0.2rem
         padding: 0.3rem

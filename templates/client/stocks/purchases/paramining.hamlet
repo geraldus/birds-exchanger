@@ -1,8 +1,9 @@
-<strong style="color: #ffc107">
+<strong .purchase-bounty>
     <big .stocks-zlt-bounty .value>
         +#{amount}#
     <small>
-        \&#8239;ZLT
+        <b>
+            \&#8239;ZLT
 <small .text-muted>
     _{MsgStocksTokensAccrued}
     <br>

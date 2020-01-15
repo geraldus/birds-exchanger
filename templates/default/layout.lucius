@@ -31,7 +31,16 @@
 .main-nav .tokens-balance-val,
 .main-nav .tokens-balance-currency,
 .main-nav .tokens.paramining {
-    color: #ffc107!important;
+    color: #ffc107 !important;
+}
+
+.fnx .main-nav .wallet-balance-val,
+.fnx .main-nav .wallet-balance-currency,
+.fnx .main-nav .wallet.paramining,
+.fnx .main-nav .tokens-balance-val,
+.fnx .main-nav .tokens-balance-currency,
+.fnx .main-nav .tokens.paramining {
+    color: #F7CE82 !important;
 }
 
 .navbar-default .navbar-nav > .active > a {
