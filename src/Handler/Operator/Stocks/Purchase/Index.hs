@@ -112,8 +112,8 @@ queryAllPurchases = select . from $
     \q@(e `InnerJoin` u `InnerJoin` p `InnerJoin` s `InnerJoin` a) -> do
         purchaseDataJoins q
         orderBy
-            [ asc (p ^. StocksPurchaseUserConfirmed)
-            , asc (p ^. StocksPurchaseCreated) ]
+            [ desc (p ^. StocksPurchaseUserConfirmed)
+            , desc (p ^. StocksPurchaseCreated) ]
         return (p, s, a, u, e)
 
 queryPendingPurchases :: MonadIO m => SqlPersistT m [FullPurchaseDetails]
