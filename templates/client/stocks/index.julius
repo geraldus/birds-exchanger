@@ -12,7 +12,6 @@ $(document).ready(function () {
         const html = d['html-render']
         const placeholder = $(`.purchase-details[data-purchase-id="${pid}"]`)
         const el = $(html)
-        console.log('data, element, pid, html', d, el, pid, html)
         if (placeholder.length > 0) {
             const target = placeholder.parents('.row').first()
             target.replaceWith(el)

@@ -15,9 +15,11 @@ $(document).ready(function () {
             case 'FNXP': pack = 'fenix-premium'; break
         }
         if (pack) {
-            const placeholder =
+            let placeholders =
                 $(`div[data-pack-name="${pack}"] .stocks-avail.value`)
-            placeholder.text(amt.toFixed(0))
+            placeholders.text(amt.toFixed(0))
+            placeholders = $(`div[data-stocks="${abr}"] .stocks-avail .amount-left`)
+            placeholders.text(amt.toFixed(0))
         }
     }
 
