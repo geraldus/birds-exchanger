@@ -25,6 +25,7 @@ import           Text.Julius                ( RawJS (..) )
 
 getProfileR :: Handler Html
 getProfileR = do
+    notFound
     _userName <- userNameF . snd <$> requireAuthPair
     locale <- selectLocale
     tzo <- timezoneOffsetFromCookie

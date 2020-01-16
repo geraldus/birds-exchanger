@@ -6,6 +6,7 @@ import           Import
 
 getTermsOfUseR :: Handler Html
 getTermsOfUseR = defaultLayout $ do
+    notFound
     appName <- appNameByType . appType . appSettings <$> getYesod
     setAppPageTitle MsgTermsOfUse
     [whamlet|

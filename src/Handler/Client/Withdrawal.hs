@@ -28,6 +28,7 @@ import           Database.Persist.Sql    ( fromSqlKey )
 
 getWithdrawalR :: Handler Html
 getWithdrawalR = do
+    notFound
     requireClientId
     formId <- newIdent
     (widget, enctype) <- generateFormPost $ withdrawalForm formId
@@ -35,6 +36,7 @@ getWithdrawalR = do
 
 postWithdrawalCreateR :: Handler Html
 postWithdrawalCreateR = do
+    notFound
     requireClientId
     formId <- newIdent
     ((res, widget), enctype) <- runFormPost $ withdrawalForm formId
@@ -95,6 +97,7 @@ postWithdrawalCreateR = do
 
 defaultWidget :: Text -> Widget -> Enctype -> Maybe [Text] -> Widget
 defaultWidget formId widget enctype mayError = do
+    notFound
     setAppPageTitle MsgClientWithdrawalPageTitle
     messageRender <- liftHandler getMessageRender
         :: WidgetFor App (AppMessage -> Text)
@@ -118,6 +121,7 @@ data Details
 
 withdrawalHistory :: Widget
 withdrawalHistory = do
+    notFound
     clientId <- liftHandler requireClientId
     locale <- selectLocale
     tzoffset <- timezoneOffsetFromCookie

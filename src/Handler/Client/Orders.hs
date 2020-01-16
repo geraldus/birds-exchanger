@@ -24,6 +24,7 @@ import           Text.Julius            ( rawJS )
 
 getClientOrdersR :: Handler Html
 getClientOrdersR = do
+    notFound
     clientId <- requireClientId
     locale <- selectLocale
     tzo <- timezoneOffsetFromCookie
@@ -41,6 +42,7 @@ getClientOrdersR = do
 
 getClientOrderViewR :: ExchangeOrderId -> Handler Html
 getClientOrderViewR orderId = do
+    notFound
     clientId <- requireClientId
     order <- runDB $ get404 orderId
     msgRender <- getMessageRender
@@ -87,6 +89,7 @@ getClientOrderViewR orderId = do
 
 postClientOrderCancelR :: Handler Html
 postClientOrderCancelR = do
+    notFound
     orderId  <- toSqlKey <$> runInputPost (ireq intField "order-id")
     clientId <- requireClientId
     time <- liftIO getCurrentTime

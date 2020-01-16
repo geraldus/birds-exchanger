@@ -44,6 +44,7 @@ Sber
 
 getDepositRequestConfirmationR :: Text -> Handler Html
 getDepositRequestConfirmationR code = withClientRequestByCode code $
+    notFound
     \(Entity tid t) -> do
         when (depositRequestStatus t /= New) $ do
             setMessageI MsgDepositRequestAlreadyConfirmed
@@ -98,6 +99,7 @@ getDepositRequestConfirmationR code = withClientRequestByCode code $
 
 postDepositConfirmRequestR :: Handler Html
 postDepositConfirmRequestR = do
+    notFound
     clientId <- requireClientId
     -- code <- runInputPost $ ireq textField "transaction-code"
     trid <- fmap toSqlKey $ runInputPost $ ireq intField "transaction-id"
@@ -117,6 +119,7 @@ postDepositConfirmRequestR = do
 
 postClientCancelDepositR :: Handler Html
 postClientCancelDepositR = do
+    notFound
     requestId <- fmap toSqlKey $ runInputPost $ ireq intField "request-id"
     withClientRequest requestId $ \(Entity tid _) -> do
         t <- liftIO getCurrentTime

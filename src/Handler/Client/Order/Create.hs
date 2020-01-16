@@ -24,6 +24,7 @@ data ProcessForm
 
 postExchangeOrderCreateR :: Handler Html
 postExchangeOrderCreateR = do
+    notFound
     client <- requireClientId
     rid <- newIdent
     wid <- newIdent
