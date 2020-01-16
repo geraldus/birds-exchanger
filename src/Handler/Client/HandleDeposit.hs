@@ -44,8 +44,8 @@ Sber
 
 getDepositRequestConfirmationR :: Text -> Handler Html
 getDepositRequestConfirmationR code = withClientRequestByCode code $
-    notFound
     \(Entity tid t) -> do
+        notFound
         when (depositRequestStatus t /= New) $ do
             setMessageI MsgDepositRequestAlreadyConfirmed
             redirect HomeR
