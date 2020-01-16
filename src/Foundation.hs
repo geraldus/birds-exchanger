@@ -299,7 +299,6 @@ instance Yesod App where
 
         setReferrerHttpOnlyCookie
         pc <- widgetToPageContent $ do
-            addMessage "warn-demo" "Сайт работает в демо-режиме, все данные смоделированы.  Отображение актуальных данных по акциям и перевод платформы в штатный режим будет произведён 16 декабря 2020г в 10:00 МСК."
             addStylesheetAttrs
                 (StaticR _3rd_party_fontawesome_css_all_min_css)
                 [("defer", "defer")]
