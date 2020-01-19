@@ -106,4 +106,7 @@
 
 .modal figure.image > img {
     max-width: 100%;
+
+.purchase-bounty {
+    color: #F7CE82
 }
