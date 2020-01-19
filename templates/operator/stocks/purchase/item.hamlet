@@ -1,27 +1,36 @@
 <div .col-12 .col-lg-6 .my-2>
     <div .container-fluid>
-        <div .row .purchase-details data-purchase-id="#{purchaseId}">
+        <div
+            .row
+            .purchase-details
+            .#{extraClasses}
+            data-purchase-id="#{purchaseId}"
+            >
             <div .col-12 .mt-2>
                 <div .d-flex .justify-content-between>
                     <div>
-                        #{stocksAmount}
+                        <span .amount>#{stocksAmount}
                         <small .text-muted>
                             _{MsgPiecesShort},
                             <span .text-uppercase>#{stocksPackName}
                     <div>
                         <small .text-muted>
-                            ^{significantDate}
+                            ^{dateCreated}
             <div .col-12 .text-muted>
                 <small>
                     #{price}
             <div .col-12 .text-muted>
-                <small>
+                <small .payer>
                     #{payerAddress}
-                    <a href="#">
+                    <a href="#" .username>
                         #{payerEmail}
             <div .col-12 .text-muted>
                 <small>
                     _{MsgStocksAvailable}: #{stocksLeft}
-            <div .col-12>
-                <div .text-right .text-lowercase .mb-2>
+            <div .col-12 .col-lg-6 .d-flex .flex-column .justify-content-end .align-items-start>
+                $if cancable
+                    <a .cancel-button .mb-2 href="#" onClick="return false;">
+                        _{MsgCancelRequest}
+            <div .col-12 .col-lg-6 .d-flex .flex-column .justify-content-end .align-items-end>
+                <div .status .text-right .text-lowercase .mb-2>
                     ^{extra}

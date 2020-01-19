@@ -239,6 +239,7 @@ StocksPurchase json
     payerAddress Text Maybe
     -- ^ client's wallet address
     cancelled UTCTime Maybe
+    cancellationNote Text Maybe
     accepted UTCTime Maybe
     acceptedBy UserId Maybe
     acceptedByIdent Text Maybe

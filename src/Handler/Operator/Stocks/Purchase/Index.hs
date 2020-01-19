@@ -61,14 +61,17 @@ purchaseItemW (Entity pid p, Entity _ s, Entity _ a, _, Entity _ e) = do
     renderAmount <- handlerToWidget getAmountRenderer
     htmlId <- newIdent
     let purchaseId      = fromSqlKey pid
+        creationDate    = stocksPurchaseCreated p
         stocksAmount    = stocksPurchaseAmount p
         stocksPackName  = stocksName s
-        significantDate = dateTimeRowW (purchaseSignificantDate p)
+        dateCreated     = dateTimeRowW creationDate
         priceCents      = stocksPurchaseAmount p * stocksPrice s
         price           = renderAmount [] [] False pzmC priceCents
         payerAddress    = maybe "" (<> ", ") (stocksPurchasePayerAddress p)
         payerEmail      = emailEmail e
         stocksLeft      = stocksActiveLeft a
+        extraClasses    = purchaseStatusClasses p
+        cancable        = isPending p || not (isAccepted p)
         confirmText     = concat
             [ "Вы подтверждаете, что с кошелька\\n"
             , payerAddress <> " было перечислено\\n"
@@ -83,28 +86,55 @@ purchaseItemW (Entity pid p, Entity _ s, Entity _ a, _, Entity _ e) = do
     itemExtra :: Text -> Widget
     itemExtra htmlId = if isPending p
         then $(widgetFile "operator/stocks/purchase/confirm-button")
-        else status p
+        else statusW p
+
+    purchaseStatusClasses :: StocksPurchase -> Text
+    purchaseStatusClasses prc
+        | isPending prc          = "pending"
+        | isAccepted prc         = "accepted"
+        | not (notCancelled prc) = "cancelled"
+        | otherwise              = "unconfirmed"
 
     isPending :: StocksPurchase -> Bool
-    isPending p =
-           isJust      (stocksPurchaseUserConfirmed p)
-        && I.isNothing (stocksPurchaseCancelled p)
-        && I.isNothing (stocksPurchaseAccepted p)
-        && I.isNothing (stocksPurchaseAcceptedBy p)
-        && I.isNothing (stocksPurchaseAcceptedByIdent p)
+    isPending prc =
+           not (isAccepted prc)
+        && isJust (stocksPurchaseUserConfirmed prc)
 
-    status :: StocksPurchase -> Widget
-    status p
-        | I.isNothing (stocksPurchaseUserConfirmed p) =
+    isAccepted :: StocksPurchase -> Bool
+    isAccepted prc =
+           notCancelled prc
+        && isJust (stocksPurchaseAccepted prc)
+        && isJust (stocksPurchaseAcceptedBy prc)
+        && isJust (stocksPurchaseAcceptedByIdent prc)
+        && isJust (stocksPurchaseUserConfirmed prc)
+
+    notCancelled :: StocksPurchase -> Bool
+    notCancelled x =
+           I.isNothing (stocksPurchaseCancelled x)
+        && I.isNothing (stocksPurchaseCancellationNote x)
+
+    statusW :: StocksPurchase -> Widget
+    statusW prc
+        | I.isNothing (stocksPurchaseUserConfirmed prc) =
             [whamlet|_{MsgStocksNotConfirmedYet}|]
-        | isJust (stocksPurchaseCancelled p) =
+        | isJust (stocksPurchaseCancelled prc) =
             [whamlet|_{MsgUserCancelled}|]
-        | isJust (stocksPurchaseAccepted p) = do
-            let ident = fromMaybe "<no name>" (stocksPurchaseAcceptedByIdent p)
+        | isJust (stocksPurchaseAccepted prc) = do
+            let ident = fromMaybe
+                    "<no name>" (stocksPurchaseAcceptedByIdent prc)
+                sigDate         = purchaseSignificantDate prc
+                hasDateExtra    = sigDate == stocksPurchaseCreated prc
+                significantDate = if hasDateExtra
+                                  then mempty
+                                  else dateTimeRowW sigDate
             [whamlet|
-                _{MsgProcessed}
-                <br>
-                #{ident}|]
+                <small>
+                    <span>
+                        _{MsgProcessed}
+                        <br>
+                         ^{significantDate}
+                <span>
+                    #{ident}|]
         | otherwise = mempty
 
 queryAllPurchases :: MonadIO m => SqlPersistT m [FullPurchaseDetails]
@@ -112,8 +142,7 @@ queryAllPurchases = select . from $
     \q@(e `InnerJoin` u `InnerJoin` p `InnerJoin` s `InnerJoin` a) -> do
         purchaseDataJoins q
         orderBy
-            [ desc (p ^. StocksPurchaseUserConfirmed)
-            , desc (p ^. StocksPurchaseCreated) ]
+            [ desc (p ^. StocksPurchaseCreated) ]
         return (p, s, a, u, e)
 
 queryPendingPurchases :: MonadIO m => SqlPersistT m [FullPurchaseDetails]
@@ -161,3 +190,10 @@ pendingPurchaseConditions =
 
 type FullPurchaseDetails
     = (Ent StocksPurchase, Ent Stocks, Ent StocksActive, Ent User, Ent Email)
+
+
+data PurchaseStatus
+    = PurchaseCreated UTCTime
+    | PurchaseConfirmed UTCTime
+    | PurchaseCancelled UTCTime Text
+    | PurchaseAccepted UTCTime (Maybe UserId) (Maybe Text)

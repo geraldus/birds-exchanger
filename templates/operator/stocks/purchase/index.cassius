@@ -1,5 +1,32 @@
 .stocks-purchase-index
     .purchase-details
-        background-color: #F9F9FA
+        background-color: #E2E5EE
         border-radius: 0.2rem
         padding: 0.3rem
+        min-height: 220px
+
+    .purchase-details.unconfirmed
+        background-color: #F9F9FA
+
+        .amount, .status, .username
+            color: #6C757D
+
+    .purchase-details.accepted
+        background: linear-gradient(296.39deg, #E2E5EE 0%, #F2F4F7 100%)
+
+        .status
+            color: #118500
+            font-weight: bold
+
+    .purchase-details.pending
+        background: linear-gradient(206.39deg, #FFE6B9 0%, #FFF6CA 100%)
+
+    .purchase-details
+        .cancel-button
+            font-size: 0.875rem
+            color: #343A40
+            text-decoration: underline
+            text-transform: lowercase
+            cursor: pointer
+        .cancel-button:hover
+            color: #DC3545

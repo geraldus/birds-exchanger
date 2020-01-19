@@ -151,7 +151,7 @@ apiCreateUnconfirmedStocksPurchase (Entity s _) _ n u w = do
     t <- liftIO getCurrentTime
     x <- appNonce128urlT
     let p = StocksPurchase
-                u s n t w x Nothing Nothing Nothing Nothing Nothing Nothing
+                u s n t w x Nothing Nothing Nothing Nothing Nothing Nothing Nothing
     pid <- runDB $ insert p
     return (Entity pid p)
 
