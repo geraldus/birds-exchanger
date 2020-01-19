@@ -73,39 +73,14 @@
     font-size: 1.7em;
     font-weight: normal;
 }
-
-/* Common styles for all types */
-.bs-callout {
-  padding: 20px;
-  margin: 20px 0;
-  border: 1px solid #eee;
-  border-left-width: 5px;
-  border-radius: 3px;
-}
-
-.bs-callout p:last-child {
-  margin-bottom: 0;
-}
-
-.bs-callout-info {
-  border-left-color: #1b809e;
-}
-
-/* Space things out */
-.bs-docs-section {
-  margin-bottom: 60px;
-}
-.bs-docs-section:last-child {
-  margin-bottom: 0;
-}
-
 .media > * {
     min-height: 240px;
     width: 100%;
 }
 
 .modal figure.image > img {
-    max-width: 100%;
+    max-width: 100%
+}
 
 .purchase-bounty {
     color: #F7CE82
