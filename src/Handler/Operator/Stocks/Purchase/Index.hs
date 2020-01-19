@@ -104,7 +104,7 @@ purchaseItemW (Entity pid p, Entity _ s, Entity _ a, _, Entity _ e) = do
     isAccepted prc =
            notCancelled prc
         && isJust (stocksPurchaseAccepted prc)
-        && isJust (stocksPurchaseAcceptedBy prc)
+        -- && isJust (stocksPurchaseAcceptedBy prc)
         && isJust (stocksPurchaseAcceptedByIdent prc)
         && isJust (stocksPurchaseUserConfirmed prc)
 
@@ -184,7 +184,7 @@ pendingPurchaseConditions =
             (   (not_  $ E.isNothing (p ^. StocksPurchaseUserConfirmed))
             &&. (E.isNothing (p ^. StocksPurchaseCancelled))
             &&. (E.isNothing (p ^. StocksPurchaseAccepted))
-            &&. (E.isNothing (p ^. StocksPurchaseAcceptedBy))
+            -- &&. (E.isNothing (p ^. StocksPurchaseAcceptedBy))
             &&. (E.isNothing (p ^. StocksPurchaseAcceptedByIdent))
             )
 
