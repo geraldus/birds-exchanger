@@ -90,7 +90,7 @@ runQuickRegisterPostForm :: Handler
     (Either [(Text, Text)] (Entity User, Entity Email, Maybe Text))
 runQuickRegisterPostForm = do
     mr <- getMessageRender
-    res <- runInputPostResult $ ireq textField "email"
+    res <- runInputPostResult $ toLower <$> ireq textField "email"
     processFormResult res mr
   where
     processFormResult FormMissing render = do
@@ -102,13 +102,13 @@ runQuickRegisterPostForm = do
             [ ("form", render message) ]
             <> (map ((,) "form-error") es)
     processFormResult (FormSuccess email) _ = do
-        ref <- maybeReferrer
-        rt <- appNonce128urlT
-        pwd <- appNonce128urlT
-        saltedPass <- liftIO $ decodeUtf8 <$>
-            makePassword (encodeUtf8 pwd) 14
-        vk  <- appNonce128urlT
-        (u, e, newPass) <- runDB $ queryGetCreateCreds email (saltedPass, vk) (ref, rt)
+        ref        <- maybeReferrer
+        rt         <- appNonce128urlT
+        pwd        <- appNonce128urlT
+        saltedPass <- liftIO $ decodeUtf8 <$> makePassword (encodeUtf8 pwd) 14
+        vk         <- appNonce128urlT
+        (u, e, newPass) <- runDB $
+            queryGetCreateCreds email (saltedPass, vk) (ref, rt)
         let res = (u, e, if newPass then Just pwd else Nothing)
         return $ Right res
 
@@ -119,7 +119,8 @@ queryGetCreateCreds ::
     -> (Text, Text)
     -> (Maybe (Entity Referrer), Text)
     -> SqlPersistT m (Entity User, Entity Email, Bool)
-queryGetCreateCreds login (pwd, vk) (ref, refToken) = do
+queryGetCreateCreds login' (pwd, vk) (ref, refToken) = do
+    let login = toLower login'
     dbVals <- getCredsByEmail login
     case dbVals of
         []         -> createNewCreds login
@@ -127,9 +128,9 @@ queryGetCreateCreds login (pwd, vk) (ref, refToken) = do
   where
     -- ^ TODO: Combine with 'createUniqueLogin' in Handler.SignUp
     createNewCreds l = do
-        let usr = User l (Just pwd) Client
+        let usr = User (toLower l) (Just pwd) Client
         uid <- insert usr
-        let eml = Email l (Just uid) (Just vk)
+        let eml = Email (toLower l) (Just uid) (Just vk)
         eid <- insert eml
         _ <- case ref of
             Nothing -> return []

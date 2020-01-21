@@ -34,9 +34,10 @@ postSignUpR :: Handler Html
 postSignUpR = do
     ((signUpDataResult, widget), enctype) <- runFormPost signUpForm
     case signUpDataResult of
-        FormSuccess (SignUpFormData email pass conf) -> if pass == conf
+        FormSuccess (SignUpFormData email' pass conf) -> if pass == conf
             then do
-                key          <- appNonce128urlT
+                key <- appNonce128urlT
+                let email = toLower email'
                 createResult <- createUniqueLogin email pass key
                 case createResult of
                     CreateError e -> do
@@ -46,14 +47,17 @@ postSignUpR = do
                         cleanUpRefCookie
                         sendEmailActivationMessage email key
                         defaultLayout $(widgetFile "auth/verify-message")
-            else defaultLayout $(widgetFile "auth/verify-message")
+            else do
+                let email = toLower email'
+                defaultLayout $(widgetFile "auth/verify-message")
         _ -> do
             let mayError = Nothing :: Maybe Text
             defaultLayout $(widgetFile "auth/signup")
   where
 
     createUniqueLogin :: Text -> Text -> Text -> Handler UserCreateResult
-    createUniqueLogin login pass key = do
+    createUniqueLogin login' pass key = do
+        let login = toLower login'
         ref <- maybeReferrer
         token <- appNonce128urlT
         runDB $ do

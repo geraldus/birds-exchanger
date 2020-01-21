@@ -12,9 +12,10 @@ signUpForm extra = do
     eid <- newIdent
     pid <- newIdent
     cid <- newIdent
-    (email, emailV) <- mreq emailField (fsAddPlaceholder (fsBs4WithId eid) "Ваш эл.ящик") Nothing
-    (passw, passwV) <- mreq passwordField (fsBs4WithId pid) Nothing
-    (confi, confiV) <- mreq passwordField (fsBs4WithId cid) Nothing
+    (email', emailV) <- mreq emailField (fsAddPlaceholder (fsBs4WithId eid) "Ваш эл.ящик") Nothing
+    (passw, passwV)  <- mreq passwordField (fsBs4WithId pid) Nothing
+    (confi, confiV)  <- mreq passwordField (fsBs4WithId cid) Nothing
+    let email = toLower <$> email'
     (_, termsV) <- mreq
             checkBoxField
             (fsWithClasses
