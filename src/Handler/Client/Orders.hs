@@ -117,7 +117,7 @@ postClientOrderCancelR = do
             clientId
             walletId
             reasonId
-            (Just $ messageRender MsgUserCancelled)
+            (Just $ messageRender MsgCancelledByUser)
             time
             income
         update

@@ -231,7 +231,7 @@ requestStatuses _ mr _ (NoDetails (Entity _ WithdrawalRequest{..}) _) =
     in (status, mempty)
 requestStatuses
     _ mr (fd, ft) (CancelD _ _ (Entity _ WithdrawalCancel{..})) =
-        let status = [whamlet|#{mr MsgUserCancelled}<br>|]
+        let status = [whamlet|#{mr MsgCancelledByUser}<br>|]
             description = [whamlet|<small .text-muted>
                 #{fd withdrawalCancelTime} #{ft withdrawalCancelTime} |]
         in (status, description)

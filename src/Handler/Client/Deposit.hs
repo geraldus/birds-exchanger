@@ -189,7 +189,7 @@ requestStatusMessages :: (AppMessage -> Text) -> DepositRequest -> (Text, Text)
 requestStatusMessages mr r = case depositRequestStatus r of
     New                -> (mempty, mr MsgAwaitingConfirmation)
     ClientConfirmed    -> (mr MsgDepositConfirmed, mr MsgAwaitingExecution)
-    ClientCancelled  _ -> (mr MsgUserCancelled, mempty)
+    ClientCancelled  _ -> (mr MsgCancelledByUser, mempty)
     OperatorAccepted _ -> (mr MsgDepositExecuted, mempty)
     OperatorRejected _ -> (mr MsgDepositRejected, mempty)
 

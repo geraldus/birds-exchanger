@@ -227,7 +227,7 @@ AmountFrozen: Удержано средств
 CantViewThisOrder: Невозможно отобразить данные ордера
 ViewOrderHistory: Показать историю ордера
 CancelRequest: Отменить заявку
-UserCancelled: Отменено пользователем
+CancelledByUser: Отменено пользователем
 ProcessRequest: Обработать запрос
 ExpectedCalculation: Ожидаемый расчёт
 ActualCalculation: Расчёт по факту

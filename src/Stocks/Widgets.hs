@@ -17,7 +17,7 @@ purchaseStatusW htmlId p s
     | isJust (stocksPurchaseAccepted p) = purchaseParaminingW
             htmlId p s (fromJust $ stocksPurchaseAccepted p)
     | isJust (stocksPurchaseCancelled p) =
-        [whamlet|<small>_{MsgUserCancelled}|]
+        [whamlet|<small>_{MsgCancelledByUser}|]
     | Import.isNothing (stocksPurchaseUserConfirmed p) =
         [whamlet|
             <small>

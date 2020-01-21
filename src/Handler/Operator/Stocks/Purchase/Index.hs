@@ -118,7 +118,7 @@ purchaseItemW (Entity pid p, Entity _ s, Entity _ a, _, Entity _ e) = do
         | I.isNothing (stocksPurchaseUserConfirmed prc) =
             [whamlet|_{MsgStocksNotConfirmedYet}|]
         | isJust (stocksPurchaseCancelled prc) =
-            [whamlet|_{MsgUserCancelled}|]
+            [whamlet|_{MsgCancelledByUser}|]
         | isJust (stocksPurchaseAccepted prc) = do
             let ident = fromMaybe
                     "<no name>" (stocksPurchaseAcceptedByIdent prc)
