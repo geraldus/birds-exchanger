@@ -33,4 +33,4 @@
             text-transform: lowercase
             cursor: pointer
         .cancel-button:hover
-            color: #DC3545
+            color: #DC3545 !important
