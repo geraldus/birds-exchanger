@@ -1,0 +1,12 @@
+
+$(document).ready(function () {
+    const htmlId = '##{rawJS htmlId}-cancel-button'
+    const cancelButton = $(htmlId)
+    cancelButton.click(function (e) {
+        if (confirm('#{rawJS cancellationConfirmText}')) {
+            return true
+        } else {
+            e.preventDefault()
+        }
+    })
+})

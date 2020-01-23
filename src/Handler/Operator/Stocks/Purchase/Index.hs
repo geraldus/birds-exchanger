@@ -71,7 +71,7 @@ purchaseItemW (Entity pid p, Entity _ s, Entity _ a, _, Entity _ e) = do
         payerEmail      = emailEmail e
         stocksLeft      = stocksActiveLeft a
         extraClasses    = purchaseStatusClasses p
-        cancable        = isPending p || not (isAccepted p)
+        cancelable      = not (isAccepted p) && not (isCancelled p)
         confirmText     = concat
             [ "Вы подтверждаете, что с кошелька\\n"
             , payerAddress <> " было перечислено\\n"
@@ -80,6 +80,13 @@ purchaseItemW (Entity pid p, Entity _ s, Entity _ a, _, Entity _ e) = do
             , fixedDoubleT 0 ((centsToCoins priceCents) / 10)
             , " ZLT токенов.\\n"
             , "Продолжить?"]
+        cancellationConfirmText = concat
+            [ "Вы уверены, что хотите отменить зявку:\\n"
+            , (pack . show $ stocksAmount) <> "шт. × " <> stocksPackName <> "\\n"
+            , "от " <> payerAddress <> payerEmail <> "?" ]
+        cancelButton = if cancelable
+            then $(widgetFile "operator/stocks/purchase/cancel-button")
+            else mempty
         extra = itemExtra htmlId
     $(widgetFile "operator/stocks/purchase/item")
   where
@@ -90,15 +97,19 @@ purchaseItemW (Entity pid p, Entity _ s, Entity _ a, _, Entity _ e) = do
 
     purchaseStatusClasses :: StocksPurchase -> Text
     purchaseStatusClasses prc
-        | isPending prc          = "pending"
-        | isAccepted prc         = "accepted"
-        | not (notCancelled prc) = "cancelled"
-        | otherwise              = "unconfirmed"
+        | isPending prc   = "pending"
+        | isAccepted prc  = "accepted"
+        | isCancelled prc = "cancelled"
+        | otherwise       = "unconfirmed"
 
     isPending :: StocksPurchase -> Bool
     isPending prc =
            not (isAccepted prc)
+        && not (isCancelled prc)
         && isJust (stocksPurchaseUserConfirmed prc)
+
+    confirmedByUser :: StocksPurchase -> Bool
+    confirmedByUser = isJust . stocksPurchaseUserConfirmed
 
     isAccepted :: StocksPurchase -> Bool
     isAccepted prc =
@@ -113,12 +124,22 @@ purchaseItemW (Entity pid p, Entity _ s, Entity _ a, _, Entity _ e) = do
            I.isNothing (stocksPurchaseCancelled x)
         && I.isNothing (stocksPurchaseCancellationNote x)
 
+    isCancelled :: StocksPurchase -> Bool
+    isCancelled = I.isJust . stocksPurchaseCancelled
+
+
     statusW :: StocksPurchase -> Widget
     statusW prc
+        | isJust (stocksPurchaseCancelled prc) = do
+            [whamlet|
+                _{MsgStocksPurchaseStatusCancelled}
+                $maybe note <- stocksPurchaseCancellationNote prc
+                    <br>
+                    <small .text-muted>
+                        #{note}
+                |]
         | I.isNothing (stocksPurchaseUserConfirmed prc) =
             [whamlet|_{MsgStocksNotConfirmedYet}|]
-        | isJust (stocksPurchaseCancelled prc) =
-            [whamlet|_{MsgCancelledByUser}|]
         | isJust (stocksPurchaseAccepted prc) = do
             let ident = fromMaybe
                     "<no name>" (stocksPurchaseAcceptedByIdent prc)

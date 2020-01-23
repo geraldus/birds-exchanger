@@ -28,9 +28,7 @@
                 <small>
                     _{MsgStocksAvailable}: #{stocksLeft}
             <div .col-12 .col-lg-6 .d-flex .flex-column .justify-content-end .align-items-start>
-                $if cancable
-                    <a .cancel-button .mb-2 href="#" onClick="return false;">
-                        _{MsgCancelRequest}
+                ^{cancelButton}
             <div .col-12 .col-lg-6 .d-flex .flex-column .justify-content-end .align-items-end>
                 <div .status .text-right .text-lowercase .mb-2>
                     ^{extra}

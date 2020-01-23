@@ -409,6 +409,8 @@ instance Yesod App where
     isAuthorized API_AuthAuthenticateNoTokenR _      = return Authorized
     isAuthorized APIStocksAvailabilityR _            = return Authorized
     isAuthorized APINewsListR _                      = return Authorized
+    isAuthorized ApiStocksOperatorCancelPurchaseR _  =
+        authorizeRoles [ Local.Persist.UserRole.SuperUser, Admin, Operator ]
     isAuthorized LPHandler0001R _                    = return Authorized
 
     -- This function creates static content files in the static folder
