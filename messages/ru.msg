@@ -227,7 +227,12 @@ AmountFrozen: Удержано средств
 CantViewThisOrder: Невозможно отобразить данные ордера
 ViewOrderHistory: Показать историю ордера
 CancelRequest: Отменить заявку
+StocksPurchaseStatusCancelled: отменена
 CancelledByUser: Отменено пользователем
+CancelledByOperator: Отменено оператором
+CancelledByAdmin: Отменено администратором
+CancelledBySuperUser: Отменено супер-пользователем
+CancellationReasonFundsNotRecieved: Заявка устарела, средства так и не поступили на счёт.
 ProcessRequest: Обработать запрос
 ExpectedCalculation: Ожидаемый расчёт
 ActualCalculation: Расчёт по факту
@@ -384,3 +389,8 @@ APIPleaseChangePassword: Пожалуйста, установите новый �
 APIInvalidStocksPack packName@Text: Неизвестный пакет акций "#{packName}".
 APIImpossibleStocksAbbrNotFound stocksAbbr@Text: Случилось невозможное: акции "#{stocksAbbr}" не найдены в базе данных
 APIInvalidStocksPurchaseToken: Неверный ключ операции
+APIAuthorizationRequired: Для выполнения операции необходима авторизация
+APINotAuthorized: У Вас недостаточно прав для совершения операции
+APITargetOjectNotFound: Не найден целевой объект
+APIStocksPurchaseNotFound: Операция покупки акций не найдена
+APIStocksPurchaseCancellationOfAcceptedPurchaseMessage: Вы не можете отменить покупку, так как она уже подтверждена.
