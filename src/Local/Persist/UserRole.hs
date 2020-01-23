@@ -9,7 +9,7 @@ import           GHC.Generics        ( Generic (..) )
 import           Prelude
 
 
-data UserRole = Admin | Editor | Operator | MaoOperator| Client
+data UserRole = SuperUser | Admin | Editor | Operator | Client
     deriving (Show, Read, Eq, Generic)
 instance FromJSON UserRole
 instance ToJSON UserRole
