@@ -7,12 +7,13 @@
 
     .purchase-details.unconfirmed
         background-color: #F9F9FA
+        background: linear-gradient(296.39deg, #FEF8DD 0%, #F9F9FA 100%)
 
         .amount, .status, .username
             color: #6C757D
 
     .purchase-details.accepted
-        background: linear-gradient(296.39deg, #E2E5EE 0%, #F2F4F7 100%)
+        background: linear-gradient(296.39deg, #D8EED8 0%, #E8F6E7 100%)
 
         .status
             color: #118500
@@ -21,10 +22,13 @@
     .purchase-details.pending
         background: linear-gradient(206.39deg, #FFE6B9 0%, #FFF6CA 100%)
 
+    .purchase-details.cancelled
+        background: linear-gradient(206.39deg, #EEEBF9 0%, #EBF6F9 100%)
+
     .purchase-details
         .cancel-button
             font-size: 0.875rem
-            color: #343A40
+            color: #343A40 !important
             text-decoration: underline
             text-transform: lowercase
             cursor: pointer
