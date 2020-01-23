@@ -71,9 +71,7 @@ import           System.Log.FastLogger                         ( defaultBufSize,
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
 import           Handler.Admin.LogIn
-import           Handler.API.App
-import           Handler.API.Auth
-import           Handler.API.News
+import           Handler.APIs
 import           Handler.Client.Deposit
 import           Handler.Client.HandleDeposit
 import           Handler.Client.HandleWithdrawal
