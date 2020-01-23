@@ -1,6 +1,6 @@
 <div .container>
     <div .row .justify-content-center>
-        <div .col-6>
+        <div .col-11 .col-md-6>
             <form pb-5 action="/auth/page/prizm%20auth%20plugin/login" method=post>
                 <h2 .text-center>Вход
                 <div .form-group>
