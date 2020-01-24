@@ -70,9 +70,9 @@ genericCancelPurchase pid note cancelAccepted = do
                                     else return NotAuthorized
                                 else cancelPurchase SuperUser
                         (Left uid, Left (User _ _ role)) -> do
-                            let notStaff   = role `notElem` [Admin, Operator]
-                                notOwner   = uid /= stocksPurchaseUser p
-                            if notStaff || notOwner
+                            let isStaff   = role `elem` [Admin, Operator]
+                                isOwner   = uid == stocksPurchaseUser p
+                            if not (isStaff || isOwner)
                             then return NotAuthorized
                             else
                                 if isAccepted
