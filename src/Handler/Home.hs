@@ -9,9 +9,11 @@ module Handler.Home where
 import           Import                 hiding ( decodeUtf8, httpLbs, on )
 
 import           Form.Exchanger.Order
+import           Handler.Stocks         ( findStocksActive )
 import           Local.Params
 import           Local.Persist.Currency
 import           Local.Persist.Exchange ( ExchangePair (..) )
+import           Local.Persist.UserRole ( UserRole (Client) )
 import           Market.Functions       ( reduceDomStats )
 import           Market.Type            ( DOMRateStats, DOMStats,
                                           DOMStatsRateMap )
@@ -23,7 +25,6 @@ import           Utils.Money
 import           Utils.Render
 import           Utils.Time             ( renderDate, renderTime,
                                           timezoneOffsetFromCookie )
-import Handler.Stocks (findStocksActive)
 
 import qualified Data.HashMap.Strict    as HMS
 import           Database.Esqueleto     ( InnerJoin (..), asc, desc, from, in_,
@@ -52,6 +53,10 @@ getFenixTradingHomeR = do
     (messages, _) <- getCommonData
     renderUrl     <- getUrlRender
     stocksActives <- liftHandler . runDB $ queryStocksActives
+    auth          <- maybeAuthPair
+    let username = case auth of
+            Just (Left _, Left (User ident _ Client)) -> ident
+            _                                         -> mempty
     let featured = featuredModal
     let bgSrc = StaticR images_bg_050119_png
         whitepaperBgSrc = renderUrl $ StaticR images_wp060119_0002_png
