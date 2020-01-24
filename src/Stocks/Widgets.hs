@@ -16,8 +16,16 @@ purchaseStatusW :: Text -> StocksPurchase -> Stocks -> Widget
 purchaseStatusW htmlId p s
     | isJust (stocksPurchaseAccepted p) = purchaseParaminingW
             htmlId p s (fromJust $ stocksPurchaseAccepted p)
-    | isJust (stocksPurchaseCancelled p) =
-        [whamlet|<small>_{MsgCancelledByUser}|]
+    | isJust (stocksPurchaseCancelled p) = do
+        let msg = MsgStocksPurchaseStatusCancelled
+        let note = fromMaybe "" (stocksPurchaseCancellationNote p)
+        [whamlet|
+            <small>_{msg}
+                $if not (null note)
+                    <br>
+                    <small .text-muted>
+                        #{note}
+            |]
     | Import.isNothing (stocksPurchaseUserConfirmed p) =
         [whamlet|
             <small>

@@ -21,6 +21,6 @@
     <dd .form-group .col-12 .col-lg-9>
         ^{purchaseStatus}
 
-$if not clientConfirmed
+$if not clientConfirmed && not isCancelled
     <form action=@{ClientStocksPurchaseConfirmationR purchaseId} method="POST">
         ^{guide}

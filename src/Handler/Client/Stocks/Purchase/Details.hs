@@ -28,6 +28,7 @@ getClientStocksPurchaseDetailsR token = do
         let packName        = stocksName s
         let amount          = show (stocksPurchaseAmount p)
         let purchaseStatus  = purchaseStatusW htmlId p s
+        let isCancelled     = isJust (stocksPurchaseCancelled p)
         let clientConfirmed = isJust (stocksPurchaseUserConfirmed p)
         let guide           = paymentGuideW p s
         let pageUrl         = urlRender (ClientStocksPurchaseDetailsR token)
