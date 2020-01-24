@@ -1,4 +1,4 @@
-<h1 .h5 .d-lg-none>_{MsgClientSettingsPageTitle}
+<h1 .h5 .d-lg-none>_{MsgClientProfileSettingsPageTitle}
 
 <dl .my-3 .row>
     <dt .col-12 .col-md-3>

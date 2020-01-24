@@ -52,6 +52,7 @@ ClientOrdersPageTitle: Мои ордера
 ClientDepositPageTitle: Пополнение счёта
 ClientWithdrawalPageTitle: Вывод средств
 ClientSettingsPageTitle: Настройки
+ClientProfileSettingsPageTitle: Кабинет
 ClientWalletStatsBalanceSectionTitle: На балансе
 ClientWalletStatsOrdersSectionTitle: В активных ордерах
 ClientWalletStatsWithdrawalSectionTitle: В неисполненных заявках на вывод

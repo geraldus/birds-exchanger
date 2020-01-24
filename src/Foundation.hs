@@ -233,7 +233,7 @@ instance Yesod App where
                 appClientItems
                 <>
                 [ MenuItem
-                    { menuItemLabel = mr MsgClientSettingsPageTitle
+                    { menuItemLabel = mr MsgClientProfileSettingsPageTitle
                     , menuItemRoute = ClientSettingsR
                     , menuItemAccessCallback = isClientLoggedIn
                     } ]
@@ -506,7 +506,7 @@ instance YesodBreadcrumbs App where
         -- breadcrumb' _ _ ClientOrdersR =
         --     return ("Мои ордера на обмен", Just HomeR)
         breadcrumb' _ mr ClientSettingsR =
-            return (mr MsgClientSettingsPageTitle, Just HomeR)
+            return (mr MsgClientProfileSettingsPageTitle, Just HomeR)
         -- breadcrumb' _ _ (ClientOrderViewR oid) = return
         --     ("Ордер #" <> (pack . show  .fromSqlKey) oid, Just ClientOrdersR)
         -- breadcrumb' _ _ DepositR    = return ("Внесение средств", Just ProfileR)

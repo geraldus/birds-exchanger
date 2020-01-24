@@ -32,7 +32,7 @@ getClientSettingsR = do
             HomeR
             [(appRefTokenParamName s, (referrerToken (entityVal refToken)))]
     defaultLayout $ do
-        setAppPageTitle MsgClientSettingsPageTitle
+        setAppPageTitle MsgClientProfileSettingsPageTitle
         $(widgetFile "client/settings")
 
 getPasswordChangeR :: Handler Html
