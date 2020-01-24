@@ -25,7 +25,7 @@ postApiStocksOperatorCancelPurchaseR = do
                     Success purchase      -> selectRep $ do
                         provideRep . pure $
                             object [ "status" .= ("ok" :: Text)
-                                , "data" .= toJSON purchase ]
+                                   , "data" .= toJSON purchase ]
                         provideRep $
                             (redirectUltDest OperatorStocksPurchaseIndexR :: Handler Html)
   where
