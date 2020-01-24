@@ -32,5 +32,6 @@
             text-decoration: underline
             text-transform: lowercase
             cursor: pointer
+            padding-left: 0
         .cancel-button:hover
             color: #DC3545 !important
