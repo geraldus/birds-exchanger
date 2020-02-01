@@ -16,10 +16,10 @@ getSignUpVerifyR email verkey = do
     result <- runDB $ do
         mayEmail <- getBy $ UniqueEmail email
         case mayEmail of
-            Just ee@(Entity emailId emailRec)
+            Just (Entity emailId emailRec)
                 | emailVerkey emailRec == Just verkey -> do
                         update emailId $ [EmailVerkey =. Nothing]
-                        _ <- createWallets ee
+                        -- _ <- createWallets ee
                         return Verified
                 | isNothing (emailVerkey emailRec) -> return VerifiedAlready
                 | otherwise -> return InvalidKey
@@ -33,13 +33,6 @@ getSignUpVerifyR email verkey = do
                 "email-validation" MsgMessageInfoEmailValidatedAlready
             redirect HomeR
         _ -> $(widgetFile "auth/invalid-verification-data")
-
-
-postSignUpVerifyR :: Text -> Text -> Handler Html
-postSignUpVerifyR _email _verkey =
-    -- TODO: FIXME: Предоставить возможность повторно отправить
-    -- письмо для активации
-    return mempty
 
 
 data VerificationResult

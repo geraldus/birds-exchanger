@@ -20,7 +20,7 @@
 /password-change/guide               PasswordChangeGuideR                  POST
 !/password-change/#Text              PasswordResetR                    GET
 /signup                              SignUpR                                                        GET POST
-/signup-verification/#Text/#Text     SignUpVerifyR                     GET POST
+/signup-verification/#Text/#Text     SignUpVerifyR                     GET
 /client/request-email-verification   ClientRequestEmailVerificationR   GET POST
 
 /profile                             ProfileR                          GET
