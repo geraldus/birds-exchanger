@@ -23,8 +23,8 @@ import           Yesod.WebSockets
 default (Text)
 
 
-getApiAppConfigR :: Handler TypedContent
-getApiAppConfigR = do
+getAPIAppConfigR :: Handler TypedContent
+getAPIAppConfigR = do
     auth <- maybeClient
     message <- getMessageRender
     _marketDepth <- appDOM <$> getYesod >>= atomically . readTMVar

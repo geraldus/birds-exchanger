@@ -165,7 +165,7 @@ instance Yesod App where
             then getUserBalances
             else pure ([ ], [ ])
         case currentRoute of
-            Just ( PasswordResetR _) -> return ()
+            Just (PasswordResetR _) -> return ()
             Just url
                 | url `notElem`  [ AuthR LogoutR, AuthR LoginR, SignUpR ] ->
                         setUltDest url
@@ -350,11 +350,8 @@ instance Yesod App where
     isAuthorized PasswordChangeR _                   = return Authorized
     isAuthorized PasswordChangeGuideR _              = return Authorized
     isAuthorized (PasswordResetR _) _                = return Authorized
-    isAuthorized ApiUserPasswordChangeR _            = return Authorized
     isAuthorized PublicNotificationsWebSocketR _     = return Authorized
     isAuthorized ClientNotificationsWebSocketR _     = isClientAuthenticated
-    -- the profile route requires that the user is authenticated, so we
-    -- delegate to that function
     isAuthorized ProfileR _                          = notFound >> isAuthenticated
     -- CLIENT
     isAuthorized DepositR _                          = notFound >> isClientAuthenticated
@@ -405,11 +402,12 @@ instance Yesod App where
     isAuthorized (InfoViewR _) _                     = return Authorized
     isAuthorized TermsOfUseR _                       = return Authorized
     -- API
-    isAuthorized ApiAppConfigR _                     = return Authorized
-    isAuthorized API_AuthAuthenticateNoTokenR _      = return Authorized
+    isAuthorized APIAppConfigR _                     = return Authorized
+    isAuthorized APIAuthAuthenticateNoTokenR _       = return Authorized
+    isAuthorized APIUserPasswordChangeR _            = return Authorized
     isAuthorized APIStocksAvailabilityR _            = return Authorized
     isAuthorized APINewsListR _                      = return Authorized
-    isAuthorized ApiStocksOperatorCancelPurchaseR _  =
+    isAuthorized APIStocksOperatorCancelPurchaseR _  =
         authorizeRoles [ Local.Persist.UserRole.SuperUser, Admin, Operator ]
     isAuthorized LPHandler0001R _                    = return Authorized
 

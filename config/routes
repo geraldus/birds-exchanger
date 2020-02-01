@@ -73,11 +73,11 @@
 /admin/login     AdminLogInR  GET
 
 -- API
-/api/unsafe/user/password/set    ApiUserPasswordChangeR                POST
-/api/app/config                  ApiAppConfigR                         GET
-/api/auth/authenticate           API_AuthAuthenticateNoTokenR          POST
+/api/unsafe/user/password/set    APIUserPasswordChangeR                    POST
+/api/app/config                  APIAppConfigR                         GET
+/api/auth/authenticate           APIAuthAuthenticateNoTokenR               POST
 /api/news/list                   APINewsListR                          GET
 /api/stocks/get-availability     APIStocksAvailabilityR                GET
-/api/operator/stocks/purchase/cancel ApiStocksOperatorCancelPurchaseR POST
+/api/operator/stocks/purchase/cancel APIStocksOperatorCancelPurchaseR      POST
 
 /lp/handler/0001                 LPHandler0001R                        POST

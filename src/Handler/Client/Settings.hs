@@ -124,8 +124,8 @@ getPasswordResetR token = do
             #{urlRender (PasswordResetR token)}
         |]
 
-postApiUserPasswordChangeR :: Handler TypedContent
-postApiUserPasswordChangeR = do
+postAPIUserPasswordChangeR :: Handler TypedContent
+postAPIUserPasswordChangeR = do
     msgRender <- getMessageRender :: Handler (AppMessage -> Text)
     user <- runInputPostResult $ ireq textField "username"
     pass <- runInputPostResult $ ireq (minLenPassField msgRender) "password"

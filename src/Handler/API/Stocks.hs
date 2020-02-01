@@ -9,8 +9,8 @@ import           Local.Persist.UserRole ( UserRole (Admin, Operator, SuperUser) 
 import           Database.Persist.Sql   ( toSqlKey )
 
 
-postApiStocksOperatorCancelPurchaseR :: Handler TypedContent
-postApiStocksOperatorCancelPurchaseR = do
+postAPIStocksOperatorCancelPurchaseR :: Handler TypedContent
+postAPIStocksOperatorCancelPurchaseR = do
     withStaffUserAuthenticated $ do
         form <- runOperatorStocksPurchaseCancelForm
         case form of

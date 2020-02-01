@@ -9,8 +9,8 @@ import           Local.Auth.Plugin             ( PrizmPluginAuthResult (..),
 import           Yesod.Auth                    ( Creds (..), setCreds )
 
 
-postAPI_AuthAuthenticateNoTokenR :: Handler TypedContent
-postAPI_AuthAuthenticateNoTokenR = do
+postAPIAuthAuthenticateNoTokenR :: Handler TypedContent
+postAPIAuthAuthenticateNoTokenR = do
     (username, password) <- runInputPost
         ((,) <$> ireq textField "username"
              <*> ireq textField "password")
