@@ -72,15 +72,10 @@ import           System.Log.FastLogger                         ( defaultBufSize,
 -- Don't forget to add new modules to your cabal file!
 import           Handler.Admin.LogIn
 import           Handler.APIs
+import           Handler.Client
 import           Handler.Client.Deposit
 import           Handler.Client.HandleDeposit
 import           Handler.Client.HandleWithdrawal
-import           Handler.Client.Order.Create
-import           Handler.Client.Orders
-import           Handler.Client.Settings
-import           Handler.Client.Stocks.Purchase
-import           Handler.Client.Stocks.Purchase.Confirmation
-import           Handler.Client.Stocks.Purchase.Details
 import           Handler.Client.Withdrawal
 import           Handler.Common
 import           Handler.Home
