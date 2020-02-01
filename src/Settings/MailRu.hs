@@ -35,7 +35,7 @@ noreplyEmailOutbirdsUsername :: Text
 noreplyEmailOutbirdsUsername = "noreply@outb.info"
 
 noreplyEmailOutbirdsPassword :: Text
-noreplyEmailOutbirdsPassword = "T[fi20xTFlaX"
+noreplyEmailOutbirdsPassword = "$afi2C3TFBsl"
 
 projectSupportEmailCreds :: AppType -> (Text, Text)
 projectSupportEmailCreds FenixApp =
