@@ -21,6 +21,7 @@
 !/password-change/#Text              PasswordResetR                    GET
 /signup                              SignUpR                                                        GET POST
 /signup-verification/#Text/#Text     SignUpVerifyR                     GET POST
+/client/request-email-verification   ClientRequestEmailVerificationR   GET POST
 
 /profile                             ProfileR                          GET
 
@@ -80,4 +81,4 @@
 /api/stocks/get-availability     APIStocksAvailabilityR                GET
 /api/operator/stocks/purchase/cancel APIStocksOperatorCancelPurchaseR      POST
 
-/lp/handler/0001                 LPHandler0001R                        POST
+/lp/handler/0001                 LPHandler0001R                            POST

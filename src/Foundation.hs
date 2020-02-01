@@ -168,7 +168,7 @@ instance Yesod App where
         case currentRoute of
             Just (PasswordResetR _) -> return ()
             Just url
-                | url `notElem`  [ AuthR LogoutR, AuthR LoginR, SignUpR ] ->
+                | url `notElem`  [ AuthR LogoutR, AuthR LoginR, SignUpR, ClientRequestEmailVerificationR ] ->
                         setUltDest url
                 | url == AuthR LogoutR -> setUltDest HomeR
                 | otherwise -> do
@@ -354,6 +354,7 @@ instance Yesod App where
     isAuthorized PublicNotificationsWebSocketR _     = return Authorized
     isAuthorized ClientNotificationsWebSocketR _     = isClientAuthenticated
     -- CLIENT
+    isAuthorized ClientRequestEmailVerificationR _   = return Authorized
     isAuthorized ProfileR _                          = notFound >> isAuthenticated
     isAuthorized DepositR _                          = notFound >> isClientAuthenticated
     isAuthorized WithdrawalR _                       = notFound >> isClientAuthenticated
@@ -495,6 +496,8 @@ instance YesodBreadcrumbs App where
         breadcrumb' _ _ (AuthR _)   = return ("Вход", Just HomeR)
         breadcrumb' _ _ SignUpR     = return ("Регистрация", Just HomeR)
         breadcrumb' _ mr StocksR    = return (mr MsgPageTitleStocks, Just HomeR)
+        breadcrumb' _ mr ClientRequestEmailVerificationR =
+            return (mr MsgPageTitleRequestEmailVerification, Just HomeR)
         breadcrumb' _ mr PasswordChangeR =
             return (mr MsgPasswordSetupTitle, Just HomeR)
         breadcrumb' _ mr PasswordChangeGuideR =

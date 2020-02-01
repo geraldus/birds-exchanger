@@ -1,0 +1,11 @@
+<div .alert .alert-light role="alert">
+    <div .heading .mb-3>
+        Прежде чем совершать оплату акций, пожалуйста, подтвердите правильность
+        введённого вами адреса эл.почты:
+        <strong>
+            <big style="color: #18014F"">#{email}
+
+    <form method="post" action="@{ClientRequestEmailVerificationR}">
+        <button ##{htmlId}-verify-email-button .btn .btn-primary>
+            Получить инструкции
+
