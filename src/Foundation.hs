@@ -35,6 +35,7 @@ import           Type.Stocks                     ( ClientStocksData )
 import           Type.Wallet                     ( WalletData (..) )
 import           Utils.Common
 import           Utils.Database.Password         ( getCredsByEmail )
+import           Utils.Database.User             ( queryClientCredsMaybe )
 import           Utils.Database.User.Stocks      ( queryClientStocks )
 import           Utils.Database.User.Wallet      ( currencyAmountPara,
                                                    getOrCreateWalletDB,
@@ -791,15 +792,23 @@ maybeClient = do
             _ -> return Nothing
         _ -> return Nothing
 
+maybeClientId :: Handler (Maybe UserId)
+maybeClientId = do
+    p <- maybeAuthPair
+    return . fmap fst . join $ eitherClientToMaybe <$> p
+
 maybeClientAuthPair :: Handler (Maybe (UserId, User))
 maybeClientAuthPair = do
     p <- maybeAuthPair
     return . join $ eitherClientToMaybe <$> p
 
-maybeClientId :: Handler (Maybe UserId)
-maybeClientId = do
-    p <- maybeAuthPair
-    return . fmap fst . join $ eitherClientToMaybe <$> p
+maybeClientCreds :: Handler (Maybe (Entity User, Entity Email))
+maybeClientCreds = do
+    -- TODO Cache results
+    auth <- maybeAuthId
+    case auth of
+        Just (Left uid) -> runDB $ queryClientCredsMaybe uid
+        _               -> return Nothing
 
 eitherClientToMaybe ::
     (Either UserId Text, Either User SuperUser) -> Maybe (UserId, User)
