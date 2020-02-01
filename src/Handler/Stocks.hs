@@ -82,12 +82,6 @@ findStocksActive :: Text -> [(Entity StocksActive, Entity Stocks)] -> (Int, Int)
 findStocksActive abr = maybe (0, 0) stats . stocksActiveByAbbr abr
   where stats (Entity _ s, _) = (stocksActiveLeft s, stocksActiveTotal s)
 
-sellForm :: Maybe Text -> Maybe Text -> Widget
-sellForm idMaybe classMaybe = do
-    formId <- maybe newIdent return idMaybe
-    let formClass = fromMaybe "stocks-sell-form" classMaybe
-    $(widgetFile "form/stocks/sell")
-    $(widgetFile "messages/sell-not-avail-yet")
 
 stocksActiveByAbbr ::
        Text

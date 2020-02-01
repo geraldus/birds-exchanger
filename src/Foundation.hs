@@ -54,14 +54,14 @@ import qualified Data.CaseInsensitive            as CI
 import           Data.List                       ( findIndex )
 import           Data.Semigroup                  ( Endo )
 import qualified Data.Text.Encoding              as TE
+import qualified Data.Text.Encoding.Error        as TEE
 import           Data.Time.Clock.POSIX           ( utcTimeToPOSIXSeconds )
 import           Data.Version                    ( showVersion )
 import           Database.Persist.Sql            ( ConnectionPool, fromSqlKey,
                                                    runSqlPool )
+import qualified Network.Wai                     as W
 import           Text.Cassius                    ( cassiusFile )
 import           Text.Hamlet                     ( hamletFile )
-import qualified Data.Text.Encoding.Error as TEE
-import qualified Network.Wai as W
 import           Text.Jasmine                    ( minifym )
 import           Text.Julius                     ( rawJS )
 import           Text.Read                       ( readMaybe )
@@ -353,8 +353,8 @@ instance Yesod App where
     isAuthorized (PasswordResetR _) _                = return Authorized
     isAuthorized PublicNotificationsWebSocketR _     = return Authorized
     isAuthorized ClientNotificationsWebSocketR _     = isClientAuthenticated
-    isAuthorized ProfileR _                          = notFound >> isAuthenticated
     -- CLIENT
+    isAuthorized ProfileR _                          = notFound >> isAuthenticated
     isAuthorized DepositR _                          = notFound >> isClientAuthenticated
     isAuthorized WithdrawalR _                       = notFound >> isClientAuthenticated
     isAuthorized (DepositRequestConfirmationR _) _   = notFound >> isClientAuthenticated
@@ -818,8 +818,8 @@ eitherClientToMaybe _                                       = Nothing
 requireOperatorId :: Handler (Either UserId Text)
 requireOperatorId = requireRolesId True [ Operator ] notFound
 
-requireRolesId
-    :: Bool
+requireRolesId ::
+       Bool
     -> [ UserRole ]
     -> Handler (Either UserId Text)
     -> Handler (Either UserId Text)
