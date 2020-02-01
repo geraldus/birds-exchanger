@@ -20,10 +20,16 @@ supportEmailFenixPassword :: Text
 supportEmailFenixPassword = "gv0]Tr2FhvAR"
 
 noreplyEmailFenixUsername :: Text
-noreplyEmailFenixUsername = "mailbot@fenix.trading"
+noreplyEmailFenixUsername = "noreply@fenix.trading"
 
 noreplyEmailFenixPassword :: Text
-noreplyEmailFenixPassword = "K,y00XBkYyhs"
+noreplyEmailFenixPassword = "%9aO4OFqIjxc"
+
+-- noreplyEmailFenixUsername :: Text
+-- noreplyEmailFenixUsername = "mailbot@fenix.trading"
+
+-- noreplyEmailFenixPassword :: Text
+-- noreplyEmailFenixPassword = "K,y00XBkYyhs"
 
 supportEmailOutbirdsUsername :: Text
 supportEmailOutbirdsUsername = "support@outb.info"
@@ -36,6 +42,7 @@ noreplyEmailOutbirdsUsername = "noreply@outb.info"
 
 noreplyEmailOutbirdsPassword :: Text
 noreplyEmailOutbirdsPassword = "$afi2C3TFBsl"
+-- noreplyEmailOutbirdsPassword = "T[fi20xTFlaX"
 
 projectSupportEmailCreds :: AppType -> (Text, Text)
 projectSupportEmailCreds FenixApp =
