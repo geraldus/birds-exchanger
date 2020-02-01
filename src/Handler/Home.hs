@@ -53,10 +53,11 @@ getFenixTradingHomeR = do
     (messages, _) <- getCommonData
     renderUrl     <- getUrlRender
     stocksActives <- liftHandler . runDB $ queryStocksActives
-    auth          <- maybeAuthPair
-    let username = case auth of
-            Just (Left _, Left (User ident _ Client)) -> ident
-            _                                         -> mempty
+    auth          <- maybeClientCreds
+    let (username, verKey) = case auth of
+            Just (Entity _ (User ident _ Client), (Entity _ (Email _ _ key))) -> (ident, key)
+            _ -> mempty
+        hasVerifiedEmail = isNothing verKey
     let featured = featuredModal
     let bgSrc = StaticR images_bg_050119_png
         whitepaperBgSrc = renderUrl $ StaticR images_wp060119_0002_png

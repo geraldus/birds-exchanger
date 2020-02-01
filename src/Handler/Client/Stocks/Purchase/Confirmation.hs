@@ -26,6 +26,7 @@ import           Text.Hamlet                              ( shamletFile )
 
 postClientStocksPurchaseConfirmationR :: Text -> Handler TypedContent
 postClientStocksPurchaseConfirmationR token = do
+    -- TODO: FIXME: Disallow confirmations for non-verified users
     client <- requireClientId
     res <- runInputPostResult $ ireq textField "payer-address"
     messageRenderer <- getMessageRender

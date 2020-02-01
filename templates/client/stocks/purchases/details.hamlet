@@ -22,5 +22,4 @@
         ^{purchaseStatus}
 
 $if not clientConfirmed && not isCancelled
-    <form action=@{ClientStocksPurchaseConfirmationR purchaseId} method="POST">
-        ^{guide}
+    ^{guide}

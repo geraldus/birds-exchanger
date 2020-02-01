@@ -4,6 +4,11 @@
             $forall (label, msg) <- messages
                 <div .alert.alert-warning .my-1 data-label=#{label}>
                     #{msg}
+    $if not hasVerifiedEmail
+        <div .container .mt-5 .mt-lg-3 #message>
+            <div .alert.alert-light .my-1>
+                _{MsgMessageInfoPleaseVerifyEmailAddress}
+                <a href="@{ClientRequestEmailVerificationR}">_{MsgReadMore}
 
     <div .container-fluid .video-embed .p-0>
         <div .row .mb-5 .no-gutters>

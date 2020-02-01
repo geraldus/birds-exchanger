@@ -60,16 +60,20 @@
         <div .form-group>
             $maybe _ <- maybeClientUser
                 <div .row .no-gutters>
-                    <div .col-12 .col-lg-5>
-                        <button
-                            ##{formId}-submit
-                            .btn
-                            .btn-primary
-                            .w-100
-                            .text-capitalize
-                            disabled
-                            >
-                            _{MsgFormButtonStocksBuy}
+                    $if hasVerifiedEmail
+                        <div .col-12 .col-lg-5>
+                            <button
+                                ##{formId}-submit
+                                .btn
+                                .btn-primary
+                                .w-100
+                                .text-capitalize
+                                disabled
+                                >
+                                _{MsgFormButtonStocksBuy}
             $nothing
                 <p .text-center>
                     <small>_{MsgFormTextSignInToTrade}
+    $maybe _ <- maybeClientUser
+        $if not hasVerifiedEmail
+            ^{verificationGuide}

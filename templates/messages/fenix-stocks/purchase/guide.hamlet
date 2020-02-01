@@ -4,26 +4,27 @@
         <li>_{MsgGuideProvideYourWalletAddress}
         <li>_{MsgGuidePressButton} «_{MsgFormSumbitConfirmTransfer}»
 
-<dl .my-3 .row>
-    <dt .col-12 .col-lg-3>
-        _{MsgPriceCurrency pzmC}
-    <dd .form-group .col-12 .col-lg-9>
-        ^{price}
-    <dt .col-12 .col-lg-3>
-        _{MsgRecipient}
-    <dd .form-group .col-12 .col-lg-9>
-        ^{recipientAddress}
-    <dt .col-12 .col-lg-3>
-        _{MsgYourWalletAddress}
-    <dd .form-group .col-12 .col-lg-9>
-        <input
-            ##{guideId}-payer-address-input
-            name="payer-address"
-            .form-control
-            placeholder="PRIZM-____-____-____-_____"
-            required
-            >
-<div .row .mb-5>
-    <div .col-12>
-        <button ##{guideId}-submit.btn .btn-primary disabled>
-            _{MsgFormSumbitConfirmTransfer}
+<form action=@{ClientStocksPurchaseConfirmationR purchaseId} method="POST">
+    <dl .my-3 .row>
+        <dt .col-12 .col-lg-3>
+            _{MsgPriceCurrency pzmC}
+        <dd .form-group .col-12 .col-lg-9>
+            ^{price}
+        <dt .col-12 .col-lg-3>
+            _{MsgRecipient}
+        <dd .form-group .col-12 .col-lg-9>
+            ^{recipientAddress}
+        <dt .col-12 .col-lg-3>
+            _{MsgYourWalletAddress}
+        <dd .form-group .col-12 .col-lg-9>
+            <input
+                ##{guideId}-payer-address-input
+                name="payer-address"
+                .form-control
+                placeholder="PRIZM-____-____-____-_____"
+                required
+                >
+    <div .row .mb-5>
+        <div .col-12>
+            <button ##{guideId}-submit.btn .btn-primary disabled>
+                _{MsgFormSumbitConfirmTransfer}

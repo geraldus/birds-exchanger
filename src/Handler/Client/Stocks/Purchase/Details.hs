@@ -16,8 +16,9 @@ import           Text.Julius                ( rawJS )
 
 getClientStocksPurchaseDetailsR :: Text -> Handler TypedContent
 getClientStocksPurchaseDetailsR token = do
-    client <- requireClientId
+    (Entity _ email, Entity client _) <- requireClientCreds
     let isClientLoggedIn = True
+    let hasVerifiedEmail = isNothing (emailVerkey email)
     htmlId <- newIdent
     urlRender <- getUrlRender
     (_, stocks) <- getUserBalances
@@ -30,9 +31,11 @@ getClientStocksPurchaseDetailsR token = do
         let purchaseStatus  = purchaseStatusW htmlId p s
         let isCancelled     = isJust (stocksPurchaseCancelled p)
         let clientConfirmed = isJust (stocksPurchaseUserConfirmed p)
-        let guide           = paymentGuideW p s
-        let pageUrl         = urlRender (ClientStocksPurchaseDetailsR token)
+        let guide = if hasVerifiedEmail
+                then paymentGuideW purchaseId p s
+                else verificationGuideW email
         let clientSocketUrl = urlRender ClientNotificationsWebSocketR
+        let pageUrl         = urlRender (ClientStocksPurchaseDetailsR token)
         let jsonStocksPurchases = decodeUtf8 . encode $
                 map clientStocksToJSON stocks
         selectRep . provideRep . defaultLayout $ do
@@ -47,7 +50,7 @@ getClientStocksPurchaseDetailsR token = do
                 addMessageI "stocks purchase" MsgMessageClientPurchaseNotFound
                 notFound
 
-    paymentGuideW p s = do
+    paymentGuideW purchaseId p s = do
         render <- handlerToWidget getAmountRenderer
         guideId <- newIdent
         let addr :: [Text]
@@ -57,6 +60,10 @@ getClientStocksPurchaseDetailsR token = do
             price = render [] [] False pzmC priceCents
         let recipientAddress = recipientAddressW addr
         $(widgetFile "messages/fenix-stocks/purchase/guide")
+
+    verificationGuideW (Email email _ _) = do
+        htmlId <- newIdent
+        $(widgetFile "messages/email-verification")
 
     recipientAddressW [] = mempty
     recipientAddressW (address : extras) = [whamlet|

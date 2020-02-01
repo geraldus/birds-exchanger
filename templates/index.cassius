@@ -103,6 +103,9 @@
             background: linear-gradient(296.39deg, #0E011B 0%, #18014F 100%)
             height: 200px
 
+            .heading
+                font-size: 1.66rem
+
     .stocks
         .card
             .buy-stocks

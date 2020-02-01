@@ -63,14 +63,26 @@ buyForm ::
     -> Maybe Text
     -> Widget
 buyForm actives idMaybe classMaybe = do
-    let formClass = fromMaybe
-            "stocks-buy-form mt-5 mt-lg-0 col-12 col-lg-7"
-            classMaybe
+    let formClass =
+            fromMaybe
+                "stocks-buy-form mt-5 mt-lg-0 col-12 col-lg-7"
+                classMaybe
     formId <- maybe newIdent return idMaybe
-    maybeClientUser <- handlerToWidget maybeClientAuthPair
+    htmlId <- newIdent
+    creds  <- handlerToWidget maybeClientCreds
     let fnxBLeft = fst $ findStocksActive "FNXB" actives
     let fnxSLeft = fst $ findStocksActive "FNXS" actives
     let fnxPLeft = fst $ findStocksActive "FNXP" actives
+    let maybeClientUser  = fst <$> creds
+        maybeClientEmail = snd <$> creds
+        hasVerifiedEmail =
+            maybe
+                False
+                (isNothing . emailVerkey . entityVal)
+                maybeClientEmail
+    let verificationGuide = do
+            let email = maybe mempty (emailEmail . entityVal) maybeClientEmail
+            $(widgetFile "messages/email-verification")
     $(widgetFile "form/stocks/buy")
     $(widgetFile "messages/fenix-stocks/pack-desc/generic")
     $(widgetFile "messages/fenix-stocks/pack-desc/start")
