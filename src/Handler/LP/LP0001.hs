@@ -136,7 +136,7 @@ queryGetCreateCreds login' (pwd, vk) (ref, refToken) = do
             Nothing -> return []
             Just r  -> (:[]) <$> addReferral r uid
         let refTok = Referrer uid refToken
-        insert refTok
+        _ <- insert refTok
         return (Entity uid usr, Entity eid eml, True)
 
 

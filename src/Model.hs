@@ -31,6 +31,6 @@ share [mkPersist sqlSettings, mkMigrate "migrateAll"]
 
 instance ToJSON (Entity User) where
     toJSON (Entity uid (User ident _ role)) = object
-        [ "id" .= fromSqlKey uid
+        [ "id"    .= fromSqlKey uid
         , "ident" .= toJSON ident
-        , "role" .= toJSON role ]
+        , "role"  .= toJSON role ]

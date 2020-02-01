@@ -16,11 +16,11 @@
 /public-notices                      PublicNotificationsWebSocketR     GET
 /client-notices                      ClientNotificationsWebSocketR     GET
 
-/password-change PasswordChangeR GET
-/password-change/guide PasswordChangeGuideR POST
-!/password-change/#Text PasswordResetR GET
-/signup SignUpR GET POST
-/signup-verification/#Text/#Text SignUpVerifyR GET POST
+/password-change                     PasswordChangeR                   GET
+/password-change/guide               PasswordChangeGuideR                  POST
+!/password-change/#Text              PasswordResetR                    GET
+/signup                              SignUpR                                                        GET POST
+/signup-verification/#Text/#Text     SignUpVerifyR                     GET POST
 
 /profile                             ProfileR                          GET
 
