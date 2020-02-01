@@ -5,7 +5,8 @@ import           Import                                   hiding ( on, update,
                                                             (==.) )
 
 import           Handler.Operator.Stocks.Purchase.Details ( queryPurchaseFullDetails )
-import           Local.Persist.Notice                     ( NoticeType (NoticeEmail) )
+import           Local.Persist.Notice                     ( NoticeSubject (NoticeSubjectOperatorStocksPurchaseConfirmed),
+                                                            NoticeType (NoticeEmail) )
 import           Local.Persist.UserRole                   ( UserRole (Operator) )
 import           Utils.App.Common                         ( sendNoReplyEmail )
 import           Utils.Common                             ( getFormatDateRender,
@@ -67,7 +68,7 @@ notifyOperatorStocksPurchase pid = do
     vals <- runDB . queryPurchaseFullDetails $ pid
     case vals of
         [] -> do
-            addMessage "invalid-url" "Shouln't happen. No purchase found"
+            addMessage "invalid-url" "No purchase found"
             redirect OperatorStocksPurchaseIndexR
         (p, Entity _ s, Entity _ a, Entity _ u, Entity _ e) : _ -> do
             typ           <- appType . appSettings <$> getYesod
@@ -84,13 +85,14 @@ notifyOperatorStocksPurchase pid = do
             let txt      = textContent (s, a) p u e url date
                 html     = htmlContent (s, a) p u e url date
             let contents = toStrict . decodeUtf8 . encode $ object
-                    [ "text-content" .= txt
+                    [ "subject"      .= subject
+                    , "text-content" .= txt
                     , "html-content" .= html ]
                 subject = messageRender $
                         MsgEmailSubjectOperatorPendingPurchase packName
             flip mapM_ operators $ \email -> do
                 let n = Notice
-                        NoticeEmail email contents tn Nothing 0 Nothing (Just tn)
+                            NoticeEmail (Just NoticeSubjectOperatorStocksPurchaseConfirmed) email contents tn Nothing 0 Nothing (Just tn)
                 _ <- runDB $ insert n
                 void . liftIO $
                     sendNoReplyEmail typ messageRender email subject txt html

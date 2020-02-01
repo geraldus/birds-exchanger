@@ -11,7 +11,8 @@ import           Handler.Client.Stocks.Purchase ( apiCreateUnconfirmedStocksPurc
 import           Handler.SignUp                 ( addReferral, cleanUpRefCookie,
                                                   maybeReferrer )
 import           Local.Persist.Currency         ( CryptoCurrency (PZM) )
-import           Local.Persist.Notice           ( NoticeType (NoticeEmail) )
+import           Local.Persist.Notice           ( NoticeSubject (NoticeSubjectQuickRegistation),
+                                                  NoticeType (NoticeEmail) )
 import           Local.Persist.TransferMethod   ( TransferMethod (CryptoTM) )
 import           Local.Persist.UserRole         ( UserRole (Client) )
 import           Settings.MailRu                ( projectNoReplyEmailCreds,
@@ -154,10 +155,12 @@ notifyClientQuickRegistrationCompleted email pass vk = do
     let textContent' = textContent exHost pass actUrl passUrl
     let htmlContent' = htmlContent exHost pass actUrl passUrl
     let jsonContent = toStrict . decodeUtf8 . A.encode $ object
-            [ "text-content" .= toJSON textContent'
+            [ "subject"      .= toJSON subject
+            , "text-content" .= toJSON textContent'
             , "html-content" .= toJSON htmlContent' ]
     let notice = Notice
             NoticeEmail
+            (Just NoticeSubjectQuickRegistation)
             email
             jsonContent
             timeNow
