@@ -57,6 +57,7 @@ ClientWalletStatsBalanceSectionTitle: На балансе
 ClientWalletStatsOrdersSectionTitle: В активных ордерах
 ClientWalletStatsWithdrawalSectionTitle: В неисполненных заявках на вывод
 ClientStocksHistory: История операций
+PageTitleRequestEmailVerification: Проверка адреса электронной почты
 PageTitleClientStocksPurchaseDetails: Покупка акций
 
 ### CLIENT MESSAGES
@@ -64,6 +65,7 @@ MessageClientPasswordResetTitle: Восстановление пароля
 MessageClientPurchaseNotFound: Операция не найдена
 MessageInfoReferralProgramIsDisabled: Все реферальные бонусы зафиксированы, но временно не отображаются.  Следите за новостями.
 MessageInfoRefferalProgramRequirements: Реферальная программа доступна только владельцам акций «FENIX». Для получения ссылки приобретите любое количество акций.
+MessageInfoPleaseVerifyEmailAddress: Для работы всех функций платформы, пожалуйста, подтвердите Ваш адрес электронной почты.
 MessagePleaseLogIn: Пожалуйста, войдите в систему
 MessagePageNotFound: Страница не найдена
 
@@ -348,6 +350,9 @@ YourWalletAddress: Адрес Вашего кошелька
 Processing: В обработке
 Processed: Обработака выполнена
 
+ValidateEmail: Завершить проверку
+MessageInfoEmailValidated: Ваш эл.адрес подтверждён
+MessageInfoEmailValidatedAlready: Ваш эл.адрес уже был проверен ранее
 SendEmail: Написать на эл.почту
 ToTelegramChat: Перейти в Telegram-чат
 
