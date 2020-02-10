@@ -15,8 +15,7 @@ data WalletTransactionType
     | ExchangeFreeze Int          -- ^ - negative
     | ExchangeReturn Int          -- ^ + positive
     | ExchangeExchange Int        -- ^ + positive
-    | Penalty Int                 -- ^ - negative
-    | Bonus Int                   -- ^ + positive
+    | ReferralBounty' Int
     | ParaMining Int              -- ^ + positive
     deriving (Generic, Show, Read, Eq)
 derivePersistField "WalletTransactionType"
@@ -34,8 +33,7 @@ data TransactionTypePlain
     | OrderCreation          -- ^ negative
     | OrderCancellation      -- ^ positive
     | OrderExchange          -- ^ positive
-    | BalancePenalty         -- ^ negative
-    | BalanceBonus           -- ^ positive
+    | ReferralBountyAccrual  -- ^ positive
     | ParaMiningAccrual      -- ^ positive
     deriving (Generic, Show, Read, Eq)
 derivePersistField "TransactionTypePlain"

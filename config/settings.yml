@@ -44,7 +44,7 @@ copyright: © 2018-2019
 
 ref-token-cookie-name: "_outb_ref"
 ref-token-param-name: "ref"
-ref-max-levels: 10
+ref-max-levels: 9
 
 # possible options are: fenix | outbirds
 app-type: fenix

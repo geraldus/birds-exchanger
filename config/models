@@ -246,3 +246,14 @@ StocksPurchase json
     acceptedByIdent Text Maybe
     UniqueStocksPurchase token
     deriving Show
+
+ReferralBounty json
+    type ReferralBountyType
+    level Int
+    referrer UserId
+    referral UserId
+    amount Int
+    currency Currency
+    walletTransactionReason WalletTransactionReasonId
+    deriving Show
+

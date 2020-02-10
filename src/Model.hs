@@ -14,6 +14,7 @@ import           ClassyPrelude.Yesod
 import           Local.Persist.Currency
 import           Local.Persist.Exchange
 import           Local.Persist.Notice
+import           Local.Persist.ReferralBounty
 import           Local.Persist.TransferMethod
 import           Local.Persist.UserRole
 import           Local.Persist.Wallet

@@ -248,6 +248,6 @@ getReferralsOf refs = do
         let rels = map (\(rel, _, _) -> rel) referrals
             relRefs = map (\(_, _, Entity relRef _) -> relRef) referrals
         let acc = acc' <> [rels]
-        if n == 0 || null rels
+        if n == 1 || null rels
             then return acc
             else foldReferrals (n - 1) acc relRefs
