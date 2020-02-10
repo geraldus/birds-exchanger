@@ -10,7 +10,9 @@ import           Local.Persist.Currency             ( Currency, pzmC )
 import           Local.Persist.ReferralBounty       ( ReferralBountyType (RegistrationBounty) )
 import           Local.Persist.Wallet
 import           Type.Money                         ( oneCoinCents )
+import           Utils.Database.User.Wallet         ( getOrCreateWalletDB )
 
+import qualified Crypto.Nonce                       as CN
 import           Database.Esqueleto                 hiding ( (-=.), (=.) )
 import           Text.Blaze.Html.Renderer.Text      ( renderHtml )
 
@@ -44,7 +46,10 @@ postOperatorStocksPurchaseConfirmationR pid = do
                     [ StocksPurchaseAccepted =. Just timeNow
                     , StocksPurchaseAcceptedBy =. staffId
                     , StocksPurchaseAcceptedByIdent =. staffIdent ]
-            _ <- accrueReferralBounties (Entity pid p)
+            gen <- appNonceGen <$> getYesod
+            maxLevel <- appRefMaxLevels . appSettings <$> getYesod
+            let genToken = CN.nonce128urlT gen
+            _ <- runDB $ accrueReferralBounties genToken maxLevel (Entity pid p)
             notifyPublic s a amount
             notifyClient purchase' s amount
             redirect OperatorStocksPurchaseIndexR
@@ -80,17 +85,17 @@ notifyClient p s n = do
             ]
     liftIO . atomically $ writeTChan ch (u, notice)
 
-accrueReferralBounties ::
-    Entity StocksPurchase -> Handler [Entity ReferralBounty]
-accrueReferralBounties (Entity _ p) = do
+accrueReferralBounties :: MonadIO m =>
+    IO Text -> Int -> Entity StocksPurchase -> SqlPersistT m [Entity ReferralBounty]
+accrueReferralBounties genToken maxLevel (Entity _ p) = do
     let owner' = stocksPurchaseUser p
-    bounty' <- runDB $ queryUserRegistrationBounty owner'
+    bounty' <- queryUserRegistrationBounty owner'
     case bounty' of
         Nothing -> return [] -- No such user
         Just bounty -> case bounty of
             (owner, Nothing) -> do
-                bounties <- collectBounties owner
-                runDB $ mapM insertBounties bounties
+                bounties <- collectBounties genToken maxLevel owner
+                mapM insertBounties bounties
             (_, Just _)      -> return [] -- bounties already given
   where
     insertBounties (_, reason, mkBounty, mkTransaction)  = do
@@ -111,16 +116,19 @@ accrueReferralBounties (Entity _ p) = do
             ReferralBounty' n -> n
             _                 -> 0
 
-collectBounties ::
-       Entity User
-    -> Handler [( Entity User
-                , WalletTransactionReason
-                , WalletTransactionReasonId -> ReferralBounty
-                , WalletTransactionReasonId -> WalletBalanceTransaction )]
-collectBounties u = do
+collectBounties :: MonadIO m
+    => IO Text
+    -> Int
+    -> Entity User
+    -> SqlPersistT m [( Entity User
+                     , WalletTransactionReason
+                     , WalletTransactionReasonId -> ReferralBounty
+                     , WalletTransactionReasonId -> WalletBalanceTransaction )]
+collectBounties genToken maxLevel u = do
     timeNow <- liftIO getCurrentTime
     let (Entity uid _) = u
-    (Entity wid w) <- getOrCreateWallet uid pzmC
+    newWalletToken <- liftIO genToken
+    (Entity wid w) <- getOrCreateWalletDB uid newWalletToken pzmC
     let reason   = WalletTransactionReason wid
     let amount   = 10 * oneCoinCents
     let mkBounty =
@@ -128,18 +136,18 @@ collectBounties u = do
     let centsBefore   = userWalletAmountCents w
     let mkTransaction =
             bountyTransactionWithReason wid centsBefore amount timeNow
-    maxLevel          <- appRefMaxLevels  . appSettings <$> getYesod
-    referrersBounties <- collectReferrerBounties uid maxLevel
+    referrersBounties <- collectReferrerBounties genToken uid maxLevel
     return $ (u, reason, mkBounty, mkTransaction) : referrersBounties
 
-collectReferrerBounties ::
-       UserId
+collectReferrerBounties :: MonadIO m
+    => IO Text
+    -> UserId
     -> Int
-    -> Handler [( Entity User
-                , WalletTransactionReason
-                , WalletTransactionReasonId -> ReferralBounty
-                , WalletTransactionReasonId -> WalletBalanceTransaction )]
-collectReferrerBounties uid maxLevel
+    -> SqlPersistT m [( Entity User
+                     , WalletTransactionReason
+                     , WalletTransactionReasonId -> ReferralBounty
+                     , WalletTransactionReasonId -> WalletBalanceTransaction )]
+collectReferrerBounties genToken uid maxLevel
     | maxLevel > 0 = do
         let lvl = 1
         let n = maxLevel
@@ -147,7 +155,7 @@ collectReferrerBounties uid maxLevel
     | otherwise = pure []
   where
     collect referral lvl n = do
-        mayRef <- getReferrerWallet referral
+        mayRef <- getReferrerWallet genToken referral
         case mayRef of
             Nothing -> return []
             Just (ref, w) -> do
@@ -167,17 +175,17 @@ collectReferrerBounties uid maxLevel
             mkTransaction = bountyTransactionWithReason wid before amount t
         in (reason, mkBounty, mkTransaction)
 
-getReferrerWallet :: UserId -> Handler (Maybe (Entity User, Entity UserWallet))
-getReferrerWallet uid = do
-    vals <- runDB $ queryReferrerWallet uid
+getReferrerWallet :: MonadIO m => IO Text -> UserId -> SqlPersistT m (Maybe (Entity User, Entity UserWallet))
+getReferrerWallet genToken uid = do
+    vals <- queryReferrerWallet uid
     case vals of
         [] -> return Nothing
         (r, mayWallet) : _ -> do
-            realWallet <- maybe (runDB (createPzmWallet r)) return mayWallet
+            realWallet <- maybe (createPzmWallet r) return mayWallet
             return $ Just (r, realWallet)
   where
     createPzmWallet (Entity u _) = do
-        t <- liftHandler appNonce128urlT
+        t <- liftIO genToken
         now <- liftIO getCurrentTime
         let w = UserWallet u pzmC 0 t now Nothing
         (flip Entity w) <$> insert w
