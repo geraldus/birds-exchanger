@@ -20,13 +20,14 @@ module Application
     , db
     ) where
 
-import           Import                                        hiding
-                                                                 ( isNothing, on,
+import           Import                                        hiding ( groupBy,
+                                                                 isNothing, on,
                                                                  update, (=.),
                                                                  (==.) )
 import           Local.Persist.Currency                        ( Currency,
                                                                  ouroC, rubC )
 import           Local.Persist.Exchange                        ( ExchangePair (..) )
+import           Local.Persist.ReferralBounty                  ( ReferralBountyType (RegistrationBounty) )
 import           Local.Persist.TransferMethod                  ( TransferMethod,
                                                                  ctmOuro,
                                                                  ftmAlphaRub,
@@ -67,6 +68,7 @@ import           Network.Wai.Middleware.RequestLogger          ( Destination (Lo
 import           System.Log.FastLogger                         ( defaultBufSize, newStdoutLoggerSet,
                                                                  toLogStr )
 
+import           Text.Pretty.Simple                            ( pPrint )
 
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
@@ -120,22 +122,22 @@ makeFoundation appSettings = do
     -- Some basic initializations: HTTP connection manager, logger, and static
     -- subsite.
     appHttpManager <- getGlobalManager
-    appLogger <- newStdoutLoggerSet defaultBufSize >>= makeYesodLogger
+    appLogger      <- newStdoutLoggerSet defaultBufSize >>= makeYesodLogger
     appStatic <-
         (if appMutableStatic appSettings then staticDevel else static)
         (appStaticDir appSettings)
-    appNonceGen <- liftIO CN.new
-    chClientNotifications <- newBroadcastTChanIO
+    appNonceGen             <- liftIO CN.new
+    chClientNotifications   <- newBroadcastTChanIO
     chOperatorNotifications <- newBroadcastTChanIO
-    chDepositUserConfirm <- newBroadcastTChanIO
-    chWithdrawalRequest <- newBroadcastTChanIO
-    chPublicNotifications <- newBroadcastTChanIO
-    appPaymentMethods <- newTMVarIO hardcodedPaymentMethods
+    chDepositUserConfirm    <- newBroadcastTChanIO
+    chWithdrawalRequest     <- newBroadcastTChanIO
+    chPublicNotifications   <- newBroadcastTChanIO
+    appPaymentMethods       <- newTMVarIO hardcodedPaymentMethods
     let appChannels = AppChannels
-            { appChannelsPublicNotifications = chPublicNotifications
-            , appChannelsClientNotifications = chClientNotifications
-            , appChannelsOperatorNotifications = chOperatorNotifications
-            , appChannelsOperatorDepositConfirm = chDepositUserConfirm
+            { appChannelsPublicNotifications      = chPublicNotifications
+            , appChannelsClientNotifications      = chClientNotifications
+            , appChannelsOperatorNotifications    = chOperatorNotifications
+            , appChannelsOperatorDepositConfirm   = chDepositUserConfirm
             , appChannelsOperatorWithdrawalCreate = chWithdrawalRequest
             }
     appOperatorsOnline <- newTMVarIO []
@@ -163,7 +165,12 @@ makeFoundation appSettings = do
     runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
 
     -- Perform manual migraions
-    flip runSqlPool pool migrateHelper_Stocks
+    flip runSqlPool pool $ do
+        migrateHelper_Stocks
+        let genToken = CN.nonce128urlT appNonceGen
+        let maxLevel = appRefMaxLevels appSettings
+        migrateHelper_PrizmBounties genToken maxLevel
+        -- migrateHelper_GRef
 
     orders <- flip runSqlPool pool $ mapM
         selectActiveOrdersOf
@@ -329,6 +336,24 @@ migrateHelper_Stocks = do
                 aid <- insert a
                 return (s', Entity aid a)
             (s', Just a'):_ -> return (s', a')
+
+migrateHelper_PrizmBounties :: MonadIO m => IO Text -> Int -> SqlPersistT m ()
+migrateHelper_PrizmBounties genToken maxLevel = do
+    purchases <- select . from $
+        \(p `InnerJoin` u) -> do
+            on (u ^. UserId ==. p ^. StocksPurchaseUser)
+            let levelZeroBounty = from $ \b -> where_
+                    ( (b ^. ReferralBountyLevel ==. val 0
+                    &&. (b ^. ReferralBountyReferrer ==. u ^. UserId)
+                    &&. (b ^. ReferralBountyType ==. val RegistrationBounty)) )
+            groupBy (p ^. StocksPurchaseUser, p ^. StocksPurchaseId, p ^. StocksPurchaseAccepted)
+            where_
+                ( not_ (isNothing (p ^. StocksPurchaseAccepted))
+                &&. (notExists $ levelZeroBounty) )
+            orderBy [ asc (p ^. StocksPurchaseAccepted)  ]
+            return p
+    mapM (accrueReferralBounties genToken maxLevel) purchases
+    return ()
 
 migrateHelper_RefTokens :: (MonadIO m) => IO Text -> SqlPersistT m ()
 migrateHelper_RefTokens genToken = do
