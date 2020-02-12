@@ -19,8 +19,8 @@ ip-from-header: "_env:YESOD_IP_FROM_HEADER:false"
 # Optional values with the following production defaults.
 # In development, they default to the inverse.
 #
-# detailed-logging: true
-should-log-all: true
+# detailed-logging: false
+# should-log-all: false
 # reload-templates: false
 # mutable-static: false
 # skip-combining: false
@@ -48,5 +48,5 @@ ref-max-levels: 10
 # possible options are: fenix | outbirds
 app-type: fenix
 ref-token-cookie-name: "_fnx_ref"
-# app-type: outbirds
-# ref-token-cookie-name: "_outb_ref"
+
+hidden-news-cookie-name: "_fnx_hidden_news"

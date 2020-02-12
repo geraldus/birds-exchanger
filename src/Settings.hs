@@ -68,6 +68,7 @@ data AppSettings = AppSettings
     , appRefTokenParamName      :: Text
     , appRefMaxLevels           :: Int
     , appType                   :: AppType
+    , appHiddenNewsCookieName   :: Text
     }
 
 instance FromJSON AppSettings where
@@ -103,6 +104,8 @@ instance FromJSON AppSettings where
         appRefMaxLevels           <- o .:? "ref-max-levels" .!= 10
         appType                   <- textToAppType
                                         <$> o .:? "app-type" .!= "fenix"
+        appHiddenNewsCookieName   <- o .:? "hidden-news-cookie-name"
+                                        .!= "__hidden_news"
 
         return AppSettings {..}
 

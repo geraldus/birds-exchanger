@@ -1,6 +1,6 @@
 $(document).ready(() => {
     const featured = '#{rawJS (show $ fromSqlKey iid)}'
-    const cookieName = 'outb.info_featured'
+    const cookieName = '#{rawJS cookieName}'
     const newsCookie = Cookies.get(cookieName)
     const markedNews =
         newsCookie && new Set(JSON.parse(newsCookie)) || new Set()
@@ -14,7 +14,7 @@ $(document).ready(() => {
         Cookies.set(
             cookieName,
             JSON.stringify([...markedNews]),
-            { domain: 'outb.info', expires: 60 }
+            { domain: '#{host}', expires: 60 }
         )
         Cookies.set(
             cookieName,

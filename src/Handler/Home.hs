@@ -18,7 +18,7 @@ import           Market.Functions       ( reduceDomStats )
 import           Market.Type            ( DOMRateStats, DOMStats,
                                           DOMStatsRateMap )
 import           Type.Money             ( oneCoinCents )
-import           Utils.Common           ( selectLocale )
+import           Utils.Common           ( projectNameHost, selectLocale )
 import           Utils.Database.Orders  ( selectActiveOrdersOf )
 import           Utils.Database.Stocks  ( queryStocksActives )
 import           Utils.Money
@@ -168,6 +168,9 @@ featuredModal = do
                     Just desc' -> desc'
                     _          -> infoContentHtml info
             wrapId <- newIdent
+            proj <- appType . appSettings <$> getYesod
+            cookieName <- appHiddenNewsCookieName . appSettings <$> getYesod
+            let (host, _) = projectNameHost proj
             $(widgetFile "modal/featured-news")
 
 getLastFeaturedNews :: Handler (Maybe (Entity Info))

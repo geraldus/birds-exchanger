@@ -49,3 +49,5 @@ ref-max-levels: 9
 # possible options are: fenix | outbirds
 app-type: fenix
 # app-type: outbirds
+
+hidden-news-cookie-name: outb.info_featured
