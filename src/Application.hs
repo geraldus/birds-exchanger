@@ -167,9 +167,6 @@ makeFoundation appSettings = do
     -- Perform manual migraions
     flip runSqlPool pool $ do
         migrateHelper_Stocks
-        let genToken = CN.nonce128urlT appNonceGen
-        let maxLevel = appRefMaxLevels appSettings
-        migrateHelper_PrizmBounties genToken maxLevel
         -- migrateHelper_GRef
 
     orders <- flip runSqlPool pool $ mapM
@@ -343,17 +340,29 @@ migrateHelper_PrizmBounties genToken maxLevel = do
         \(p `InnerJoin` u) -> do
             on (u ^. UserId ==. p ^. StocksPurchaseUser)
             let levelZeroBounty = from $ \b -> where_
-                    ( (b ^. ReferralBountyLevel ==. val 0
+                    ( (b ^. ReferralBountyLevel      ==. val 0
                     &&. (b ^. ReferralBountyReferrer ==. u ^. UserId)
-                    &&. (b ^. ReferralBountyType ==. val RegistrationBounty)) )
-            groupBy (p ^. StocksPurchaseUser, p ^. StocksPurchaseId, p ^. StocksPurchaseAccepted)
+                    &&. (b ^. ReferralBountyType     ==. val RegistrationBounty)) )
+            groupBy
+                ( p ^. StocksPurchaseUser
+                , p ^. StocksPurchaseId
+                , p ^. StocksPurchaseAccepted )
             where_
                 ( not_ (isNothing (p ^. StocksPurchaseAccepted))
+                &&. (isNothing (p ^. StocksPurchaseCancelled))
                 &&. (notExists $ levelZeroBounty) )
             orderBy [ asc (p ^. StocksPurchaseAccepted)  ]
             return p
-    mapM (accrueReferralBounties genToken maxLevel) purchases
+    let firstPurchases = takeFirstPurchasesOnly purchases
+    mapM (accrueReferralBounties genToken maxLevel) firstPurchases
     return ()
+  where
+    takeFirstPurchasesOnly :: [Entity StocksPurchase] -> [Entity StocksPurchase]
+    takeFirstPurchasesOnly ps = snd $ foldr step ([], []) ps
+       where step pe@(Entity _ p) acc@(usrs, ps)  =
+                if stocksPurchaseUser p `elem` usrs
+                then acc
+                else (stocksPurchaseUser p : usrs, pe : ps)
 
 migrateHelper_RefTokens :: (MonadIO m) => IO Text -> SqlPersistT m ()
 migrateHelper_RefTokens genToken = do
