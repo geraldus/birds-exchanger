@@ -25,7 +25,8 @@ getOperatorStocksPurchaseDetailsR pid = do
                 redirect OperatorStocksPurchaseIndexR
             d' : _ -> purchaseItemW d'
     let linkText = render MsgPageTitleStocksPending
-        url = renderUrl OperatorStocksPurchaseIndexR
+        url = OperatorStocksPurchaseIndexR
+        links = [whamlet|<a href=@{url}>#{linkText}|]
     defaultLayout $ do
         $(widgetFile "operator/common")
         $(widgetFile "operator/stocks/purchase/index")

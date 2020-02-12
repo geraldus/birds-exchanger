@@ -134,7 +134,7 @@ IAcceptTermsOfUseText: регистрируясь, я принимаю прав�
 Add: Добавить
 Manage: Управление
 NoPublicationsYet: Публикаций пока не было
-NoOperationsYet: Операций не было
+NoOperationsYet: Нет операций
 OperationDepositShort: Ввод
 OperationExchangeShort: Обмен
 OperationWithdrawShort: Вывод
@@ -275,9 +275,11 @@ FormSumbitConfirmTransfer: Перевод выполнен
 StocksTokensAccrued: токенов начислено
 PageTitleStocksDetailsAbbr stocksAbbr@Text: Подробности покупки акции #{stocksAbbr}
 PageTitleStocksArchive: Архив операций
+PageTitleStocksAccepted: Проведённые операции
 PageTitleStocksPending: Неподтверждённые заявки
 PageBreadcrumbTitleStocksIndex: Акции
 PageBreadcrumbTitleStocksArchive: Архив операций
+PageBreadcrumbTitleStocksAccepted: Проведённые операций
 PageBreadcrumbTitleStocksDetails: Информация о покупке
 
 GuideTransferFunds: Переведите средства на указанный адрес

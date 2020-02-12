@@ -21,22 +21,46 @@ import           Text.Julius            ( rawJS )
 
 getOperatorStocksPurchaseIndexR :: Handler Html
 getOperatorStocksPurchaseIndexR = do
-    render <- getMessageRender
-    let linkText = render MsgPageTitleStocksArchive
-        route = OperatorStocksPurchaseArchiveR
-    getOperatorStocksGenericRoute queryPendingPurchases linkText route
+    let archiveLinkText = MsgPageTitleStocksArchive
+        archiveRoute = OperatorStocksPurchaseArchiveR
+        allLinkText = MsgPageTitleStocksAccepted
+        allRoute = OperatorStocksPurchaseAcceptedR
+        links = [whamlet|
+            <a href=@{archiveRoute}>_{archiveLinkText}
+            <a .ml-3 href=@{allRoute}>_{allLinkText}
+            |]
+    getOperatorStocksGenericRoute queryPendingPurchases links
+
 
 getOperatorStocksPurchaseArchiveR :: Handler Html
 getOperatorStocksPurchaseArchiveR = do
-    render <- getMessageRender
-    let linkText = render MsgPageTitleStocksPending
-        route = OperatorStocksPurchaseIndexR
-    getOperatorStocksGenericRoute queryAllPurchases linkText route
+    let archiveLinkText = MsgPageTitleStocksPending
+        archiveRoute = OperatorStocksPurchaseIndexR
+        allLinkText = MsgPageTitleStocksAccepted
+        allRoute = OperatorStocksPurchaseAcceptedR
+        links = [whamlet|
+            <a href=@{archiveRoute}>_{archiveLinkText}
+            <a .ml-3 href=@{allRoute}>_{allLinkText}
+            |]
+    getOperatorStocksGenericRoute queryAllPurchases links
+
+getOperatorStocksPurchaseAcceptedR :: Handler Html
+getOperatorStocksPurchaseAcceptedR = do
+    let newLinkText = MsgPageTitleStocksPending
+        newRoute = OperatorStocksPurchaseIndexR
+        allLinkText = MsgPageTitleStocksArchive
+        allRoute = OperatorStocksPurchaseArchiveR
+        links = [whamlet|
+            <a href=@{newRoute}>_{newLinkText}
+            <a .ml-3 href=@{allRoute}>_{allLinkText}
+            |]
+    getOperatorStocksGenericRoute queryAcceptedPurchases links
+
 
 getOperatorStocksGenericRoute ::
        (MonadIO m, m ~ Handler)
-    => SqlPersistT m [FullPurchaseDetails] -> Text -> Route App -> Handler Html
-getOperatorStocksGenericRoute queryList linkText route = do
+    => SqlPersistT m [FullPurchaseDetails] -> Widget -> Handler Html
+getOperatorStocksGenericRoute queryList links = do
     _ <- requireOperatorId
     renderUrl <- getUrlRender
     list <- runDB queryList
@@ -45,7 +69,6 @@ getOperatorStocksGenericRoute queryList linkText route = do
             else [whamlet|
                 <span .mt-2 .text-muted>
                     _{MsgNoOperationsYet}|]
-    let url = renderUrl route
     defaultLayout $ do
         $(widgetFile "operator/common")
         $(widgetFile "operator/stocks/purchase/index")
@@ -176,6 +199,17 @@ queryPendingPurchases = select . from $
         pendingPurchaseConditions q
         return (p, s, a, u, e)
 
+queryAcceptedPurchases :: MonadIO m => SqlPersistT m [FullPurchaseDetails]
+queryAcceptedPurchases = select . from $
+    \q@(e `InnerJoin` u `InnerJoin` p `InnerJoin` s `InnerJoin` a) -> do
+        purchaseDataJoins q
+        orderBy
+            [ asc (p ^. StocksPurchaseUserConfirmed)
+            , asc (p ^. StocksPurchaseCreated) ]
+        acceptedPurchaseConditions q
+        return (p, s, a, u, e)
+
+
 purchaseDataJoins ::
        (   SqlExpr (Entity Email)
            `InnerJoin` SqlExpr (Entity User)
@@ -208,6 +242,23 @@ pendingPurchaseConditions =
             -- &&. (E.isNothing (p ^. StocksPurchaseAcceptedBy))
             &&. (E.isNothing (p ^. StocksPurchaseAcceptedByIdent))
             )
+
+acceptedPurchaseConditions ::
+       (   SqlExpr (Entity Email)
+           `InnerJoin` SqlExpr (Entity User)
+           `InnerJoin` SqlExpr (Entity StocksPurchase)
+           `InnerJoin` SqlExpr (Entity Stocks)
+           `InnerJoin` SqlExpr (Entity StocksActive)
+       )
+    -> SqlQuery ()
+acceptedPurchaseConditions =
+    \(_ `InnerJoin` _ `InnerJoin` p `InnerJoin` _ `InnerJoin` _) -> do
+        where_
+            (   (not_ $ E.isNothing (p ^. StocksPurchaseUserConfirmed))
+            &&. (not_ $ E.isNothing (p ^. StocksPurchaseAccepted))
+            &&. (E.isNothing (p ^. StocksPurchaseCancelled))
+            )
+
 
 type FullPurchaseDetails
     = (Ent StocksPurchase, Ent Stocks, Ent StocksActive, Ent User, Ent Email)

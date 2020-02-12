@@ -9,10 +9,11 @@
             <div .col-12 .mt-2>
                 <div .d-flex .justify-content-between>
                     <div>
-                        <span .amount>#{stocksAmount}
-                        <small .text-muted>
-                            _{MsgPiecesShort},
-                            <span .text-uppercase>#{stocksPackName}
+                        <a href=@{OperatorStocksPurchaseDetailsR pid}>
+                            <span .amount>#{stocksAmount}
+                            <small .text-muted>
+                                _{MsgPiecesShort},
+                                <span .text-uppercase>#{stocksPackName}
                     <div>
                         <small .text-muted>
                             ^{dateCreated}

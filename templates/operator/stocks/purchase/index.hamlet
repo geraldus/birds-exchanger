@@ -1,7 +1,6 @@
 <div .container-fluid .stocks-purchase-index .mb-5 .px-0>
     <div .row>
         <div .col-12 .text-right>
-            <a href="#{url}">
-                #{linkText}
+            ^{links}
     <div .row>
         ^{body}

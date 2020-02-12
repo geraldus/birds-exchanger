@@ -56,6 +56,7 @@
 /operator/user-history/#UserId       OperatorUserHistoryR              GET
 /operator/stocks/purchase            OperatorStocksPurchaseIndexR      GET
 /operator/stocks/purchase/archive    OperatorStocksPurchaseArchiveR    GET
+/operator/stocks/purchase/accepted   OperatorStocksPurchaseAcceptedR   GET
 /operator/stocks/purchase/confirm/#StocksPurchaseId OperatorStocksPurchaseConfirmationR POST
 !/operator/stocks/purchase/#StocksPurchaseId OperatorStocksPurchaseDetailsR GET
 /info/manage/index                   ManageInfoIndexR                  GET

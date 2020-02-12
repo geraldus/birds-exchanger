@@ -386,6 +386,7 @@ instance Yesod App where
     isAuthorized OperatorDeclineWithdrawalRequestR _ = isStaffAuthenticated
     isAuthorized OperatorStocksPurchaseIndexR _      = isOperatorAuthenticated
     isAuthorized OperatorStocksPurchaseArchiveR _    = isOperatorAuthenticated
+    isAuthorized OperatorStocksPurchaseAcceptedR _   = isOperatorAuthenticated
     isAuthorized (OperatorStocksPurchaseDetailsR _) _ = isOperatorAuthenticated
     isAuthorized (OperatorStocksPurchaseConfirmationR _) _ = isOperatorAuthenticated
     isAuthorized (OperatorUserHistoryR _) _          = isOperatorAuthenticated
@@ -528,6 +529,9 @@ instance YesodBreadcrumbs App where
             return (mr MsgPageBreadcrumbTitleStocksIndex, Nothing)
         breadcrumb' _ mr OperatorStocksPurchaseArchiveR =
             return ( mr MsgPageBreadcrumbTitleStocksArchive
+                   , Just OperatorStocksPurchaseIndexR)
+        breadcrumb' _ mr OperatorStocksPurchaseAcceptedR =
+            return ( mr MsgPageBreadcrumbTitleStocksAccepted
                    , Just OperatorStocksPurchaseIndexR)
         breadcrumb' _ mr (OperatorStocksPurchaseDetailsR _) =
             return ( mr MsgPageBreadcrumbTitleStocksDetails
