@@ -1,0 +1,18 @@
+#featured-modal .modal-content
+    box-shadow: 0 0 60px 10px #ef7f1a96
+    border-radius: 0.5em
+
+#featured-modal .checkmark
+    color: transparent
+    border: 1px solid #687078
+    width: 20px
+    height: 20px
+    display: inline-block
+    padding-left: 5px
+    padding-top: 3px
+    font-size: 12px
+    line-height: 12px
+    margin-right: 4px
+
+#featured-modal .toggle .checkmark
+    color: white

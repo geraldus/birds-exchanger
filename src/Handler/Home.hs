@@ -64,6 +64,7 @@ getFenixTradingHomeR = do
     let stocksAvailabilityW = renderActivesLeft stocksActives
     defaultLayout $ do
         setAppPageTitle MsgHomePageTitle
+        $(widgetFile "page/index/generic")
         $(widgetFile "messages/fenix-stocks/pack-desc/generic")
         $(widgetFile "index")
   where
@@ -115,6 +116,7 @@ getOutbInfoHomeR = do
     let bgSrc = StaticR images_bg_050119_png
     defaultLayout $ do
         setAppPageTitle MsgHomePageTitle
+        $(widgetFile "page/index/generic")
         $(widgetFile "homepage")
 
 -- * Utils

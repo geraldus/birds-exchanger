@@ -4,27 +4,12 @@
 .masthead .form-control
     border: 1px solid #666
 
-.info-button .logo
-    width: 25px
-    height: 25px
-
 #clickable-order-modal .modal-content
     background-color: #1a1c1d
     border: 1px solid #666
 
-
 .order-col > *.hide
     display: none
-
-#featured-modal .modal-content
-    box-shadow: 0 0 60px 10px #ef7f1a96
-    border-radius: 0.5em
-
-#featured-modal .checkmark
-    opacity: 0
-
-#featured-modal .toggle .checkmark
-    opacity: 1
 
 #clickable-order-modal .title
     color: #e9ecef
