@@ -167,8 +167,8 @@ featuredModal = do
                     Just ""    -> infoContentHtml info
                     Just desc' -> desc'
                     _          -> infoContentHtml info
-            wrapId <- newIdent
-            proj <- appType . appSettings <$> getYesod
+            wrapId     <- newIdent
+            proj       <- toLower $ appType . appSettings <$> getYesod
             cookieName <- appHiddenNewsCookieName . appSettings <$> getYesod
             let (host, _) = projectNameHost proj
             $(widgetFile "modal/featured-news")
