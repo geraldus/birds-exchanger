@@ -14,7 +14,7 @@ $(document).ready(() => {
         Cookies.set(
             cookieName,
             JSON.stringify([...markedNews]),
-            { domain: '#{host}', expires: 60 }
+            { domain: '#{rawJS (toLower hostName)}', expires: 60 }
         )
         Cookies.set(
             cookieName,
