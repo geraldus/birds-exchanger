@@ -51,7 +51,7 @@ getEditorArticleUpdateR aid = do
     defaultLayout $ do
         addScript (StaticR js_ckeditor5_ckeditor_js)
         $(widgetFile "editor/article-add")
-        setTitle $ toHtml $ mr MsgMenuTitleArticles <> " | " <> mr MsgNewArticle
+        setTitle $ toHtml $ mr MsgMenuTitleArticles <> " | " <> mr MsgEditArticle
         let form = articleSimpleForm
                 (titleVal article, Nothing)
                 (aliasVal article, Nothing)

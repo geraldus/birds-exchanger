@@ -311,6 +311,7 @@ Title: Заголовок
 ThumbUrl: Обложка (URL-путь изображения)
 ArticeContent: Текст статьи
 NewArticle: Новая публикация
+EditArticle: Редактирование публикации
 
 
 # EDITORS
