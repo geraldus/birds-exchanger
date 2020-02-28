@@ -825,6 +825,9 @@ eitherClientToMaybe _                                       = Nothing
 requireOperatorId :: Handler (Either UserId Text)
 requireOperatorId = requireRolesId True [ Operator ] notFound
 
+requireEditorId :: Handler (Either UserId Text)
+requireEditorId = requireRolesId True [ Editor, Admin ] notFound
+
 requireRolesId ::
        Bool
     -> [ UserRole ]
