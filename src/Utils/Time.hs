@@ -109,7 +109,7 @@ dateFormatMNH :: String
 dateFormatMNH = "%e %b %Y"
 
 localeFormatTime :: TimeLocale -> UTCTime -> Text
-localeFormatTime l = pack . formatTime l (timeFmt l)
+localeFormatTime l = pack . formatTime l "%R" -- (timeFmt l)
 
 localeFormatDate :: TimeLocale -> UTCTime -> Text
 localeFormatDate l = pack . formatTime l dateFormatMNH
