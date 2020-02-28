@@ -44,7 +44,7 @@ getInfoListR = do
                     href="@{InfoViewR (infoAlias info)}">
                     #{infoTitle info}
                     <small .text-muted>
-                        (#{renderDateTimeRow l tzo (infoCreated info)})
+                        (#{renderDateTimeRow l tzo (infoCreated info) []})
             |]
 
 getInfoViewR :: Text -> Handler Html
@@ -113,4 +113,4 @@ getInfoViewR alias = do
   dateRow l tzo date = [whamlet|
         <p .mb-3>
             <small .text-muted>
-                #{renderDateTimeRow l tzo date}|]
+                #{renderDateTimeRow l tzo date []}|]

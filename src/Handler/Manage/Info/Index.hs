@@ -45,5 +45,5 @@ getManageInfoIndexR = do
                     href="@{InfoViewR (infoAlias info)}">
                     #{infoTitle info}
                     <small .text-muted>
-                        (#{renderDateTimeRow l tzo (infoCreated info)})
+                        (#{renderDateTimeRow l tzo (infoCreated info) []})
             |]

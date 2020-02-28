@@ -36,12 +36,16 @@ renderDateRow loc tz t = [shamlet|
         ft = formatTime loc "%e %B %Y" utc
         gencase = unwords . map genitiveCase $ words ft
 
-renderDateTimeRow :: TimeLocale -> Int -> UTCTime -> Html
-renderDateTimeRow loc tz t = [shamlet|
-    <span .text-uppercase>
+renderDateTimeRow :: TimeLocale -> Int -> UTCTime -> [Text] -> Html
+renderDateTimeRow loc tz t classes= [shamlet|
+    <span class="#{classList}">
         #{renderDate loc tz t}#
         &#32;&#32;#{renderTime loc tz t}
     |]
+  where
+    classList = case classes of
+        [] -> "text-uppercase"
+        cs -> unwords cs
 
 renderTime :: TimeLocale -> Int -> UTCTime -> Text
 renderTime l tz t = localeFormatTime l (offsetTime tz t)

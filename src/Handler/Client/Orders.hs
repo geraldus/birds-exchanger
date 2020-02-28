@@ -139,7 +139,7 @@ renderOrderTr messageRender urlRender l tzo (Entity orderId order) = [shamlet|
         :isExecuted:.executed
         >
         <td .text-muted .text-center>
-            <small>#{renderDateTimeRow l tzo (exchangeOrderCreated order)}
+            <small>#{renderDateTimeRow l tzo (exchangeOrderCreated order) []}
         <td .text-center>
             <big>
                 #{renderOrderExchange order}
@@ -184,20 +184,20 @@ renderOrderRemainderExecuted l tzo order =
         <span>Полностью исполнен
         <br>
         <small .text-muted>
-            #{renderDateTimeRow l tzo t}
+            #{renderDateTimeRow l tzo t []}
         |]
     renderStatusCancelled t = [shamlet|
         <span>Отменён
         <br>
         <small .text-muted>
-            #{renderDateTimeRow l tzo t}
+            #{renderDateTimeRow l tzo t []}
         |]
     renderStatusPartial t e = [shamlet|
         #{cents2dblT centsLeft}&nbsp;<small>#{renderPairOut pair}</small> / #
         #{cents2dblT e}&nbsp;<small>#{renderPairOut pair}</small>
         <br>
         <small .text-muted>
-            #{renderDateTimeRow l tzo t}
+            #{renderDateTimeRow l tzo t []}
         |]
     centsLeft = exchangeOrderAmountLeft order
     pair = exchangeOrderPair order
@@ -209,7 +209,7 @@ orderOperationTr pair (Entity _ op) = do
     toWidget [whamlet|
         <tr .data-row>
             <td .text-center>
-                <small>#{renderDateTimeRow l tzo (exchangeOrderExecutionTime op)}
+                <small>#{renderDateTimeRow l tzo (exchangeOrderExecutionTime op) []}
             <td>
                 <small>_{MsgExchange} #
                 <span>
@@ -264,7 +264,7 @@ orderStatus' stName stDesc time = do
         <small .text-muted>
             ^{stDesc}
         <br>
-        <small>#{renderDateTimeRow l tzo time}
+        <small>#{renderDateTimeRow l tzo time []}
         |]
 
 renderMobileList :: [ Entity ExchangeOrder ] -> TimeLocale -> Int -> Widget

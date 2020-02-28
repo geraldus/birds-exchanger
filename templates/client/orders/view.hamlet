@@ -103,7 +103,7 @@
             ^{orderOperationTr pair operation}
         <tr .data-row>
             <td .text-center>
-                <small>#{renderDateTimeRow l tzo created}
+                <small>#{renderDateTimeRow l tzo created []}
             <td>
                 <small>_{MsgOrderCreated} #
             <td .text-center>
