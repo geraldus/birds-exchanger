@@ -22,6 +22,7 @@ MenuTitleTermsOfUse: Правила
 MenuTitleSignUp: Регистрация
 MenuTitleSignIn: Вход
 MenuTitleSignOut: Выход
+MenuTitleArticles: Публикации
 
 MenuTitleClientHistory: История операций
 MenuTitleClientOrders: Мои ордера
@@ -303,16 +304,28 @@ FormSubmitOperatorAcceptStocksPurchase: подтвердить покупку а
 WithdrawalExecuted: Перевод выполнен
 
 InfoListTitle: Информация
+ArticlesListTitle: Публикации
+BreadcrumbsTitleArticlesList: Публикации
 Alias: Ссылка
 Title: Заголовок
 ThumbUrl: Обложка (URL-путь изображения)
 ArticeContent: Текст статьи
-NewArticle: Новая статья
+NewArticle: Новая публикация
 
 
 # EDITORS
 
 EditMenuTitle: Редактирование
+BreadcrumbsTitleEditorArticles: Управление публикациями
+BreadcrumbsTitleEditorArticleAdd: Новая публикация
+BreadcrumbsTitleEditorArticleUpdate: Редактирование публикации
+FormLabelArticlePublished: Опубликовано
+FormLabelSEOMetaTitle: Заголовок
+FormLabelSEOMetaKeywords: Ключевые слова
+FormLabelSEOMetaDesc: Описание
+FormLabelPublishedAt: Дата публикации
+FormPlaceholderSEOMetaKeywords: список ключевых слов через запятую
+ActionLabelArticleEdit: Редактировать публикацию
 
 
 # SUPER USERS
