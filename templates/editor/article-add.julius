@@ -1,0 +1,59 @@
+$(document).ready(() => {
+    if (!window.CKEDITOR) return;
+    const { ClassicEditor, InlineEditor } = CKEDITOR
+    const contentHostId = '#content-html-editor'
+    const contentData = $('#content-html-data')
+
+    // InlineEditor
+    ClassicEditor
+        .create(document.querySelector(contentHostId), {
+            mediaEmbed: {
+                previewsInData: true,
+                extraProviders: [
+                    {
+                        name: 'ckeditor',
+                        url: /^ckeditor\.com/
+                    }
+                ]
+            }
+        })
+        .then(editor => {
+            editor.model.document.on('change:data', () => {
+                contentData.val(editor.getData())
+            })
+        })
+    const descHostId = '#desc-html-editor'
+    const descData = $('#desc-html-data')
+    // InlineEditor
+    ClassicEditor
+        .create(document.querySelector(descHostId), {
+            mediaEmbed: {
+                previewsInData: true,
+                extraProviders: [
+                    {
+                        name: 'ckeditor',
+                        url: /^ckeditor\.com/
+                    }
+                ]
+            }
+        })
+        .then(editor => {
+            editor.model.document.on('change:data', () => {
+                descData.val(editor.getData())
+            })
+        })
+    const publishedAtId = '#published-at-input'
+    const publishedAtInput = $(publishedAtId)
+    const publishedAtData = $(`${publishedAtId}-data`)
+    publishedAtInput.datepicker({
+        onSelect: (a, b, c) => { publishedAtData.val(b.getTime()) },
+    })
+    const datepicker = publishedAtInput.datepicker().data('datepicker')
+    const date = new Date()
+    const val = publishedAtData.val()
+    if (val != '') {
+        date.setTime(val)
+        datepicker.selectDate(date)
+    }
+
+})

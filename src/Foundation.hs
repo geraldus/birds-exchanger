@@ -191,6 +191,12 @@ instance Yesod App where
                 stocksItems
                 <>
                 [ NavbarLeft $ MenuItem
+                    { menuItemLabel = mr MsgMenuTitleArticles
+                    , menuItemRoute = ArticlesListR
+                    , menuItemAccessCallback = True }
+                ]
+                <>
+                [ NavbarLeft $ MenuItem
                     { menuItemLabel = mr MsgMenuTitleNews
                     , menuItemRoute = InfoListR
                     , menuItemAccessCallback = True }
@@ -258,6 +264,10 @@ instance Yesod App where
                 [ MenuItem
                     { menuItemLabel = mr MsgInfo
                     , menuItemRoute = ManageInfoIndexR
+                    , menuItemAccessCallback = isEditorLoggedIn }
+                , MenuItem
+                    { menuItemLabel = mr MsgMenuTitleArticles
+                    , menuItemRoute = EditorArticlesIndexR
                     , menuItemAccessCallback = isEditorLoggedIn } ]
 
         let suMenuItems =
@@ -300,6 +310,9 @@ instance Yesod App where
 
         setReferrerHttpOnlyCookie
         pc <- widgetToPageContent $ do
+            case currentRoute of
+                (Just (ArticleViewR a)) -> articleMetasToWidgetHead a
+                _ -> return ()
             addStylesheetAttrs
                 (StaticR _3rd_party_fontawesome_css_all_min_css)
                 [("defer", "defer")]
@@ -352,8 +365,8 @@ instance Yesod App where
     isAuthorized PasswordChangeGuideR _              = return Authorized
     isAuthorized (PasswordResetR _) _                = return Authorized
     isAuthorized PublicNotificationsWebSocketR _     = return Authorized
-    isAuthorized ClientNotificationsWebSocketR _     = isClientAuthenticated
     -- CLIENT
+    isAuthorized ClientNotificationsWebSocketR _     = isClientAuthenticated
     isAuthorized ClientRequestEmailVerificationR _   = return Authorized
     isAuthorized ProfileR _                          = notFound >> isAuthenticated
     isAuthorized DepositR _                          = notFound >> isClientAuthenticated
@@ -391,6 +404,10 @@ instance Yesod App where
     isAuthorized (OperatorStocksPurchaseConfirmationR _) _ = isOperatorAuthenticated
     isAuthorized (OperatorUserHistoryR _) _          = isOperatorAuthenticated
     isAuthorized OperatorWebSocketR _                = isOperatorAuthenticated
+    -- EDITORS
+    isAuthorized EditorArticlesIndexR _              = isEditorAuthenticated
+    isAuthorized EditorArticleAddR _                 = isEditorAuthenticated
+    isAuthorized (EditorArticleUpdateR _) _          = isEditorAuthenticated
     -- ADMINS
     isAuthorized ManageInfoIndexR _                  = isEditorAuthenticated
     isAuthorized ManageInfoAddR _                    = isEditorAuthenticated
@@ -401,6 +418,8 @@ instance Yesod App where
     isAuthorized SuperUserFinancialReportViewR _     = isSuperUserAuthenticated
     isAuthorized SuperUserWebSocketR _               = isSuperUserAuthenticated
     -- ALL: Common routes (guests including)
+    isAuthorized ArticlesListR _                     = return Authorized
+    isAuthorized (ArticleViewR _) _                  = return Authorized
     isAuthorized InfoListR _                         = return Authorized
     isAuthorized (InfoViewR _) _                     = return Authorized
     isAuthorized TermsOfUseR _                       = return Authorized
@@ -410,6 +429,8 @@ instance Yesod App where
     isAuthorized APIUserPasswordChangeR _            = return Authorized
     isAuthorized APIStocksAvailabilityR _            = return Authorized
     isAuthorized APINewsListR _                      = return Authorized
+    isAuthorized APIArticleAddR _                    = isEditorAuthenticated
+    isAuthorized (APIArticleUpdateR _) _             = isEditorAuthenticated
     isAuthorized APIStocksOperatorCancelPurchaseR _  =
         authorizeRoles [ Local.Persist.UserRole.SuperUser, Admin, Operator ]
     isAuthorized LPHandler0001R _                    = return Authorized
@@ -474,6 +495,18 @@ instance Yesod App where
 
     errorHandler other = defaultErrorHandler other
 
+articleMetasToWidgetHead :: Text -> Widget
+articleMetasToWidgetHead alias = do
+    a <- liftHandler $ runDB $ getBy $ UniqueArticleAlias alias
+    case a of
+        Nothing -> return mempty
+        Just (Entity _ article) -> toWidgetHead $ [shamlet|
+            $maybe metaDesc <- articleMetaDesc article
+                <meta name=description content="#{metaDesc}"/>
+            $maybe metaKWords <- articleMetaKWords article
+                <meta name=keywords content="#{metaKWords}"/>
+            |]
+
 -- Define breadcrumbs.
 instance YesodBreadcrumbs App where
     -- Takes the route that the user is currently on, and returns a tuple
@@ -536,6 +569,16 @@ instance YesodBreadcrumbs App where
         breadcrumb' _ mr (OperatorStocksPurchaseDetailsR _) =
             return ( mr MsgPageBreadcrumbTitleStocksDetails
                    , Just OperatorStocksPurchaseIndexR )
+        breadcrumb' _ mr EditorArticlesIndexR =
+            return ( mr MsgBreadcrumbsTitleEditorArticles
+                   , Just HomeR )
+        breadcrumb' _ mr EditorArticleAddR =
+            return ( mr MsgBreadcrumbsTitleEditorArticleAdd
+                   , Just EditorArticlesIndexR )
+        breadcrumb' _ mr (EditorArticleUpdateR _) =
+            return (mr MsgBreadcrumbsTitleEditorArticleUpdate
+                   , Just EditorArticlesIndexR )
+
         breadcrumb' _ _ SuperUserFinancialReportViewR =
             return ("Финансовая отчётность", Just HomeR)
         breadcrumb' _ _ AdminLogInR =
@@ -545,6 +588,11 @@ instance YesodBreadcrumbs App where
         breadcrumb' _ _ (InfoViewR alias) = do
             i <- runDB $ getBy404 (UniqueInfoAlias alias)
             return ((infoTitle . entityVal) i, Just InfoListR)
+        breadcrumb' _ mr ArticlesListR =
+            return (mr MsgBreadcrumbsTitleArticlesList, Just HomeR)
+        breadcrumb' _ _ (ArticleViewR alias) = do
+            i <- runDB $ getBy404 (UniqueArticleAlias alias)
+            return ((articleTitle . entityVal) i, Just ArticlesListR)
         breadcrumb' _ mr ManageInfoIndexR =
                 return (mr MsgManage <> " / " <> mr MsgInfo, Just HomeR)
         breadcrumb' _ mr ManageInfoAddR =

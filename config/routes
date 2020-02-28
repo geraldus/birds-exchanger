@@ -11,9 +11,13 @@
 
 /news                                InfoListR                         GET
 /news/#Text                          InfoViewR                         GET
+/articles                            ArticlesListR                     GET
+/article/#Text                       ArticleViewR                      GET
 /terms                               TermsOfUseR                       GET
 /stocks                              StocksR                           GET
 /public-notices                      PublicNotificationsWebSocketR     GET
+
+-- CLIENTS
 /client-notices                      ClientNotificationsWebSocketR     GET
 
 /password-change                     PasswordChangeR                   GET
@@ -24,10 +28,8 @@
 /client/request-email-verification   ClientRequestEmailVerificationR   GET POST
 
 /profile                             ProfileR                          GET
-
 /orders                              ClientOrdersR                     GET
 /order/#ExchangeOrderId              ClientOrderViewR                  GET
-
 /deposit                             DepositR                          GET POST
 /withdrawal                          WithdrawalR                       GET
 /settings                            ClientSettingsR                   GET
@@ -38,7 +40,6 @@
 /profile/deposit/confirmation/#Text  DepositRequestConfirmationR       GET
 /client/deposit/confirm              DepositConfirmRequestR                POST
 /client/deposit/cancel               ClientCancelDepositR                  POST
-
 /client/withdrawal/create            WithdrawalCreateR                     POST
 /client/withdrawal/cancel            ClientCancelWithdrawalR               POST
 
@@ -46,6 +47,7 @@
 /client/stocks/purchase/#Text        ClientStocksPurchaseDetailsR      GET
 /client/stocks/purchase/confirm/#Text ClientStocksPurchaseConfirmationR    POST
 
+-- OPERATORS
 /operator/login                      OperatorLogInR  GET
 /operator/deposit-requests-list      OperatorDepositRequestsListR      GET
 /operator/accept-deposit-request     OperatorAcceptDepositRequestR     POST
@@ -64,6 +66,10 @@
 /info/manage/update                  ManageInfoUpdateR                 POST
 /operator/websocket                  OperatorWebSocketR                GET
 
+-- EDITORS
+/editor/article/list                 EditorArticlesIndexR              GET
+/editor/article/add                  EditorArticleAddR                 GET
+/editor/article/update/#ArticleId    EditorArticleUpdateR              GET
 
 -- SUPER USERS
 /su/websocket                        SuperUserWebSocketR               GET
@@ -79,6 +85,8 @@
 /api/app/config                  APIAppConfigR                         GET
 /api/auth/authenticate           APIAuthAuthenticateNoTokenR               POST
 /api/news/list                   APINewsListR                          GET
+/api/articles/add                APIArticleAddR                        POST
+/api/articles/update/#ArticleId  APIArticleUpdateR                     POST
 /api/stocks/get-availability     APIStocksAvailabilityR                GET
 /api/operator/stocks/purchase/cancel APIStocksOperatorCancelPurchaseR      POST
 

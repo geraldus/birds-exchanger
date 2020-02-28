@@ -203,6 +203,21 @@ Info json
     UniqueInfoAlias alias
     deriving Show
 
+Article json
+    title Text
+    alias Text
+    contentHtml Text
+    created UTCTime default=now() AT TIME ZONE 'UTC'
+    publishedAt UTCTime Maybe
+    published Bool
+    thumbUrl Text Maybe default=null
+    descHtml Text Maybe default=null
+    metaTitle Text Maybe
+    metaDesc Text Maybe
+    metaKWords Text Maybe
+    UniqueArticleAlias alias
+    deriving Show
+
 Notice json
     type NoticeType
     subject NoticeSubject Maybe default='NoticeSubjectUndefined'
