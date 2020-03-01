@@ -116,7 +116,7 @@
                     Приобрести
             ^{stocksAvailabilityW "FNXP"}
 
-<section .container-fliud .quick-purchase .p-4>
+<section .container-fluid .quick-purchase .p-4>
     <div .row>
         <div .col-12>
             <p .heading .text-center>
@@ -181,5 +181,10 @@
                         <div .form-group>
                             <button #stocks-form-submit .btn .w-100>Купить
 
+<section .container-fluid .p-4>
+    <div .row .my-5>
+        <div .col-12 .mb-4>
+            <h4 .text-uppercase>_{MsgTechnicalRoadmap}
+            ^{fenixRoadmap}
 
 ^{featured}

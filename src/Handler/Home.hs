@@ -397,3 +397,7 @@ selectPair (Just c1) (Just c2)
     | c2 == "pzm" && c1 == "ouro" =
         defPairDir ExchangeOurPzm
     | otherwise = defPairDir ExchangePzmRur
+
+
+fenixRoadmap :: Widget
+fenixRoadmap = $(widgetFile "page/index/tech-roadmap")

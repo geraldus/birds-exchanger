@@ -205,6 +205,7 @@ DepositMethod: Способ пополнения
 TransferMethod: Способ перевода
 BuyMethod: Способ покупки
 SellMethod: Способ продажи
+TechnicalRoadmap: Дорожная карта тех.разработки
 
 
 # DEPOSIT / WITHDRAWAL
