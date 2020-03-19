@@ -51,33 +51,43 @@ apiAdminSafelyCreateUser login role pass = do
 
 
 apiAdminSafelyUpdateUser ::
-    UserId -> Text -> UserRole -> Text -> Handler (Maybe (Entity User, Entity Email))
+    UserId -> Text -> UserRole -> Maybe Text -> Handler (Maybe (Entity User, Entity Email))
 apiAdminSafelyUpdateUser uid login role pass = do
     _ <- requireAdminId
     existingTargetUser <- runDB $ get uid
     existingNewName <- runDB . getBy $ UniqueUser login
     case existingTargetUser of
         Nothing -> return Nothing
-        Just oldUserData -> case existingNewName of
+        Just _  -> case existingNewName of
+            Just _  -> return Nothing
             Nothing -> do
-                hashedPass <- liftIO $
-                    decodeUtf8 <$> makePassword (encodeUtf8 pass) 14
-                let passwordUpdate = if length pass > 0
-                        then [ UserPassword =. Just hashedPass ]
-                        else [ ]
-                let params = 
+                passwordUpdate <- case pass of
+                        Nothing -> pure [ ]
+                        Just pass' -> do
+                            hashedPass <- liftIO $ decodeUtf8 
+                                <$> makePassword (encodeUtf8 pass') 14
+                            return $ if length pass' > 0
+                                then [ UserPassword =. Just hashedPass ]
+                                else [ ]
+                let params =
                         [ UserIdent =. login
-                        , UserRole =. role ] 
+                        , UserRole  =. role ]
                         <> passwordUpdate
-                newUserData <- updateGet uid params
-                email <- updateUserEmail uid login
-                -- todo seek and update Email
-                return (Just (Entity uid newUserData, Entity eid email))
-            Just _ -> return Nothing
-  where 
-    updateUserEmail :: UserId -> Text -> Handler (Entity Email)
-    updateUserEmail uid login = do
-        existing <- runDB $ selectFirst [ EmailUser ==. Just uid ]
+                newUserData <- runDB $ updateGet uid params
+                email <- updateUserEmailRecord
+                return (Just (Entity uid newUserData, email))
+  where
+    updateUserEmailRecord :: Handler (Entity Email)
+    updateUserEmailRecord = do
+        existing <- runDB $ selectFirst [ EmailUserId ==. Just uid ] []
         case existing of
-            Nothing -> createEmail
-            Just e  -> error "123"
+            Nothing -> createEmailUnsafe
+            Just (Entity oldEmailRecordId _)  -> do
+                runDB $ delete oldEmailRecordId
+                createEmailUnsafe
+
+    createEmailUnsafe :: Handler (Entity Email)
+    createEmailUnsafe = do
+        let email = Email login (Just uid) Nothing
+        eid <- runDB $ insert email
+        return (Entity eid email)

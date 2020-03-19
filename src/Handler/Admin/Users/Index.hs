@@ -6,9 +6,9 @@ import           Import
 
 import           Handler.API.Admin.Users.List ( apiAdminDoesUserExists,
                                                 apiAdminSafelyCreateUser,
+                                                apiAdminSafelyUpdateUser,
                                                 apiAdminUsersList )
 import           Local.Persist.UserRole
-import           Text.Pretty.Simple           ( pShowNoColor )
 
 import           Data.Text                    ( strip )
 import           Text.Julius                  ( RawJS (rawJS) )
@@ -71,20 +71,20 @@ postAdminUsersUpdateR :: UserId -> Handler Html
 postAdminUsersUpdateR uid = do
     _ <- requireAdminId
     (username, usertype, password) <- runPostForm
-    created <- apiAdminSafelyUpdateUser username usertype password
+    created <- apiAdminSafelyUpdateUser uid username usertype password
     case created of
         Nothing -> do
-            addMessage "user-form" "Ошибка создания пользователя."
+            addMessage "user-form" "Ошибка обновления пользователя."
             redirect AdminUsersCreateR
         Just (Entity _ usr, _) -> do
             addMessage "user-form" $ toHtml $
-                "Пользователь " <> (userIdent usr) <> " создан."
+                "Пользователь " <> (userIdent usr) <> " изменён."
             redirect AdminUsersCreateR
   where
     runPostForm = runInputPost $ (,,)
         <$> (strip <$> ireq textField "ident")
         <*> (textToUserRoleUnsafe <$> ireq textField "usertype")
-        <*> ireq textField "password"
+        <*> iopt textField "password"
 
 textToUserRoleUnsafe :: Text -> UserRole
 textToUserRoleUnsafe "Client"   = Client
