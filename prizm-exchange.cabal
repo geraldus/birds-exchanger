@@ -1,0 +1,347 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: b5cbf79a4360d42999bd8e126731d9e7a50fe5bac1e392da858d0d697fcab1a8
+
+name:           prizm-exchange
+version:        0.15.16
+build-type:     Simple
+
+flag dev
+  description: Turn on development settings, like auto-reload templates.
+  manual: False
+  default: False
+
+flag library-only
+  description: Build for use with "yesod devel"
+  manual: False
+  default: False
+
+library
+  exposed-modules:
+      Application
+      Form.Auth.SignUp
+      Form.Client.PersonalData
+      Form.Exchanger.Order
+      Form.Money
+      Form.Profile.Deposit
+      Form.Profile.Withdrawal
+      Foundation
+      Handler.Admin
+      Handler.Admin.LogIn
+      Handler.Admin.Users
+      Handler.Admin.Users.Index
+      Handler.API.Admin.Users.List
+      Handler.API.App
+      Handler.API.Auth
+      Handler.API.Client.Password
+      Handler.API.News
+      Handler.API.Render.Stocks.ListItem
+      Handler.API.Stocks
+      Handler.APIs
+      Handler.Articles
+      Handler.Client
+      Handler.Client.Deposit
+      Handler.Client.EmailVerification
+      Handler.Client.HandleDeposit
+      Handler.Client.HandleWithdrawal
+      Handler.Client.Order.Create
+      Handler.Client.Orders
+      Handler.Client.Paramining
+      Handler.Client.Settings
+      Handler.Client.Stocks.Purchase
+      Handler.Client.Stocks.Purchase.Confirmation
+      Handler.Client.Stocks.Purchase.Details
+      Handler.Client.Withdrawal
+      Handler.Common
+      Handler.Editor
+      Handler.Editor.Articles.Add
+      Handler.Editor.Articles.Index
+      Handler.Editor.Articles.Update
+      Handler.Home
+      Handler.Info
+      Handler.LP.LP0001
+      Handler.Manage.Info.Add
+      Handler.Manage.Info.Index
+      Handler.Manage.Info.Update
+      Handler.Operator.DepositRequestsList
+      Handler.Operator.HandleDeposit
+      Handler.Operator.HandleWithdrawal
+      Handler.Operator.LogIn
+      Handler.Operator.Stocks.Purchase.Confirmation
+      Handler.Operator.Stocks.Purchase.Details
+      Handler.Operator.Stocks.Purchase.Index
+      Handler.Operator.User.History
+      Handler.Operator.WebSocket
+      Handler.Operator.WithdrawalRequest
+      Handler.Profile
+      Handler.SignUp
+      Handler.SignUpVerification
+      Handler.Stocks
+      Handler.SuperUser.FinancialReport
+      Handler.SuperUser.Notice
+      Handler.SuperUser.Notice.Index
+      Handler.SuperUser.Notice.Paramining.UserList
+      Handler.SuperUser.WebSocket
+      Handler.TermsOfUse
+      Handler.WebSocket.Client
+      Handler.WebSocket.Public
+      Handler.Widgets.Widgets
+      Import
+      Import.NoFoundation
+      Local.Auth
+      Local.Auth.Plugin
+      Local.Params
+      Local.Persist.Currency
+      Local.Persist.DepositProgram
+      Local.Persist.Exchange
+      Local.Persist.Notice
+      Local.Persist.ReferralBounty
+      Local.Persist.TransferMethod
+      Local.Persist.UserRole
+      Local.Persist.Wallet
+      Market.Functions
+      Market.Type
+      Model
+      Settings
+      Settings.MailRu
+      Settings.StaticFiles
+      Stocks.Widgets
+      Type.App
+      Type.Auth.SignUp
+      Type.Auth.SuperUser
+      Type.Fee
+      Type.Money
+      Type.Stocks
+      Type.Wallet
+      Type.Withdrawal
+      Utils.App.Client
+      Utils.App.Common
+      Utils.Common
+      Utils.Database.Operations
+      Utils.Database.Orders
+      Utils.Database.Password
+      Utils.Database.Stocks
+      Utils.Database.User
+      Utils.Database.User.Referral
+      Utils.Database.User.Stocks
+      Utils.Database.User.Wallet
+      Utils.Deposit
+      Utils.Form
+      Utils.I18n
+      Utils.Marshal
+      Utils.Money
+      Utils.QQ
+      Utils.Render
+      Utils.Stocks
+      Utils.Time
+      Utils.Type
+      Utils.Withdrawal
+  other-modules:
+      Paths_prizm_exchange
+  hs-source-dirs:
+      src
+  default-extensions: TemplateHaskell QuasiQuotes NoImplicitPrelude
+  build-depends:
+      HaskellNet
+    , HaskellNet-SSL
+    , aeson >=0.6 && <1.5
+    , aeson-pretty
+    , base >=4.8.2.0 && <4.9 || >=4.9.1.0 && <5
+    , blaze-html
+    , blaze-markup
+    , bytestring >=0.9 && <0.11
+    , case-insensitive
+    , classy-prelude >=1.4 && <1.6
+    , classy-prelude-conduit >=1.4 && <1.6
+    , classy-prelude-yesod >=1.4 && <1.6
+    , conduit >=1.0 && <2.0
+    , containers
+    , data-default
+    , directory >=1.1 && <1.4
+    , esqueleto
+    , fast-logger >=2.2 && <2.5
+    , file-embed
+    , foreign-store
+    , formatting
+    , hjsmin >=0.1 && <0.3
+    , http-client
+    , http-client-tls
+    , http-conduit >=2.3 && <2.4
+    , mime-mail
+    , monad-control >=0.3 && <1.1
+    , monad-logger >=0.3 && <0.4
+    , network
+    , nonce
+    , persistent >=2.8 && <2.10
+    , persistent-postgresql >=2.8 && <2.10
+    , persistent-template >=2.5 && <2.9
+    , pretty-simple
+    , safe
+    , shakespeare >=2.0 && <2.1
+    , template-haskell
+    , text >=0.11 && <2.0
+    , time
+    , transformers
+    , unordered-containers
+    , vector
+    , wai
+    , wai-extra >=3.0 && <3.1
+    , wai-logger >=2.2 && <2.4
+    , warp >=3.0 && <3.3
+    , yaml >=0.8 && <0.12
+    , yesod >=1.6 && <1.7
+    , yesod-auth >=1.6 && <1.7
+    , yesod-core >=1.6 && <1.7
+    , yesod-form >=1.6 && <1.7
+    , yesod-static >=1.6 && <1.7
+    , yesod-websockets
+  if (flag(dev)) || (flag(library-only))
+    ghc-options: -Wall -fwarn-tabs -fno-warn-unused-do-bind -O0
+    cpp-options: -DDEVELOPMENT
+  else
+    ghc-options: -Wall -fwarn-tabs -O2
+  default-language: Haskell2010
+
+executable prizm-exchange
+  main-is: main.hs
+  other-modules:
+      DevelMain
+      Paths_prizm_exchange
+  hs-source-dirs:
+      app
+  default-extensions: TemplateHaskell QuasiQuotes NoImplicitPrelude
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      HaskellNet
+    , HaskellNet-SSL
+    , aeson >=0.6 && <1.5
+    , aeson-pretty
+    , base >=4.8.2.0 && <4.9 || >=4.9.1.0 && <5
+    , blaze-html
+    , blaze-markup
+    , bytestring >=0.9 && <0.11
+    , case-insensitive
+    , classy-prelude >=1.4 && <1.6
+    , classy-prelude-conduit >=1.4 && <1.6
+    , classy-prelude-yesod >=1.4 && <1.6
+    , conduit >=1.0 && <2.0
+    , containers
+    , data-default
+    , directory >=1.1 && <1.4
+    , esqueleto
+    , fast-logger >=2.2 && <2.5
+    , file-embed
+    , foreign-store
+    , formatting
+    , hjsmin >=0.1 && <0.3
+    , http-client
+    , http-client-tls
+    , http-conduit >=2.3 && <2.4
+    , mime-mail
+    , monad-control >=0.3 && <1.1
+    , monad-logger >=0.3 && <0.4
+    , network
+    , nonce
+    , persistent >=2.8 && <2.10
+    , persistent-postgresql >=2.8 && <2.10
+    , persistent-template >=2.5 && <2.9
+    , pretty-simple
+    , prizm-exchange
+    , safe
+    , shakespeare >=2.0 && <2.1
+    , template-haskell
+    , text >=0.11 && <2.0
+    , time
+    , transformers
+    , unordered-containers
+    , vector
+    , wai
+    , wai-extra >=3.0 && <3.1
+    , wai-logger >=2.2 && <2.4
+    , warp >=3.0 && <3.3
+    , yaml >=0.8 && <0.12
+    , yesod >=1.6 && <1.7
+    , yesod-auth >=1.6 && <1.7
+    , yesod-core >=1.6 && <1.7
+    , yesod-form >=1.6 && <1.7
+    , yesod-static >=1.6 && <1.7
+    , yesod-websockets
+  if flag(library-only)
+    buildable: False
+  default-language: Haskell2010
+
+test-suite prizm-exchange-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Handler.CommonSpec
+      Handler.HomeSpec
+      Handler.ProfileSpec
+      TestImport
+      Paths_prizm_exchange
+  hs-source-dirs:
+      test
+  default-extensions: TemplateHaskell QuasiQuotes NoImplicitPrelude
+  ghc-options: -Wall
+  build-depends:
+      HaskellNet
+    , HaskellNet-SSL
+    , aeson >=0.6 && <1.5
+    , aeson-pretty
+    , base >=4.8.2.0 && <4.9 || >=4.9.1.0 && <5
+    , blaze-html
+    , blaze-markup
+    , bytestring >=0.9 && <0.11
+    , case-insensitive
+    , classy-prelude >=1.4 && <1.6
+    , classy-prelude-conduit >=1.4 && <1.6
+    , classy-prelude-yesod >=1.4 && <1.6
+    , conduit >=1.0 && <2.0
+    , containers
+    , data-default
+    , directory >=1.1 && <1.4
+    , esqueleto
+    , fast-logger >=2.2 && <2.5
+    , file-embed
+    , foreign-store
+    , formatting
+    , hjsmin >=0.1 && <0.3
+    , hspec >=2.0.0
+    , http-client
+    , http-client-tls
+    , http-conduit >=2.3 && <2.4
+    , mime-mail
+    , monad-control >=0.3 && <1.1
+    , monad-logger >=0.3 && <0.4
+    , network
+    , nonce
+    , persistent >=2.8 && <2.10
+    , persistent-postgresql >=2.8 && <2.10
+    , persistent-template >=2.5 && <2.9
+    , pretty-simple
+    , prizm-exchange
+    , safe
+    , shakespeare >=2.0 && <2.1
+    , template-haskell
+    , text >=0.11 && <2.0
+    , time
+    , transformers
+    , unordered-containers
+    , vector
+    , wai
+    , wai-extra >=3.0 && <3.1
+    , wai-logger >=2.2 && <2.4
+    , warp >=3.0 && <3.3
+    , yaml >=0.8 && <0.12
+    , yesod >=1.6 && <1.7
+    , yesod-auth >=1.6 && <1.7
+    , yesod-core >=1.6 && <1.7
+    , yesod-form >=1.6 && <1.7
+    , yesod-static >=1.6 && <1.7
+    , yesod-test
+    , yesod-websockets
+  default-language: Haskell2010
