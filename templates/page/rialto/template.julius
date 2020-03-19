@@ -1,0 +1,117 @@
+const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1)
+
+const currencySymbol = (c) => {
+    let ret = c.toUpperCase()
+    switch (true) {
+        case c == 'rub':
+            ret = '₽'; break
+        case c == 'pzm':
+            ret = 'PZM'; break
+        case c == 'ouro':
+            ret = 'OURO'; break
+        default: break
+    }
+    return ret
+}
+
+const updateTextualData = (wrapid, currency) => {
+    const cap = capitalize
+    const cur = currencySymbol
+    const hiddenPairInput = $(`#${wrapid}-hidden-pair`);
+    const formAppendOutCurrency = $(`#${wrapid}-out-currency-append`)
+    const formAppendRate = $(`#${wrapid}-rate-append`)
+    const inCurrencySum = $(`#${wrapid}-in-currency-sum`)
+    const outCurrencyFee = $(`#${wrapid}-out-currency-fee`)
+    const inCurrencyFee = $(`#${wrapid}-in-currency-fee`)
+    const outCurrencyTotal = $(`#${wrapid}-out-currency-total`)
+    const inCurrencyTotal = $(`#${wrapid}-in-currency-total`)
+    $(hiddenPairInput).val(`Exchange${cap(currency[0])}${cap(currency[1])}`)
+    $(formAppendOutCurrency).text(cur(currency[0]))
+    $(formAppendRate).html(`${cur(currency[1])}/${cur(currency[0])}`)
+    $(inCurrencySum).html(cur(currency[1]))
+    $(outCurrencyFee).html(cur(currency[0]))
+    $(inCurrencyFee).html(cur(currency[1]))
+    $(outCurrencyTotal).html(cur(currency[0]))
+    $(inCurrencyTotal).html(cur(currency[1]))
+}
+
+const switchTab = (e, pair, tabs, { orderCols, historyCols, }) => {
+    function flipPairId(pid) {
+        return pid.split('_').reverse().join('_')
+    }
+
+    function toggleVisibility(el, constr) {
+        if (constr) {
+            el.removeClass('hide')
+            el.addClass('show')
+        } else {
+            el.removeClass('show')
+            el.addClass('hide')
+        }
+    }
+    e.preventDefault()
+
+    tabs.forEach(t => $(t).removeClass('active').addClass('text-light'))
+
+    $(pair).addClass('active').removeClass('text-light')
+    const currency = $(pair).attr('id')
+        .slice(0, -('-pair').length)
+        .split('-')
+    const id = currency.join('_')
+    const flip_id = flipPairId(id)
+    const els = orderCols.find('> *')
+    els.each((_, x) => {
+        const el = $(x)
+        const pair = el.data('pair')
+        toggleVisibility(el, pair == id || pair == flip_id)
+    })
+    historyCols.each((_, x) => {
+        const c = $(x)
+        const from = c.data('from')
+        const to = c.data('to')
+        const normalizedPair = id
+        const targetPair = `${from}_${to}`
+        const matchPair =
+            targetPair == normalizedPair
+            || targetPair == flipPairId(normalizedPair)
+        toggleVisibility(c, matchPair)
+    })
+    updateTextualData('#{rawJS wrapId}', currency)
+    updateTextualData('#{rawJS modalWrapId}', currency)
+    history.replaceState({}, '', `/?from=${currency[0]}&to=${currency[1]}`)
+}
+
+
+const init = () => {
+    const orderCols = $('.order-col')
+    const historyCols = $('.exchange-history')
+    const pzmRubTab = $('#pzm-rub-pair')
+    const pzmOuroTab = $('#ouro-pzm-pair')
+    const ouroRubTab = $('#ouro-rub-pair')
+    const tabs = [pzmRubTab, pzmOuroTab, ouroRubTab]
+    const switchConf = { orderCols, historyCols }
+    pzmRubTab.click((e) => { switchTab(e, pzmRubTab, tabs, switchConf) })
+    pzmOuroTab.click((e) => { switchTab(e, pzmOuroTab, tabs, switchConf) })
+    ouroRubTab.click((e) => { switchTab(e, ouroRubTab, tabs, switchConf) })
+}
+
+const getTextNodesIn = (n, includeWhitespaceNodes) => {
+    const node = n[0]
+    var textNodes = [], nonWhitespaceMatcher = /\S/
+    const getTextNodes = (node) => {
+        if (node.nodeType == 3) {
+            if (includeWhitespaceNodes || nonWhitespaceMatcher.test(node.nodeValue)) {
+                textNodes.push(node)
+            }
+        } else {
+            for (var i = 0, len = node.childNodes.length; i < len; ++i) {
+                getTextNodes(node.childNodes[i])
+            }
+        }
+        return; // prevent minified JS issues
+    }
+    getTextNodes(node)
+    return textNodes
+}
+
+$(document).ready(init)

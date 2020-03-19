@@ -9,18 +9,15 @@ module Handler.Rialto where
 import           Import                 hiding ( decodeUtf8, httpLbs, on )
 
 import           Form.Exchanger.Order
-import           Handler.Stocks         ( findStocksActive )
 import           Local.Params
 import           Local.Persist.Currency
 import           Local.Persist.Exchange ( ExchangePair (..) )
-import           Local.Persist.UserRole ( UserRole (Client) )
 import           Market.Functions       ( reduceDomStats )
 import           Market.Type            ( DOMRateStats, DOMStats,
                                           DOMStatsRateMap )
 import           Type.Money             ( oneCoinCents )
-import           Utils.Common           ( projectNameHost, selectLocale )
+import           Utils.Common           ( selectLocale )
 import           Utils.Database.Orders  ( selectActiveOrdersOf )
-import           Utils.Database.Stocks  ( queryStocksActives )
 import           Utils.Money
 import           Utils.Render
 import           Utils.Time             ( renderDate, renderTime,
@@ -31,15 +28,8 @@ import           Database.Esqueleto     ( InnerJoin (..), asc, desc, from, in_,
                                           limit, on, orderBy, valList, where_,
                                           (^.) )
 import qualified Database.Esqueleto     as E
-import           Database.Persist.Sql   ( fromSqlKey )
 import           Text.Julius            ( RawJS (..) )
 
-
--- Define our data that will be used for creating the form.
-data FileForm = FileForm
-    { fileInfo        :: FileInfo
-    , fileDescription :: Text
-    }
 
 getRialtoR :: Handler Html
 getRialtoR = do
@@ -55,7 +45,6 @@ getRialtoR = do
             -- flipping paramsPair gives right tab (and form) exchange direction
             -- (defPairDir seems to always be opposite form pair in current form
             -- implementation)
-    let featured = featuredModal
     let defaultPairs = [ ExchangePzmRur, ExchangeOurRur, ExchangeOurPzm ]
     orders <- runDB $ mapM selectActiveOrdersOf defaultPairs
     let dropEven []             = []
@@ -72,9 +61,9 @@ getRialtoR = do
             else StaticR images_logo_outb_info_png
     let bgSrc = StaticR images_bg_050119_png
     defaultLayout $ do
-        setAppPageTitle MsgHomePageTitle
+        setAppPageTitle MsgPageTitleRialto
         $(widgetFile "page/index/generic")
-        $(widgetFile "homepage")
+        $(widgetFile "page/rialto/template")
 
 -- * Utils
 
@@ -111,31 +100,6 @@ getActiveOrders mu = do
         [Asc ExchangeOrderNormalizedRatio, Asc ExchangeOrderCreated]
     return $ partition (isPzmRubOrder . entityVal) os
     where isPzmRubOrder = (== ExchangePzmRur) . exchangeOrderPair
-
--- * News
-
-featuredModal :: Widget
-featuredModal = do
-    mayFeatured <- handlerToWidget getLastFeaturedNews
-    case mayFeatured of
-        Nothing -> [whamlet||]
-        Just (Entity iid info)  -> do
-            let description = case infoDescHtml info of
-                    Just ""    -> infoContentHtml info
-                    Just desc' -> desc'
-                    _          -> infoContentHtml info
-            wrapId     <- newIdent
-            proj       <- appType . appSettings <$> getYesod
-            cookieName <- appHiddenNewsCookieName . appSettings <$> getYesod
-            let (hostName, _) = projectNameHost proj
-            $(widgetFile "modal/featured-news")
-
-getLastFeaturedNews :: Handler (Maybe (Entity Info))
-getLastFeaturedNews = do
-    allNews <- runDB $ selectList [ InfoFeatured ==. True ] [ Desc InfoCreated, LimitTo 1 ]
-    case allNews of
-        []  -> return Nothing
-        x:_ -> return (Just x)
 
 -- * Depth of Market
 
@@ -354,7 +318,3 @@ selectPair (Just c1) (Just c2)
     | c2 == "pzm" && c1 == "ouro" =
         defPairDir ExchangeOurPzm
     | otherwise = defPairDir ExchangePzmRur
-
-
-fenixRoadmap :: Widget
-fenixRoadmap = $(widgetFile "page/index/tech-roadmap")

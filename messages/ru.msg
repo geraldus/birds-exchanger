@@ -284,6 +284,7 @@ PageTitleStocksDetailsAbbr stocksAbbr@Text: Подробности покупк�
 PageTitleStocksArchive: Архив операций
 PageTitleStocksAccepted: Проведённые операции
 PageTitleStocksPending: Неподтверждённые заявки
+PageTitleRialto: Биржа
 BreadcrumbsTitleStocksIndex: Акции
 BreadcrumbsTitleStocksArchive: Архив операций
 BreadcrumbsTitleStocksAccepted: Проведённые операций

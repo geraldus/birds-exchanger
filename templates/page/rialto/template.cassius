@@ -1,0 +1,41 @@
+#main-promo
+    max-height: 130px
+
+.masthead .form-control
+    border: 1px solid #666
+
+#clickable-order-modal .modal-content
+    background-color: #1a1c1d
+    border: 1px solid #666
+
+.order-col > *.hide
+    display: none
+
+#clickable-order-modal .title
+    color: #e9ecef
+
+.market-stats
+    font-size: 0.7rem
+
+.exchange-history .header.row
+    background-color: #333a40
+    color: white
+    padding-top: 0.3rem
+    padding-bottom: 0.3rem
+    white-space: nowrap
+    text-align: center
+
+.exchange-history.hide
+    display: none
+
+.exchange-history .exchange
+    white-space: nowrap
+
+.exchange-history.show
+    display: block
+
+.exchange-history .ask
+    color: #ff2300a9
+
+.exchange-history .bid
+    color: #47b900a9

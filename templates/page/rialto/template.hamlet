@@ -1,0 +1,149 @@
+<div .masthead .pt-3>
+    <div .container .d-none .d-lg-block>
+        <div .row>
+            <div #mainlogo .col-8 .col-sm-6 .mx-auto .mt-5>
+                <img
+                    #main-promo
+                    .mw-100
+                    src=@{logoSrc}
+                    alt=_{MsgSiteLogoAlt}
+                    >
+    $if not (null messages)
+        <div .container .mt-5 .mt-lg-3 #message>
+            $forall (label, msg) <- messages
+                <div .alert.alert-warning data-label=#{label}>
+                    #{msg}
+    <div .container .mt-5 .mt-lg-3>
+        <div .row>
+            <div .col-8 .mx-auto>
+                <ul .nav .nav-tabs .justify-content-center>
+                    <li .nav-item .mx-1>
+                        <a
+                            #pzm-rub-pair
+                            .nav-link
+                            :paramsPair == defPairDir ExchangePzmRur:.active
+                            :paramsPair /= defPairDir ExchangePzmRur:.text-light
+                            .pzm
+                            .rub
+                            href="#"
+                            title="#{messageRender MsgExchange} Prizm на рубли"
+                            >
+                                PZM / RUB (₽)
+                    $if projType /= FenixApp
+                        <li .nav-item .mx-1>
+                            <a
+                                #ouro-pzm-pair
+                                .nav-link
+                                :paramsPair == defPairDir ExchangeOurPzm:.active
+                                :paramsPair /= defPairDir ExchangeOurPzm:.text-light
+                                .ouro
+                                .pzm
+                                href="#"
+                                title="#{messageRender MsgExchange} Ouroboros на Prizm"
+                                >
+                                    OURO / PZM
+                        <li .nav-item .mx-1>
+                            <a
+                                #ouro-rub-pair
+                                .nav-link
+                                :paramsPair == defPairDir ExchangeOurRur:.active
+                                :paramsPair /= defPairDir ExchangeOurRur:.text-light
+                                .ouro
+                                .rub
+                                href="#"
+                                title="#{messageRender MsgExchange} Ouroboros на рубли"
+                                >
+                                    OURO / RUB (₽)
+        <div .row .mt-3>
+            <div .col>
+                <form method=post action=@{ExchangeOrderCreateR} enctype="">
+                    ^{orderCreateFormW}
+                    $maybe _ <- mayClientUser
+                        <button
+                            .btn
+                            .btn-outline-warning
+                            .btn-lg
+                            .text-lowercase
+                            .mb-3
+                            type=submit >
+                            _{MsgCreateRequest}
+                    $nothing
+                        <div .mb-4>
+                            <a .text-muted href="@{AuthR LoginR}">
+                                _{MsgFormMessageSignInToTrade}
+
+$if projType == FenixApp
+    <style>
+        .masthead {
+            background: #0d011d url(@{bgSrc}) no-repeat center;
+            background-size: cover;
+        };
+
+
+<div .container .mt-3>
+    <div .row>
+        <div .col-8 .mx-auto>
+            <div>
+                <p .text-center .text-muted>
+                    _{MsgScheduleDesc}
+
+<div .container-fluid .mt-3 .market-stats>
+    <div .row>
+        ^{clickableOrderW modalWrapId}
+        <div .exchange-history-view .col-12 .col-lg-4 .order-4 .order-lg-1>
+            ^{exHistory (flipPair paramsPair)}
+        <div .col-12 .col-lg-4 .mb-3 .order-col .order-2>
+            ^{renderDomTable ExchangePzmRur False (paramsPair /= defPairDir ExchangePzmRur) statsDOM}
+            ^{renderDomTable ExchangeOurPzm False (paramsPair /= defPairDir ExchangeOurPzm) statsDOM}
+            $if projType /= FenixApp
+                ^{renderDomTable ExchangeOurRur False (paramsPair /= defPairDir ExchangeOurRur) statsDOM}
+        <div .col-12 .col-lg-4 .mb-3 .order-col .order-3>
+            ^{renderDomTable ExchangePzmRur True (paramsPair /= defPairDir ExchangePzmRur) statsDOM}
+            ^{renderDomTable ExchangeOurPzm True (paramsPair /= defPairDir ExchangeOurPzm) statsDOM}
+            $if projType /= FenixApp
+                ^{renderDomTable ExchangeOurRur True (paramsPair /= defPairDir ExchangeOurRur) statsDOM}
+
+<div .container .mt-5>
+    <div .row>
+        <div .col .mx-auto>
+            <div>
+                <p .text-center .text-muted>
+                    _{MsgOperationExchangeShort}&nbsp;#{renderFeeAsPct defaultExchangeFee}%
+                    <br>
+                    _{MsgOperationWithdrawShort}&nbsp;#{currencyCodeT rubC}&nbsp;#{renderFeeAsPct defRubWithdrawalFee}%#
+                    \&nbsp;|&nbsp;#
+                    \_{MsgOperationDepositShort}&nbsp;#{currencyCodeT rubC}&nbsp;#{renderFeeAsPct defRubDepositFee}%
+                    <br>
+                    _{MsgOperationWithdrawShort}&nbsp;#{currencyCodeT pzmC}&nbsp;#{renderFeeAsPct defPzmWithdrawalFee}%#
+                    \&nbsp;|&nbsp;#
+                    \_{MsgOperationDepositShort}&nbsp;#{currencyCodeT pzmC}&nbsp;#{renderFeeAsPct defPzmDepositFee}%
+                    $if projType /= FenixApp
+                        <br>
+                        _{MsgOperationWithdrawShort}&nbsp;#{currencyCodeT ouroC}&nbsp;#{renderFeeAsPct defOuroWithdrawalFee}%#
+                        \&nbsp;|&nbsp;#
+                        \_{MsgOperationDepositShort}&nbsp;#{currencyCodeT ouroC}&nbsp;#{renderFeeAsPct defOuroDepositFee}%
+
+<div #clickable-order-modal .modal .fade tabindex="-1" role=dialog>
+    <div .modal-dialog .modal-lg .modal-dialog-centered role=document>
+        <div .modal-content>
+            <div .modal-body>
+                <form method=post action=@{ExchangeOrderCreateR} .container-fluid>
+                    <div .row>
+                        <div .col .text-center>
+                            <p .title .h5>_{MsgExchange}
+                    ^{modalOrderCreateFormW}
+                    <div .row>
+                        $maybe _ <- mayClientUser
+                            <button
+                                .btn
+                                .btn-outline-warning
+                                .btn-lg .text-lowercase
+                                .mx-auto
+                                type=submit
+                                >
+                                _{MsgOneClickExchange}
+                        $nothing
+                            <div .text-muted .mx-auto>
+                                <a .text-muted href="@{AuthR LoginR}">
+                                    _{MsgFormMessageSignInToTrade}
+
