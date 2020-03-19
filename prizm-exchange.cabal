@@ -4,10 +4,10 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f35e301fc62e81b889ed3f4e775a6f3fd0e158943e132465b8439a19fab66de6
+-- hash: ac051df6184c853b61fd4b6e77176694454ca5e097265dc4908fbcd4e4c23260
 
 name:           prizm-exchange
-version:        0.15.17
+version:        0.15.17.1
 build-type:     Simple
 
 flag dev
