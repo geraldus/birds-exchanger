@@ -46,15 +46,7 @@ getArticlesListR = do
     render' (Entity aid a) = do
         l   <- handlerToWidget selectLocale
         tzo <- handlerToWidget timezoneOffsetFromCookie
-        [whamlet|
-            <div .col-12 .article #article_#{fromSqlKey aid}>
-                <a
-                    title="_{MsgDetails}"
-                    href="@{ArticleViewR (articleAlias a)}">
-                    #{articleTitle a}
-                    <small .text-muted>
-                        #{renderDateTimeRow l tzo (articlePubDate a) ["text-lowercase"]}
-            |]
+        $(widgetFile "page/articles/item")
 
 getArticleViewR :: Text -> Handler Html
 getArticleViewR alias = do

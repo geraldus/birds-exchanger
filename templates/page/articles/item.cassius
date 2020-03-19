@@ -1,0 +1,5 @@
+.article-desc
+    padding-left: 1rem
+
+.article-desc p:last-child
+    margin-bottom: 0

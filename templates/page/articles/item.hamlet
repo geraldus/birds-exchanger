@@ -1,0 +1,12 @@
+<div .col-12 .article #article_#{fromSqlKey aid} .mb-2>
+    <a
+        title="_{MsgDetails}"
+        href="@{ArticleViewR (articleAlias a)}"
+        >
+        #{articleTitle a}
+        <small .text-muted>
+            #{renderDateTimeRow l tzo (articlePubDate a) ["text-lowercase"]}
+    $maybe htmlDesc <- articleDescHtml a
+        <div .article-desc .text-muted style="padding-left: 1rem">
+            <small>
+                #{preEscapedToMarkup htmlDesc}
