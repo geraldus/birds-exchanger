@@ -29,6 +29,9 @@ MenuTitleClientOrders: Мои ордера
 MenuTitleClientDeposit: Пополнение
 MenuTitleClientWithdrawal: Вывод
 
+MenuTitleAdminMenu: Администрирование
+MenuTitleAdminManageUsers: Управление пользователями
+
 NavLabelStocksPurchase: Покупка акций
 
 # PAGE TITLES

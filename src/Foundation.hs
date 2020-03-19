@@ -159,6 +159,7 @@ instance Yesod App where
         let isClientLoggedIn   = isClientUser muser
         let isStaffLoggedIn    = isStaffUser muser
         let isEditorLoggedIn   = isEditorUser muser
+        let isAdminLoggedIn    = isAdminUser muser
         let isOperatorLoggedIn = isOperatorUser muser
         let isSuLoggedIn       = isSU muser
         let maybeClientUser = join $ eitherClientToMaybe <$> muser
@@ -270,6 +271,12 @@ instance Yesod App where
                     , menuItemRoute = EditorArticlesIndexR
                     , menuItemAccessCallback = isEditorLoggedIn } ]
 
+        let adminMenuItems =
+                [ MenuItem
+                    { menuItemLabel = mr MsgMenuTitleAdminManageUsers
+                    , menuItemRoute = AdminUsersListR
+                    , menuItemAccessCallback = isAdminLoggedIn } ]
+
         let suMenuItems =
                 [ MenuItem
                     { menuItemLabel = mr MsgFinancialReport
@@ -334,12 +341,12 @@ instance Yesod App where
             isStaffUser _                   = False
             isClientUser = maybe
                 False (either (hasUserRole Client) (const False) . snd)
-            -- isAdminUser = maybe
-            --     False (either (hasUserRole Admin) (const True) . snd)
             isEditorUser = maybe
                 False (either (hasUserRole Editor) (const True) . snd)
             isOperatorUser = maybe
                 False (either ((Operator ==) . userRole) (const True) . snd)
+            isAdminUser = maybe
+                False (either (hasUserRole Admin) (const True) . snd)
             isSU = maybe False (either (const False) (const True) . snd)
 
     -- The page to be redirected to when authentication is required.

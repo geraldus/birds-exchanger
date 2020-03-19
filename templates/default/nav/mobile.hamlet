@@ -80,6 +80,14 @@
                         $forall MenuItem label route _ <- operatorStocksMenuItems
                             <li .ml-2 .nav-item :Just route == currentRoute:.active>
                                 <a .nav-link href="@{route}">#{label}
+                    $if isAdminLoggedIn
+                        <span .navbar-text .d-flex .pt-2 .pb-1 .text-uppercase>
+                            <i .fas .fa-chess-rook .align-self-center>
+                            <span .d-block .ml-1>
+                                _{MsgMenuTitleAdminMenu}
+                        $forall MenuItem label route _ <- adminMenuItems
+                            <li .ml-2 .nav-item :Just route == currentRoute:.active>
+                                <a .nav-link href="@{route}"> #{label}
                     $if isSuLoggedIn
                         <span .navbar-text .d-flex .pt-2 .pb-1 .text-uppercase>
                             <i .fas .fa-jedi .align-self-center>

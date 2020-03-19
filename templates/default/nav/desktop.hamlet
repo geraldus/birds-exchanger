@@ -71,6 +71,17 @@
                                         :Just route == currentRoute:.active
                                         href="@{route}">
                                             #{label}
+                            $if isAdminLoggedIn
+                                <a .dropdown-item .disabled>
+                                    <span .d-flex .text-uppercase>
+                                        <i .fas .fa-chess-rook .align-self-center>
+                                        <span .d-block .ml-1> _{MsgMenuTitleAdminMenu}
+                                $forall MenuItem label route _ <- adminMenuItems
+                                    <a
+                                        .dropdown-item
+                                        :Just route == currentRoute:.active
+                                        href="@{route}">
+                                            #{label}
                             $if isSuLoggedIn
                                 <a .dropdown-item .disabled>
                                     <span .d-flex .text-uppercase>
