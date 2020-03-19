@@ -26,7 +26,6 @@ import           Database.Persist.Sql   ( fromSqlKey )
 
 getDepositR :: Handler Html
 getDepositR = do
-    notFound
     _ <- requireClientId
     formId <- newIdent
     (widget, enctype) <- generateFormPost $ depositForm formId
@@ -34,7 +33,6 @@ getDepositR = do
 
 postDepositR :: Handler Html
 postDepositR = do
-    notFound
     userId <- requireClientId
     formId <- newIdent
     ((res, widget), enctype) <- runFormPost $ depositForm formId
@@ -80,7 +78,6 @@ postDepositR = do
 
 defaultWidget :: Text -> Widget -> Enctype -> Maybe [Text] -> Widget
 defaultWidget formId widget enctype mayError = do
-    notFound
     setAppPageTitle MsgClientDepositPageTitle
     messageRender <- liftHandler getMessageRender
     $(widgetFile "client/request/common")
@@ -100,7 +97,6 @@ data Details
 
 depositHistory :: Widget
 depositHistory = do
-    notFound
     clientId <- handlerToWidget requireClientId
     locale <- selectLocale
     tzoffset <- timezoneOffsetFromCookie
@@ -149,8 +145,8 @@ requestAmounts (AcceptD (Entity _ r) (Entity _ AcceptedDeposit{..})) =
 requestAmounts (RejectD (Entity _ r) _) =
     (depositRequestCentsAmount r, True, 0, depositRequestCurrency r)
 
-requestStatuses
-    :: (Route App -> Text)
+requestStatuses ::
+       (Route App -> Text)
     -> (AppMessage -> Text)
     -> (UTCTime -> Text, UTCTime -> Text)
     -> Details

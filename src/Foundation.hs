@@ -203,6 +203,12 @@ instance Yesod App where
                     , menuItemAccessCallback = True }
                 ]
                 <>
+                [ NavbarLeft $ MenuItem
+                    { menuItemLabel = mr MsgMenuTitleRialto
+                    , menuItemRoute = RialtoR
+                    , menuItemAccessCallback = True }
+                ]
+                <>
                 [ NavbarRight $ MenuItem
                     { menuItemLabel = mr MsgMenuTitleSignUp
                     , menuItemRoute = SignUpR
@@ -214,28 +220,26 @@ instance Yesod App where
                     , menuItemAccessCallback = isNothing muser
                     }
                 ]
-        let appClientItems = if projType == FenixApp
-                then [ ]
-                else
-                    [ MenuItem
-                        { menuItemLabel = mr MsgClientProfilePageTitle
-                        , menuItemRoute = ProfileR
-                        , menuItemAccessCallback = isClientLoggedIn
-                        }
-                    , MenuItem
-                        { menuItemLabel = mr MsgClientOrdersPageTitle
-                        , menuItemRoute = ClientOrdersR
-                        , menuItemAccessCallback = isClientLoggedIn
-                        }
-                    , MenuItem
-                        { menuItemLabel = mr MsgDeposit
-                        , menuItemRoute = DepositR
-                        , menuItemAccessCallback = isClientLoggedIn }
-                    , MenuItem
-                        { menuItemLabel = mr MsgWithdraw
-                        , menuItemRoute = WithdrawalR
-                        , menuItemAccessCallback = isClientLoggedIn }
-                    ]
+        let appClientItems =
+                [ MenuItem
+                    { menuItemLabel = mr MsgClientProfilePageTitle
+                    , menuItemRoute = ProfileR
+                    , menuItemAccessCallback = isClientLoggedIn
+                    }
+                , MenuItem
+                    { menuItemLabel = mr MsgClientOrdersPageTitle
+                    , menuItemRoute = ClientOrdersR
+                    , menuItemAccessCallback = isClientLoggedIn
+                    }
+                , MenuItem
+                    { menuItemLabel = mr MsgDeposit
+                    , menuItemRoute = DepositR
+                    , menuItemAccessCallback = isClientLoggedIn }
+                , MenuItem
+                    { menuItemLabel = mr MsgWithdraw
+                    , menuItemRoute = WithdrawalR
+                    , menuItemAccessCallback = isClientLoggedIn }
+                ]
 
         let clientMenuItems =
                 appClientItems
@@ -365,6 +369,7 @@ instance Yesod App where
     isAuthorized RobotsR _                           = return Authorized
     isAuthorized HomeR _                             = return Authorized
     isAuthorized StocksR _                           = return Authorized
+    isAuthorized RialtoR _                           = return Authorized
     isAuthorized (StaticR _) _                       = return Authorized
     isAuthorized SignUpR _                           = return Authorized
     isAuthorized (SignUpVerifyR _ _) _               = return Authorized
@@ -375,22 +380,22 @@ instance Yesod App where
     -- CLIENT
     isAuthorized ClientNotificationsWebSocketR _     = isClientAuthenticated
     isAuthorized ClientRequestEmailVerificationR _   = return Authorized
-    isAuthorized ProfileR _                          = notFound >> isAuthenticated
-    isAuthorized DepositR _                          = notFound >> isClientAuthenticated
-    isAuthorized WithdrawalR _                       = notFound >> isClientAuthenticated
-    isAuthorized (DepositRequestConfirmationR _) _   = notFound >> isClientAuthenticated
-    isAuthorized DepositConfirmRequestR _            = notFound >> isClientAuthenticated
-    isAuthorized ClientCancelDepositR _              = notFound >> isClientAuthenticated
-    isAuthorized WithdrawalCreateR True              = notFound >> isClientAuthenticated
-    isAuthorized ClientCancelWithdrawalR True        = notFound >> isClientAuthenticated
-    isAuthorized WithdrawalCreateR False             = notFound >> postOnly
-    isAuthorized ClientCancelWithdrawalR False       = notFound >> postOnly
+    isAuthorized ProfileR _                          = isAuthenticated
+    isAuthorized DepositR _                          = isClientAuthenticated
+    isAuthorized WithdrawalR _                       = isClientAuthenticated
+    isAuthorized (DepositRequestConfirmationR _) _   = isClientAuthenticated
+    isAuthorized DepositConfirmRequestR _            = isClientAuthenticated
+    isAuthorized ClientCancelDepositR _              = isClientAuthenticated
+    isAuthorized WithdrawalCreateR True              = isClientAuthenticated
+    isAuthorized ClientCancelWithdrawalR True        = isClientAuthenticated
+    isAuthorized WithdrawalCreateR False             = postOnly
+    isAuthorized ClientCancelWithdrawalR False       = postOnly
     isAuthorized (ClientStocksPurchaseR) _           = isClientAuthenticated
-    isAuthorized ExchangeOrderCreateR True           = notFound >> isClientAuthenticated
-    isAuthorized ExchangeOrderCreateR False          = notFound >> postOnly
-    isAuthorized ClientOrdersR _                     = notFound >> isClientAuthenticated
-    isAuthorized (ClientOrderViewR _) _              = notFound >> isClientAuthenticated
-    isAuthorized ClientOrderCancelR _                = notFound >> isClientAuthenticated
+    isAuthorized ExchangeOrderCreateR True           = isClientAuthenticated
+    isAuthorized ExchangeOrderCreateR False          = postOnly
+    isAuthorized ClientOrdersR _                     = isClientAuthenticated
+    isAuthorized (ClientOrderViewR _) _              = isClientAuthenticated
+    isAuthorized ClientOrderCancelR _                = isClientAuthenticated
     isAuthorized (ClientStocksPurchaseDetailsR _) _  = isClientAuthenticated
     isAuthorized (ClientStocksPurchaseConfirmationR _) _ = isClientAuthenticated
     isAuthorized ClientSettingsR _                   = isClientAuthenticated
@@ -549,21 +554,22 @@ instance YesodBreadcrumbs App where
             return (mr MsgPasswordChangeGuideTitle, Just HomeR)
         breadcrumb' _ mr (PasswordResetR _) =
             return (mr MsgPasswordSetupTitle, Just HomeR)
-        -- breadcrumb' _ _ ProfileR    = return ("Портфель", Just HomeR)
-        -- breadcrumb' _ _ ClientOrdersR =
-        --     return ("Мои ордера на обмен", Just HomeR)
+        breadcrumb' _ _ ProfileR    = return ("Портфель", Just HomeR)
+        breadcrumb' _ mr RialtoR    = return (mr MsgPageBreadcrumbsRialto, Just HomeR)
+        breadcrumb' _ _ ClientOrdersR =
+            return ("Мои ордера на обмен", Just HomeR)
         breadcrumb' _ mr ClientSettingsR =
             return (mr MsgClientProfileSettingsPageTitle, Just HomeR)
-        -- breadcrumb' _ _ (ClientOrderViewR oid) = return
-        --     ("Ордер #" <> (pack . show  .fromSqlKey) oid, Just ClientOrdersR)
-        -- breadcrumb' _ _ DepositR    = return ("Внесение средств", Just ProfileR)
+        breadcrumb' _ _ (ClientOrderViewR oid) = return
+            ("Ордер #" <> (pack . show  .fromSqlKey) oid, Just ClientOrdersR)
+        breadcrumb' _ _ DepositR    = return ("Внесение средств", Just ProfileR)
         breadcrumb' _ mr (ClientStocksPurchaseDetailsR _) =
             return (mr MsgBreadcrumbsTitleStocksDetails, Just StocksR)
-        -- breadcrumb' _ _ (DepositRequestConfirmationR _) =
-        --     return ("Подтверждение", Just DepositR)
-        -- breadcrumb' _ _ WithdrawalR = return ("Вывод средств", Just ProfileR)
-        -- breadcrumb' _ _ WithdrawalCreateR =
-        --     return ("Вывод средств", Just ProfileR)
+        breadcrumb' _ _ (DepositRequestConfirmationR _) =
+            return ("Подтверждение", Just DepositR)
+        breadcrumb' _ _ WithdrawalR = return ("Вывод средств", Just ProfileR)
+        breadcrumb' _ _ WithdrawalCreateR =
+            return ("Вывод средств", Just ProfileR)
         breadcrumb' _ _ OperatorLogInR = return ("Оператор / Вход", Just HomeR)
         breadcrumb' _ _ OperatorDepositRequestsListR =
             return ("Заявки на пополнение", Just HomeR)

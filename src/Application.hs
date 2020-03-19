@@ -74,20 +74,20 @@ import           Text.Pretty.Simple                            ( pPrint )
 -- Don't forget to add new modules to your cabal file!
 import           Handler.Admin
 import           Handler.APIs
+import           Handler.Articles
 import           Handler.Client
 import           Handler.Client.Deposit
 import           Handler.Client.HandleDeposit
 import           Handler.Client.HandleWithdrawal
 import           Handler.Client.Withdrawal
 import           Handler.Common
+import           Handler.Editor
 import           Handler.Home
 import           Handler.Info
-import           Handler.Articles
 import           Handler.LP.LP0001
 import           Handler.Manage.Info.Add
 import           Handler.Manage.Info.Index
 import           Handler.Manage.Info.Update
-import           Handler.Editor
 import           Handler.Operator.DepositRequestsList
 import           Handler.Operator.HandleDeposit
 import           Handler.Operator.HandleWithdrawal
@@ -99,6 +99,7 @@ import           Handler.Operator.User.History
 import           Handler.Operator.WebSocket
 import           Handler.Operator.WithdrawalRequest
 import           Handler.Profile
+import           Handler.Rialto
 import           Handler.SignUp
 import           Handler.SignUpVerification
 import           Handler.Stocks

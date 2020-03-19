@@ -23,6 +23,7 @@ MenuTitleSignUp: Регистрация
 MenuTitleSignIn: Вход
 MenuTitleSignOut: Выход
 MenuTitleArticles: Публикации
+MenuTitleRialto: Биржа
 
 MenuTitleClientHistory: История операций
 MenuTitleClientOrders: Мои ордера
@@ -209,6 +210,7 @@ TransferMethod: Способ перевода
 BuyMethod: Способ покупки
 SellMethod: Способ продажи
 TechnicalRoadmap: Дорожная карта тех.разработки
+TransactionTypeReferralBounty: Реферальные бонусы
 
 
 # DEPOSIT / WITHDRAWAL
@@ -286,6 +288,7 @@ BreadcrumbsTitleStocksIndex: Акции
 BreadcrumbsTitleStocksArchive: Архив операций
 BreadcrumbsTitleStocksAccepted: Проведённые операций
 BreadcrumbsTitleStocksDetails: Информация о покупке
+PageBreadcrumbsRialto: Биржа
 
 GuideTransferFunds: Переведите средства на указанный адрес
 GuideProvideYourWalletAddress: Укажите адрес Prizm-кошелька, с которого Вы осуществили перевод

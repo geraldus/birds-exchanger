@@ -13,7 +13,6 @@ import           Database.Persist.Sql   ( toSqlKey )
 
 postClientCancelWithdrawalR :: Handler Html
 postClientCancelWithdrawalR = do
-    notFound
     requestId <- fmap toSqlKey $ runInputPost $ ireq intField "request-id"
     withClientRequest requestId $ \(Entity rid WithdrawalRequest{..}) -> do
         runDB $ do

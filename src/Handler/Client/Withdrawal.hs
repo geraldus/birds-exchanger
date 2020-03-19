@@ -28,7 +28,6 @@ import           Database.Persist.Sql    ( fromSqlKey )
 
 getWithdrawalR :: Handler Html
 getWithdrawalR = do
-    notFound
     requireClientId
     formId <- newIdent
     (widget, enctype) <- generateFormPost $ withdrawalForm formId
@@ -36,7 +35,6 @@ getWithdrawalR = do
 
 postWithdrawalCreateR :: Handler Html
 postWithdrawalCreateR = do
-    notFound
     requireClientId
     formId <- newIdent
     ((res, widget), enctype) <- runFormPost $ withdrawalForm formId
@@ -97,7 +95,6 @@ postWithdrawalCreateR = do
 
 defaultWidget :: Text -> Widget -> Enctype -> Maybe [Text] -> Widget
 defaultWidget formId widget enctype mayError = do
-    notFound
     setAppPageTitle MsgClientWithdrawalPageTitle
     messageRender <- liftHandler getMessageRender
         :: WidgetFor App (AppMessage -> Text)
@@ -121,7 +118,6 @@ data Details
 
 withdrawalHistory :: Widget
 withdrawalHistory = do
-    notFound
     clientId <- liftHandler requireClientId
     locale <- selectLocale
     tzoffset <- timezoneOffsetFromCookie
@@ -172,8 +168,8 @@ withdrawalHistoryRow d = do
         NoDetails _ _ -> mempty
         _             -> [whamlet|\ (_{MsgInFact})|]
 
-genericRow
-    :: Entity WithdrawalRequest
+genericRow ::
+       Entity WithdrawalRequest
     -> Currency
     -> Bool
     -- ^ 'True' if request was cancelled or rejected
@@ -220,8 +216,8 @@ requestAmounts (AcceptD _ _ (Entity _ WithdrawalAccept{..})) =
 requestAmounts RejectD{} = (0, True)
 requestAmounts CancelD{} = (0, True)
 
-requestStatuses
-    :: (Route App -> Text)
+requestStatuses ::
+       (Route App -> Text)
     -> (AppMessage -> Text)
     -> (UTCTime -> Text, UTCTime -> Text)
     -> Details

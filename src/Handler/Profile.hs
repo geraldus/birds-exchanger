@@ -25,7 +25,6 @@ import           Text.Julius                ( RawJS (..) )
 
 getProfileR :: Handler Html
 getProfileR = do
-    notFound
     _userName <- userNameF . snd <$> requireAuthPair
     locale <- selectLocale
     tzo <- timezoneOffsetFromCookie
@@ -154,6 +153,7 @@ transactionTr (Entity wbtId wbt) wbtCurrency drsAdrs wos wcos wros eos ees ecs =
         ExchangeExchange cents -> orderExecutionDesc wbt cents wbtCurrency ees
         ExchangeReturn cents -> orderCancelDesc wbt cents wbtCurrency ecs
         ParaMining cents -> paraMiningDesc wbt cents wbtCurrency
+        ReferralBounty' cents -> referralBountyDesc wbt cents wbtCurrency
     trType :: Html
     trType = case wbtType of
         BalanceDeposit _          -> "deposit"
@@ -348,6 +348,18 @@ paraMiningDesc _ cents c = toWidget
         <td>#{renderAmount cents c}
         <td><span>_{MsgParaMining}
         |]
+
+referralBountyDesc ::
+       WalletBalanceTransaction
+    -> Int
+    -> Currency
+    -> Widget
+referralBountyDesc _ cents c = toWidget
+    [whamlet|
+        <td>#{renderAmount cents c}
+        <td><span>_{MsgTransactionTypeReferralBounty}
+        |]
+
 
 accountWalletStats :: [Entity UserWallet] -> Widget
 accountWalletStats ws = $(widgetFile "client/wallet/account-stats")

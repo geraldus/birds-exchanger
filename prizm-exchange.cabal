@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: ae76329605fbcbb55acb651f55d88388759138767d9728b4db74c9f6f07d6ee6
+-- hash: f35e301fc62e81b889ed3f4e775a6f3fd0e158943e132465b8439a19fab66de6
 
 name:           prizm-exchange
 version:        0.15.17
@@ -78,6 +78,7 @@ library
       Handler.Operator.WebSocket
       Handler.Operator.WithdrawalRequest
       Handler.Profile
+      Handler.Rialto
       Handler.SignUp
       Handler.SignUpVerification
       Handler.Stocks

@@ -33,6 +33,7 @@
 /deposit                             DepositR                          GET POST
 /withdrawal                          WithdrawalR                       GET
 /settings                            ClientSettingsR                   GET
+/rialto                              RialtoR                           GET
 
 /client/order/create                 ExchangeOrderCreateR                  POST
 /client/order/cancel                 ClientOrderCancelR                    POST
