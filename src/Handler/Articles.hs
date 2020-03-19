@@ -26,6 +26,7 @@ getArticlesListR = do
             filter (alreadyPublished now) infoItems'
     defaultLayout $ do
         setAppPageTitle MsgArticlesListTitle
+        $(widgetFile "page/articles/index")
         [whamlet|
             $case infoItems
                 $of []
