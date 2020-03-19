@@ -1,10 +1,12 @@
 <tr>
     <td>
-        #{userIdent u}
+        #{preEscapedToMarkup (spacesToNbSp (userIdent u))}
     <td>
         #{renderUserRole (userRole u)}
     <td>
         <a href=@{AdminUsersUpdateR uid}>
             Редактировать
     <td>
+        Блокировать
+    <td .text-danger>
         Удалить

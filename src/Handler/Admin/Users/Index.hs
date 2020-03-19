@@ -11,6 +11,7 @@ import           Handler.API.Admin.Users.List ( apiAdminDoesUserExists,
 import           Local.Persist.UserRole
 
 import           Data.Text                    ( strip )
+import qualified Data.Text                    as T ( replace )
 import           Text.Julius                  ( RawJS (rawJS) )
 
 
@@ -79,7 +80,7 @@ postAdminUsersUpdateR uid = do
         Just (Entity _ usr, _) -> do
             addMessage "user-form" $ toHtml $
                 "Пользователь " <> (userIdent usr) <> " изменён."
-            redirect AdminUsersCreateR
+            redirect (AdminUsersUpdateR uid)
   where
     runPostForm = runInputPost $ (,,)
         <$> (strip <$> ireq textField "ident")
@@ -107,3 +108,6 @@ postAPIAdminUsersDoesUserExistsR = do
                 [ "status" .= ("ok" :: Text)
                 , "result" .= toJSON True
                 , "data"   .= toJSON user ]
+
+spacesToNbSp :: Text -> Text
+spacesToNbSp = T.replace " " "&nbsp;"
