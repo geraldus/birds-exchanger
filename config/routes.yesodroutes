@@ -71,6 +71,11 @@
 /editor/article/add                  EditorArticleAddR                 GET
 /editor/article/update/#ArticleId    EditorArticleUpdateR              GET
 
+-- ADMINS
+/admin/users/list                    AdminUsersListR                   GET
+/admin/users/create                  AdminUsersCreateR                 GET POST
+/admin/users/update/#UserId          AdminUsersUpdateR                 GET POST
+
 -- SUPER USERS
 /su/websocket                        SuperUserWebSocketR               GET
 /su/notices                          SUNoticeIndexR                    GET
@@ -89,5 +94,6 @@
 /api/articles/update/#ArticleId  APIArticleUpdateR                     POST
 /api/stocks/get-availability     APIStocksAvailabilityR                GET
 /api/operator/stocks/purchase/cancel APIStocksOperatorCancelPurchaseR      POST
+/api/admin/users/does-exists     APIAdminUsersDoesUserExistsR              POST
 
 /lp/handler/0001                 LPHandler0001R                            POST

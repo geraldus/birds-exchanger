@@ -272,3 +272,44 @@ ReferralBounty json
     walletTransactionReason WalletTransactionReasonId
     deriving Show
 
+ZltWallet json
+    client UserId
+    balance Int
+    paraminingStore Int
+    token Text
+    created UTCTime
+
+ZltDepositProgram json
+    name Text
+    rate Double
+    rateType RateType
+    minDeposit Int
+    maxDeposit Int
+    programTermSeconds Int
+    withdrawalDelaySeconds Int
+
+ZltProgramUpdate json
+    program ZltDepositProgramId
+    oldRate Double
+    oldRateType RateType
+    oldMinDeposit Int
+    oldMaxDeposit Int
+    oldTerm Int
+    oldDelay Int
+    newRate Double
+    newRateType RateType
+    newMinDeposit Int
+    newMaxDeposit Int
+    newTerm Int
+    newDelay Int
+    created UTCTime
+    createdBy UserId
+    date UTCTime 
+
+ClientZltDeposit json
+    program ZltDepositProgramId
+    client UserId
+    amount Int
+    deposited UTCTime
+    endDate UTCTime Maybe
+    lastRecalc UTCTime Maybe
