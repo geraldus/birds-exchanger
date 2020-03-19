@@ -283,6 +283,9 @@ handler h = getAppSettings >>= makeFoundation >>= flip unsafeHandler h
 db :: ReaderT SqlBackend Handler a -> IO a
 db = handler . runDB
 
+migrateHelper_DepositPrograms :: (MonadIO m) => SqlPersistT m ()
+migrateHelper_DepositPrograms = do
+    error "work in progress"
 
 migrateHelper_Stocks :: (MonadIO m) => SqlPersistT m ()
 migrateHelper_Stocks = do
