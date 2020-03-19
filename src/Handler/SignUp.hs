@@ -54,7 +54,6 @@ postSignUpR = do
             let mayError = Nothing :: Maybe Text
             defaultLayout $(widgetFile "auth/signup")
   where
-
     createUniqueLogin :: Text -> Text -> Text -> Handler UserCreateResult
     createUniqueLogin login' pass key = do
         let login = toLower login'

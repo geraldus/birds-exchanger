@@ -1,0 +1,54 @@
+
+$(document).ready(function () {
+    const selfName = `#{rawJS (userIdent user)}`
+    const identInput = $('#user-form-ident')
+    const identFeedback = $('#user-form-ident-feedback')
+
+    function requestAPIDoesUserExists (name) {
+        if (name == selfName) {
+             markIdentValid() 
+        } else {
+            const formData = {
+                username: name
+            }
+            const settings = {
+                url: '/api/admin/users/does-exists',
+                data: formData
+            }
+            $.post(settings).then(function (res) {
+                if (res.status == 'ok') {
+                    if (!res.result) {
+                        markIdentValid()
+                    } else {
+                        markIdentInvalid("Это имя пользователя уже занято")
+                    }
+                }
+            })   
+        }
+    }
+
+    function markIdentValid () {
+        identInput.removeClass('is-invalid')
+        identInput.addClass('is-valid')
+        identFeedback.removeClass('invalid-feedback')
+        identFeedback.text('')
+    }
+    
+    function markIdentInvalid (message) {
+        identInput.removeClass('is-valid')
+        identInput.addClass('is-invalid')
+        identFeedback.removeClass('valid-feedback')
+        identFeedback.addClass('invalid-feedback')
+        identFeedback.text(message)
+    }
+
+    function validate () {
+        const val = identInput.val().trim()
+        if (val.length == 0) {
+            markIdentValid("Неверное имя пользователя" )
+        } else {
+            requestAPIDoesUserExists(val)
+        }
+    }
+    identInput.on('change blur keyup focus', validate)
+})

@@ -312,7 +312,7 @@ instance Yesod App where
         pc <- widgetToPageContent $ do
             case currentRoute of
                 (Just (ArticleViewR a)) -> articleMetasToWidgetHead a
-                _ -> return ()
+                _                       -> return ()
             addStylesheetAttrs
                 (StaticR _3rd_party_fontawesome_css_all_min_css)
                 [("defer", "defer")]
@@ -412,6 +412,9 @@ instance Yesod App where
     isAuthorized ManageInfoIndexR _                  = isEditorAuthenticated
     isAuthorized ManageInfoAddR _                    = isEditorAuthenticated
     isAuthorized ManageInfoUpdateR _                 = isEditorAuthenticated
+    isAuthorized AdminUsersListR _                   = isAdminAuthenticated
+    isAuthorized AdminUsersCreateR _                 = isAdminAuthenticated
+    isAuthorized (AdminUsersUpdateR _) _             = isAdminAuthenticated
     -- SUPER USERS
     isAuthorized SUNoticeIndexR _                    = isSuperUserAuthenticated
     isAuthorized (SUNoticeParaminingUserListR _) _   = isSuperUserAuthenticated
@@ -433,6 +436,7 @@ instance Yesod App where
     isAuthorized (APIArticleUpdateR _) _             = isEditorAuthenticated
     isAuthorized APIStocksOperatorCancelPurchaseR _  =
         authorizeRoles [ Local.Persist.UserRole.SuperUser, Admin, Operator ]
+    isAuthorized APIAdminUsersDoesUserExistsR _      = return Authorized
     isAuthorized LPHandler0001R _                    = return Authorized
 
     -- This function creates static content files in the static folder
@@ -547,7 +551,7 @@ instance YesodBreadcrumbs App where
         --     ("Ордер #" <> (pack . show  .fromSqlKey) oid, Just ClientOrdersR)
         -- breadcrumb' _ _ DepositR    = return ("Внесение средств", Just ProfileR)
         breadcrumb' _ mr (ClientStocksPurchaseDetailsR _) =
-            return (mr MsgPageBreadcrumbTitleStocksDetails, Just StocksR)
+            return (mr MsgBreadcrumbsTitleStocksDetails, Just StocksR)
         -- breadcrumb' _ _ (DepositRequestConfirmationR _) =
         --     return ("Подтверждение", Just DepositR)
         -- breadcrumb' _ _ WithdrawalR = return ("Вывод средств", Just ProfileR)
@@ -559,15 +563,15 @@ instance YesodBreadcrumbs App where
         breadcrumb' _ _ OperatorWithdrawalRequestsListR =
             return ("Заявки на вывод", Just HomeR)
         breadcrumb' _ mr OperatorStocksPurchaseIndexR =
-            return (mr MsgPageBreadcrumbTitleStocksIndex, Nothing)
+            return (mr MsgBreadcrumbsTitleStocksIndex, Nothing)
         breadcrumb' _ mr OperatorStocksPurchaseArchiveR =
-            return ( mr MsgPageBreadcrumbTitleStocksArchive
+            return ( mr MsgBreadcrumbsTitleStocksArchive
                    , Just OperatorStocksPurchaseIndexR)
         breadcrumb' _ mr OperatorStocksPurchaseAcceptedR =
-            return ( mr MsgPageBreadcrumbTitleStocksAccepted
+            return ( mr MsgBreadcrumbsTitleStocksAccepted
                    , Just OperatorStocksPurchaseIndexR)
         breadcrumb' _ mr (OperatorStocksPurchaseDetailsR _) =
-            return ( mr MsgPageBreadcrumbTitleStocksDetails
+            return ( mr MsgBreadcrumbsTitleStocksDetails
                    , Just OperatorStocksPurchaseIndexR )
         breadcrumb' _ mr EditorArticlesIndexR =
             return ( mr MsgBreadcrumbsTitleEditorArticles
@@ -576,9 +580,14 @@ instance YesodBreadcrumbs App where
             return ( mr MsgBreadcrumbsTitleEditorArticleAdd
                    , Just EditorArticlesIndexR )
         breadcrumb' _ mr (EditorArticleUpdateR _) =
-            return (mr MsgBreadcrumbsTitleEditorArticleUpdate
+            return ( mr MsgBreadcrumbsTitleEditorArticleUpdate
                    , Just EditorArticlesIndexR )
-
+        breadcrumb' _ mr AdminUsersListR =
+            return (mr MsgBreadcrumbsTitleAdminUsersIndex, Just HomeR)
+        breadcrumb' _ mr AdminUsersCreateR = return
+            (mr MsgBreadcrumbsTitleAdminUsersCreate, Just AdminUsersListR)
+        breadcrumb' _ mr (AdminUsersUpdateR _) = return
+            (mr MsgBreadcrumbsTitleAdminUsersUpdate, Just AdminUsersListR)
         breadcrumb' _ _ SuperUserFinancialReportViewR =
             return ("Финансовая отчётность", Just HomeR)
         breadcrumb' _ _ AdminLogInR =
@@ -875,6 +884,9 @@ requireOperatorId = requireRolesId True [ Operator ] notFound
 
 requireEditorId :: Handler (Either UserId Text)
 requireEditorId = requireRolesId True [ Editor, Admin ] notFound
+
+requireAdminId :: Handler (Either UserId Text)
+requireAdminId = requireRolesId True [ Admin ] notFound
 
 requireRolesId ::
        Bool

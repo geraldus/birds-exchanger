@@ -1,0 +1,35 @@
+<div .container-fluid>
+    <div .row>
+        <div .col>
+            <h4>
+                Новый пользователь
+    <div .row>
+        <div .col>
+            <form action=@{AdminUsersCreateR} method=post>
+                <div .form-group>
+                    <label for="user-form-ident">Эл.почта
+                    <input #user-form-ident .form-control name="ident" required>
+                    <div #user-form-ident-feedback>
+                <div .form-group>
+                    <label for="users-form-usertype">
+                        Тип пользователя
+                    <select 
+                        #users-form-usertype 
+                        .form-control 
+                        name="usertype" 
+                        required
+                        >
+                        <option value="Client">Клиент
+                        <option value="Editor">Редактор
+                        <option value="Operator">Оператор
+                        <option value="Admin">Администратор
+                <div .form-group>
+                    <label for="user-form-password">Пароль
+                    <input 
+                        #user-form-password 
+                        .form-control 
+                        name="password" 
+                        type=password
+                        required    
+                        >
+                <button .btn .btn-sm>Создать

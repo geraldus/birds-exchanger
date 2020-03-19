@@ -72,7 +72,7 @@ import           Text.Pretty.Simple                            ( pPrint )
 
 -- Import all relevant handler modules here.
 -- Don't forget to add new modules to your cabal file!
-import           Handler.Admin.LogIn
+import           Handler.Admin
 import           Handler.APIs
 import           Handler.Client
 import           Handler.Client.Deposit

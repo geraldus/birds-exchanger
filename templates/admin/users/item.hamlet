@@ -1,0 +1,10 @@
+<tr>
+    <td>
+        #{userIdent u}
+    <td>
+        #{renderUserRole (userRole u)}
+    <td>
+        <a href=@{AdminUsersUpdateR uid}>
+            Редактировать
+    <td>
+        Удалить

@@ -1,0 +1,13 @@
+<div .container-fluid>
+    <div .row>
+        <div .col>
+            <h4>
+                Пользователи платформы
+    <div .row>
+        <div .col>
+            <form action=@{AdminUsersCreateR}>
+                <button .btn .btn-sm>Создать пользователя
+    <div .row>
+        <div .col .pt-3>
+            <small .text-muted>
+                ^{list}

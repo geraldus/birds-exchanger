@@ -1,0 +1,39 @@
+<div .container-fluid>
+    <div .row>
+        <div .col>
+            <h4>
+                Изменение пользователя
+    <div .row>
+        <div .col>
+            <form action=@{AdminUsersUpdateR uid} method=post>
+                <div .form-group>
+                    <label for="user-form-ident">Эл.почта
+                    <input 
+                        #user-form-ident 
+                        .form-control 
+                        name="ident" 
+                        required
+                        value=#{userIdent user}>
+                    <div #user-form-ident-feedback>
+                <div .form-group>
+                    <label for="users-form-usertype">
+                        Тип пользователя
+                    <select 
+                        #users-form-usertype 
+                        .form-control 
+                        name="usertype" 
+                        required
+                        >
+                        <option value="Client" :userRole user == Client:selected>Клиент
+                        <option value="Editor" :userRole user == Editor:selected>Редактор
+                        <option value="Operator" :userRole user == Operator:selected>Оператор
+                        <option value="Admin" :userRole user == Admin:selected>Администратор
+                <div .form-group>
+                    <label for="user-form-password">Пароль
+                    <input 
+                        #user-form-password 
+                        .form-control 
+                        name="password" 
+                        type=password
+                        >
+                <button .btn .btn-sm>Сохранить

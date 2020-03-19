@@ -279,10 +279,10 @@ PageTitleStocksDetailsAbbr stocksAbbr@Text: Подробности покупк�
 PageTitleStocksArchive: Архив операций
 PageTitleStocksAccepted: Проведённые операции
 PageTitleStocksPending: Неподтверждённые заявки
-PageBreadcrumbTitleStocksIndex: Акции
-PageBreadcrumbTitleStocksArchive: Архив операций
-PageBreadcrumbTitleStocksAccepted: Проведённые операций
-PageBreadcrumbTitleStocksDetails: Информация о покупке
+BreadcrumbsTitleStocksIndex: Акции
+BreadcrumbsTitleStocksArchive: Архив операций
+BreadcrumbsTitleStocksAccepted: Проведённые операций
+BreadcrumbsTitleStocksDetails: Информация о покупке
 
 GuideTransferFunds: Переведите средства на указанный адрес
 GuideProvideYourWalletAddress: Укажите адрес Prizm-кошелька, с которого Вы осуществили перевод
@@ -307,6 +307,9 @@ WithdrawalExecuted: Перевод выполнен
 InfoListTitle: Информация
 ArticlesListTitle: Публикации
 BreadcrumbsTitleArticlesList: Публикации
+BreadcrumbsTitleAdminUsersIndex: Управление пользователями
+BreadcrumbsTitleAdminUsersCreate: Создание нового пользователя
+BreadcrumbsTitleAdminUsersUpdate: Редактирование пользоватлея
 Alias: Ссылка
 Title: Заголовок
 ThumbUrl: Обложка (URL-путь изображения)
@@ -348,6 +351,10 @@ WithdrawalFrozenTotal: Удержано средств со счетов
 WithdrawalAcceptedCount: Выполнено операций вывода
 WithdrawalTransferedTotal: Всего переведено пользователям
 WithdrawalFeeTotal: Удержанная комиссия с вывода
+UserRoleClient: Клиент
+UserRoleEditor: Редактор
+UserRoleOperator: Оператор
+UserRoleAdmin: Администратор
 
 # NEWS
 
