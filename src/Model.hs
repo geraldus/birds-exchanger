@@ -12,6 +12,7 @@ module Model where
 import           ClassyPrelude.Yesod
 
 import           Local.Persist.Currency
+import           Local.Persist.DepositProgram
 import           Local.Persist.Exchange
 import           Local.Persist.Notice
 import           Local.Persist.ReferralBounty
@@ -28,7 +29,7 @@ import           Database.Persist.Sql         ( fromSqlKey )
 -- at:
 -- http://www.yesodweb.com/book/persistent/
 share [mkPersist sqlSettings, mkMigrate "migrateAll"]
-    $(persistFileWith lowerCaseSettings "config/models")
+    $(persistFileWith lowerCaseSettings "config/models.persistentmodels")
 
 instance ToJSON (Entity User) where
     toJSON (Entity uid (User ident _ role)) = object

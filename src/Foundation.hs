@@ -99,7 +99,7 @@ data App = App
 -- This function also generates the following type synonyms:
 -- type Handler = HandlerT App IO
 -- type Widget = WidgetT App IO ()
-mkYesodData "App" $(parseRoutesFile "config/routes")
+mkYesodData "App" $(parseRoutesFile "config/routes.yesodroutes")
 
 mkMessage "App" "messages" "ru"
 
